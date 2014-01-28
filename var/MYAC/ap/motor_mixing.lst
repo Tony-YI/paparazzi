@@ -1,0 +1,680 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"motor_mixing.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.motor_mixing_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	motor_mixing_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	motor_mixing_init:
+  25              	.LFB0:
+  26              		.file 1 "subsystems/actuators/motor_mixing.c"
+   1:subsystems/actuators/motor_mixing.c **** /*
+   2:subsystems/actuators/motor_mixing.c ****  * Copyright (C) 2008-2012 The Paparazzi Team
+   3:subsystems/actuators/motor_mixing.c ****  *
+   4:subsystems/actuators/motor_mixing.c ****  * This file is part of Paparazzi.
+   5:subsystems/actuators/motor_mixing.c ****  *
+   6:subsystems/actuators/motor_mixing.c ****  * Paparazzi is free software; you can redistribute it and/or modify
+   7:subsystems/actuators/motor_mixing.c ****  * it under the terms of the GNU General Public License as published by
+   8:subsystems/actuators/motor_mixing.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:subsystems/actuators/motor_mixing.c ****  * any later version.
+  10:subsystems/actuators/motor_mixing.c ****  *
+  11:subsystems/actuators/motor_mixing.c ****  * Paparazzi is distributed in the hope that it will be useful,
+  12:subsystems/actuators/motor_mixing.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:subsystems/actuators/motor_mixing.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:subsystems/actuators/motor_mixing.c ****  * GNU General Public License for more details.
+  15:subsystems/actuators/motor_mixing.c ****  *
+  16:subsystems/actuators/motor_mixing.c ****  * You should have received a copy of the GNU General Public License
+  17:subsystems/actuators/motor_mixing.c ****  * along with Paparazzi; see the file COPYING.  If not, write to
+  18:subsystems/actuators/motor_mixing.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:subsystems/actuators/motor_mixing.c ****  * Boston, MA 02111-1307, USA.
+  20:subsystems/actuators/motor_mixing.c ****  */
+  21:subsystems/actuators/motor_mixing.c **** 
+  22:subsystems/actuators/motor_mixing.c **** /** @file motor_mixing.c
+  23:subsystems/actuators/motor_mixing.c ****  *  Motor Mixing.
+  24:subsystems/actuators/motor_mixing.c ****  *  Handles the mapping of roll/pitch/yaw commands
+  25:subsystems/actuators/motor_mixing.c ****  *  to actual motor commands.
+  26:subsystems/actuators/motor_mixing.c ****  */
+  27:subsystems/actuators/motor_mixing.c **** 
+  28:subsystems/actuators/motor_mixing.c **** #include "subsystems/actuators/motor_mixing.h"
+  29:subsystems/actuators/motor_mixing.c **** #include "paparazzi.h"
+  30:subsystems/actuators/motor_mixing.c **** 
+  31:subsystems/actuators/motor_mixing.c **** //#include <stdint.h>
+  32:subsystems/actuators/motor_mixing.c **** #ifndef INT32_MIN
+  33:subsystems/actuators/motor_mixing.c **** #define INT32_MIN (-2147483647-1)
+  34:subsystems/actuators/motor_mixing.c **** #endif
+  35:subsystems/actuators/motor_mixing.c **** 
+  36:subsystems/actuators/motor_mixing.c **** #ifndef INT32_MAX
+  37:subsystems/actuators/motor_mixing.c **** #define INT32_MAX (2147483647)
+  38:subsystems/actuators/motor_mixing.c **** #endif
+  39:subsystems/actuators/motor_mixing.c **** 
+  40:subsystems/actuators/motor_mixing.c **** #if defined MOTOR_MIXING_MIN_MOTOR || defined MOTOR_MIXING_MAX_MOTOR
+  41:subsystems/actuators/motor_mixing.c **** #error MIN_MOTOR and MAX_MOTOR have to be set via neutral/max of the respective servo
+  42:subsystems/actuators/motor_mixing.c **** #endif
+  43:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MIN_MOTOR 0
+  44:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MAX_MOTOR MAX_PPRZ
+  45:subsystems/actuators/motor_mixing.c **** 
+  46:subsystems/actuators/motor_mixing.c **** #ifndef MOTOR_MIXING_STOP_MOTOR
+  47:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_STOP_MOTOR -MAX_PPRZ
+  48:subsystems/actuators/motor_mixing.c **** #endif
+  49:subsystems/actuators/motor_mixing.c **** 
+  50:subsystems/actuators/motor_mixing.c **** #ifndef MOTOR_MIXING_MAX_SATURATION_OFFSET
+  51:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MAX_SATURATION_OFFSET MAX_PPRZ/3
+  52:subsystems/actuators/motor_mixing.c **** #endif
+  53:subsystems/actuators/motor_mixing.c **** 
+  54:subsystems/actuators/motor_mixing.c **** #ifndef MOTOR_MIXING_MIN_MOTOR_STARTUP
+  55:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MIN_MOTOR_STARTUP MOTOR_MIXING_MIN_MOTOR
+  56:subsystems/actuators/motor_mixing.c **** #endif
+  57:subsystems/actuators/motor_mixing.c **** 
+  58:subsystems/actuators/motor_mixing.c **** #if defined (MOTOR_MIXING_MAX_NEGATIVE_MOTOR_STEP) || defined (MOTOR_MIXING_MAX_POSITIVE_MOTOR_STEP
+  59:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
+  60:subsystems/actuators/motor_mixing.c **** 
+  61:subsystems/actuators/motor_mixing.c **** #ifndef MOTOR_MIXING_MAX_NEGATIVE_MOTOR_STEP
+  62:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MAX_NEGATIVE_MOTOR_STEP INT32_MIN
+  63:subsystems/actuators/motor_mixing.c **** #endif
+  64:subsystems/actuators/motor_mixing.c **** /*
+  65:subsystems/actuators/motor_mixing.c **** #ifndef MOTOR_MIXING_MAX_POSITIVE_MOTOR_STEP
+  66:subsystems/actuators/motor_mixing.c **** #define MOTOR_MIXING_MAX_POSITIVE_MOTOR_STEP INT32_MAX
+  67:subsystems/actuators/motor_mixing.c **** #endif
+  68:subsystems/actuators/motor_mixing.c **** */
+  69:subsystems/actuators/motor_mixing.c **** #endif
+  70:subsystems/actuators/motor_mixing.c **** 
+  71:subsystems/actuators/motor_mixing.c **** static const int32_t roll_coef[MOTOR_MIXING_NB_MOTOR]   = MOTOR_MIXING_ROLL_COEF;
+  72:subsystems/actuators/motor_mixing.c **** static const int32_t pitch_coef[MOTOR_MIXING_NB_MOTOR]  = MOTOR_MIXING_PITCH_COEF;
+  73:subsystems/actuators/motor_mixing.c **** static const int32_t yaw_coef[MOTOR_MIXING_NB_MOTOR]    = MOTOR_MIXING_YAW_COEF;
+  74:subsystems/actuators/motor_mixing.c **** static const int32_t thrust_coef[MOTOR_MIXING_NB_MOTOR] = MOTOR_MIXING_THRUST_COEF;
+  75:subsystems/actuators/motor_mixing.c **** 
+  76:subsystems/actuators/motor_mixing.c **** struct MotorMixing motor_mixing;
+  77:subsystems/actuators/motor_mixing.c **** 
+  78:subsystems/actuators/motor_mixing.c **** void motor_mixing_init(void) {
+  27              		.loc 1 78 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 10B5     		push	{r4, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 4, -8
+  36              		.cfi_offset 14, -4
+  37 0002 084B     		ldr	r3, .L5
+  38              		.loc 1 78 0
+  39 0004 0021     		movs	r1, #0
+  40              	.LVL1:
+  41              	.L2:
+  42              		.loc 1 78 0 is_stmt 0 discriminator 2
+  43 0006 0748     		ldr	r0, .L5
+  79:subsystems/actuators/motor_mixing.c ****   uint8_t i;
+  80:subsystems/actuators/motor_mixing.c ****   for (i=0; i<MOTOR_MIXING_NB_MOTOR; i++) {
+  81:subsystems/actuators/motor_mixing.c ****     motor_mixing.commands[i] = 0;
+  44              		.loc 1 81 0 is_stmt 1 discriminator 2
+  45 0008 0022     		movs	r2, #0
+  78:subsystems/actuators/motor_mixing.c **** void motor_mixing_init(void) {
+  46              		.loc 1 78 0 discriminator 2
+  47 000a 4418     		adds	r4, r0, r1
+  48              		.loc 1 81 0 discriminator 2
+  49 000c 1A60     		str	r2, [r3, #0]
+  82:subsystems/actuators/motor_mixing.c ****     motor_mixing.trim[i] =
+  50              		.loc 1 82 0 discriminator 2
+  51 000e 1A61     		str	r2, [r3, #16]
+  83:subsystems/actuators/motor_mixing.c ****       roll_coef[i]  * MOTOR_MIXING_TRIM_ROLL +
+  84:subsystems/actuators/motor_mixing.c ****       pitch_coef[i] * MOTOR_MIXING_TRIM_PITCH +
+  85:subsystems/actuators/motor_mixing.c ****       yaw_coef[i]   * MOTOR_MIXING_TRIM_YAW;
+  86:subsystems/actuators/motor_mixing.c ****     motor_mixing.override_enabled[i] = FALSE;
+  52              		.loc 1 86 0 discriminator 2
+  53 0010 84F82020 		strb	r2, [r4, #32]
+  87:subsystems/actuators/motor_mixing.c ****     motor_mixing.override_value[i] = MOTOR_MIXING_STOP_MOTOR;
+  54              		.loc 1 87 0 discriminator 2
+  55 0014 044C     		ldr	r4, .L5+4
+  56 0016 0131     		adds	r1, r1, #1
+  57 0018 5C62     		str	r4, [r3, #36]
+  58 001a 0433     		adds	r3, r3, #4
+  80:subsystems/actuators/motor_mixing.c ****   for (i=0; i<MOTOR_MIXING_NB_MOTOR; i++) {
+  59              		.loc 1 80 0 discriminator 2
+  60 001c 0429     		cmp	r1, #4
+  61 001e F2D1     		bne	.L2
+  88:subsystems/actuators/motor_mixing.c ****   }
+  89:subsystems/actuators/motor_mixing.c ****   motor_mixing.nb_failure = 0;
+  62              		.loc 1 89 0
+  63 0020 4263     		str	r2, [r0, #52]
+  64 0022 10BD     		pop	{r4, pc}
+  65              	.L6:
+  66              		.align	2
+  67              	.L5:
+  68 0024 00000000 		.word	.LANCHOR0
+  69 0028 80DAFFFF 		.word	-9600
+  70              		.cfi_endproc
+  71              	.LFE0:
+  73              		.section	.text.motor_mixing_run_spinup,"ax",%progbits
+  74              		.align	1
+  75              		.global	motor_mixing_run_spinup
+  76              		.thumb
+  77              		.thumb_func
+  79              	motor_mixing_run_spinup:
+  80              	.LFB4:
+  90:subsystems/actuators/motor_mixing.c **** }
+  91:subsystems/actuators/motor_mixing.c **** 
+  92:subsystems/actuators/motor_mixing.c **** __attribute__ ((always_inline)) static inline void offset_commands(int32_t offset) {
+  93:subsystems/actuators/motor_mixing.c ****   uint8_t j;
+  94:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+  95:subsystems/actuators/motor_mixing.c ****     motor_mixing.commands[j] += (offset);
+  96:subsystems/actuators/motor_mixing.c **** }
+  97:subsystems/actuators/motor_mixing.c **** 
+  98:subsystems/actuators/motor_mixing.c **** __attribute__ ((always_inline)) static inline void bound_commands(void) {
+  99:subsystems/actuators/motor_mixing.c ****   uint8_t j;
+ 100:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+ 101:subsystems/actuators/motor_mixing.c ****     Bound(motor_mixing.commands[j],
+ 102:subsystems/actuators/motor_mixing.c ****           MOTOR_MIXING_MIN_MOTOR, MOTOR_MIXING_MAX_MOTOR);
+ 103:subsystems/actuators/motor_mixing.c **** }
+ 104:subsystems/actuators/motor_mixing.c **** 
+ 105:subsystems/actuators/motor_mixing.c **** #ifdef MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
+ 106:subsystems/actuators/motor_mixing.c **** __attribute__ ((always_inline)) static inline void bound_commands_step(void) {
+ 107:subsystems/actuators/motor_mixing.c ****   uint8_t j;
+ 108:subsystems/actuators/motor_mixing.c ****   static int32_t prev_commands[MOTOR_MIXING_NB_MOTOR];
+ 109:subsystems/actuators/motor_mixing.c ****   static uint8_t initialized = 0;
+ 110:subsystems/actuators/motor_mixing.c **** 
+ 111:subsystems/actuators/motor_mixing.c ****   if (initialized == 1) {
+ 112:subsystems/actuators/motor_mixing.c ****     for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++) {
+ 113:subsystems/actuators/motor_mixing.c ****       int32_t new_command_diff = motor_mixing.commands[j] - prev_commands[j];
+ 114:subsystems/actuators/motor_mixing.c ****       Bound(new_command_diff,
+ 115:subsystems/actuators/motor_mixing.c ****             MOTOR_MIXING_MAX_NEGATIVE_MOTOR_STEP, MOTOR_MIXING_MAX_POSITIVE_MOTOR_STEP);
+ 116:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[j] = prev_commands[j] + new_command_diff;
+ 117:subsystems/actuators/motor_mixing.c ****     }
+ 118:subsystems/actuators/motor_mixing.c ****   }else{
+ 119:subsystems/actuators/motor_mixing.c ****     initialized = 1;
+ 120:subsystems/actuators/motor_mixing.c ****   }
+ 121:subsystems/actuators/motor_mixing.c **** 
+ 122:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+ 123:subsystems/actuators/motor_mixing.c ****     prev_commands[j] = motor_mixing.commands[j];
+ 124:subsystems/actuators/motor_mixing.c **** }
+ 125:subsystems/actuators/motor_mixing.c **** #else
+ 126:subsystems/actuators/motor_mixing.c **** __attribute__ ((always_inline)) static inline void bound_commands_step(void) {
+ 127:subsystems/actuators/motor_mixing.c **** }
+ 128:subsystems/actuators/motor_mixing.c **** #endif
+ 129:subsystems/actuators/motor_mixing.c **** 
+ 130:subsystems/actuators/motor_mixing.c **** void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
+ 131:subsystems/actuators/motor_mixing.c **** {
+  81              		.loc 1 131 0
+  82              		.cfi_startproc
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+  85              	.LVL2:
+  86 0000 30B5     		push	{r4, r5, lr}
+  87              	.LCFI1:
+  88              		.cfi_def_cfa_offset 12
+  89              		.cfi_offset 4, -12
+  90              		.cfi_offset 5, -8
+  91              		.cfi_offset 14, -4
+  92              		.loc 1 131 0
+  93 0002 0023     		movs	r3, #0
+  94 0004 1A46     		mov	r2, r3
+  95              	.LVL3:
+  96              	.L9:
+ 132:subsystems/actuators/motor_mixing.c ****   int i;
+ 133:subsystems/actuators/motor_mixing.c ****   for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+ 134:subsystems/actuators/motor_mixing.c **** #ifdef MOTOR_MIXING_STARTUP_DELAY
+ 135:subsystems/actuators/motor_mixing.c ****     if (counter > i * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY)) {
+ 136:subsystems/actuators/motor_mixing.c ****       if (counter > MOTOR_MIXING_NB_MOTOR * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STA
+ 137:subsystems/actuators/motor_mixing.c ****         motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP + (MOTOR_MIXING_MIN_MOTOR - MOTOR
+ 138:subsystems/actuators/motor_mixing.c ****       } else {
+ 139:subsystems/actuators/motor_mixing.c ****         motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP;
+ 140:subsystems/actuators/motor_mixing.c ****       }
+ 141:subsystems/actuators/motor_mixing.c ****     } else {
+ 142:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[i] = 0;
+ 143:subsystems/actuators/motor_mixing.c ****     }
+ 144:subsystems/actuators/motor_mixing.c **** #else
+ 145:subsystems/actuators/motor_mixing.c ****     if (counter < i * max_counter / MOTOR_MIXING_NB_MOTOR) {
+  97              		.loc 1 145 0
+  98 0006 B0EB920F 		cmp	r0, r2, lsr #2
+  99 000a 02D2     		bcs	.L8
+ 146:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP;
+ 100              		.loc 1 146 0
+ 101 000c 034C     		ldr	r4, .L11
+ 102 000e 0025     		movs	r5, #0
+ 103 0010 1D51     		str	r5, [r3, r4]
+ 104              	.L8:
+ 105 0012 0433     		adds	r3, r3, #4
+ 133:subsystems/actuators/motor_mixing.c ****   for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+ 106              		.loc 1 133 0
+ 107 0014 102B     		cmp	r3, #16
+ 108 0016 0A44     		add	r2, r2, r1
+ 109 0018 F5D1     		bne	.L9
+ 147:subsystems/actuators/motor_mixing.c ****     }
+ 148:subsystems/actuators/motor_mixing.c **** #endif
+ 149:subsystems/actuators/motor_mixing.c ****   }
+ 150:subsystems/actuators/motor_mixing.c **** }
+ 110              		.loc 1 150 0
+ 111 001a 30BD     		pop	{r4, r5, pc}
+ 112              	.L12:
+ 113              		.align	2
+ 114              	.L11:
+ 115 001c 00000000 		.word	.LANCHOR0
+ 116              		.cfi_endproc
+ 117              	.LFE4:
+ 119              		.section	.text.motor_mixing_run,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	motor_mixing_run
+ 122              		.thumb
+ 123              		.thumb_func
+ 125              	motor_mixing_run:
+ 126              	.LFB5:
+ 151:subsystems/actuators/motor_mixing.c **** 
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 127              		.loc 1 152 0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131              	.LVL4:
+ 132 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 133              	.LCFI2:
+ 134              		.cfi_def_cfa_offset 28
+ 135              		.cfi_offset 4, -28
+ 136              		.cfi_offset 5, -24
+ 137              		.cfi_offset 6, -20
+ 138              		.cfi_offset 7, -16
+ 139              		.cfi_offset 8, -12
+ 140              		.cfi_offset 9, -8
+ 141              		.cfi_offset 14, -4
+ 153:subsystems/actuators/motor_mixing.c ****   uint8_t i;
+ 154:subsystems/actuators/motor_mixing.c ****   if (motors_on) {
+ 142              		.loc 1 154 0
+ 143 0004 38B9     		cbnz	r0, .L14
+ 144              	.LVL5:
+ 155:subsystems/actuators/motor_mixing.c ****     int32_t min_cmd = INT32_MAX;
+ 156:subsystems/actuators/motor_mixing.c ****     int32_t max_cmd = INT32_MIN;
+ 157:subsystems/actuators/motor_mixing.c ****     /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
+ 158:subsystems/actuators/motor_mixing.c ****     for (i=0; i<MOTOR_MIXING_NB_MOTOR; i++) {
+ 159:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR +
+ 160:subsystems/actuators/motor_mixing.c ****         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+ 161:subsystems/actuators/motor_mixing.c ****          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+ 162:subsystems/actuators/motor_mixing.c ****          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+ 163:subsystems/actuators/motor_mixing.c ****          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+ 164:subsystems/actuators/motor_mixing.c ****          motor_mixing.trim[i]) / MOTOR_MIXING_SCALE *
+ 165:subsystems/actuators/motor_mixing.c ****         (MOTOR_MIXING_MAX_MOTOR - MOTOR_MIXING_MIN_MOTOR) / MAX_PPRZ;
+ 166:subsystems/actuators/motor_mixing.c ****       if (motor_mixing.commands[i] < min_cmd)
+ 167:subsystems/actuators/motor_mixing.c ****         min_cmd = motor_mixing.commands[i];
+ 168:subsystems/actuators/motor_mixing.c ****       if (motor_mixing.commands[i] > max_cmd)
+ 169:subsystems/actuators/motor_mixing.c ****         max_cmd = motor_mixing.commands[i];
+ 170:subsystems/actuators/motor_mixing.c ****     }
+ 171:subsystems/actuators/motor_mixing.c **** 
+ 172:subsystems/actuators/motor_mixing.c ****     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR)
+ 173:subsystems/actuators/motor_mixing.c ****       motor_mixing.nb_failure++;
+ 174:subsystems/actuators/motor_mixing.c **** 
+ 175:subsystems/actuators/motor_mixing.c ****     if (min_cmd < MOTOR_MIXING_MIN_MOTOR) {
+ 176:subsystems/actuators/motor_mixing.c ****       int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
+ 177:subsystems/actuators/motor_mixing.c ****       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
+ 178:subsystems/actuators/motor_mixing.c ****       offset_commands(saturation_offset);
+ 179:subsystems/actuators/motor_mixing.c ****     }
+ 180:subsystems/actuators/motor_mixing.c ****     if (max_cmd > MOTOR_MIXING_MAX_MOTOR) {
+ 181:subsystems/actuators/motor_mixing.c ****       int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
+ 182:subsystems/actuators/motor_mixing.c ****       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
+ 183:subsystems/actuators/motor_mixing.c ****       offset_commands(saturation_offset);
+ 184:subsystems/actuators/motor_mixing.c ****     }
+ 185:subsystems/actuators/motor_mixing.c **** 
+ 186:subsystems/actuators/motor_mixing.c ****     /* For testing motor failure */
+ 187:subsystems/actuators/motor_mixing.c ****     if (motors_on && override_on) {
+ 188:subsystems/actuators/motor_mixing.c ****       for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+ 189:subsystems/actuators/motor_mixing.c ****         if (motor_mixing.override_enabled[i])
+ 190:subsystems/actuators/motor_mixing.c ****           motor_mixing.commands[i] = motor_mixing.override_value[i];
+ 191:subsystems/actuators/motor_mixing.c ****       }
+ 192:subsystems/actuators/motor_mixing.c ****     }
+ 193:subsystems/actuators/motor_mixing.c ****     bound_commands();
+ 194:subsystems/actuators/motor_mixing.c ****     bound_commands_step();
+ 195:subsystems/actuators/motor_mixing.c ****   }
+ 196:subsystems/actuators/motor_mixing.c ****   else {
+ 197:subsystems/actuators/motor_mixing.c ****     for (i=0; i<MOTOR_MIXING_NB_MOTOR; i++) {
+ 198:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[i] = MOTOR_MIXING_STOP_MOTOR;
+ 145              		.loc 1 198 0 discriminator 1
+ 146 0006 434B     		ldr	r3, .L40
+ 147 0008 434A     		ldr	r2, .L40+4
+ 148              	.LVL6:
+ 149 000a 1A60     		str	r2, [r3, #0]
+ 150              	.LVL7:
+ 151 000c 5A60     		str	r2, [r3, #4]
+ 152              	.LVL8:
+ 153 000e 9A60     		str	r2, [r3, #8]
+ 154              	.LVL9:
+ 155 0010 DA60     		str	r2, [r3, #12]
+ 156              	.LVL10:
+ 157 0012 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 158              	.LVL11:
+ 159              	.L14:
+ 160              	.LBB13:
+ 160:subsystems/actuators/motor_mixing.c ****         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+ 161              		.loc 1 160 0
+ 162 0016 B2F906C0 		ldrsh	ip, [r2, #6]
+ 161:subsystems/actuators/motor_mixing.c ****          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+ 163              		.loc 1 161 0
+ 164 001a B2F90080 		ldrsh	r8, [r2, #0]
+ 162:subsystems/actuators/motor_mixing.c ****          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+ 165              		.loc 1 162 0
+ 166 001e B2F90270 		ldrsh	r7, [r2, #2]
+ 163:subsystems/actuators/motor_mixing.c ****          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+ 167              		.loc 1 163 0
+ 168 0022 B2F90490 		ldrsh	r9, [r2, #4]
+ 169 0026 0023     		movs	r3, #0
+ 170 0028 4FF00042 		mov	r2, #-2147483648
+ 171              	.LVL12:
+ 172 002c 6FF00040 		mvn	r0, #-2147483648
+ 173              	.LVL13:
+ 174              	.L16:
+ 160:subsystems/actuators/motor_mixing.c ****         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+ 175              		.loc 1 160 0
+ 176 0030 3A4C     		ldr	r4, .L40+8
+ 161:subsystems/actuators/motor_mixing.c ****          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+ 177              		.loc 1 161 0
+ 178 0032 3B4D     		ldr	r5, .L40+12
+ 160:subsystems/actuators/motor_mixing.c ****         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+ 179              		.loc 1 160 0
+ 180 0034 1E59     		ldr	r6, [r3, r4]
+ 161:subsystems/actuators/motor_mixing.c ****          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+ 181              		.loc 1 161 0
+ 182 0036 5C59     		ldr	r4, [r3, r5]
+ 183 0038 04FB08F5 		mul	r5, r4, r8
+ 162:subsystems/actuators/motor_mixing.c ****          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+ 184              		.loc 1 162 0
+ 185 003c 394C     		ldr	r4, .L40+16
+ 160:subsystems/actuators/motor_mixing.c ****         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+ 186              		.loc 1 160 0
+ 187 003e 06FB0C56 		mla	r6, r6, ip, r5
+ 162:subsystems/actuators/motor_mixing.c ****          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+ 188              		.loc 1 162 0
+ 189 0042 1D59     		ldr	r5, [r3, r4]
+ 163:subsystems/actuators/motor_mixing.c ****          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+ 190              		.loc 1 163 0
+ 191 0044 384C     		ldr	r4, .L40+20
+ 161:subsystems/actuators/motor_mixing.c ****          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+ 192              		.loc 1 161 0
+ 193 0046 05FB0766 		mla	r6, r5, r7, r6
+ 163:subsystems/actuators/motor_mixing.c ****          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+ 194              		.loc 1 163 0
+ 195 004a 1D59     		ldr	r5, [r3, r4]
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 196              		.loc 1 152 0
+ 197 004c 314C     		ldr	r4, .L40
+ 162:subsystems/actuators/motor_mixing.c ****          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+ 198              		.loc 1 162 0
+ 199 004e 05FB0965 		mla	r5, r5, r9, r6
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 200              		.loc 1 152 0
+ 201 0052 E618     		adds	r6, r4, r3
+ 163:subsystems/actuators/motor_mixing.c ****          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+ 202              		.loc 1 163 0
+ 203 0054 3669     		ldr	r6, [r6, #16]
+ 204 0056 AD19     		adds	r5, r5, r6
+ 159:subsystems/actuators/motor_mixing.c ****       motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR +
+ 205              		.loc 1 159 0
+ 206 0058 4FF48076 		mov	r6, #256
+ 207 005c 95FBF6F5 		sdiv	r5, r5, r6
+ 208 0060 1D51     		str	r5, [r3, r4]
+ 209 0062 0433     		adds	r3, r3, #4
+ 210 0064 A842     		cmp	r0, r5
+ 211 0066 A8BF     		it	ge
+ 212 0068 2846     		movge	r0, r5
+ 213              	.LVL14:
+ 214 006a AA42     		cmp	r2, r5
+ 215 006c B8BF     		it	lt
+ 216 006e 2A46     		movlt	r2, r5
+ 217              	.LVL15:
+ 158:subsystems/actuators/motor_mixing.c ****     for (i=0; i<MOTOR_MIXING_NB_MOTOR; i++) {
+ 218              		.loc 1 158 0
+ 219 0070 102B     		cmp	r3, #16
+ 220 0072 DDD1     		bne	.L16
+ 172:subsystems/actuators/motor_mixing.c ****     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR)
+ 221              		.loc 1 172 0
+ 222 0074 0028     		cmp	r0, #0
+ 223 0076 03DB     		blt	.L17
+ 224              	.LVL16:
+ 225              	.L22:
+ 180:subsystems/actuators/motor_mixing.c ****     if (max_cmd > MOTOR_MIXING_MAX_MOTOR) {
+ 226              		.loc 1 180 0
+ 227 0078 B2F5165F 		cmp	r2, #9600
+ 228 007c 07DC     		bgt	.L18
+ 229 007e 15E0     		b	.L19
+ 230              	.LVL17:
+ 231              	.L17:
+ 172:subsystems/actuators/motor_mixing.c ****     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR)
+ 232              		.loc 1 172 0 discriminator 1
+ 233 0080 B2F5165F 		cmp	r2, #9600
+ 234 0084 35DD     		ble	.L20
+ 173:subsystems/actuators/motor_mixing.c ****       motor_mixing.nb_failure++;
+ 235              		.loc 1 173 0
+ 236 0086 656B     		ldr	r5, [r4, #52]
+ 237 0088 6B1C     		adds	r3, r5, #1
+ 238 008a 6363     		str	r3, [r4, #52]
+ 239 008c 31E0     		b	.L20
+ 240              	.LVL18:
+ 241              	.L18:
+ 242 008e 2748     		ldr	r0, .L40+24
+ 243              	.LBB14:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 244              		.loc 1 152 0
+ 245 0090 274B     		ldr	r3, .L40+28
+ 181:subsystems/actuators/motor_mixing.c ****       int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
+ 246              		.loc 1 181 0
+ 247 0092 C2F51652 		rsb	r2, r2, #9600
+ 248              	.LVL19:
+ 249 0096 8242     		cmp	r2, r0
+ 250 0098 B8BF     		it	lt
+ 251 009a 0246     		movlt	r2, r0
+ 252              	.LVL20:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 253              		.loc 1 152 0
+ 254 009c 03F11004 		add	r4, r3, #16
+ 255              	.LVL21:
+ 256              	.L25:
+ 257              	.LBB15:
+ 258              	.LBB16:
+  95:subsystems/actuators/motor_mixing.c ****     motor_mixing.commands[j] += (offset);
+ 259              		.loc 1 95 0
+ 260 00a0 5868     		ldr	r0, [r3, #4]
+ 261 00a2 1018     		adds	r0, r2, r0
+ 262 00a4 43F8040F 		str	r0, [r3, #4]!
+  94:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+ 263              		.loc 1 94 0
+ 264 00a8 A342     		cmp	r3, r4
+ 265 00aa F9D1     		bne	.L25
+ 266              	.LVL22:
+ 267              	.L19:
+ 268              	.LBE16:
+ 269              	.LBE15:
+ 270              	.LBE14:
+ 187:subsystems/actuators/motor_mixing.c ****     if (motors_on && override_on) {
+ 271              		.loc 1 187 0
+ 272 00ac 69B1     		cbz	r1, .L24
+ 273              	.L30:
+ 274 00ae 0023     		movs	r3, #0
+ 275              	.LVL23:
+ 276              	.L23:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 277              		.loc 1 152 0
+ 278 00b0 184A     		ldr	r2, .L40
+ 279 00b2 D118     		adds	r1, r2, r3
+ 189:subsystems/actuators/motor_mixing.c ****         if (motor_mixing.override_enabled[i])
+ 280              		.loc 1 189 0
+ 281 00b4 91F82000 		ldrb	r0, [r1, #32]	@ zero_extendqisi2
+ 282 00b8 20B1     		cbz	r0, .L27
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 283              		.loc 1 152 0
+ 284 00ba 02EB8301 		add	r1, r2, r3, lsl #2
+ 190:subsystems/actuators/motor_mixing.c ****           motor_mixing.commands[i] = motor_mixing.override_value[i];
+ 285              		.loc 1 190 0
+ 286 00be 486A     		ldr	r0, [r1, #36]
+ 287 00c0 42F82300 		str	r0, [r2, r3, lsl #2]
+ 288              	.L27:
+ 289 00c4 0133     		adds	r3, r3, #1
+ 188:subsystems/actuators/motor_mixing.c ****       for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+ 290              		.loc 1 188 0
+ 291 00c6 042B     		cmp	r3, #4
+ 292 00c8 F2D1     		bne	.L23
+ 293              	.L24:
+ 294              	.LVL24:
+ 295 00ca 1248     		ldr	r0, .L40
+ 296              	.LBB19:
+ 297              	.LBB18:
+ 298              	.LBB17:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 299              		.loc 1 152 0
+ 300 00cc 00F11001 		add	r1, r0, #16
+ 301              	.LVL25:
+ 302              	.L26:
+ 303              	.LBE17:
+ 304              	.LBE18:
+ 305              	.LBE19:
+ 306              	.LBB20:
+ 307              	.LBB21:
+ 101:subsystems/actuators/motor_mixing.c ****     Bound(motor_mixing.commands[j],
+ 308              		.loc 1 101 0
+ 309 00d0 50F8042B 		ldr	r2, [r0], #4
+ 310 00d4 B2F5165F 		cmp	r2, #9600
+ 311 00d8 02DD     		ble	.L28
+ 312 00da 4FF41653 		mov	r3, #9600
+ 313 00de 02E0     		b	.L39
+ 314              	.L28:
+ 315 00e0 002A     		cmp	r2, #0
+ 316 00e2 02DA     		bge	.L29
+ 317 00e4 0023     		movs	r3, #0
+ 318              	.L39:
+ 319 00e6 40F8043C 		str	r3, [r0, #-4]
+ 320              	.L29:
+ 100:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+ 321              		.loc 1 100 0
+ 322 00ea 8842     		cmp	r0, r1
+ 323 00ec F0D1     		bne	.L26
+ 324 00ee BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 325              	.LVL26:
+ 326              	.L20:
+ 327              	.LBE21:
+ 328              	.LBE20:
+ 329              	.LBB22:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 330              		.loc 1 152 0
+ 331 00f2 0F4B     		ldr	r3, .L40+28
+ 176:subsystems/actuators/motor_mixing.c ****       int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
+ 332              		.loc 1 176 0
+ 333 00f4 4042     		negs	r0, r0
+ 334              	.LVL27:
+ 335 00f6 B0F5486F 		cmp	r0, #3200
+ 336 00fa A8BF     		it	ge
+ 337 00fc 4FF44860 		movge	r0, #3200
+ 338              	.LVL28:
+ 152:subsystems/actuators/motor_mixing.c **** void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
+ 339              		.loc 1 152 0
+ 340 0100 03F11005 		add	r5, r3, #16
+ 341              	.LVL29:
+ 342              	.L21:
+ 343              	.LBB23:
+ 344              	.LBB24:
+  95:subsystems/actuators/motor_mixing.c ****     motor_mixing.commands[j] += (offset);
+ 345              		.loc 1 95 0
+ 346 0104 5C68     		ldr	r4, [r3, #4]
+ 347 0106 0419     		adds	r4, r0, r4
+ 348 0108 43F8044F 		str	r4, [r3, #4]!
+  94:subsystems/actuators/motor_mixing.c ****   for (j=0; j<MOTOR_MIXING_NB_MOTOR; j++)
+ 349              		.loc 1 94 0
+ 350 010c AB42     		cmp	r3, r5
+ 351 010e F9D1     		bne	.L21
+ 352 0110 B2E7     		b	.L22
+ 353              	.L41:
+ 354 0112 00BF     		.align	2
+ 355              	.L40:
+ 356 0114 00000000 		.word	.LANCHOR0
+ 357 0118 80DAFFFF 		.word	-9600
+ 358 011c 00000000 		.word	.LANCHOR1
+ 359 0120 00000000 		.word	.LANCHOR2
+ 360 0124 00000000 		.word	.LANCHOR3
+ 361 0128 00000000 		.word	.LANCHOR4
+ 362 012c 80F3FFFF 		.word	-3200
+ 363 0130 FCFFFFFF 		.word	.LANCHOR0-4
+ 364              	.LBE24:
+ 365              	.LBE23:
+ 366              	.LBE22:
+ 367              	.LBE13:
+ 368              		.cfi_endproc
+ 369              	.LFE5:
+ 371              		.global	motor_mixing
+ 372              		.section	.rodata.yaw_coef,"a",%progbits
+ 373              		.align	2
+ 374              		.set	.LANCHOR4,. + 0
+ 377              	yaw_coef:
+ 378 0000 00FFFFFF 		.word	-256
+ 379 0004 00010000 		.word	256
+ 380 0008 00FFFFFF 		.word	-256
+ 381 000c 00010000 		.word	256
+ 382              		.section	.rodata.thrust_coef,"a",%progbits
+ 383              		.align	2
+ 384              		.set	.LANCHOR1,. + 0
+ 387              	thrust_coef:
+ 388 0000 00010000 		.word	256
+ 389 0004 00010000 		.word	256
+ 390 0008 00010000 		.word	256
+ 391 000c 00010000 		.word	256
+ 392              		.section	.rodata.pitch_coef,"a",%progbits
+ 393              		.align	2
+ 394              		.set	.LANCHOR3,. + 0
+ 397              	pitch_coef:
+ 398 0000 00010000 		.word	256
+ 399 0004 00FFFFFF 		.word	-256
+ 400 0008 00FFFFFF 		.word	-256
+ 401 000c 00010000 		.word	256
+ 402              		.section	.bss.motor_mixing,"aw",%nobits
+ 403              		.align	2
+ 404              		.set	.LANCHOR0,. + 0
+ 407              	motor_mixing:
+ 408 0000 00000000 		.space	56
+ 408      00000000 
+ 408      00000000 
+ 408      00000000 
+ 408      00000000 
+ 409              		.section	.rodata.roll_coef,"a",%progbits
+ 410              		.align	2
+ 411              		.set	.LANCHOR2,. + 0
+ 414              	roll_coef:
+ 415 0000 00FFFFFF 		.word	-256
+ 416 0004 00FFFFFF 		.word	-256
+ 417 0008 00010000 		.word	256
+ 418 000c 00010000 		.word	256
+ 419              		.text
+ 420              	.Letext0:
+ 421              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 422              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 423              		.file 4 "./paparazzi.h"
+ 424              		.file 5 "./subsystems/actuators/motor_mixing.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 motor_mixing.c
+/var/tmp//ccFKorsw.s:19     .text.motor_mixing_init:0000000000000000 $t
+/var/tmp//ccFKorsw.s:24     .text.motor_mixing_init:0000000000000000 motor_mixing_init
+/var/tmp//ccFKorsw.s:68     .text.motor_mixing_init:0000000000000024 $d
+/var/tmp//ccFKorsw.s:74     .text.motor_mixing_run_spinup:0000000000000000 $t
+/var/tmp//ccFKorsw.s:79     .text.motor_mixing_run_spinup:0000000000000000 motor_mixing_run_spinup
+/var/tmp//ccFKorsw.s:115    .text.motor_mixing_run_spinup:000000000000001c $d
+/var/tmp//ccFKorsw.s:120    .text.motor_mixing_run:0000000000000000 $t
+/var/tmp//ccFKorsw.s:125    .text.motor_mixing_run:0000000000000000 motor_mixing_run
+/var/tmp//ccFKorsw.s:356    .text.motor_mixing_run:0000000000000114 $d
+/var/tmp//ccFKorsw.s:407    .bss.motor_mixing:0000000000000000 motor_mixing
+/var/tmp//ccFKorsw.s:373    .rodata.yaw_coef:0000000000000000 $d
+/var/tmp//ccFKorsw.s:377    .rodata.yaw_coef:0000000000000000 yaw_coef
+/var/tmp//ccFKorsw.s:383    .rodata.thrust_coef:0000000000000000 $d
+/var/tmp//ccFKorsw.s:387    .rodata.thrust_coef:0000000000000000 thrust_coef
+/var/tmp//ccFKorsw.s:393    .rodata.pitch_coef:0000000000000000 $d
+/var/tmp//ccFKorsw.s:397    .rodata.pitch_coef:0000000000000000 pitch_coef
+/var/tmp//ccFKorsw.s:403    .bss.motor_mixing:0000000000000000 $d
+/var/tmp//ccFKorsw.s:410    .rodata.roll_coef:0000000000000000 $d
+/var/tmp//ccFKorsw.s:414    .rodata.roll_coef:0000000000000000 roll_coef
+                     .debug_frame:0000000000000010 $d
+
+NO UNDEFINED SYMBOLS

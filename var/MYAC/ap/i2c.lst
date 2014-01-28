@@ -1,0 +1,355 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"i2c.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.i2c2_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	i2c2_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	i2c2_init:
+  25              	.LFB0:
+  26              		.file 1 "mcu_periph/i2c.c"
+   1:mcu_periph/i2c.c **** /*
+   2:mcu_periph/i2c.c ****  * Copyright (C) 2010-2012 The Paparazzi Team
+   3:mcu_periph/i2c.c ****  *
+   4:mcu_periph/i2c.c ****  * This file is part of paparazzi.
+   5:mcu_periph/i2c.c ****  *
+   6:mcu_periph/i2c.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:mcu_periph/i2c.c ****  * it under the terms of the GNU General Public License as published by
+   8:mcu_periph/i2c.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:mcu_periph/i2c.c ****  * any later version.
+  10:mcu_periph/i2c.c ****  *
+  11:mcu_periph/i2c.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:mcu_periph/i2c.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:mcu_periph/i2c.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:mcu_periph/i2c.c ****  * GNU General Public License for more details.
+  15:mcu_periph/i2c.c ****  *
+  16:mcu_periph/i2c.c ****  * You should have received a copy of the GNU General Public License
+  17:mcu_periph/i2c.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:mcu_periph/i2c.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:mcu_periph/i2c.c ****  * Boston, MA 02111-1307, USA.
+  20:mcu_periph/i2c.c ****  *
+  21:mcu_periph/i2c.c ****  */
+  22:mcu_periph/i2c.c **** 
+  23:mcu_periph/i2c.c **** /**
+  24:mcu_periph/i2c.c ****  * @file mcu_periph/i2c.c
+  25:mcu_periph/i2c.c ****  * Architecture independent I2C (Inter-Integrated Circuit Bus) API.
+  26:mcu_periph/i2c.c ****  */
+  27:mcu_periph/i2c.c **** 
+  28:mcu_periph/i2c.c **** #include "mcu_periph/i2c.h"
+  29:mcu_periph/i2c.c **** 
+  30:mcu_periph/i2c.c **** #ifdef USE_I2C0
+  31:mcu_periph/i2c.c **** 
+  32:mcu_periph/i2c.c **** struct i2c_periph i2c0;
+  33:mcu_periph/i2c.c **** 
+  34:mcu_periph/i2c.c **** void i2c0_init(void) {
+  35:mcu_periph/i2c.c ****   i2c_init(&i2c0);
+  36:mcu_periph/i2c.c ****   i2c0_hw_init();
+  37:mcu_periph/i2c.c **** }
+  38:mcu_periph/i2c.c **** 
+  39:mcu_periph/i2c.c **** #endif /* USE_I2C0 */
+  40:mcu_periph/i2c.c **** 
+  41:mcu_periph/i2c.c **** 
+  42:mcu_periph/i2c.c **** #ifdef USE_I2C1
+  43:mcu_periph/i2c.c **** 
+  44:mcu_periph/i2c.c **** struct i2c_periph i2c1;
+  45:mcu_periph/i2c.c **** 
+  46:mcu_periph/i2c.c **** void i2c1_init(void) {
+  47:mcu_periph/i2c.c ****   i2c_init(&i2c1);
+  48:mcu_periph/i2c.c ****   i2c1_hw_init();
+  49:mcu_periph/i2c.c **** }
+  50:mcu_periph/i2c.c **** 
+  51:mcu_periph/i2c.c **** #endif /* USE_I2C1 */
+  52:mcu_periph/i2c.c **** 
+  53:mcu_periph/i2c.c **** 
+  54:mcu_periph/i2c.c **** #ifdef USE_I2C2
+  55:mcu_periph/i2c.c **** 
+  56:mcu_periph/i2c.c **** struct i2c_periph i2c2;
+  57:mcu_periph/i2c.c **** 
+  58:mcu_periph/i2c.c **** void i2c2_init(void) {
+  27              		.loc 1 58 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  33              	.LBB4:
+  34              	.LBB5:
+  59:mcu_periph/i2c.c ****   i2c_init(&i2c2);
+  60:mcu_periph/i2c.c ****   i2c2_hw_init();
+  61:mcu_periph/i2c.c **** }
+  62:mcu_periph/i2c.c **** 
+  63:mcu_periph/i2c.c **** #endif /* USE_I2C2 */
+  64:mcu_periph/i2c.c **** 
+  65:mcu_periph/i2c.c **** 
+  66:mcu_periph/i2c.c **** #ifdef USE_I2C3
+  67:mcu_periph/i2c.c **** 
+  68:mcu_periph/i2c.c **** struct i2c_periph i2c3;
+  69:mcu_periph/i2c.c **** 
+  70:mcu_periph/i2c.c **** void i2c3_init(void) {
+  71:mcu_periph/i2c.c ****   i2c_init(&i2c3);
+  72:mcu_periph/i2c.c ****   i2c3_hw_init();
+  73:mcu_periph/i2c.c **** }
+  74:mcu_periph/i2c.c **** 
+  75:mcu_periph/i2c.c **** #endif /* USE_I2C2 */
+  76:mcu_periph/i2c.c **** 
+  77:mcu_periph/i2c.c **** 
+  78:mcu_periph/i2c.c **** void i2c_init(struct i2c_periph* p) {
+  79:mcu_periph/i2c.c ****   p->trans_insert_idx = 0;
+  35              		.loc 1 79 0
+  36 0000 044B     		ldr	r3, .L2
+  37 0002 0022     		movs	r2, #0
+  38 0004 83F82020 		strb	r2, [r3, #32]
+  80:mcu_periph/i2c.c ****   p->trans_extract_idx = 0;
+  39              		.loc 1 80 0
+  40 0008 83F82120 		strb	r2, [r3, #33]
+  81:mcu_periph/i2c.c ****   p->status = I2CIdle;
+  41              		.loc 1 81 0
+  42 000c 83F82220 		strb	r2, [r3, #34]
+  43              	.LBE5:
+  44              	.LBE4:
+  61:mcu_periph/i2c.c **** }
+  45              		.loc 1 61 0
+  60:mcu_periph/i2c.c ****   i2c2_hw_init();
+  46              		.loc 1 60 0
+  47 0010 FFF7FEBF 		b	i2c2_hw_init
+  48              	.LVL1:
+  49              	.L3:
+  50              		.align	2
+  51              	.L2:
+  52 0014 00000000 		.word	.LANCHOR0
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56              		.section	.text.i2c_init,"ax",%progbits
+  57              		.align	1
+  58              		.global	i2c_init
+  59              		.thumb
+  60              		.thumb_func
+  62              	i2c_init:
+  63              	.LFB1:
+  78:mcu_periph/i2c.c **** void i2c_init(struct i2c_periph* p) {
+  64              		.loc 1 78 0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68              		@ link register save eliminated.
+  69              	.LVL2:
+  79:mcu_periph/i2c.c ****   p->trans_insert_idx = 0;
+  70              		.loc 1 79 0
+  71 0000 0023     		movs	r3, #0
+  72 0002 80F82030 		strb	r3, [r0, #32]
+  80:mcu_periph/i2c.c ****   p->trans_extract_idx = 0;
+  73              		.loc 1 80 0
+  74 0006 80F82130 		strb	r3, [r0, #33]
+  75              		.loc 1 81 0
+  76 000a 80F82230 		strb	r3, [r0, #34]
+  77 000e 7047     		bx	lr
+  78              		.cfi_endproc
+  79              	.LFE1:
+  81              		.section	.text.i2c_transmit,"ax",%progbits
+  82              		.align	1
+  83              		.global	i2c_transmit
+  84              		.thumb
+  85              		.thumb_func
+  87              	i2c_transmit:
+  88              	.LFB2:
+  82:mcu_periph/i2c.c **** }
+  83:mcu_periph/i2c.c **** 
+  84:mcu_periph/i2c.c **** 
+  85:mcu_periph/i2c.c **** bool_t i2c_transmit(struct i2c_periph* p, struct i2c_transaction* t,
+  86:mcu_periph/i2c.c ****                   uint8_t s_addr, uint8_t len)
+  87:mcu_periph/i2c.c **** {
+  89              		.loc 1 87 0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  93              	.LVL3:
+  94 0000 30B5     		push	{r4, r5, lr}
+  95              	.LCFI0:
+  96              		.cfi_def_cfa_offset 12
+  97              		.cfi_offset 4, -12
+  98              		.cfi_offset 5, -8
+  99              		.cfi_offset 14, -4
+  88:mcu_periph/i2c.c ****   t->type = I2CTransTx;
+ 100              		.loc 1 88 0
+ 101 0002 0025     		movs	r5, #0
+  87:mcu_periph/i2c.c **** {
+ 102              		.loc 1 87 0
+ 103 0004 0C46     		mov	r4, r1
+ 104              		.loc 1 88 0
+ 105 0006 0D70     		strb	r5, [r1, #0]
+  89:mcu_periph/i2c.c ****   t->slave_addr = s_addr;
+ 106              		.loc 1 89 0
+ 107 0008 4A70     		strb	r2, [r1, #1]
+  90:mcu_periph/i2c.c ****   t->len_w = len;
+ 108              		.loc 1 90 0
+ 109 000a 0B71     		strb	r3, [r1, #4]
+  91:mcu_periph/i2c.c ****   t->len_r = 0;
+ 110              		.loc 1 91 0
+ 111 000c 4D80     		strh	r5, [r1, #2]	@ movhi
+  92:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+  93:mcu_periph/i2c.c **** }
+ 112              		.loc 1 93 0
+ 113 000e BDE83040 		pop	{r4, r5, lr}
+  92:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+ 114              		.loc 1 92 0
+ 115 0012 FFF7FEBF 		b	i2c_submit
+ 116              	.LVL4:
+ 117              		.cfi_endproc
+ 118              	.LFE2:
+ 120              		.section	.text.i2c_receive,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	i2c_receive
+ 123              		.thumb
+ 124              		.thumb_func
+ 126              	i2c_receive:
+ 127              	.LFB3:
+  94:mcu_periph/i2c.c **** 
+  95:mcu_periph/i2c.c **** bool_t i2c_receive(struct i2c_periph* p, struct i2c_transaction* t,
+  96:mcu_periph/i2c.c ****                  uint8_t s_addr, uint16_t len)
+  97:mcu_periph/i2c.c **** {
+ 128              		.loc 1 97 0
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 0
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+ 132              	.LVL5:
+ 133 0000 30B5     		push	{r4, r5, lr}
+ 134              	.LCFI1:
+ 135              		.cfi_def_cfa_offset 12
+ 136              		.cfi_offset 4, -12
+ 137              		.cfi_offset 5, -8
+ 138              		.cfi_offset 14, -4
+  98:mcu_periph/i2c.c ****   t->type = I2CTransRx;
+  99:mcu_periph/i2c.c ****   t->slave_addr = s_addr;
+ 139              		.loc 1 99 0
+ 140 0002 4A70     		strb	r2, [r1, #1]
+  98:mcu_periph/i2c.c ****   t->type = I2CTransRx;
+ 141              		.loc 1 98 0
+ 142 0004 0125     		movs	r5, #1
+ 100:mcu_periph/i2c.c ****   t->len_w = 0;
+ 143              		.loc 1 100 0
+ 144 0006 0022     		movs	r2, #0
+ 145              	.LVL6:
+  97:mcu_periph/i2c.c **** {
+ 146              		.loc 1 97 0
+ 147 0008 0C46     		mov	r4, r1
+  98:mcu_periph/i2c.c ****   t->type = I2CTransRx;
+ 148              		.loc 1 98 0
+ 149 000a 0D70     		strb	r5, [r1, #0]
+ 150              		.loc 1 100 0
+ 151 000c 0A71     		strb	r2, [r1, #4]
+ 101:mcu_periph/i2c.c ****   t->len_r = len;
+ 152              		.loc 1 101 0
+ 153 000e 4B80     		strh	r3, [r1, #2]	@ movhi
+ 102:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+ 103:mcu_periph/i2c.c **** }
+ 154              		.loc 1 103 0
+ 155 0010 BDE83040 		pop	{r4, r5, lr}
+ 102:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+ 156              		.loc 1 102 0
+ 157 0014 FFF7FEBF 		b	i2c_submit
+ 158              	.LVL7:
+ 159              		.cfi_endproc
+ 160              	.LFE3:
+ 162              		.section	.text.i2c_transceive,"ax",%progbits
+ 163              		.align	1
+ 164              		.global	i2c_transceive
+ 165              		.thumb
+ 166              		.thumb_func
+ 168              	i2c_transceive:
+ 169              	.LFB4:
+ 104:mcu_periph/i2c.c **** 
+ 105:mcu_periph/i2c.c **** bool_t i2c_transceive(struct i2c_periph* p, struct i2c_transaction* t,
+ 106:mcu_periph/i2c.c ****                     uint8_t s_addr, uint8_t len_w, uint16_t len_r)
+ 107:mcu_periph/i2c.c **** {
+ 170              		.loc 1 107 0
+ 171              		.cfi_startproc
+ 172              		@ args = 4, pretend = 0, frame = 0
+ 173              		@ frame_needed = 0, uses_anonymous_args = 0
+ 174              	.LVL8:
+ 175 0000 70B5     		push	{r4, r5, r6, lr}
+ 176              	.LCFI2:
+ 177              		.cfi_def_cfa_offset 16
+ 178              		.cfi_offset 4, -16
+ 179              		.cfi_offset 5, -12
+ 180              		.cfi_offset 6, -8
+ 181              		.cfi_offset 14, -4
+ 182              		.loc 1 107 0
+ 183 0002 BDF81050 		ldrh	r5, [sp, #16]
+ 108:mcu_periph/i2c.c ****   t->type = I2CTransTxRx;
+ 184              		.loc 1 108 0
+ 185 0006 0226     		movs	r6, #2
+ 107:mcu_periph/i2c.c **** {
+ 186              		.loc 1 107 0
+ 187 0008 0C46     		mov	r4, r1
+ 188              		.loc 1 108 0
+ 189 000a 0E70     		strb	r6, [r1, #0]
+ 109:mcu_periph/i2c.c ****   t->slave_addr = s_addr;
+ 190              		.loc 1 109 0
+ 191 000c 4A70     		strb	r2, [r1, #1]
+ 110:mcu_periph/i2c.c ****   t->len_w = len_w;
+ 192              		.loc 1 110 0
+ 193 000e 0B71     		strb	r3, [r1, #4]
+ 111:mcu_periph/i2c.c ****   t->len_r = len_r;
+ 194              		.loc 1 111 0
+ 195 0010 4D80     		strh	r5, [r1, #2]	@ movhi
+ 112:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+ 113:mcu_periph/i2c.c **** }
+ 196              		.loc 1 113 0
+ 197 0012 BDE87040 		pop	{r4, r5, r6, lr}
+ 112:mcu_periph/i2c.c ****   return i2c_submit(p, t);
+ 198              		.loc 1 112 0
+ 199 0016 FFF7FEBF 		b	i2c_submit
+ 200              	.LVL9:
+ 201              		.cfi_endproc
+ 202              	.LFE4:
+ 204              		.global	i2c2
+ 205              		.section	.bss.i2c2,"aw",%nobits
+ 206              		.align	2
+ 207              		.set	.LANCHOR0,. + 0
+ 210              	i2c2:
+ 211 0000 00000000 		.space	48
+ 211      00000000 
+ 211      00000000 
+ 211      00000000 
+ 211      00000000 
+ 212              		.text
+ 213              	.Letext0:
+ 214              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 215              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 216              		.file 4 "./mcu_periph/i2c.h"
+ 217              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_periph/i2c_arch.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 i2c.c
+/var/tmp//cc3mnfcz.s:19     .text.i2c2_init:0000000000000000 $t
+/var/tmp//cc3mnfcz.s:24     .text.i2c2_init:0000000000000000 i2c2_init
+/var/tmp//cc3mnfcz.s:52     .text.i2c2_init:0000000000000014 $d
+/var/tmp//cc3mnfcz.s:57     .text.i2c_init:0000000000000000 $t
+/var/tmp//cc3mnfcz.s:62     .text.i2c_init:0000000000000000 i2c_init
+/var/tmp//cc3mnfcz.s:82     .text.i2c_transmit:0000000000000000 $t
+/var/tmp//cc3mnfcz.s:87     .text.i2c_transmit:0000000000000000 i2c_transmit
+/var/tmp//cc3mnfcz.s:121    .text.i2c_receive:0000000000000000 $t
+/var/tmp//cc3mnfcz.s:126    .text.i2c_receive:0000000000000000 i2c_receive
+/var/tmp//cc3mnfcz.s:163    .text.i2c_transceive:0000000000000000 $t
+/var/tmp//cc3mnfcz.s:168    .text.i2c_transceive:0000000000000000 i2c_transceive
+/var/tmp//cc3mnfcz.s:210    .bss.i2c2:0000000000000000 i2c2
+/var/tmp//cc3mnfcz.s:206    .bss.i2c2:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+i2c2_hw_init
+i2c_submit

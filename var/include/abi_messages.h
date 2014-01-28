@@ -1,4 +1,4 @@
-/* Automatically generated from /Users/tony-yi/git/paparazzi/conf/messages.xml */
+/* Automatically generated from /Users/tony-yi/git/paparazzi_local/conf/messages.xml */
 /* Please DO NOT EDIT */
 
 /* Onboard middleware library ABI

@@ -1,4 +1,4 @@
-/* Generated from /Users/tony-yi/git/paparazzi/conf/ubx.xml */
+/* Generated from /Users/tony-yi/git/paparazzi_local/conf/ubx.xml */
 /* Please DO NOT EDIT */
 
 #define UBX_SYNC1 0xB5

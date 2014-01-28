@@ -1,0 +1,189 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"spi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.spi_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	spi_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	spi_init:
+  25              	.LFB1:
+  26              		.file 1 "mcu_periph/spi.c"
+   1:mcu_periph/spi.c **** /*
+   2:mcu_periph/spi.c ****  * Copyright (C) 2005-2012 The Paparazzi Team
+   3:mcu_periph/spi.c ****  *
+   4:mcu_periph/spi.c ****  * This file is part of paparazzi.
+   5:mcu_periph/spi.c ****  *
+   6:mcu_periph/spi.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:mcu_periph/spi.c ****  * it under the terms of the GNU General Public License as published by
+   8:mcu_periph/spi.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:mcu_periph/spi.c ****  * any later version.
+  10:mcu_periph/spi.c ****  *
+  11:mcu_periph/spi.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:mcu_periph/spi.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:mcu_periph/spi.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:mcu_periph/spi.c ****  * GNU General Public License for more details.
+  15:mcu_periph/spi.c ****  *
+  16:mcu_periph/spi.c ****  * You should have received a copy of the GNU General Public License
+  17:mcu_periph/spi.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:mcu_periph/spi.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:mcu_periph/spi.c ****  * Boston, MA 02111-1307, USA.
+  20:mcu_periph/spi.c ****  *
+  21:mcu_periph/spi.c ****  */
+  22:mcu_periph/spi.c **** 
+  23:mcu_periph/spi.c **** /**
+  24:mcu_periph/spi.c ****  * @file mcu_periph/spi.c
+  25:mcu_periph/spi.c ****  *
+  26:mcu_periph/spi.c ****  * Architecture independent SPI (Serial Peripheral Interface) API.
+  27:mcu_periph/spi.c ****  */
+  28:mcu_periph/spi.c **** 
+  29:mcu_periph/spi.c **** #include "std.h"
+  30:mcu_periph/spi.c **** #include "mcu_periph/spi.h"
+  31:mcu_periph/spi.c **** 
+  32:mcu_periph/spi.c **** #if SPI_MASTER
+  33:mcu_periph/spi.c **** 
+  34:mcu_periph/spi.c **** #if USE_SPI0
+  35:mcu_periph/spi.c **** struct spi_periph spi0;
+  36:mcu_periph/spi.c **** 
+  37:mcu_periph/spi.c **** void spi0_init(void) {
+  38:mcu_periph/spi.c ****   spi_init(&spi0);
+  39:mcu_periph/spi.c ****   spi0_arch_init();
+  40:mcu_periph/spi.c **** }
+  41:mcu_periph/spi.c **** #endif // USE_SPI0
+  42:mcu_periph/spi.c **** 
+  43:mcu_periph/spi.c **** 
+  44:mcu_periph/spi.c **** #if USE_SPI1
+  45:mcu_periph/spi.c **** struct spi_periph spi1;
+  46:mcu_periph/spi.c **** 
+  47:mcu_periph/spi.c **** void spi1_init(void) {
+  48:mcu_periph/spi.c ****   spi_init(&spi1);
+  49:mcu_periph/spi.c ****   spi1_arch_init();
+  50:mcu_periph/spi.c **** }
+  51:mcu_periph/spi.c **** #endif // USE_SPI1
+  52:mcu_periph/spi.c **** 
+  53:mcu_periph/spi.c **** 
+  54:mcu_periph/spi.c **** #if USE_SPI2
+  55:mcu_periph/spi.c **** struct spi_periph spi2;
+  56:mcu_periph/spi.c **** 
+  57:mcu_periph/spi.c **** void spi2_init(void) {
+  58:mcu_periph/spi.c ****   spi_init(&spi2);
+  59:mcu_periph/spi.c ****   spi2_arch_init();
+  60:mcu_periph/spi.c **** }
+  61:mcu_periph/spi.c **** #endif // USE_SPI2
+  62:mcu_periph/spi.c **** 
+  63:mcu_periph/spi.c **** 
+  64:mcu_periph/spi.c **** #if USE_SPI3
+  65:mcu_periph/spi.c **** struct spi_periph spi3;
+  66:mcu_periph/spi.c **** 
+  67:mcu_periph/spi.c **** void spi3_init(void) {
+  68:mcu_periph/spi.c ****   spi_init(&spi3);
+  69:mcu_periph/spi.c ****   spi3_arch_init();
+  70:mcu_periph/spi.c **** }
+  71:mcu_periph/spi.c **** #endif // USE_SPI3
+  72:mcu_periph/spi.c **** 
+  73:mcu_periph/spi.c **** 
+  74:mcu_periph/spi.c **** void spi_init(struct spi_periph* p) {
+  27              		.loc 1 74 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  75:mcu_periph/spi.c ****   p->trans_insert_idx = 0;
+  33              		.loc 1 75 0
+  34 0000 0023     		movs	r3, #0
+  76:mcu_periph/spi.c ****   p->trans_extract_idx = 0;
+  77:mcu_periph/spi.c ****   p->status = SPIIdle;
+  35              		.loc 1 77 0
+  36 0002 80F82230 		strb	r3, [r0, #34]
+  75:mcu_periph/spi.c ****   p->trans_insert_idx = 0;
+  37              		.loc 1 75 0
+  38 0006 80F82030 		strb	r3, [r0, #32]
+  76:mcu_periph/spi.c ****   p->trans_extract_idx = 0;
+  39              		.loc 1 76 0
+  40 000a 80F82130 		strb	r3, [r0, #33]
+  78:mcu_periph/spi.c ****   p->mode = SPIMaster;
+  41              		.loc 1 78 0
+  42 000e 80F83030 		strb	r3, [r0, #48]
+  79:mcu_periph/spi.c ****   p->suspend = FALSE;
+  43              		.loc 1 79 0
+  44 0012 80F83130 		strb	r3, [r0, #49]
+  45 0016 7047     		bx	lr
+  46              		.cfi_endproc
+  47              	.LFE1:
+  49              		.section	.text.spi2_init,"ax",%progbits
+  50              		.align	1
+  51              		.global	spi2_init
+  52              		.thumb
+  53              		.thumb_func
+  55              	spi2_init:
+  56              	.LFB0:
+  57:mcu_periph/spi.c **** void spi2_init(void) {
+  57              		.loc 1 57 0
+  58              		.cfi_startproc
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+  61 0000 08B5     		push	{r3, lr}
+  62              	.LCFI0:
+  63              		.cfi_def_cfa_offset 8
+  64              		.cfi_offset 3, -8
+  65              		.cfi_offset 14, -4
+  58:mcu_periph/spi.c ****   spi_init(&spi2);
+  66              		.loc 1 58 0
+  67 0002 0348     		ldr	r0, .L3
+  68 0004 FFF7FEFF 		bl	spi_init
+  69              	.LVL1:
+  60:mcu_periph/spi.c **** }
+  70              		.loc 1 60 0
+  71 0008 BDE80840 		pop	{r3, lr}
+  59:mcu_periph/spi.c ****   spi2_arch_init();
+  72              		.loc 1 59 0
+  73 000c FFF7FEBF 		b	spi2_arch_init
+  74              	.LVL2:
+  75              	.L4:
+  76              		.align	2
+  77              	.L3:
+  78 0010 00000000 		.word	.LANCHOR0
+  79              		.cfi_endproc
+  80              	.LFE0:
+  82              		.global	spi2
+  83              		.section	.bss.spi2,"aw",%nobits
+  84              		.align	2
+  85              		.set	.LANCHOR0,. + 0
+  88              	spi2:
+  89 0000 00000000 		.space	52
+  89      00000000 
+  89      00000000 
+  89      00000000 
+  89      00000000 
+  90              		.text
+  91              	.Letext0:
+  92              		.file 2 "./mcu_periph/spi.h"
+  93              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 spi.c
+/var/tmp//cc4AFIci.s:19     .text.spi_init:0000000000000000 $t
+/var/tmp//cc4AFIci.s:24     .text.spi_init:0000000000000000 spi_init
+/var/tmp//cc4AFIci.s:50     .text.spi2_init:0000000000000000 $t
+/var/tmp//cc4AFIci.s:55     .text.spi2_init:0000000000000000 spi2_init
+/var/tmp//cc4AFIci.s:78     .text.spi2_init:0000000000000010 $d
+/var/tmp//cc4AFIci.s:88     .bss.spi2:0000000000000000 spi2
+/var/tmp//cc4AFIci.s:84     .bss.spi2:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+spi2_arch_init

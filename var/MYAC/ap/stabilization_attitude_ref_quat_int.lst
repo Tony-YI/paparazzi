@@ -1,0 +1,1373 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"stabilization_attitude_ref_quat_int.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stabilization_attitude_ref_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	stabilization_attitude_ref_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	stabilization_attitude_ref_init:
+  25              	.LFB101:
+  26              		.file 1 "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c"
+   1:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** /*
+   2:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+   4:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+   6:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * any later version.
+  10:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+  11:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+  16:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  */
+  21:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  22:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** /**
+  23:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c
+  24:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+  25:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * Rotorcraft attitude reference generation.
+  26:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * (quaternion int version)
+  27:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  *
+  28:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  */
+  29:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  30:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #include "generated/airframe.h"
+  31:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #include "firmwares/rotorcraft/stabilization.h"
+  32:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  33:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #include "stabilization_attitude_ref_int.h"
+  34:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  35:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
+  36:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
+  37:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_ACCEL_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_RDOT, REF_ACCEL_FRAC)
+  38:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  39:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_RATE_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_P, REF_RATE_FRAC)
+  40:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_RATE_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_Q, REF_RATE_FRAC)
+  41:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define REF_RATE_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_R, REF_RATE_FRAC)
+  42:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  43:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P
+  44:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
+  45:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_P_RES 10
+  46:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_P BFP_OF_REAL((ZETA_P*OMEGA_P), ZETA_OMEGA_P_RES)
+  47:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_P_RES 7
+  48:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_P    BFP_OF_REAL((OMEGA_P*OMEGA_P), OMEGA_2_P_RES)
+  49:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  50:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
+  51:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
+  52:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_Q_RES 10
+  53:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_Q BFP_OF_REAL((ZETA_Q*OMEGA_Q), ZETA_OMEGA_Q_RES)
+  54:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_Q_RES 7
+  55:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_Q    BFP_OF_REAL((OMEGA_Q*OMEGA_Q), OMEGA_2_Q_RES)
+  56:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  57:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
+  58:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
+  59:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_R_RES 10
+  60:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define ZETA_OMEGA_R BFP_OF_REAL((ZETA_R*OMEGA_R), ZETA_OMEGA_R_RES)
+  61:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_R_RES 7
+  62:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
+  63:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  64:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  65:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Eulers stab_att_sp_euler;
+  66:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Quat   stab_att_sp_quat;
+  67:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Eulers stab_att_ref_euler;
+  68:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Quat   stab_att_ref_quat;
+  69:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Rates  stab_att_ref_rate;
+  70:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32Rates  stab_att_ref_accel;
+  71:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  72:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** struct Int32RefModel stab_att_ref_model = {
+  73:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   {STABILIZATION_ATTITUDE_REF_OMEGA_P, STABILIZATION_ATTITUDE_REF_OMEGA_Q, STABILIZATION_ATTITUDE_R
+  74:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF
+  75:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** };
+  76:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  77:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** static inline void reset_psi_ref_from_body(void) {
+  78:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   //sp has been set from body using stabilization_attitude_get_yaw_i, use that value
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+  80:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_rate.r = 0;
+  81:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_accel.r = 0;
+  82:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** }
+  83:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  84:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** void stabilization_attitude_ref_init(void) {
+  27              		.loc 1 84 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  85:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  86:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_EULERS_ZERO(stab_att_sp_euler);
+  32              		.loc 1 86 0
+  33 0000 0E4A     		ldr	r2, .L2
+  87:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_ZERO(stab_att_sp_quat);
+  34              		.loc 1 87 0
+  35 0002 0F48     		ldr	r0, .L2+4
+  86:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_EULERS_ZERO(stab_att_sp_euler);
+  36              		.loc 1 86 0
+  37 0004 0023     		movs	r3, #0
+  38              		.loc 1 87 0
+  39 0006 4FF40041 		mov	r1, #32768
+  86:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_EULERS_ZERO(stab_att_sp_euler);
+  40              		.loc 1 86 0
+  41 000a 1360     		str	r3, [r2, #0]
+  42 000c 5360     		str	r3, [r2, #4]
+  43 000e 9360     		str	r3, [r2, #8]
+  44              		.loc 1 87 0
+  45 0010 80E80A00 		stmia	r0, {r1, r3}
+  88:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_EULERS_ZERO(stab_att_ref_euler);
+  46              		.loc 1 88 0
+  47 0014 0B4A     		ldr	r2, .L2+8
+  87:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_ZERO(stab_att_sp_quat);
+  48              		.loc 1 87 0
+  49 0016 8360     		str	r3, [r0, #8]
+  50 0018 C360     		str	r3, [r0, #12]
+  89:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_ZERO(stab_att_ref_quat);
+  51              		.loc 1 89 0
+  52 001a 0B48     		ldr	r0, .L2+12
+  88:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_EULERS_ZERO(stab_att_ref_euler);
+  53              		.loc 1 88 0
+  54 001c 1360     		str	r3, [r2, #0]
+  55 001e 5360     		str	r3, [r2, #4]
+  56 0020 9360     		str	r3, [r2, #8]
+  57              		.loc 1 89 0
+  58 0022 80E80A00 		stmia	r0, {r1, r3}
+  90:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_RATES_ZERO(stab_att_ref_rate);
+  91:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_RATES_ZERO(stab_att_ref_accel);
+  59              		.loc 1 91 0
+  60 0026 094A     		ldr	r2, .L2+16
+  90:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_RATES_ZERO(stab_att_ref_rate);
+  61              		.loc 1 90 0
+  62 0028 0949     		ldr	r1, .L2+20
+  89:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_ZERO(stab_att_ref_quat);
+  63              		.loc 1 89 0
+  64 002a 8360     		str	r3, [r0, #8]
+  65 002c C360     		str	r3, [r0, #12]
+  90:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT_RATES_ZERO(stab_att_ref_rate);
+  66              		.loc 1 90 0
+  67 002e 0B60     		str	r3, [r1, #0]
+  68 0030 4B60     		str	r3, [r1, #4]
+  69 0032 8B60     		str	r3, [r1, #8]
+  70              		.loc 1 91 0
+  71 0034 1360     		str	r3, [r2, #0]
+  72 0036 5360     		str	r3, [r2, #4]
+  73 0038 9360     		str	r3, [r2, #8]
+  74 003a 7047     		bx	lr
+  75              	.L3:
+  76              		.align	2
+  77              	.L2:
+  78 003c 00000000 		.word	.LANCHOR0
+  79 0040 00000000 		.word	.LANCHOR1
+  80 0044 00000000 		.word	.LANCHOR2
+  81 0048 00000000 		.word	.LANCHOR3
+  82 004c 00000000 		.word	.LANCHOR5
+  83 0050 00000000 		.word	.LANCHOR4
+  84              		.cfi_endproc
+  85              	.LFE101:
+  87              		.section	.text.stabilization_attitude_ref_enter,"ax",%progbits
+  88              		.align	1
+  89              		.global	stabilization_attitude_ref_enter
+  90              		.thumb
+  91              		.thumb_func
+  93              	stabilization_attitude_ref_enter:
+  94              	.LFB102:
+  92:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+  93:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /*
+  94:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
+  95:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     RATES_ASSIGN(stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
+  96:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     RATES_ASSIGN(stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
+  97:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   }
+  98:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   */
+  99:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 100:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** }
+ 101:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 102:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** void stabilization_attitude_ref_enter(void)
+ 103:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** {
+  95              		.loc 1 103 0
+  96              		.cfi_startproc
+  97              		@ args = 0, pretend = 0, frame = 0
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 100              	.LCFI0:
+ 101              		.cfi_def_cfa_offset 24
+ 102              		.cfi_offset 3, -24
+ 103              		.cfi_offset 4, -20
+ 104              		.cfi_offset 5, -16
+ 105              		.cfi_offset 6, -12
+ 106              		.cfi_offset 7, -8
+ 107              		.cfi_offset 14, -4
+ 108              	.LBB11:
+ 109              	.LBB12:
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+ 110              		.loc 1 79 0
+ 111 0002 B24A     		ldr	r2, .L73
+ 112 0004 B24B     		ldr	r3, .L73+4
+ 113              	.LBE12:
+ 114              	.LBE11:
+ 104:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   reset_psi_ref_from_body();
+ 105:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 106:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
+ 107:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   struct Int32Eulers ref_eul;
+ 108:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_RSHIFT(ref_eul, stab_att_ref_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+ 115              		.loc 1 108 0
+ 116 0006 1168     		ldr	r1, [r2, #0]
+ 117              	.LBB16:
+ 118              	.LBB13:
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+ 119              		.loc 1 79 0
+ 120 0008 9868     		ldr	r0, [r3, #8]
+ 121              	.LBE13:
+ 122              	.LBE16:
+ 123              		.loc 1 108 0
+ 124 000a 5768     		ldr	r7, [r2, #4]
+ 125              	.LBB17:
+ 109:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_OF_EULERS(stab_att_ref_quat, ref_eul);
+ 126              		.loc 1 109 0
+ 127 000c 0226     		movs	r6, #2
+ 128              	.LBE17:
+ 129              	.LBB24:
+ 130              	.LBB14:
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+ 131              		.loc 1 79 0
+ 132 000e 0402     		lsls	r4, r0, #8
+ 133              	.LBE14:
+ 134              	.LBE24:
+ 108:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_RSHIFT(ref_eul, stab_att_ref_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+ 135              		.loc 1 108 0
+ 136 0010 0D12     		asrs	r5, r1, #8
+ 137 0012 3B12     		asrs	r3, r7, #8
+ 138 0014 2012     		asrs	r0, r4, #8
+ 139              	.LBB25:
+ 140              		.loc 1 109 0
+ 141 0016 95FBF6F1 		sdiv	r1, r5, r6
+ 142              	.LBE25:
+ 143              	.LBB26:
+ 144              	.LBB15:
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+ 145              		.loc 1 79 0
+ 146 001a 9460     		str	r4, [r2, #8]
+ 147              	.LVL0:
+ 148              	.LBE15:
+ 149              	.LBE26:
+ 150              	.LBB27:
+ 151              		.loc 1 109 0
+ 152 001c 93FBF6F2 		sdiv	r2, r3, r6
+ 153              	.LVL1:
+ 154 0020 90FBF6F3 		sdiv	r3, r0, r6
+ 155              	.LVL2:
+ 156              	.LBB18:
+ 157 0024 0846     		mov	r0, r1
+ 158              	.LVL3:
+ 159              	.L5:
+ 160              		.loc 1 109 0 is_stmt 0 discriminator 1
+ 161 0026 43F24324 		movw	r4, #12867
+ 162 002a A042     		cmp	r0, r4
+ 163 002c 03DD     		ble	.L60
+ 164              	.L6:
+ 165              		.loc 1 109 0 discriminator 2
+ 166 002e A0F5C947 		sub	r7, r0, #25728
+ 167 0032 F81F     		subs	r0, r7, #7
+ 168              	.LVL4:
+ 169 0034 F7E7     		b	.L5
+ 170              	.LVL5:
+ 171              	.L60:
+ 172              		.loc 1 109 0 discriminator 4
+ 173 0036 A74D     		ldr	r5, .L73+8
+ 174 0038 A842     		cmp	r0, r5
+ 175 003a 03DA     		bge	.L67
+ 176              	.L8:
+ 177              		.loc 1 109 0 discriminator 5
+ 178 003c 00F5C940 		add	r0, r0, #25728
+ 179              	.LVL6:
+ 180 0040 0730     		adds	r0, r0, #7
+ 181              	.LVL7:
+ 182 0042 F8E7     		b	.L60
+ 183              	.LVL8:
+ 184              	.L67:
+ 185              		.loc 1 109 0 discriminator 6
+ 186 0044 41F62116 		movw	r6, #6433
+ 187 0048 B042     		cmp	r0, r6
+ 188 004a A34F     		ldr	r7, .L73+12
+ 189 004c 03DD     		ble	.L9
+ 190              		.loc 1 109 0 discriminator 7
+ 191 004e C0F54954 		rsb	r4, r0, #12864
+ 192 0052 E01C     		adds	r0, r4, #3
+ 193              	.LVL9:
+ 194 0054 0CE0     		b	.L10
+ 195              	.L9:
+ 196              		.loc 1 109 0 discriminator 8
+ 197 0056 6FF4C954 		mvn	r4, #6432
+ 198 005a A042     		cmp	r0, r4
+ 199 005c 06DA     		bge	.L11
+ 200              		.loc 1 109 0 discriminator 9
+ 201 005e C0F17F40 		rsb	r0, r0, #-16777216
+ 202              	.LVL10:
+ 203 0062 00F57F05 		add	r5, r0, #16711680
+ 204 0066 05F54D40 		add	r0, r5, #52480
+ 205 006a BD30     		adds	r0, r0, #189
+ 206              	.LVL11:
+ 207              	.L11:
+ 208              		.loc 1 109 0 discriminator 10
+ 209 006c 0028     		cmp	r0, #0
+ 210 006e 02DB     		blt	.L12
+ 211              	.L10:
+ 212              		.loc 1 109 0 discriminator 11
+ 213 0070 37F91000 		ldrsh	r0, [r7, r0, lsl #1]
+ 214              	.LVL12:
+ 215 0074 03E0     		b	.L13
+ 216              	.LVL13:
+ 217              	.L12:
+ 218              		.loc 1 109 0 discriminator 12
+ 219 0076 4642     		negs	r6, r0
+ 220 0078 37F91670 		ldrsh	r7, [r7, r6, lsl #1]
+ 221 007c 7842     		negs	r0, r7
+ 222              	.LVL14:
+ 223              	.L13:
+ 224              	.LBE18:
+ 225              	.LBB19:
+ 226              		.loc 1 109 0 discriminator 13
+ 227 007e 01F5C951 		add	r1, r1, #6432
+ 228              	.LVL15:
+ 229 0082 0131     		adds	r1, r1, #1
+ 230              	.LVL16:
+ 231              	.L14:
+ 232              		.loc 1 109 0 discriminator 14
+ 233 0084 43F24325 		movw	r5, #12867
+ 234 0088 A942     		cmp	r1, r5
+ 235 008a 03DD     		ble	.L61
+ 236              	.L15:
+ 237              		.loc 1 109 0 discriminator 15
+ 238 008c A1F5C945 		sub	r5, r1, #25728
+ 239 0090 E91F     		subs	r1, r5, #7
+ 240              	.LVL17:
+ 241 0092 F7E7     		b	.L14
+ 242              	.LVL18:
+ 243              	.L61:
+ 244              		.loc 1 109 0 discriminator 17
+ 245 0094 8F4E     		ldr	r6, .L73+8
+ 246 0096 B142     		cmp	r1, r6
+ 247 0098 03DA     		bge	.L68
+ 248              	.L17:
+ 249              		.loc 1 109 0 discriminator 18
+ 250 009a 01F5C944 		add	r4, r1, #25728
+ 251 009e E11D     		adds	r1, r4, #7
+ 252              	.LVL19:
+ 253 00a0 F8E7     		b	.L61
+ 254              	.LVL20:
+ 255              	.L68:
+ 256              		.loc 1 109 0 discriminator 19
+ 257 00a2 41F62117 		movw	r7, #6433
+ 258 00a6 B942     		cmp	r1, r7
+ 259 00a8 8B4C     		ldr	r4, .L73+12
+ 260 00aa 03DD     		ble	.L18
+ 261              		.loc 1 109 0 discriminator 20
+ 262 00ac C1F54955 		rsb	r5, r1, #12864
+ 263 00b0 E91C     		adds	r1, r5, #3
+ 264              	.LVL21:
+ 265 00b2 0CE0     		b	.L19
+ 266              	.L18:
+ 267              		.loc 1 109 0 discriminator 21
+ 268 00b4 6FF4C955 		mvn	r5, #6432
+ 269 00b8 A942     		cmp	r1, r5
+ 270 00ba 06DA     		bge	.L20
+ 271              		.loc 1 109 0 discriminator 22
+ 272 00bc C1F17F41 		rsb	r1, r1, #-16777216
+ 273              	.LVL22:
+ 274 00c0 01F57F06 		add	r6, r1, #16711680
+ 275 00c4 06F54D41 		add	r1, r6, #52480
+ 276 00c8 BD31     		adds	r1, r1, #189
+ 277              	.LVL23:
+ 278              	.L20:
+ 279              		.loc 1 109 0 discriminator 23
+ 280 00ca 0029     		cmp	r1, #0
+ 281 00cc 02DB     		blt	.L21
+ 282              	.L19:
+ 283              		.loc 1 109 0 discriminator 24
+ 284 00ce 34F91140 		ldrsh	r4, [r4, r1, lsl #1]
+ 285              	.LVL24:
+ 286 00d2 03E0     		b	.L22
+ 287              	.LVL25:
+ 288              	.L21:
+ 289              		.loc 1 109 0 discriminator 25
+ 290 00d4 4F42     		negs	r7, r1
+ 291 00d6 34F91740 		ldrsh	r4, [r4, r7, lsl #1]
+ 292 00da 6442     		negs	r4, r4
+ 293              	.LVL26:
+ 294              	.L22:
+ 295              	.LBE19:
+ 296              	.LBB20:
+ 297              		.loc 1 109 0 discriminator 26
+ 298 00dc 1146     		mov	r1, r2
+ 299              	.LVL27:
+ 300              	.L23:
+ 301              		.loc 1 109 0 discriminator 27
+ 302 00de 43F24326 		movw	r6, #12867
+ 303 00e2 B142     		cmp	r1, r6
+ 304 00e4 03DD     		ble	.L62
+ 305              	.L24:
+ 306              		.loc 1 109 0 discriminator 28
+ 307 00e6 A1F5C946 		sub	r6, r1, #25728
+ 308 00ea F11F     		subs	r1, r6, #7
+ 309              	.LVL28:
+ 310 00ec F7E7     		b	.L23
+ 311              	.LVL29:
+ 312              	.L62:
+ 313              		.loc 1 109 0 discriminator 30
+ 314 00ee 794F     		ldr	r7, .L73+8
+ 315 00f0 B942     		cmp	r1, r7
+ 316 00f2 03DA     		bge	.L69
+ 317              	.L26:
+ 318              		.loc 1 109 0 discriminator 31
+ 319 00f4 01F5C941 		add	r1, r1, #25728
+ 320              	.LVL30:
+ 321 00f8 0731     		adds	r1, r1, #7
+ 322              	.LVL31:
+ 323 00fa F8E7     		b	.L62
+ 324              	.LVL32:
+ 325              	.L69:
+ 326              		.loc 1 109 0 discriminator 32
+ 327 00fc 41F62115 		movw	r5, #6433
+ 328 0100 A942     		cmp	r1, r5
+ 329 0102 754F     		ldr	r7, .L73+12
+ 330 0104 03DD     		ble	.L27
+ 331              		.loc 1 109 0 discriminator 33
+ 332 0106 C1F54955 		rsb	r5, r1, #12864
+ 333 010a E91C     		adds	r1, r5, #3
+ 334              	.LVL33:
+ 335 010c 0CE0     		b	.L28
+ 336              	.L27:
+ 337              		.loc 1 109 0 discriminator 34
+ 338 010e 6FF4C956 		mvn	r6, #6432
+ 339 0112 B142     		cmp	r1, r6
+ 340 0114 06DA     		bge	.L29
+ 341              		.loc 1 109 0 discriminator 35
+ 342 0116 C1F17F41 		rsb	r1, r1, #-16777216
+ 343              	.LVL34:
+ 344 011a 01F57F05 		add	r5, r1, #16711680
+ 345 011e 05F54D41 		add	r1, r5, #52480
+ 346 0122 BD31     		adds	r1, r1, #189
+ 347              	.LVL35:
+ 348              	.L29:
+ 349              		.loc 1 109 0 discriminator 36
+ 350 0124 0029     		cmp	r1, #0
+ 351 0126 02DB     		blt	.L30
+ 352              	.L28:
+ 353              		.loc 1 109 0 discriminator 37
+ 354 0128 37F91110 		ldrsh	r1, [r7, r1, lsl #1]
+ 355              	.LVL36:
+ 356 012c 03E0     		b	.L31
+ 357              	.LVL37:
+ 358              	.L30:
+ 359              		.loc 1 109 0 discriminator 38
+ 360 012e 4E42     		negs	r6, r1
+ 361 0130 37F91670 		ldrsh	r7, [r7, r6, lsl #1]
+ 362 0134 7942     		negs	r1, r7
+ 363              	.LVL38:
+ 364              	.L31:
+ 365              	.LBE20:
+ 366              	.LBB21:
+ 367              		.loc 1 109 0 discriminator 39
+ 368 0136 02F5C952 		add	r2, r2, #6432
+ 369              	.LVL39:
+ 370 013a 0132     		adds	r2, r2, #1
+ 371              	.LVL40:
+ 372              	.L32:
+ 373              		.loc 1 109 0 discriminator 40
+ 374 013c 43F24326 		movw	r6, #12867
+ 375 0140 B242     		cmp	r2, r6
+ 376 0142 03DD     		ble	.L63
+ 377              	.L33:
+ 378              		.loc 1 109 0 discriminator 41
+ 379 0144 A2F5C947 		sub	r7, r2, #25728
+ 380 0148 FA1F     		subs	r2, r7, #7
+ 381              	.LVL41:
+ 382 014a F7E7     		b	.L32
+ 383              	.LVL42:
+ 384              	.L63:
+ 385              		.loc 1 109 0 discriminator 43
+ 386 014c 614F     		ldr	r7, .L73+8
+ 387 014e BA42     		cmp	r2, r7
+ 388 0150 03DA     		bge	.L70
+ 389              	.L35:
+ 390              		.loc 1 109 0 discriminator 44
+ 391 0152 02F5C945 		add	r5, r2, #25728
+ 392 0156 EA1D     		adds	r2, r5, #7
+ 393              	.LVL43:
+ 394 0158 F8E7     		b	.L63
+ 395              	.LVL44:
+ 396              	.L70:
+ 397              		.loc 1 109 0 discriminator 45
+ 398 015a 41F62115 		movw	r5, #6433
+ 399 015e AA42     		cmp	r2, r5
+ 400 0160 5D4F     		ldr	r7, .L73+12
+ 401 0162 03DD     		ble	.L36
+ 402              		.loc 1 109 0 discriminator 46
+ 403 0164 C2F54955 		rsb	r5, r2, #12864
+ 404 0168 EA1C     		adds	r2, r5, #3
+ 405              	.LVL45:
+ 406 016a 0CE0     		b	.L37
+ 407              	.L36:
+ 408              		.loc 1 109 0 discriminator 47
+ 409 016c 6FF4C956 		mvn	r6, #6432
+ 410 0170 B242     		cmp	r2, r6
+ 411 0172 06DA     		bge	.L38
+ 412              		.loc 1 109 0 discriminator 48
+ 413 0174 C2F17F42 		rsb	r2, r2, #-16777216
+ 414              	.LVL46:
+ 415 0178 02F57F05 		add	r5, r2, #16711680
+ 416 017c 05F54D42 		add	r2, r5, #52480
+ 417 0180 BD32     		adds	r2, r2, #189
+ 418              	.LVL47:
+ 419              	.L38:
+ 420              		.loc 1 109 0 discriminator 49
+ 421 0182 002A     		cmp	r2, #0
+ 422 0184 02DB     		blt	.L39
+ 423              	.L37:
+ 424              		.loc 1 109 0 discriminator 50
+ 425 0186 37F91250 		ldrsh	r5, [r7, r2, lsl #1]
+ 426              	.LVL48:
+ 427 018a 03E0     		b	.L40
+ 428              	.LVL49:
+ 429              	.L39:
+ 430              		.loc 1 109 0 discriminator 51
+ 431 018c 5642     		negs	r6, r2
+ 432 018e 37F91670 		ldrsh	r7, [r7, r6, lsl #1]
+ 433 0192 7D42     		negs	r5, r7
+ 434              	.LVL50:
+ 435              	.L40:
+ 436              	.LBE21:
+ 437              	.LBB22:
+ 438              		.loc 1 109 0 discriminator 52
+ 439 0194 1A46     		mov	r2, r3
+ 440              	.LVL51:
+ 441              	.L41:
+ 442              		.loc 1 109 0 discriminator 53
+ 443 0196 43F24326 		movw	r6, #12867
+ 444 019a B242     		cmp	r2, r6
+ 445 019c 03DD     		ble	.L64
+ 446              	.L42:
+ 447              		.loc 1 109 0 discriminator 54
+ 448 019e A2F5C942 		sub	r2, r2, #25728
+ 449              	.LVL52:
+ 450 01a2 073A     		subs	r2, r2, #7
+ 451              	.LVL53:
+ 452 01a4 F7E7     		b	.L41
+ 453              	.LVL54:
+ 454              	.L64:
+ 455              		.loc 1 109 0 discriminator 56
+ 456 01a6 4B4F     		ldr	r7, .L73+8
+ 457 01a8 BA42     		cmp	r2, r7
+ 458 01aa 03DA     		bge	.L71
+ 459              	.L44:
+ 460              		.loc 1 109 0 discriminator 57
+ 461 01ac 02F5C946 		add	r6, r2, #25728
+ 462 01b0 F21D     		adds	r2, r6, #7
+ 463              	.LVL55:
+ 464 01b2 F8E7     		b	.L64
+ 465              	.LVL56:
+ 466              	.L71:
+ 467              		.loc 1 109 0 discriminator 58
+ 468 01b4 41F62116 		movw	r6, #6433
+ 469 01b8 B242     		cmp	r2, r6
+ 470 01ba 474E     		ldr	r6, .L73+12
+ 471 01bc 03DD     		ble	.L45
+ 472              		.loc 1 109 0 discriminator 59
+ 473 01be C2F54952 		rsb	r2, r2, #12864
+ 474              	.LVL57:
+ 475 01c2 0332     		adds	r2, r2, #3
+ 476              	.LVL58:
+ 477 01c4 0CE0     		b	.L46
+ 478              	.L45:
+ 479              		.loc 1 109 0 discriminator 60
+ 480 01c6 6FF4C957 		mvn	r7, #6432
+ 481 01ca BA42     		cmp	r2, r7
+ 482 01cc 06DA     		bge	.L47
+ 483              		.loc 1 109 0 discriminator 61
+ 484 01ce C2F17F42 		rsb	r2, r2, #-16777216
+ 485              	.LVL59:
+ 486 01d2 02F57F07 		add	r7, r2, #16711680
+ 487 01d6 07F54D42 		add	r2, r7, #52480
+ 488 01da BD32     		adds	r2, r2, #189
+ 489              	.LVL60:
+ 490              	.L47:
+ 491              		.loc 1 109 0 discriminator 62
+ 492 01dc 002A     		cmp	r2, #0
+ 493 01de 02DB     		blt	.L48
+ 494              	.L46:
+ 495              		.loc 1 109 0 discriminator 63
+ 496 01e0 36F91220 		ldrsh	r2, [r6, r2, lsl #1]
+ 497              	.LVL61:
+ 498 01e4 03E0     		b	.L49
+ 499              	.LVL62:
+ 500              	.L48:
+ 501              		.loc 1 109 0 discriminator 64
+ 502 01e6 5742     		negs	r7, r2
+ 503 01e8 36F91760 		ldrsh	r6, [r6, r7, lsl #1]
+ 504 01ec 7242     		negs	r2, r6
+ 505              	.LVL63:
+ 506              	.L49:
+ 507              	.LBE22:
+ 508              	.LBB23:
+ 509              		.loc 1 109 0 discriminator 65
+ 510 01ee 03F5C953 		add	r3, r3, #6432
+ 511              	.LVL64:
+ 512 01f2 0133     		adds	r3, r3, #1
+ 513              	.LVL65:
+ 514              	.L50:
+ 515              		.loc 1 109 0 discriminator 66
+ 516 01f4 43F24327 		movw	r7, #12867
+ 517 01f8 BB42     		cmp	r3, r7
+ 518 01fa 03DD     		ble	.L65
+ 519              	.L51:
+ 520              		.loc 1 109 0 discriminator 67
+ 521 01fc A3F5C947 		sub	r7, r3, #25728
+ 522 0200 FB1F     		subs	r3, r7, #7
+ 523              	.LVL66:
+ 524 0202 F7E7     		b	.L50
+ 525              	.LVL67:
+ 526              	.L65:
+ 527              		.loc 1 109 0 discriminator 69
+ 528 0204 334E     		ldr	r6, .L73+8
+ 529 0206 B342     		cmp	r3, r6
+ 530 0208 03DA     		bge	.L72
+ 531              	.L53:
+ 532              		.loc 1 109 0 discriminator 70
+ 533 020a 03F5C943 		add	r3, r3, #25728
+ 534              	.LVL68:
+ 535 020e 0733     		adds	r3, r3, #7
+ 536              	.LVL69:
+ 537 0210 F8E7     		b	.L65
+ 538              	.LVL70:
+ 539              	.L72:
+ 540              		.loc 1 109 0 discriminator 71
+ 541 0212 41F62117 		movw	r7, #6433
+ 542 0216 BB42     		cmp	r3, r7
+ 543 0218 2F4E     		ldr	r6, .L73+12
+ 544 021a 03DD     		ble	.L54
+ 545              		.loc 1 109 0 discriminator 72
+ 546 021c C3F54957 		rsb	r7, r3, #12864
+ 547 0220 FB1C     		adds	r3, r7, #3
+ 548              	.LVL71:
+ 549 0222 0CE0     		b	.L55
+ 550              	.L54:
+ 551              		.loc 1 109 0 discriminator 73
+ 552 0224 6FF4C957 		mvn	r7, #6432
+ 553 0228 BB42     		cmp	r3, r7
+ 554 022a 06DA     		bge	.L56
+ 555              		.loc 1 109 0 discriminator 74
+ 556 022c C3F17F43 		rsb	r3, r3, #-16777216
+ 557              	.LVL72:
+ 558 0230 03F57F07 		add	r7, r3, #16711680
+ 559 0234 07F54D43 		add	r3, r7, #52480
+ 560 0238 BD33     		adds	r3, r3, #189
+ 561              	.LVL73:
+ 562              	.L56:
+ 563              		.loc 1 109 0 discriminator 75
+ 564 023a 002B     		cmp	r3, #0
+ 565 023c 02DB     		blt	.L57
+ 566              	.L55:
+ 567              		.loc 1 109 0 discriminator 76
+ 568 023e 36F91330 		ldrsh	r3, [r6, r3, lsl #1]
+ 569              	.LVL74:
+ 570 0242 03E0     		b	.L58
+ 571              	.LVL75:
+ 572              	.L57:
+ 573              		.loc 1 109 0 discriminator 77
+ 574 0244 5F42     		negs	r7, r3
+ 575 0246 36F91760 		ldrsh	r6, [r6, r7, lsl #1]
+ 576 024a 7342     		negs	r3, r6
+ 577              	.LVL76:
+ 578              	.L58:
+ 579              	.LBE23:
+ 580              		.loc 1 109 0 discriminator 78
+ 581 024c 03FB05F6 		mul	r6, r3, r5
+ 582 0250 5543     		muls	r5, r2, r5
+ 583              	.LVL77:
+ 584 0252 4A43     		muls	r2, r1, r2
+ 585              	.LVL78:
+ 586 0254 B613     		asrs	r6, r6, #14
+ 587              	.LVL79:
+ 588 0256 9713     		asrs	r7, r2, #14
+ 589 0258 5943     		muls	r1, r3, r1
+ 590              	.LVL80:
+ 591 025a C4F1000E 		rsb	lr, r4, #0
+ 592 025e 06FB04F3 		mul	r3, r6, r4
+ 593              	.LVL81:
+ 594 0262 4643     		muls	r6, r0, r6
+ 595              	.LVL82:
+ 596 0264 07FB00F2 		mul	r2, r7, r0
+ 597 0268 07FB0EF7 		mul	r7, r7, lr
+ 598 026c AD13     		asrs	r5, r5, #14
+ 599              	.LVL83:
+ 600 026e 7613     		asrs	r6, r6, #13
+ 601 0270 8913     		asrs	r1, r1, #14
+ 602              	.LVL84:
+ 603 0272 06EB6737 		add	r7, r6, r7, asr #13
+ 604 0276 05FB00F6 		mul	r6, r5, r0
+ 605 027a 4042     		negs	r0, r0
+ 606              	.LVL85:
+ 607 027c 01FB04FC 		mul	ip, r1, r4
+ 608 0280 4143     		muls	r1, r0, r1
+ 609              	.LVL86:
+ 610 0282 6C43     		muls	r4, r5, r4
+ 611              	.LVL87:
+ 612 0284 5213     		asrs	r2, r2, #13
+ 613 0286 02EB6332 		add	r2, r2, r3, asr #13
+ 614 028a 7613     		asrs	r6, r6, #13
+ 615 028c 134B     		ldr	r3, .L73+16
+ 616 028e 4913     		asrs	r1, r1, #13
+ 617 0290 06EB6C36 		add	r6, r6, ip, asr #13
+ 618 0294 01EB6434 		add	r4, r1, r4, asr #13
+ 619              	.LBE27:
+ 110:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
+ 620              		.loc 1 110 0 is_stmt 1 discriminator 78
+ 621 0298 002A     		cmp	r2, #0
+ 622              	.LBB28:
+ 109:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_OF_EULERS(stab_att_ref_quat, ref_eul);
+ 623              		.loc 1 109 0 discriminator 78
+ 624 029a 1A60     		str	r2, [r3, #0]
+ 625 029c 5F60     		str	r7, [r3, #4]
+ 626 029e 9E60     		str	r6, [r3, #8]
+ 627 02a0 DC60     		str	r4, [r3, #12]
+ 628              	.LBE28:
+ 629              		.loc 1 110 0 discriminator 78
+ 630 02a2 07DA     		bge	.L59
+ 631              		.loc 1 110 0 is_stmt 0 discriminator 1
+ 632 02a4 5242     		negs	r2, r2
+ 633 02a6 7F42     		negs	r7, r7
+ 634 02a8 7642     		negs	r6, r6
+ 635 02aa 6442     		negs	r4, r4
+ 636 02ac 1A60     		str	r2, [r3, #0]
+ 637 02ae 5F60     		str	r7, [r3, #4]
+ 638 02b0 9E60     		str	r6, [r3, #8]
+ 639 02b2 DC60     		str	r4, [r3, #12]
+ 640              	.L59:
+ 111:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 112:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* set reference rate and acceleration to zero */
+ 113:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
+ 641              		.loc 1 113 0 is_stmt 1
+ 642 02b4 0021     		movs	r1, #0
+ 643 02b6 0C22     		movs	r2, #12
+ 644 02b8 0948     		ldr	r0, .L73+20
+ 645              	.LVL88:
+ 646 02ba FFF7FEFF 		bl	memset
+ 647              	.LVL89:
+ 114:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
+ 648              		.loc 1 114 0
+ 649 02be 0948     		ldr	r0, .L73+24
+ 650 02c0 0021     		movs	r1, #0
+ 651 02c2 0C22     		movs	r2, #12
+ 115:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** }
+ 652              		.loc 1 115 0
+ 653 02c4 BDE8F840 		pop	{r3, r4, r5, r6, r7, lr}
+ 114:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
+ 654              		.loc 1 114 0
+ 655 02c8 FFF7FEBF 		b	memset
+ 656              	.LVL90:
+ 657              	.L74:
+ 658              		.align	2
+ 659              	.L73:
+ 660 02cc 00000000 		.word	.LANCHOR2
+ 661 02d0 00000000 		.word	.LANCHOR0
+ 662 02d4 BDCDFFFF 		.word	-12867
+ 663 02d8 00000000 		.word	pprz_trig_int
+ 664 02dc 00000000 		.word	.LANCHOR3
+ 665 02e0 00000000 		.word	.LANCHOR5
+ 666 02e4 00000000 		.word	.LANCHOR4
+ 667              		.cfi_endproc
+ 668              	.LFE102:
+ 670              		.global	__aeabi_i2f
+ 671              		.global	__aeabi_fmul
+ 672              		.global	__aeabi_f2iz
+ 673              		.section	.text.stabilization_attitude_ref_update,"ax",%progbits
+ 674              		.align	1
+ 675              		.global	stabilization_attitude_ref_update
+ 676              		.thumb
+ 677              		.thumb_func
+ 679              	stabilization_attitude_ref_update:
+ 680              	.LFB103:
+ 116:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 117:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** /*
+ 118:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  * Reference
+ 119:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****  */
+ 120:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define DT_UPDATE (1./PERIODIC_FREQUENCY)
+ 121:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** // CAUTION! Periodic frequency is assumed to be 512 Hz
+ 122:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** // which is equal to >> 9
+ 123:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** #define F_UPDATE_RES 9
+ 124:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 125:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** void stabilization_attitude_ref_update(void) {
+ 681              		.loc 1 125 0
+ 682              		.cfi_startproc
+ 683              		@ args = 0, pretend = 0, frame = 8
+ 684              		@ frame_needed = 0, uses_anonymous_args = 0
+ 685 0000 2DE9F74F 		push	{r0, r1, r2, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 686              	.LCFI1:
+ 687              		.cfi_def_cfa_offset 48
+ 688              		.cfi_offset 0, -48
+ 689              		.cfi_offset 1, -44
+ 690              		.cfi_offset 2, -40
+ 691              		.cfi_offset 4, -36
+ 692              		.cfi_offset 5, -32
+ 693              		.cfi_offset 6, -28
+ 694              		.cfi_offset 7, -24
+ 695              		.cfi_offset 8, -20
+ 696              		.cfi_offset 9, -16
+ 697              		.cfi_offset 10, -12
+ 698              		.cfi_offset 11, -8
+ 699              		.cfi_offset 14, -4
+ 126:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 127:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* integrate reference attitude            */
+ 128:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   struct Int32Quat qdot;
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
+ 700              		.loc 1 129 0
+ 701 0004 9C4B     		ldr	r3, .L83
+ 702 0006 9D48     		ldr	r0, .L83+4
+ 703 0008 D3F804A0 		ldr	sl, [r3, #4]
+ 704 000c 8268     		ldr	r2, [r0, #8]
+ 705 000e D3F800B0 		ldr	fp, [r3, #0]
+ 706 0012 02FB0AF7 		mul	r7, r2, sl
+ 707 0016 4168     		ldr	r1, [r0, #4]
+ 708 0018 C468     		ldr	r4, [r0, #12]
+ 709 001a 01FB0B75 		mla	r5, r1, fp, r7
+ 710 001e D3F808E0 		ldr	lr, [r3, #8]
+ 711              	.LVL91:
+ 712 0022 0368     		ldr	r3, [r0, #0]
+ 713              	.LVL92:
+ 714 0024 04FB0E56 		mla	r6, r4, lr, r5
+ 715 0028 03FB0BF5 		mul	r5, r3, fp
+ 716 002c 7042     		negs	r0, r6
+ 717 002e 02FB0E56 		mla	r6, r2, lr, r5
+ 130:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   //QUAT_SMUL(qdot, qdot, DT_UPDATE);
+ 131:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   qdot.qi = qdot.qi >> F_UPDATE_RES;
+ 132:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   qdot.qx = qdot.qx >> F_UPDATE_RES;
+ 133:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   qdot.qy = qdot.qy >> F_UPDATE_RES;
+ 134:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   qdot.qz = qdot.qz >> F_UPDATE_RES;
+ 135:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   QUAT_ADD(stab_att_ref_quat, qdot);
+ 718              		.loc 1 135 0
+ 719 0032 03EBA057 		add	r7, r3, r0, asr #22
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
+ 720              		.loc 1 129 0
+ 721 0036 04FB1A60 		mls	r0, r4, sl, r6
+ 722 003a 03FB0AF6 		mul	r6, r3, sl
+ 723              		.loc 1 135 0
+ 724 003e 01EBA055 		add	r5, r1, r0, asr #22
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
+ 725              		.loc 1 129 0
+ 726 0042 03FB0EF3 		mul	r3, r3, lr
+ 727              	.LVL93:
+ 728 0046 01FB1E60 		mls	r0, r1, lr, r6
+ 729 004a 01FB0A31 		mla	r1, r1, sl, r3
+ 730              	.LVL94:
+ 731 004e 04FB0B06 		mla	r6, r4, fp, r0
+ 732              		.loc 1 135 0
+ 733 0052 02EBA656 		add	r6, r2, r6, asr #22
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
+ 734              		.loc 1 129 0
+ 735 0056 02FB1B12 		mls	r2, r2, fp, r1
+ 736              	.LVL95:
+ 737              		.loc 1 135 0
+ 738 005a 04EBA251 		add	r1, r4, r2, asr #22
+ 739              	.LBB29:
+ 740              	.LBB30:
+ 136:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_NORMALIZE(stab_att_ref_quat);
+ 741              		.loc 1 136 0
+ 742 005e 05FB05F4 		mul	r4, r5, r5
+ 743              	.LVL96:
+ 744 0062 07FB0740 		mla	r0, r7, r7, r4
+ 745 0066 06FB0603 		mla	r3, r6, r6, r0
+ 746 006a 01FB0133 		mla	r3, r1, r1, r3
+ 747              	.LVL97:
+ 748 006e 73B1     		cbz	r3, .L81
+ 749              	.LVL98:
+ 750              	.LBB31:
+ 751              		.loc 1 136 0 is_stmt 0 discriminator 2
+ 752 0070 1A46     		mov	r2, r3
+ 753 0072 2820     		movs	r0, #40
+ 754              	.LVL99:
+ 755              	.L78:
+ 756              		.loc 1 136 0 discriminator 3
+ 757 0074 B3FBF2F4 		udiv	r4, r3, r2
+ 758              	.LVL100:
+ 759 0078 A418     		adds	r4, r4, r2
+ 760              	.LVL101:
+ 761 007a 6408     		lsrs	r4, r4, #1
+ 762              	.LVL102:
+ 763 007c 121B     		subs	r2, r2, r4
+ 764              	.LVL103:
+ 765 007e 012A     		cmp	r2, #1
+ 766 0080 06D9     		bls	.L76
+ 767 0082 0138     		subs	r0, r0, #1
+ 768              		.loc 1 136 0 discriminator 4
+ 769 0084 10F0FF00 		ands	r0, r0, #255
+ 770 0088 2246     		mov	r2, r4
+ 771 008a F3D1     		bne	.L78
+ 772 008c 00E0     		b	.L76
+ 773              	.LVL104:
+ 774              	.L81:
+ 775              	.LBE31:
+ 776              		.loc 1 136 0
+ 777 008e 1C46     		mov	r4, r3
+ 778              	.L76:
+ 779              	.LVL105:
+ 780              	.LBE30:
+ 781              		.loc 1 136 0 discriminator 6
+ 782 0090 7A4B     		ldr	r3, .L83+4
+ 783              	.LVL106:
+ 784 0092 C903     		lsls	r1, r1, #15
+ 785              	.LVL107:
+ 786 0094 FF03     		lsls	r7, r7, #15
+ 787              	.LVL108:
+ 788 0096 ED03     		lsls	r5, r5, #15
+ 789              	.LVL109:
+ 790 0098 F603     		lsls	r6, r6, #15
+ 791              	.LVL110:
+ 792 009a 97FBF4F7 		sdiv	r7, r7, r4
+ 793 009e 95FBF4F5 		sdiv	r5, r5, r4
+ 794 00a2 96FBF4F6 		sdiv	r6, r6, r4
+ 795 00a6 91FBF4F4 		sdiv	r4, r1, r4
+ 796              	.LVL111:
+ 797 00aa 1F60     		str	r7, [r3, #0]
+ 798 00ac 5D60     		str	r5, [r3, #4]
+ 799 00ae 9E60     		str	r6, [r3, #8]
+ 800 00b0 DC60     		str	r4, [r3, #12]
+ 801              	.LVL112:
+ 802              	.LBE29:
+ 137:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 138:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* integrate reference rotational speeds
+ 139:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****    * delta rate = ref_accel * dt
+ 140:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****    * ref_rate = old_ref_rate + delta_rate
+ 141:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****    */
+ 142:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   const struct Int32Rates delta_rate = {
+ 143:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****          stab_att_ref_accel.p >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC),
+ 144:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****          stab_att_ref_accel.q >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC),
+ 803              		.loc 1 144 0 is_stmt 1 discriminator 6
+ 804 00b2 734B     		ldr	r3, .L83+8
+ 143:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****          stab_att_ref_accel.p >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC),
+ 805              		.loc 1 143 0 discriminator 6
+ 806 00b4 93E80700 		ldmia	r3, {r0, r1, r2}
+ 145:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****          stab_att_ref_accel.r >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC)};
+ 146:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 147:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   RATES_ADD(stab_att_ref_rate, delta_rate);
+ 807              		.loc 1 147 0 discriminator 6
+ 808 00b8 0BEB601B 		add	fp, fp, r0, asr #5
+ 809              	.LVL113:
+ 810 00bc 6E48     		ldr	r0, .L83
+ 811 00be 0EEB6212 		add	r2, lr, r2, asr #5
+ 812 00c2 8260     		str	r2, [r0, #8]
+ 813 00c4 0192     		str	r2, [sp, #4]
+ 148:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 149:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* compute reference angular accelerations */
+ 150:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   struct Int32Quat err;
+ 151:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* compute reference attitude error        */
+ 152:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
+ 814              		.loc 1 152 0 discriminator 6
+ 815 00c6 6F4A     		ldr	r2, .L83+12
+ 147:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   RATES_ADD(stab_att_ref_rate, delta_rate);
+ 816              		.loc 1 147 0 discriminator 6
+ 817 00c8 0AEB611A 		add	sl, sl, r1, asr #5
+ 818              	.LVL114:
+ 819 00cc C0F800B0 		str	fp, [r0, #0]
+ 820 00d0 C0F804A0 		str	sl, [r0, #4]
+ 821              		.loc 1 152 0 discriminator 6
+ 822 00d4 92E80140 		ldmia	r2, {r0, lr}
+ 823              	.LVL115:
+ 824 00d8 05FB00F9 		mul	r9, r5, r0
+ 825 00dc 07FB1E98 		mls	r8, r7, lr, r9
+ 826 00e0 9168     		ldr	r1, [r2, #8]
+ 827 00e2 D268     		ldr	r2, [r2, #12]
+ 828              	.LVL116:
+ 829 00e4 04FB118C 		mls	ip, r4, r1, r8
+ 830 00e8 04FB0EF8 		mul	r8, r4, lr
+ 831 00ec 06FB02C9 		mla	r9, r6, r2, ip
+ 832 00f0 06FB008C 		mla	ip, r6, r0, r8
+ 833 00f4 07FB11C8 		mls	r8, r7, r1, ip
+ 834 00f8 05FB128C 		mls	ip, r5, r2, r8
+ 835 00fc 4FEAEC38 		asr	r8, ip, #15
+ 836 0100 04FB00FC 		mul	ip, r4, r0
+ 837 0104 06FB1ECC 		mls	ip, r6, lr, ip
+ 838 0108 05FB0EFE 		mul	lr, r5, lr
+ 839              	.LVL117:
+ 840 010c 07FB00E0 		mla	r0, r7, r0, lr
+ 841              	.LVL118:
+ 842 0110 05FB01CC 		mla	ip, r5, r1, ip
+ 843 0114 06FB0101 		mla	r1, r6, r1, r0
+ 844              	.LVL119:
+ 845 0118 07FB12CC 		mls	ip, r7, r2, ip
+ 846 011c 04FB0212 		mla	r2, r4, r2, r1
+ 847              	.LVL120:
+ 153:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* wrap it in the shortest direction       */
+ 154:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_WRAP_SHORTEST(err);
+ 848              		.loc 1 154 0 discriminator 6
+ 849 0120 002A     		cmp	r2, #0
+ 152:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
+ 850              		.loc 1 152 0 discriminator 6
+ 851 0122 4FEAE939 		asr	r9, r9, #15
+ 852              	.LVL121:
+ 853 0126 4FEAEC3C 		asr	ip, ip, #15
+ 854              	.LVL122:
+ 855              		.loc 1 154 0 discriminator 6
+ 856 012a 05DA     		bge	.L80
+ 857              	.LVL123:
+ 858              		.loc 1 154 0 is_stmt 0 discriminator 1
+ 859 012c C9F10009 		rsb	r9, r9, #0
+ 860              	.LVL124:
+ 861 0130 C8F10008 		rsb	r8, r8, #0
+ 862              	.LVL125:
+ 863 0134 CCF1000C 		rsb	ip, ip, #0
+ 864              	.LVL126:
+ 865              	.L80:
+ 155:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* propagate the 2nd order linear model    */
+ 156:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 157:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   const struct Int32Rates accel_rate = {
+ 158:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 159:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_Q) * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 160:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 161:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 162:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   const struct Int32Rates accel_angle = {
+ 163:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_P)* (err.qx   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_P_RES),
+ 866              		.loc 1 163 0 is_stmt 1
+ 867 0138 534A     		ldr	r2, .L83+16
+ 158:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 868              		.loc 1 158 0
+ 869 013a 5449     		ldr	r1, .L83+20
+ 870              		.loc 1 163 0
+ 871 013c 4FEA292E 		asr	lr, r9, #8
+ 872 0140 02FB0EF9 		mul	r9, r2, lr
+ 873              	.LVL127:
+ 158:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 874              		.loc 1 158 0
+ 875 0144 4FEA2B10 		asr	r0, fp, #4
+ 876 0148 4843     		muls	r0, r1, r0
+ 164:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_Q)* (err.qy   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_Q_RES),
+ 877              		.loc 1 164 0
+ 878 014a 4FEA2828 		asr	r8, r8, #8
+ 879              	.LVL128:
+ 880 014e 02FB08F2 		mul	r2, r2, r8
+ 159:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_Q) * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 881              		.loc 1 159 0
+ 882 0152 4FEA2A1A 		asr	sl, sl, #4
+ 883              	.LVL129:
+ 884 0156 01FB0AF1 		mul	r1, r1, sl
+ 163:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_P)* (err.qx   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_P_RES),
+ 885              		.loc 1 163 0
+ 886 015a 4FEAE91E 		asr	lr, r9, #7
+ 887              	.LVL130:
+ 165:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_R)* (err.qz   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+ 166:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   RATES_SUM(stab_att_ref_accel, accel_rate, accel_angle);
+ 888              		.loc 1 167 0
+ 889 015e 0EEBA020 		add	r0, lr, r0, asr #10
+ 890 0162 1860     		str	r0, [r3, #0]
+ 164:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_Q)* (err.qy   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_Q_RES),
+ 891              		.loc 1 164 0
+ 892 0164 D011     		asrs	r0, r2, #7
+ 893              	.LVL131:
+ 160:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 894              		.loc 1 160 0
+ 895 0166 019A     		ldr	r2, [sp, #4]
+ 896              		.loc 1 167 0
+ 897 0168 00EBA121 		add	r1, r0, r1, asr #10
+ 898 016c 5960     		str	r1, [r3, #4]
+ 160:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 899              		.loc 1 160 0
+ 900 016e 1011     		asrs	r0, r2, #4
+ 901              	.LVL132:
+ 902 0170 4749     		ldr	r1, .L83+24
+ 165:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_R)* (err.qz   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+ 903              		.loc 1 165 0
+ 904 0172 484A     		ldr	r2, .L83+28
+ 905 0174 4FEA2C2C 		asr	ip, ip, #8
+ 906              	.LVL133:
+ 160:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (Z
+ 907              		.loc 1 160 0
+ 908 0178 4843     		muls	r0, r1, r0
+ 165:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****     ((int32_t)(-OMEGA_2_R)* (err.qz   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+ 909              		.loc 1 165 0
+ 910 017a 02FB0CF1 		mul	r1, r2, ip
+ 911 017e 4FEAE119 		asr	r9, r1, #7
+ 912              	.LVL134:
+ 913              		.loc 1 167 0
+ 914 0182 09EBA020 		add	r0, r9, r0, asr #10
+ 915              	.LBB32:
+ 168:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 169:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 170:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /*	saturate acceleration */
+ 171:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   //const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
+ 172:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   //const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
+ 173:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   //RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
+ 174:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 175:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** 
+ 176:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   /* compute ref_euler for debugging and telemetry */
+ 177:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   struct Int32Eulers ref_eul;
+ 178:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+ 916              		.loc 1 178 0
+ 917 0186 05FB07F1 		mul	r1, r5, r7
+ 918 018a 04FB06F2 		mul	r2, r4, r6
+ 919              	.LBE32:
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   RATES_SUM(stab_att_ref_accel, accel_rate, accel_angle);
+ 920              		.loc 1 167 0
+ 921 018e 9860     		str	r0, [r3, #8]
+ 922              	.LVL135:
+ 923              	.LBB33:
+ 924              		.loc 1 178 0
+ 925 0190 06FB06F3 		mul	r3, r6, r6
+ 926 0194 C813     		asrs	r0, r1, #15
+ 927 0196 4FEAE338 		asr	r8, r3, #15
+ 928              	.LVL136:
+ 929 019a 00EBE233 		add	r3, r0, r2, asr #15
+ 930 019e 43F31000 		sbfx	r0, r3, #0, #17
+ 931              	.LVL137:
+ 932 01a2 FFF7FEFF 		bl	__aeabi_i2f
+ 933              	.LVL138:
+ 934 01a6 4FF06251 		mov	r1, #947912704
+ 935 01aa FFF7FEFF 		bl	__aeabi_fmul
+ 936              	.LVL139:
+ 937 01ae 05FB05F2 		mul	r2, r5, r5
+ 938 01b2 08EBE231 		add	r1, r8, r2, asr #15
+ 939 01b6 8246     		mov	sl, r0
+ 940 01b8 41F31000 		sbfx	r0, r1, #0, #17
+ 941 01bc C0F58040 		rsb	r0, r0, #16384
+ 942 01c0 FFF7FEFF 		bl	__aeabi_i2f
+ 943              	.LVL140:
+ 944 01c4 4FF06251 		mov	r1, #947912704
+ 945 01c8 FFF7FEFF 		bl	__aeabi_fmul
+ 946              	.LVL141:
+ 947 01cc 0146     		mov	r1, r0
+ 948 01ce 5046     		mov	r0, sl
+ 949 01d0 FFF7FEFF 		bl	atan2f
+ 950              	.LVL142:
+ 951 01d4 06FB07F2 		mul	r2, r6, r7
+ 952 01d8 04FB05F3 		mul	r3, r4, r5
+ 953 01dc D113     		asrs	r1, r2, #15
+ 954              	.LVL143:
+ 955 01de 8246     		mov	sl, r0
+ 956              	.LVL144:
+ 957 01e0 C1EBE330 		rsb	r0, r1, r3, asr #15
+ 958              	.LVL145:
+ 959 01e4 40F31000 		sbfx	r0, r0, #0, #17
+ 960 01e8 FFF7FEFF 		bl	__aeabi_i2f
+ 961              	.LVL146:
+ 962 01ec 4FF06251 		mov	r1, #947912704
+ 963 01f0 FFF7FEFF 		bl	__aeabi_fmul
+ 964              	.LVL147:
+ 965 01f4 FFF7FEFF 		bl	asinf
+ 966              	.LVL148:
+ 967 01f8 6743     		muls	r7, r4, r7
+ 968              	.LVL149:
+ 969 01fa 7543     		muls	r5, r6, r5
+ 970              	.LVL150:
+ 971 01fc FF13     		asrs	r7, r7, #15
+ 972              	.LVL151:
+ 973 01fe 07EBE535 		add	r5, r7, r5, asr #15
+ 974 0202 8146     		mov	r9, r0
+ 975              	.LVL152:
+ 976 0204 45F31000 		sbfx	r0, r5, #0, #17
+ 977              	.LVL153:
+ 978 0208 FFF7FEFF 		bl	__aeabi_i2f
+ 979              	.LVL154:
+ 980 020c 4FF06251 		mov	r1, #947912704
+ 981 0210 FFF7FEFF 		bl	__aeabi_fmul
+ 982              	.LVL155:
+ 983 0214 6443     		muls	r4, r4, r4
+ 984              	.LVL156:
+ 985 0216 08EBE438 		add	r8, r8, r4, asr #15
+ 986              	.LVL157:
+ 987 021a 48F31004 		sbfx	r4, r8, #0, #17
+ 988 021e 0546     		mov	r5, r0
+ 989 0220 C4F58040 		rsb	r0, r4, #16384
+ 990 0224 FFF7FEFF 		bl	__aeabi_i2f
+ 991              	.LVL158:
+ 992 0228 4FF06251 		mov	r1, #947912704
+ 993 022c FFF7FEFF 		bl	__aeabi_fmul
+ 994              	.LVL159:
+ 995 0230 0146     		mov	r1, r0
+ 996 0232 2846     		mov	r0, r5
+ 997 0234 FFF7FEFF 		bl	atan2f
+ 998              	.LVL160:
+ 999 0238 4FF08B41 		mov	r1, #1166016512
+ 1000 023c 0546     		mov	r5, r0
+ 1001              	.LVL161:
+ 1002 023e 5046     		mov	r0, sl
+ 1003              	.LVL162:
+ 1004 0240 FFF7FEFF 		bl	__aeabi_fmul
+ 1005              	.LVL163:
+ 1006 0244 FFF7FEFF 		bl	__aeabi_f2iz
+ 1007              	.LVL164:
+ 1008              	.LBE33:
+ 179:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_LSHIFT(stab_att_ref_euler, ref_eul, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+ 1009              		.loc 1 179 0
+ 1010 0248 134C     		ldr	r4, .L83+32
+ 1011 024a 0302     		lsls	r3, r0, #8
+ 1012 024c 2360     		str	r3, [r4, #0]
+ 1013              	.LBB34:
+ 178:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+ 1014              		.loc 1 178 0
+ 1015 024e 4FF08B41 		mov	r1, #1166016512
+ 1016 0252 09F10040 		add	r0, r9, #-2147483648
+ 1017 0256 FFF7FEFF 		bl	__aeabi_fmul
+ 1018              	.LVL165:
+ 1019 025a FFF7FEFF 		bl	__aeabi_f2iz
+ 1020              	.LVL166:
+ 1021              	.LBE34:
+ 1022              		.loc 1 179 0
+ 1023 025e 0202     		lsls	r2, r0, #8
+ 1024              	.LBB35:
+ 178:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+ 1025              		.loc 1 178 0
+ 1026 0260 4FF08B41 		mov	r1, #1166016512
+ 1027              	.LBE35:
+ 1028              		.loc 1 179 0
+ 1029 0264 6260     		str	r2, [r4, #4]
+ 1030              	.LBB36:
+ 178:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c ****   INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+ 1031              		.loc 1 178 0
+ 1032 0266 2846     		mov	r0, r5
+ 1033 0268 FFF7FEFF 		bl	__aeabi_fmul
+ 1034              	.LVL167:
+ 1035 026c FFF7FEFF 		bl	__aeabi_f2iz
+ 1036              	.LVL168:
+ 1037              	.LBE36:
+ 1038              		.loc 1 179 0
+ 1039 0270 0102     		lsls	r1, r0, #8
+ 1040 0272 A160     		str	r1, [r4, #8]
+ 180:firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c **** }
+ 1041              		.loc 1 180 0
+ 1042 0274 BDE8FE8F 		pop	{r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 1043              	.L84:
+ 1044              		.align	2
+ 1045              	.L83:
+ 1046 0278 00000000 		.word	.LANCHOR4
+ 1047 027c 00000000 		.word	.LANCHOR3
+ 1048 0280 00000000 		.word	.LANCHOR5
+ 1049 0284 00000000 		.word	.LANCHOR1
+ 1050 0288 869EFFFF 		.word	-24954
+ 1051 028c 0EA1FFFF 		.word	-24306
+ 1052 0290 A9C4FFFF 		.word	-15191
+ 1053 0294 EDD9FFFF 		.word	-9747
+ 1054 0298 00000000 		.word	.LANCHOR2
+ 1055              		.cfi_endproc
+ 1056              	.LFE103:
+ 1058              		.global	stab_att_ref_model
+ 1059              		.global	stab_att_ref_accel
+ 1060              		.global	stab_att_ref_rate
+ 1061              		.global	stab_att_ref_quat
+ 1062              		.global	stab_att_ref_euler
+ 1063              		.global	stab_att_sp_quat
+ 1064              		.global	stab_att_sp_euler
+ 1065              		.section	.bss.stab_att_ref_rate,"aw",%nobits
+ 1066              		.align	2
+ 1067              		.set	.LANCHOR4,. + 0
+ 1070              	stab_att_ref_rate:
+ 1071 0000 00000000 		.space	12
+ 1071      00000000 
+ 1071      00000000 
+ 1072              		.section	.bss.stab_att_sp_euler,"aw",%nobits
+ 1073              		.align	2
+ 1074              		.set	.LANCHOR0,. + 0
+ 1077              	stab_att_sp_euler:
+ 1078 0000 00000000 		.space	12
+ 1078      00000000 
+ 1078      00000000 
+ 1079              		.section	.data.stab_att_ref_model,"aw",%progbits
+ 1080              		.align	2
+ 1083              	stab_att_ref_model:
+ 1084 0000 0D000000 		.word	13
+ 1085 0004 0D000000 		.word	13
+ 1086 0008 08000000 		.word	8
+ 1087 000c 00000000 		.word	0
+ 1088 0010 00000000 		.word	0
+ 1089 0014 00000000 		.word	0
+ 1090              		.section	.bss.stab_att_ref_euler,"aw",%nobits
+ 1091              		.align	2
+ 1092              		.set	.LANCHOR2,. + 0
+ 1095              	stab_att_ref_euler:
+ 1096 0000 00000000 		.space	12
+ 1096      00000000 
+ 1096      00000000 
+ 1097              		.section	.bss.stab_att_ref_quat,"aw",%nobits
+ 1098              		.align	2
+ 1099              		.set	.LANCHOR3,. + 0
+ 1102              	stab_att_ref_quat:
+ 1103 0000 00000000 		.space	16
+ 1103      00000000 
+ 1103      00000000 
+ 1103      00000000 
+ 1104              		.section	.bss.stab_att_ref_accel,"aw",%nobits
+ 1105              		.align	2
+ 1106              		.set	.LANCHOR5,. + 0
+ 1109              	stab_att_ref_accel:
+ 1110 0000 00000000 		.space	12
+ 1110      00000000 
+ 1110      00000000 
+ 1111              		.section	.bss.stab_att_sp_quat,"aw",%nobits
+ 1112              		.align	2
+ 1113              		.set	.LANCHOR1,. + 0
+ 1116              	stab_att_sp_quat:
+ 1117 0000 00000000 		.space	16
+ 1117      00000000 
+ 1117      00000000 
+ 1117      00000000 
+ 1118              		.text
+ 1119              	.Letext0:
+ 1120              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1121              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1122              		.file 4 "./math/pprz_algebra_int.h"
+ 1123              		.file 5 "./math/pprz_algebra_float.h"
+ 1124              		.file 6 "./math/pprz_geodetic_int.h"
+ 1125              		.file 7 "./math/pprz_geodetic_float.h"
+ 1126              		.file 8 "./math/pprz_orientation_conversion.h"
+ 1127              		.file 9 "./state.h"
+ 1128              		.file 10 "./firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h"
+ 1129              		.file 11 "./math/pprz_trig_int.h"
+ 1130              		.file 12 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stabilization_attitude_ref_quat_int.c
+/var/tmp//ccjadGWT.s:19     .text.stabilization_attitude_ref_init:0000000000000000 $t
+/var/tmp//ccjadGWT.s:24     .text.stabilization_attitude_ref_init:0000000000000000 stabilization_attitude_ref_init
+/var/tmp//ccjadGWT.s:78     .text.stabilization_attitude_ref_init:000000000000003c $d
+/var/tmp//ccjadGWT.s:88     .text.stabilization_attitude_ref_enter:0000000000000000 $t
+/var/tmp//ccjadGWT.s:93     .text.stabilization_attitude_ref_enter:0000000000000000 stabilization_attitude_ref_enter
+/var/tmp//ccjadGWT.s:660    .text.stabilization_attitude_ref_enter:00000000000002cc $d
+/var/tmp//ccjadGWT.s:674    .text.stabilization_attitude_ref_update:0000000000000000 $t
+/var/tmp//ccjadGWT.s:679    .text.stabilization_attitude_ref_update:0000000000000000 stabilization_attitude_ref_update
+/var/tmp//ccjadGWT.s:1046   .text.stabilization_attitude_ref_update:0000000000000278 $d
+/var/tmp//ccjadGWT.s:1083   .data.stab_att_ref_model:0000000000000000 stab_att_ref_model
+/var/tmp//ccjadGWT.s:1109   .bss.stab_att_ref_accel:0000000000000000 stab_att_ref_accel
+/var/tmp//ccjadGWT.s:1070   .bss.stab_att_ref_rate:0000000000000000 stab_att_ref_rate
+/var/tmp//ccjadGWT.s:1102   .bss.stab_att_ref_quat:0000000000000000 stab_att_ref_quat
+/var/tmp//ccjadGWT.s:1095   .bss.stab_att_ref_euler:0000000000000000 stab_att_ref_euler
+/var/tmp//ccjadGWT.s:1116   .bss.stab_att_sp_quat:0000000000000000 stab_att_sp_quat
+/var/tmp//ccjadGWT.s:1077   .bss.stab_att_sp_euler:0000000000000000 stab_att_sp_euler
+/var/tmp//ccjadGWT.s:1066   .bss.stab_att_ref_rate:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1073   .bss.stab_att_sp_euler:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1080   .data.stab_att_ref_model:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1091   .bss.stab_att_ref_euler:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1098   .bss.stab_att_ref_quat:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1105   .bss.stab_att_ref_accel:0000000000000000 $d
+/var/tmp//ccjadGWT.s:1112   .bss.stab_att_sp_quat:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+memset
+pprz_trig_int
+__aeabi_i2f
+__aeabi_fmul
+__aeabi_f2iz
+atan2f
+asinf

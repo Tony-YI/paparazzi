@@ -1,0 +1,39 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"ahrs.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	ahrs
+  19              		.section	.bss.ahrs,"aw",%nobits
+  22              	ahrs:
+  23 0000 00       		.space	1
+  24              		.text
+  25              	.Letext0:
+  26              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  27              		.file 2 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+  28              		.file 3 "./math/pprz_algebra_int.h"
+  29              		.file 4 "./math/pprz_algebra_float.h"
+  30              		.file 5 "./math/pprz_geodetic_int.h"
+  31              		.file 6 "./math/pprz_geodetic_float.h"
+  32              		.file 7 "./math/pprz_orientation_conversion.h"
+  33              		.file 8 "./state.h"
+  34              		.file 9 "./subsystems/ahrs.h"
+  35              		.file 10 "subsystems/ahrs.c"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ahrs.c
+/var/tmp//ccipDbCf.s:22     .bss.ahrs:0000000000000000 ahrs
+/var/tmp//ccipDbCf.s:23     .bss.ahrs:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

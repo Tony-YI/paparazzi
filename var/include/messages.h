@@ -1,4 +1,4 @@
-/* Automatically generated from /Users/tony-yi/git/paparazzi/conf/messages.xml */
+/* Automatically generated from /Users/tony-yi/git/paparazzi_local/conf/messages.xml */
 /* Please DO NOT EDIT */
 /* Macros to send and receive messages of class telemetry */
 #ifdef DOWNLINK
@@ -238,14 +238,14 @@
 #define DL_HENRY_GNSS 255
 #define DL_MSG_telemetry_NB 234
 
-#define MSG_telemetry_LENGTHS {0,(2+0+2),(2+0+1+nb_md5sum*1),(2+0),(2+0+2),(2+0+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+4+2+2+4+2+2+2+2+2),(2+0+4+4+4),(2+0+2+2+2+2+2),(2+0+1+4+4+2+4+2+2+2+4+1+1),(2+0+4+4+1),(2+0+1+1+4+4+4+4+1+1),(2+0+1+1+1+1+1+1),(2+0+2+2+2+2+1+2+2+2),(2+0+1+1+1),(2+0+4+1),(2+0+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+2+1),(2+0+2+2),(2+0+8+4),(2+0+2+2+2+2),(2+0+4+4+4),(2+0+4+4+4+4),(2+0+1+4+4+4+4+4+4+4),(2+0+1+4+1+4+4+4),(2+0+1+1+1+1+1+1+2),(2+0+1+nb_msg*1),(2+0+4+4+4+4),(2+0+1),(2+0+2+4+4+4+4+4+1),(2+0+1+2+2),(2+0+1+4),(2+0+1+4+4),(2+0+2+2+2+2+2+1),(2+0+2+4),(2+0+1+4+4+4+1),(2+0+1+1+1+1),(2+0+4+4+2+4),(2+0+2+2+2+2+2+2+2+2+2+2+2),(2+0+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4),(2+0+4+4+4),(2+0+4+2+4),(2+0+4+4+4+4),(2+0+2+2+2+2),(2+0+1+4+4+4),(2+0+1+4),(2+0+1+4+4+4),(2+0+1+1+4+4),(2+0+1+1+1),(2+0+1+nb_values*2),(2+0+2+2+2),(2+0+4+4+4+4),(2+0+2+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+1+1+1+1+4+2+1+1),(2+0+2+2+4),(2+0+2+2+4),(2+0+2+2+4+4+2+2),(2+0+4+4+4+2+2+2+2+4+1+1),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+2+4+4),(2+0+2+4+4+4+2+4+4+4+4+4+4+4+2+1),(2+0+2+4+4+4+4+4+4),(2+0+2+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+2+4),(2+0+2+4),(2+0+2+1+1),(2+0+1+4+4+4+4+4+4+4+4),0,0,0,0,(2+0+4+4),(2+0+4),0,0,(2+0+4+4),(2+0+4+4+2+2+2+2+1+1+1+1+1+2),(2+0+1+1+4+4+4),(2+0+1+1+1),(2+0+4+4+4+4),(2+0+2+4+2+4),(2+0+2+4),(2+0+4+4+4),(2+0+4+2),(2+0+2+2+4+4),(2+0+2+2+2+2+1+nb_heat*1),(2+0+2+2+4+4),(2+0+4+4+4+4+4+4+4+1+1),(2+0+4+4+1+1),(2+0+4+4+4+4+4+4+2+1),(2+0+4+4+4+2),(2+0+2+4+4),(2+0+2+4),(2+0+2+4),(2+0+4+4),(2+0+1+1+nb_values*2),(2+0+1+nb_values*2),(2+0+1+nb_values*2),(2+0+1+1+1+2+4),(2+0+1+1+nb_values*2),(2+0+1+nb_values*2),(2+0+2+2+2+4+2+2+1+1),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+2+4+4+4+1+2+2+2+2+4),(2+0+1+1+1+nb_servo*2),(2+0+4),(2+0+4+4),(2+0+1+nb_values*1),(2+0+2+2+4+4),(2+0+4+4+4+4),(2+0+2+2+2+2+2+2+2+2),(2+0+2+2+2+2+2+2+2+2+2+2),(2+0+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2),(2+0+1),(2+0+1+1),(2+0+1),(2+0+1+4),(2+0+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+2+2+2+2+2+2+2+2),(2+0+2+2+4+4),(2+0+2),(2+0+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+1),0,(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+2),(2+0+4),(2+0+4+4+4+4+4+4+4+4),(2+0+2+2+2+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+2),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+2+1+1),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+2+2+1+1+1),(2+0+2+2+2+2+2+2+1),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+2+2+2),(2+0+4+4+4),(2+0+2+2),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+2+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4),(2+0+4+4),(2+0+4+4+4+4),(2+0+4+4+4),(2+0+4+2+2+2+4+1),(2+0+4+4+4),(2+0+4),(2+0+4+4+4+4),(2+0+1+nb_raw_fault*2),(2+0+1+nb_speeds*2),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+1+nb_busvolts*2),(2+0+4+4+4+4+4+4+4+1),(2+0+2+2+1+1+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+2+2+2),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4),(2+0+4+4+4+4),(2+0+2+2+2+1),(2+0+4+4+4),(2+0+4),(2+0+1+1+nb_samples*4),(2+0+4+4+4+4+1),0,0,0,0,0,0,(2+0+4+4+4+4+4),(2+0+4),(2+0+4+4),0,0,0,0,0,(2+0+4),0,0,(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+1+1+1+1+1+1+1+1+1+2+2),(2+0+1+2),(2+0+1+2+2+4+4+1+4),(2+0+2+4),(2+0+2+2),(2+0+2+4),0,(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4),(2+0+4+4+4),(2+0+1),(2+0+1),(2+0+1+1),(2+0+4+4+4),(2+0+1+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+2+2+2+2+2+2+2+2+4+1),(2+0+4+4+4+4+4+4),(2+0+4+8+1+8+8+8+8+8+8+1+1+8+8+8),}
+#define MSG_telemetry_LENGTHS {0,(2+0+2),(2+0+1+nb_md5sum*1),(2+0),(2+0+2),(2+0+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+4+2+2+4+2+2+2+2+2),(2+0+4+4+4),(2+0+2+2+2+2+2),(2+0+1+4+4+2+4+2+2+2+4+1+1),(2+0+4+4+1),(2+0+1+1+4+4+4+4+1+1),(2+0+1+1+1+1+1+1),(2+0+2+2+2+2+1+2+2+2),(2+0+1+1+1),(2+0+4+1),(2+0+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+2+1),(2+0+2+2),(2+0+8+4),(2+0+2+2+2+2),(2+0+4+4+4),(2+0+4+4+4+4),(2+0+1+4+4+4+4+4+4+4),(2+0+1+4+1+4+4+4),(2+0+1+1+1+1+1+1+2),(2+0+1+nb_msg*1),(2+0+4+4+4+4),(2+0+1),(2+0+2+4+4+4+4+4+1),(2+0+1+2+2),(2+0+1+4),(2+0+1+4+4),(2+0+2+2+2+2+2+1),(2+0+2+4),(2+0+1+4+4+4+1),(2+0+1+1+1+1),(2+0+4+4+2+4),(2+0+2+2+2+2+2+2+2+2+2+2+2),(2+0+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4),(2+0+4+4+4),(2+0+4+2+4),(2+0+4+4+4+4),(2+0+2+2+2+2),(2+0+1+4+4+4),(2+0+1+4),(2+0+1+4+4+4),(2+0+1+1+4+4),(2+0+1+1+1),(2+0+1+nb_values*2),(2+0+2+2+2),(2+0+4+4+4+4),(2+0+2+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+1+1+1+1+4+2+1+1),(2+0+2+2+4),(2+0+2+2+4),(2+0+2+2+4+4+2+2),(2+0+4+4+4+2+2+2+2+4+1+1),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+2+4+4),(2+0+2+4+4+4+2+4+4+4+4+4+4+4+2+1),(2+0+2+4+4+4+4+4+4),(2+0+2+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+2+4),(2+0+2+4),(2+0+2+1+1),(2+0+1+4+4+4+4+4+4+4+4),0,0,0,0,(2+0+4+4),(2+0+4),0,0,(2+0+4+4),(2+0+4+4+2+2+2+2+1+1+1+1+1+2),(2+0+1+1+4+4+4),(2+0+1+1+1),(2+0+4+4+4+4),(2+0+2+4+2+4),(2+0+2+4),(2+0+4+4+4),(2+0+4+2),(2+0+2+2+4+4),(2+0+2+2+2+2+1+nb_heat*1),(2+0+2+2+4+4),(2+0+4+4+4+4+4+4+4+1+1),(2+0+4+4+1+1),(2+0+4+4+4+4+4+4+2+1),(2+0+4+4+4+2),(2+0+2+4+4),(2+0+2+4),(2+0+2+4),(2+0+4+4),(2+0+1+1+nb_values*2),(2+0+1+nb_values*2),(2+0+1+nb_values*2),(2+0+1+1+1+2+4),(2+0+1+1+nb_values*2),(2+0+1+nb_values*2),(2+0+2+2+2+4+2+2+1+1),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+2+4+4+4+1+2+2+2+2+4),(2+0+1+1+1+nb_servo*2),(2+0+4),(2+0+4+4),(2+0+1+nb_values*1),(2+0+2+2+4+4),(2+0+4+4+4+4),(2+0+2+2+2+2+2+2+2+2),(2+0+2+2+2+2+2+2+2+2+2+2),(2+0+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2),(2+0+1),(2+0+1+1),(2+0+1),(2+0+1+4),(2+0+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+2+2+2+2+2+2+2+2),(2+0+2+2+4+4),(2+0+2),(2+0+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+1),0,(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+2),(2+0+4),(2+0+4+4+4+4+4+4+4+4),(2+0+2+2+2+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+2),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+2+1+1),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+2+2+1+1+1),(2+0+2+2+2+2+2+2+1),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4),(2+0+2+2+2),(2+0+4+4+4),(2+0+2+2),(2+0+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+2+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4),(2+0+4+4),(2+0+4+4+4+4),(2+0+4+4+4),(2+0+4+2+2+2+4+1),(2+0+4+4+4),(2+0+4),(2+0+4+4+4+4),(2+0+1+nb_raw_fault*2),(2+0+1+nb_speeds*2),(2+0+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+1+nb_busvolts*2),(2+0+4+4+4+4+4+4+4+1),(2+0+2+2+1+1+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+2+2+2),(2+0+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4),(2+0+4+4+4+4+4),(2+0+4+4+4+4),(2+0+2+2+2+1),(2+0+4+4+4),(2+0+4),(2+0+1+1+nb_samples*4),(2+0+4+4+4+4+1),0,0,0,0,0,0,(2+0+4+4+4+4+4),(2+0+4),(2+0+4+4),0,0,0,0,0,(2+0+4),0,0,(2+0+4+4+4+4+4+4+4+4+4+4+4+4+4),(2+0+4+1+1+1+1+1+1+1+1+1+2+2),(2+0+1+2),(2+0+1+2+2+4+4+1+4),(2+0+2+4),(2+0+2+2),(2+0+2+4),0,(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+4),(2+0+4+4+4),(2+0+1),(2+0+1),(2+0+1+1),(2+0+4+4+4),(2+0+1+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+8+4+4+4),(2+0+4+4+4+4+4+4+4+4+4),(2+0+4+4+4+4+4+4),(2+0+4+4+4),(2+0+2+2+2+2+2+2+2+2+4+1),(2+0+4+4+4+4+4+4),(2+0+4+8+1+8+8+8+8+8+8+1+1+8+8+8),}
 
 /*
  Size for non variable messages
 173 : LOOSE_INS_GPS
 96 : STAB_ATTITUDE_FLOAT
+88 : STAB_ATTITUDE_INT
 87 : HENRY_GNSS
-84 : STAB_ATTITUDE_INT
 84 : HOVER_LOOP
 76 : RATE_LOOP
 74 : XSENS
@@ -2360,10 +2360,10 @@
 	  DownlinkOverrun(_trans, _dev ); \
 }
 
-#define DOWNLINK_SEND_STAB_ATTITUDE_INT(_trans, _dev, est_p, est_q, est_r, est_phi, est_theta, est_psi, sp_phi, sp_theta, sp_psi, sum_err_phi, sum_err_theta, sum_err_psi, delta_a_fb, delta_e_fb, delta_r_fb, delta_a_ff, delta_e_ff, delta_r_ff, delta_a, delta_e, delta_r){ \
-	if (DownlinkCheckFreeSpace(_trans, _dev, DownlinkSizeOf(_trans, _dev, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4))) {\
-	  DownlinkCountBytes(_trans, _dev, DownlinkSizeOf(_trans, _dev, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4)); \
-	  DownlinkStartMessage(_trans, _dev, "STAB_ATTITUDE_INT", DL_STAB_ATTITUDE_INT, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4) \
+#define DOWNLINK_SEND_STAB_ATTITUDE_INT(_trans, _dev, est_p, est_q, est_r, est_phi, est_theta, est_psi, sp_phi, sp_theta, sp_psi, sum_err_phi, sum_err_theta, sum_err_psi, stab_cmd_fb_roll, stab_cmd_fb_pitch, stab_cmd_fb_yaw, stab_cmd_ff_roll, stab_cmd_ff_pitch, stab_cmd_ff_yaw, stab_cmd_roll, stab_cmd_pitch, stab_cmd_yaw, stab_cmd_thrust){ \
+	if (DownlinkCheckFreeSpace(_trans, _dev, DownlinkSizeOf(_trans, _dev, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4))) {\
+	  DownlinkCountBytes(_trans, _dev, DownlinkSizeOf(_trans, _dev, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4)); \
+	  DownlinkStartMessage(_trans, _dev, "STAB_ATTITUDE_INT", DL_STAB_ATTITUDE_INT, 0+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4) \
 	  DownlinkPutInt32ByAddr(_trans, _dev, (est_p)); \
 	  DownlinkPutInt32ByAddr(_trans, _dev, (est_q)); \
 	  DownlinkPutInt32ByAddr(_trans, _dev, (est_r)); \
@@ -2376,15 +2376,16 @@
 	  DownlinkPutInt32ByAddr(_trans, _dev, (sum_err_phi)); \
 	  DownlinkPutInt32ByAddr(_trans, _dev, (sum_err_theta)); \
 	  DownlinkPutInt32ByAddr(_trans, _dev, (sum_err_psi)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_a_fb)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_e_fb)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_r_fb)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_a_ff)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_e_ff)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_r_ff)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_a)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_e)); \
-	  DownlinkPutInt32ByAddr(_trans, _dev, (delta_r)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_fb_roll)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_fb_pitch)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_fb_yaw)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_ff_roll)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_ff_pitch)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_ff_yaw)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_roll)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_pitch)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_yaw)); \
+	  DownlinkPutInt32ByAddr(_trans, _dev, (stab_cmd_thrust)); \
 	  DownlinkEndMessage(_trans, _dev ) \
 	} else \
 	  DownlinkOverrun(_trans, _dev ); \
@@ -4059,7 +4060,7 @@
 #define DOWNLINK_SEND_RATE_LOOP(_trans, _dev, sp_p, sp_q, sp_r, ref_p, ref_q, ref_r, refdot_p, refdot_q, refdot_r, sumerr_p, sumerr_q, sumerr_r, ff_p, ff_q, ff_r, fb_p, fb_q, fb_r, delta_t) {}
 #define DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev, lp_gp, lp_gq, lp_gr, gp, gq, gr, noise, cnt, status) {}
 #define DOWNLINK_SEND_FILTER_COR(_trans, _dev, mphi, mtheta, mpsi, qi, qx, qy, qz) {}
-#define DOWNLINK_SEND_STAB_ATTITUDE_INT(_trans, _dev, est_p, est_q, est_r, est_phi, est_theta, est_psi, sp_phi, sp_theta, sp_psi, sum_err_phi, sum_err_theta, sum_err_psi, delta_a_fb, delta_e_fb, delta_r_fb, delta_a_ff, delta_e_ff, delta_r_ff, delta_a, delta_e, delta_r) {}
+#define DOWNLINK_SEND_STAB_ATTITUDE_INT(_trans, _dev, est_p, est_q, est_r, est_phi, est_theta, est_psi, sp_phi, sp_theta, sp_psi, sum_err_phi, sum_err_theta, sum_err_psi, stab_cmd_fb_roll, stab_cmd_fb_pitch, stab_cmd_fb_yaw, stab_cmd_ff_roll, stab_cmd_ff_pitch, stab_cmd_ff_yaw, stab_cmd_roll, stab_cmd_pitch, stab_cmd_yaw, stab_cmd_thrust) {}
 #define DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_trans, _dev, sp_phi, sp_theta, sp_psi, ref_phi, ref_theta, ref_psi, ref_p, ref_q, ref_r, ref_pd, ref_qd, ref_rd) {}
 #define DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_trans, _dev, sp_phi, sp_theta, sp_psi, ref_phi, ref_theta, ref_psi, ref_p, ref_q, ref_r, ref_pd, ref_qd, ref_rd) {}
 #define DOWNLINK_SEND_ROTORCRAFT_CMD(_trans, _dev, cmd_roll, cmd_pitch, cmd_yaw, cmd_thrust) {}
@@ -5013,15 +5014,16 @@
 #define DL_STAB_ATTITUDE_INT_sum_err_phi(_payload) ((int32_t)(*((uint8_t*)_payload+38)|*((uint8_t*)_payload+38+1)<<8|((uint32_t)*((uint8_t*)_payload+38+2))<<16|((uint32_t)*((uint8_t*)_payload+38+3))<<24))
 #define DL_STAB_ATTITUDE_INT_sum_err_theta(_payload) ((int32_t)(*((uint8_t*)_payload+42)|*((uint8_t*)_payload+42+1)<<8|((uint32_t)*((uint8_t*)_payload+42+2))<<16|((uint32_t)*((uint8_t*)_payload+42+3))<<24))
 #define DL_STAB_ATTITUDE_INT_sum_err_psi(_payload) ((int32_t)(*((uint8_t*)_payload+46)|*((uint8_t*)_payload+46+1)<<8|((uint32_t)*((uint8_t*)_payload+46+2))<<16|((uint32_t)*((uint8_t*)_payload+46+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_a_fb(_payload) ((int32_t)(*((uint8_t*)_payload+50)|*((uint8_t*)_payload+50+1)<<8|((uint32_t)*((uint8_t*)_payload+50+2))<<16|((uint32_t)*((uint8_t*)_payload+50+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_e_fb(_payload) ((int32_t)(*((uint8_t*)_payload+54)|*((uint8_t*)_payload+54+1)<<8|((uint32_t)*((uint8_t*)_payload+54+2))<<16|((uint32_t)*((uint8_t*)_payload+54+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_r_fb(_payload) ((int32_t)(*((uint8_t*)_payload+58)|*((uint8_t*)_payload+58+1)<<8|((uint32_t)*((uint8_t*)_payload+58+2))<<16|((uint32_t)*((uint8_t*)_payload+58+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_a_ff(_payload) ((int32_t)(*((uint8_t*)_payload+62)|*((uint8_t*)_payload+62+1)<<8|((uint32_t)*((uint8_t*)_payload+62+2))<<16|((uint32_t)*((uint8_t*)_payload+62+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_e_ff(_payload) ((int32_t)(*((uint8_t*)_payload+66)|*((uint8_t*)_payload+66+1)<<8|((uint32_t)*((uint8_t*)_payload+66+2))<<16|((uint32_t)*((uint8_t*)_payload+66+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_r_ff(_payload) ((int32_t)(*((uint8_t*)_payload+70)|*((uint8_t*)_payload+70+1)<<8|((uint32_t)*((uint8_t*)_payload+70+2))<<16|((uint32_t)*((uint8_t*)_payload+70+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_a(_payload) ((int32_t)(*((uint8_t*)_payload+74)|*((uint8_t*)_payload+74+1)<<8|((uint32_t)*((uint8_t*)_payload+74+2))<<16|((uint32_t)*((uint8_t*)_payload+74+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_e(_payload) ((int32_t)(*((uint8_t*)_payload+78)|*((uint8_t*)_payload+78+1)<<8|((uint32_t)*((uint8_t*)_payload+78+2))<<16|((uint32_t)*((uint8_t*)_payload+78+3))<<24))
-#define DL_STAB_ATTITUDE_INT_delta_r(_payload) ((int32_t)(*((uint8_t*)_payload+82)|*((uint8_t*)_payload+82+1)<<8|((uint32_t)*((uint8_t*)_payload+82+2))<<16|((uint32_t)*((uint8_t*)_payload+82+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_fb_roll(_payload) ((int32_t)(*((uint8_t*)_payload+50)|*((uint8_t*)_payload+50+1)<<8|((uint32_t)*((uint8_t*)_payload+50+2))<<16|((uint32_t)*((uint8_t*)_payload+50+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_fb_pitch(_payload) ((int32_t)(*((uint8_t*)_payload+54)|*((uint8_t*)_payload+54+1)<<8|((uint32_t)*((uint8_t*)_payload+54+2))<<16|((uint32_t)*((uint8_t*)_payload+54+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_fb_yaw(_payload) ((int32_t)(*((uint8_t*)_payload+58)|*((uint8_t*)_payload+58+1)<<8|((uint32_t)*((uint8_t*)_payload+58+2))<<16|((uint32_t)*((uint8_t*)_payload+58+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_ff_roll(_payload) ((int32_t)(*((uint8_t*)_payload+62)|*((uint8_t*)_payload+62+1)<<8|((uint32_t)*((uint8_t*)_payload+62+2))<<16|((uint32_t)*((uint8_t*)_payload+62+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_ff_pitch(_payload) ((int32_t)(*((uint8_t*)_payload+66)|*((uint8_t*)_payload+66+1)<<8|((uint32_t)*((uint8_t*)_payload+66+2))<<16|((uint32_t)*((uint8_t*)_payload+66+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_ff_yaw(_payload) ((int32_t)(*((uint8_t*)_payload+70)|*((uint8_t*)_payload+70+1)<<8|((uint32_t)*((uint8_t*)_payload+70+2))<<16|((uint32_t)*((uint8_t*)_payload+70+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_roll(_payload) ((int32_t)(*((uint8_t*)_payload+74)|*((uint8_t*)_payload+74+1)<<8|((uint32_t)*((uint8_t*)_payload+74+2))<<16|((uint32_t)*((uint8_t*)_payload+74+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_pitch(_payload) ((int32_t)(*((uint8_t*)_payload+78)|*((uint8_t*)_payload+78+1)<<8|((uint32_t)*((uint8_t*)_payload+78+2))<<16|((uint32_t)*((uint8_t*)_payload+78+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_yaw(_payload) ((int32_t)(*((uint8_t*)_payload+82)|*((uint8_t*)_payload+82+1)<<8|((uint32_t)*((uint8_t*)_payload+82+2))<<16|((uint32_t)*((uint8_t*)_payload+82+3))<<24))
+#define DL_STAB_ATTITUDE_INT_stab_cmd_thrust(_payload) ((int32_t)(*((uint8_t*)_payload+86)|*((uint8_t*)_payload+86+1)<<8|((uint32_t)*((uint8_t*)_payload+86+2))<<16|((uint32_t)*((uint8_t*)_payload+86+3))<<24))
 
 #define DL_STAB_ATTITUDE_REF_INT_sp_phi(_payload) ((int32_t)(*((uint8_t*)_payload+2)|*((uint8_t*)_payload+2+1)<<8|((uint32_t)*((uint8_t*)_payload+2+2))<<16|((uint32_t)*((uint8_t*)_payload+2+3))<<24))
 #define DL_STAB_ATTITUDE_REF_INT_sp_theta(_payload) ((int32_t)(*((uint8_t*)_payload+6)|*((uint8_t*)_payload+6+1)<<8|((uint32_t)*((uint8_t*)_payload+6+2))<<16|((uint32_t)*((uint8_t*)_payload+6+3))<<24))

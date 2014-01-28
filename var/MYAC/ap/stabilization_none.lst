@@ -1,0 +1,241 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"stabilization_none.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stabilization_none_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	stabilization_none_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	stabilization_none_init:
+  25              	.LFB120:
+  26              		.file 1 "firmwares/rotorcraft/stabilization/stabilization_none.c"
+   1:firmwares/rotorcraft/stabilization/stabilization_none.c **** /*
+   2:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * Copyright (C) 2011-2012 The Paparazzi Team
+   3:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *
+   4:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *
+   6:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * any later version.
+  10:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *
+  11:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *
+  16:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/stabilization/stabilization_none.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/stabilization/stabilization_none.c ****  */
+  21:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  22:firmwares/rotorcraft/stabilization/stabilization_none.c **** /** @file stabilization_none.c
+  23:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *  Dummy stabilization for rotorcrafts.
+  24:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *
+  25:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *  Doesn't actually do any stabilization,
+  26:firmwares/rotorcraft/stabilization/stabilization_none.c ****  *  just directly passes the RC commands along.
+  27:firmwares/rotorcraft/stabilization/stabilization_none.c ****  */
+  28:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  29:firmwares/rotorcraft/stabilization/stabilization_none.c **** #include "firmwares/rotorcraft/stabilization.h"
+  30:firmwares/rotorcraft/stabilization/stabilization_none.c **** #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
+  31:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  32:firmwares/rotorcraft/stabilization/stabilization_none.c **** #include "subsystems/radio_control.h"
+  33:firmwares/rotorcraft/stabilization/stabilization_none.c **** #include "generated/airframe.h"
+  34:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  35:firmwares/rotorcraft/stabilization/stabilization_none.c **** struct Int32Rates stabilization_none_rc_cmd;
+  36:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  37:firmwares/rotorcraft/stabilization/stabilization_none.c **** void stabilization_none_init(void) {
+  27              		.loc 1 37 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  38:firmwares/rotorcraft/stabilization/stabilization_none.c ****   INT_RATES_ZERO(stabilization_none_rc_cmd);
+  32              		.loc 1 38 0
+  33 0000 024B     		ldr	r3, .L2
+  34 0002 0022     		movs	r2, #0
+  35 0004 1A60     		str	r2, [r3, #0]
+  36 0006 5A60     		str	r2, [r3, #4]
+  37 0008 9A60     		str	r2, [r3, #8]
+  38 000a 7047     		bx	lr
+  39              	.L3:
+  40              		.align	2
+  41              	.L2:
+  42 000c 00000000 		.word	.LANCHOR0
+  43              		.cfi_endproc
+  44              	.LFE120:
+  46              		.section	.text.stabilization_none_read_rc,"ax",%progbits
+  47              		.align	1
+  48              		.global	stabilization_none_read_rc
+  49              		.thumb
+  50              		.thumb_func
+  52              	stabilization_none_read_rc:
+  53              	.LFB121:
+  39:firmwares/rotorcraft/stabilization/stabilization_none.c **** }
+  40:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  41:firmwares/rotorcraft/stabilization/stabilization_none.c **** void stabilization_none_read_rc( void ) {
+  54              		.loc 1 41 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 0, uses_anonymous_args = 0
+  58              		@ link register save eliminated.
+  42:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  43:firmwares/rotorcraft/stabilization/stabilization_none.c ****     stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
+  59              		.loc 1 43 0
+  60 0000 054A     		ldr	r2, .L5
+  61 0002 064B     		ldr	r3, .L5+4
+  62 0004 B2F90A10 		ldrsh	r1, [r2, #10]
+  44:firmwares/rotorcraft/stabilization/stabilization_none.c ****     stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
+  63              		.loc 1 44 0
+  64 0008 B2F90800 		ldrsh	r0, [r2, #8]
+  45:firmwares/rotorcraft/stabilization/stabilization_none.c ****     stabilization_none_rc_cmd.r = (int32_t)radio_control.values[RADIO_YAW];
+  65              		.loc 1 45 0
+  66 000c B2F90C20 		ldrsh	r2, [r2, #12]
+  43:firmwares/rotorcraft/stabilization/stabilization_none.c ****     stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
+  67              		.loc 1 43 0
+  68 0010 1960     		str	r1, [r3, #0]
+  44:firmwares/rotorcraft/stabilization/stabilization_none.c ****     stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
+  69              		.loc 1 44 0
+  70 0012 5860     		str	r0, [r3, #4]
+  71              		.loc 1 45 0
+  72 0014 9A60     		str	r2, [r3, #8]
+  73 0016 7047     		bx	lr
+  74              	.L6:
+  75              		.align	2
+  76              	.L5:
+  77 0018 00000000 		.word	radio_control
+  78 001c 00000000 		.word	.LANCHOR0
+  79              		.cfi_endproc
+  80              	.LFE121:
+  82              		.section	.text.stabilization_none_enter,"ax",%progbits
+  83              		.align	1
+  84              		.global	stabilization_none_enter
+  85              		.thumb
+  86              		.thumb_func
+  88              	stabilization_none_enter:
+  89              	.LFB122:
+  46:firmwares/rotorcraft/stabilization/stabilization_none.c **** }
+  47:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  48:firmwares/rotorcraft/stabilization/stabilization_none.c **** void stabilization_none_enter(void) {
+  90              		.loc 1 48 0
+  91              		.cfi_startproc
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 0, uses_anonymous_args = 0
+  94              		@ link register save eliminated.
+  49:firmwares/rotorcraft/stabilization/stabilization_none.c ****   INT_RATES_ZERO(stabilization_none_rc_cmd);
+  95              		.loc 1 49 0
+  96 0000 024B     		ldr	r3, .L8
+  97 0002 0022     		movs	r2, #0
+  98 0004 1A60     		str	r2, [r3, #0]
+  99 0006 5A60     		str	r2, [r3, #4]
+ 100 0008 9A60     		str	r2, [r3, #8]
+ 101 000a 7047     		bx	lr
+ 102              	.L9:
+ 103              		.align	2
+ 104              	.L8:
+ 105 000c 00000000 		.word	.LANCHOR0
+ 106              		.cfi_endproc
+ 107              	.LFE122:
+ 109              		.section	.text.stabilization_none_run,"ax",%progbits
+ 110              		.align	1
+ 111              		.global	stabilization_none_run
+ 112              		.thumb
+ 113              		.thumb_func
+ 115              	stabilization_none_run:
+ 116              	.LFB123:
+  50:firmwares/rotorcraft/stabilization/stabilization_none.c **** }
+  51:firmwares/rotorcraft/stabilization/stabilization_none.c **** 
+  52:firmwares/rotorcraft/stabilization/stabilization_none.c **** void stabilization_none_run(bool_t in_flight __attribute__ ((unused))) {
+ 117              		.loc 1 52 0
+ 118              		.cfi_startproc
+ 119              		@ args = 0, pretend = 0, frame = 0
+ 120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 121              		@ link register save eliminated.
+ 122              	.LVL0:
+  53:firmwares/rotorcraft/stabilization/stabilization_none.c ****   /* just directly pass rc commands through */
+  54:firmwares/rotorcraft/stabilization/stabilization_none.c ****   stabilization_cmd[COMMAND_ROLL]  = stabilization_none_rc_cmd.p;
+ 123              		.loc 1 54 0
+ 124 0000 044A     		ldr	r2, .L11
+ 125 0002 054B     		ldr	r3, .L11+4
+ 126 0004 1168     		ldr	r1, [r2, #0]
+  55:firmwares/rotorcraft/stabilization/stabilization_none.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_none_rc_cmd.q;
+ 127              		.loc 1 55 0
+ 128 0006 5068     		ldr	r0, [r2, #4]
+ 129              	.LVL1:
+  56:firmwares/rotorcraft/stabilization/stabilization_none.c ****   stabilization_cmd[COMMAND_YAW]   = stabilization_none_rc_cmd.r;
+ 130              		.loc 1 56 0
+ 131 0008 9268     		ldr	r2, [r2, #8]
+  54:firmwares/rotorcraft/stabilization/stabilization_none.c ****   stabilization_cmd[COMMAND_ROLL]  = stabilization_none_rc_cmd.p;
+ 132              		.loc 1 54 0
+ 133 000a 1960     		str	r1, [r3, #0]
+  55:firmwares/rotorcraft/stabilization/stabilization_none.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_none_rc_cmd.q;
+ 134              		.loc 1 55 0
+ 135 000c 5860     		str	r0, [r3, #4]
+ 136              		.loc 1 56 0
+ 137 000e 9A60     		str	r2, [r3, #8]
+ 138 0010 7047     		bx	lr
+ 139              	.L12:
+ 140 0012 00BF     		.align	2
+ 141              	.L11:
+ 142 0014 00000000 		.word	.LANCHOR0
+ 143 0018 00000000 		.word	stabilization_cmd
+ 144              		.cfi_endproc
+ 145              	.LFE123:
+ 147              		.global	stabilization_none_rc_cmd
+ 148              		.section	.bss.stabilization_none_rc_cmd,"aw",%nobits
+ 149              		.align	2
+ 150              		.set	.LANCHOR0,. + 0
+ 153              	stabilization_none_rc_cmd:
+ 154 0000 00000000 		.space	12
+ 154      00000000 
+ 154      00000000 
+ 155              		.text
+ 156              	.Letext0:
+ 157              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 158              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 159              		.file 4 "./math/pprz_algebra_int.h"
+ 160              		.file 5 "./math/pprz_algebra_float.h"
+ 161              		.file 6 "./math/pprz_geodetic_int.h"
+ 162              		.file 7 "./math/pprz_geodetic_float.h"
+ 163              		.file 8 "./math/pprz_orientation_conversion.h"
+ 164              		.file 9 "./state.h"
+ 165              		.file 10 "./paparazzi.h"
+ 166              		.file 11 "./mcu_periph/sys_time.h"
+ 167              		.file 12 "./subsystems/radio_control.h"
+ 168              		.file 13 "./firmwares/rotorcraft/stabilization.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stabilization_none.c
+/var/tmp//ccdi6gvX.s:19     .text.stabilization_none_init:0000000000000000 $t
+/var/tmp//ccdi6gvX.s:24     .text.stabilization_none_init:0000000000000000 stabilization_none_init
+/var/tmp//ccdi6gvX.s:42     .text.stabilization_none_init:000000000000000c $d
+/var/tmp//ccdi6gvX.s:47     .text.stabilization_none_read_rc:0000000000000000 $t
+/var/tmp//ccdi6gvX.s:52     .text.stabilization_none_read_rc:0000000000000000 stabilization_none_read_rc
+/var/tmp//ccdi6gvX.s:77     .text.stabilization_none_read_rc:0000000000000018 $d
+/var/tmp//ccdi6gvX.s:83     .text.stabilization_none_enter:0000000000000000 $t
+/var/tmp//ccdi6gvX.s:88     .text.stabilization_none_enter:0000000000000000 stabilization_none_enter
+/var/tmp//ccdi6gvX.s:105    .text.stabilization_none_enter:000000000000000c $d
+/var/tmp//ccdi6gvX.s:110    .text.stabilization_none_run:0000000000000000 $t
+/var/tmp//ccdi6gvX.s:115    .text.stabilization_none_run:0000000000000000 stabilization_none_run
+/var/tmp//ccdi6gvX.s:142    .text.stabilization_none_run:0000000000000014 $d
+/var/tmp//ccdi6gvX.s:153    .bss.stabilization_none_rc_cmd:0000000000000000 stabilization_none_rc_cmd
+/var/tmp//ccdi6gvX.s:149    .bss.stabilization_none_rc_cmd:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+radio_control
+stabilization_cmd

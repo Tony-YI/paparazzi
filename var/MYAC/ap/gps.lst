@@ -1,0 +1,397 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"gps.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.gps_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	gps_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	gps_init:
+  25              	.LFB20:
+  26              		.file 1 "subsystems/gps.c"
+   1:subsystems/gps.c **** /*
+   2:subsystems/gps.c ****  * Copyright (C) 2008-2011 The Paparazzi Team
+   3:subsystems/gps.c ****  *
+   4:subsystems/gps.c ****  * This file is part of paparazzi.
+   5:subsystems/gps.c ****  *
+   6:subsystems/gps.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:subsystems/gps.c ****  * it under the terms of the GNU General Public License as published by
+   8:subsystems/gps.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:subsystems/gps.c ****  * any later version.
+  10:subsystems/gps.c ****  *
+  11:subsystems/gps.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:subsystems/gps.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:subsystems/gps.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:subsystems/gps.c ****  * GNU General Public License for more details.
+  15:subsystems/gps.c ****  *
+  16:subsystems/gps.c ****  * You should have received a copy of the GNU General Public License
+  17:subsystems/gps.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:subsystems/gps.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:subsystems/gps.c ****  * Boston, MA 02111-1307, USA.
+  20:subsystems/gps.c ****  */
+  21:subsystems/gps.c **** 
+  22:subsystems/gps.c **** /** @file gps.c
+  23:subsystems/gps.c ****  *  @brief Device independent GPS code
+  24:subsystems/gps.c ****  *
+  25:subsystems/gps.c ****  */
+  26:subsystems/gps.c **** 
+  27:subsystems/gps.c **** #include "subsystems/gps.h"
+  28:subsystems/gps.c **** 
+  29:subsystems/gps.c **** #include "led.h"
+  30:subsystems/gps.c **** 
+  31:subsystems/gps.c **** #define MSEC_PER_WEEK (1000*60*60*24*7)
+  32:subsystems/gps.c **** 
+  33:subsystems/gps.c **** struct GpsState gps;
+  34:subsystems/gps.c **** 
+  35:subsystems/gps.c **** struct GpsTimeSync gps_time_sync;
+  36:subsystems/gps.c **** 
+  37:subsystems/gps.c **** void gps_init(void) {
+  27              		.loc 1 37 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  38:subsystems/gps.c ****   gps.fix = GPS_FIX_NONE;
+  36              		.loc 1 38 0
+  37 0002 064B     		ldr	r3, .L2
+  38 0004 0022     		movs	r2, #0
+  39:subsystems/gps.c ****   gps.cacc = 0;
+  40:subsystems/gps.c **** #ifdef GPS_LED
+  41:subsystems/gps.c ****   LED_OFF(GPS_LED);
+  39              		.loc 1 41 0
+  40 0006 0648     		ldr	r0, .L2+4
+  41 0008 0421     		movs	r1, #4
+  38:subsystems/gps.c ****   gps.fix = GPS_FIX_NONE;
+  42              		.loc 1 38 0
+  43 000a 83F85B20 		strb	r2, [r3, #91]
+  39:subsystems/gps.c ****   gps.cacc = 0;
+  44              		.loc 1 39 0
+  45 000e 5A65     		str	r2, [r3, #84]
+  46              		.loc 1 41 0
+  47 0010 FFF7FEFF 		bl	gpio_set
+  48              	.LVL0:
+  42:subsystems/gps.c **** #endif
+  43:subsystems/gps.c **** #ifdef GPS_TYPE_H
+  44:subsystems/gps.c ****   gps_impl_init();
+  45:subsystems/gps.c **** #endif
+  46:subsystems/gps.c **** }
+  49              		.loc 1 46 0
+  50 0014 BDE80840 		pop	{r3, lr}
+  44:subsystems/gps.c ****   gps_impl_init();
+  51              		.loc 1 44 0
+  52 0018 FFF7FEBF 		b	gps_impl_init
+  53              	.LVL1:
+  54              	.L3:
+  55              		.align	2
+  56              	.L2:
+  57 001c 00000000 		.word	.LANCHOR0
+  58 0020 00100140 		.word	1073811456
+  59              		.cfi_endproc
+  60              	.LFE20:
+  62              		.section	.text.gps_tow_from_sys_ticks,"ax",%progbits
+  63              		.align	1
+  64              		.global	gps_tow_from_sys_ticks
+  65              		.thumb
+  66              		.thumb_func
+  68              	gps_tow_from_sys_ticks:
+  69              	.LFB21:
+  47:subsystems/gps.c **** 
+  48:subsystems/gps.c **** uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
+  49:subsystems/gps.c **** {
+  70              		.loc 1 49 0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              		@ link register save eliminated.
+  75              	.LVL2:
+  50:subsystems/gps.c ****   uint32_t clock_delta;
+  51:subsystems/gps.c ****   uint32_t time_delta;
+  52:subsystems/gps.c ****   uint32_t itow_now;
+  53:subsystems/gps.c **** 
+  54:subsystems/gps.c ****   if (sys_ticks < gps_time_sync.t0_ticks) {
+  76              		.loc 1 54 0
+  77 0000 0D4B     		ldr	r3, .L8
+  78              	.LBB4:
+  79              	.LBB5:
+  80              		.file 2 "./mcu_periph/sys_time.h"
+   1:./mcu_periph/sys_time.h **** /*
+   2:./mcu_periph/sys_time.h ****  *
+   3:./mcu_periph/sys_time.h ****  * Copyright (C) 2009-2011 The Paparazzi Team
+   4:./mcu_periph/sys_time.h ****  *
+   5:./mcu_periph/sys_time.h ****  * This file is part of paparazzi.
+   6:./mcu_periph/sys_time.h ****  *
+   7:./mcu_periph/sys_time.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   8:./mcu_periph/sys_time.h ****  * it under the terms of the GNU General Public License as published by
+   9:./mcu_periph/sys_time.h ****  * the Free Software Foundation; either version 2, or (at your option)
+  10:./mcu_periph/sys_time.h ****  * any later version.
+  11:./mcu_periph/sys_time.h ****  *
+  12:./mcu_periph/sys_time.h ****  * paparazzi is distributed in the hope that it will be useful,
+  13:./mcu_periph/sys_time.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:./mcu_periph/sys_time.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:./mcu_periph/sys_time.h ****  * GNU General Public License for more details.
+  16:./mcu_periph/sys_time.h ****  *
+  17:./mcu_periph/sys_time.h ****  * You should have received a copy of the GNU General Public License
+  18:./mcu_periph/sys_time.h ****  * along with paparazzi; see the file COPYING.  If not, write to
+  19:./mcu_periph/sys_time.h ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  20:./mcu_periph/sys_time.h ****  * Boston, MA 02111-1307, USA.
+  21:./mcu_periph/sys_time.h ****  *
+  22:./mcu_periph/sys_time.h ****  */
+  23:./mcu_periph/sys_time.h **** 
+  24:./mcu_periph/sys_time.h **** /**
+  25:./mcu_periph/sys_time.h ****  * @file mcu_periph/sys_time.h
+  26:./mcu_periph/sys_time.h ****  * @brief Architecture independent timing functions.
+  27:./mcu_periph/sys_time.h ****  *
+  28:./mcu_periph/sys_time.h ****  */
+  29:./mcu_periph/sys_time.h **** 
+  30:./mcu_periph/sys_time.h **** #ifndef SYS_TIME_H
+  31:./mcu_periph/sys_time.h **** #define SYS_TIME_H
+  32:./mcu_periph/sys_time.h **** 
+  33:./mcu_periph/sys_time.h **** #include <inttypes.h>
+  34:./mcu_periph/sys_time.h **** #include <stdlib.h>
+  35:./mcu_periph/sys_time.h **** #include "std.h"
+  36:./mcu_periph/sys_time.h **** 
+  37:./mcu_periph/sys_time.h **** #include BOARD_CONFIG
+  38:./mcu_periph/sys_time.h **** 
+  39:./mcu_periph/sys_time.h **** #ifndef SYS_TIME_NB_TIMER
+  40:./mcu_periph/sys_time.h **** #define SYS_TIME_NB_TIMER 8
+  41:./mcu_periph/sys_time.h **** #endif
+  42:./mcu_periph/sys_time.h **** 
+  43:./mcu_periph/sys_time.h **** 
+  44:./mcu_periph/sys_time.h **** /**
+  45:./mcu_periph/sys_time.h ****  * (Default) sys_time timer frequency in Hz.
+  46:./mcu_periph/sys_time.h ****  * sys_time.resolution is set from this define.
+  47:./mcu_periph/sys_time.h ****  */
+  48:./mcu_periph/sys_time.h **** #ifndef SYS_TIME_FREQUENCY
+  49:./mcu_periph/sys_time.h **** #if defined PERIODIC_FREQUENCY
+  50:./mcu_periph/sys_time.h **** #define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
+  51:./mcu_periph/sys_time.h **** #else
+  52:./mcu_periph/sys_time.h **** #define SYS_TIME_FREQUENCY 1000
+  53:./mcu_periph/sys_time.h **** #endif
+  54:./mcu_periph/sys_time.h **** #endif
+  55:./mcu_periph/sys_time.h **** 
+  56:./mcu_periph/sys_time.h **** 
+  57:./mcu_periph/sys_time.h **** typedef uint8_t tid_t; ///< sys_time timer id type
+  58:./mcu_periph/sys_time.h **** typedef void (*sys_time_cb) (uint8_t id);
+  59:./mcu_periph/sys_time.h **** 
+  60:./mcu_periph/sys_time.h **** struct sys_time_timer {
+  61:./mcu_periph/sys_time.h ****   bool_t          in_use;
+  62:./mcu_periph/sys_time.h ****   sys_time_cb     cb;
+  63:./mcu_periph/sys_time.h ****   volatile bool_t elapsed;
+  64:./mcu_periph/sys_time.h ****   uint32_t        end_time; ///< in SYS_TIME_TICKS
+  65:./mcu_periph/sys_time.h ****   uint32_t        duration; ///< in SYS_TIME_TICKS
+  66:./mcu_periph/sys_time.h **** };
+  67:./mcu_periph/sys_time.h **** 
+  68:./mcu_periph/sys_time.h **** struct sys_time {
+  69:./mcu_periph/sys_time.h ****   volatile uint32_t nb_sec;       ///< full seconds since startup
+  70:./mcu_periph/sys_time.h ****   volatile uint32_t nb_sec_rem;   ///< remainder of seconds since startup in CPU_TICKS
+  71:./mcu_periph/sys_time.h ****   volatile uint32_t nb_tick;      ///< SYS_TIME_TICKS since startup
+  72:./mcu_periph/sys_time.h ****   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
+  73:./mcu_periph/sys_time.h **** 
+  74:./mcu_periph/sys_time.h ****   float resolution;               ///< sys_time_timer resolution in seconds
+  75:./mcu_periph/sys_time.h ****   uint32_t ticks_per_sec;         ///< sys_time ticks per second (SYS_TIME_FREQUENCY)
+  76:./mcu_periph/sys_time.h ****   uint32_t resolution_cpu_ticks;  ///< sys_time_timer resolution in cpu ticks
+  77:./mcu_periph/sys_time.h ****   uint32_t cpu_ticks_per_sec;     ///< cpu ticks per second
+  78:./mcu_periph/sys_time.h **** };
+  79:./mcu_periph/sys_time.h **** 
+  80:./mcu_periph/sys_time.h **** extern struct sys_time sys_time;
+  81:./mcu_periph/sys_time.h **** 
+  82:./mcu_periph/sys_time.h **** 
+  83:./mcu_periph/sys_time.h **** extern void sys_time_init(void);
+  84:./mcu_periph/sys_time.h **** 
+  85:./mcu_periph/sys_time.h **** /**
+  86:./mcu_periph/sys_time.h ****  * Register a new system timer.
+  87:./mcu_periph/sys_time.h ****  * @param duration Duration in seconds until the timer elapses.
+  88:./mcu_periph/sys_time.h ****  * @param cb Callback function that is called from the ISR when timer elapses, or NULL
+  89:./mcu_periph/sys_time.h ****  * @return -1 if it failed, the timer id otherwise
+  90:./mcu_periph/sys_time.h ****  */
+  91:./mcu_periph/sys_time.h **** extern int sys_time_register_timer(float duration, sys_time_cb cb);
+  92:./mcu_periph/sys_time.h **** 
+  93:./mcu_periph/sys_time.h **** /**
+  94:./mcu_periph/sys_time.h ****  * Cancel a system timer by id.
+  95:./mcu_periph/sys_time.h ****  * @param id Timer id.
+  96:./mcu_periph/sys_time.h ****  */
+  97:./mcu_periph/sys_time.h **** extern void sys_time_cancel_timer(tid_t id);
+  98:./mcu_periph/sys_time.h **** 
+  99:./mcu_periph/sys_time.h **** /**
+ 100:./mcu_periph/sys_time.h ****  * Update the duration until a timer elapses.
+ 101:./mcu_periph/sys_time.h ****  * @param id Timer id
+ 102:./mcu_periph/sys_time.h ****  * @param duration Duration in seconds until the timer elapses.
+ 103:./mcu_periph/sys_time.h ****  */
+ 104:./mcu_periph/sys_time.h **** extern void sys_time_update_timer(tid_t id, float duration);
+ 105:./mcu_periph/sys_time.h **** 
+ 106:./mcu_periph/sys_time.h **** /**
+ 107:./mcu_periph/sys_time.h ****  * Check if timer has elapsed.
+ 108:./mcu_periph/sys_time.h ****  * @param id Timer id
+ 109:./mcu_periph/sys_time.h ****  * @return TRUE if timer has elapsed
+ 110:./mcu_periph/sys_time.h ****  */
+ 111:./mcu_periph/sys_time.h **** static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
+ 112:./mcu_periph/sys_time.h ****   if (sys_time.timer[id].elapsed) {
+ 113:./mcu_periph/sys_time.h ****     sys_time.timer[id].elapsed = FALSE;
+ 114:./mcu_periph/sys_time.h ****     return TRUE;
+ 115:./mcu_periph/sys_time.h ****   }
+ 116:./mcu_periph/sys_time.h ****   return FALSE;
+ 117:./mcu_periph/sys_time.h **** }
+ 118:./mcu_periph/sys_time.h **** 
+ 119:./mcu_periph/sys_time.h **** /**
+ 120:./mcu_periph/sys_time.h ****  * Get the time in seconds since startup.
+ 121:./mcu_periph/sys_time.h ****  * @return current system time as float
+ 122:./mcu_periph/sys_time.h ****  */
+ 123:./mcu_periph/sys_time.h **** static inline float get_sys_time_float(void) {
+ 124:./mcu_periph/sys_time.h ****   return (float)(sys_time.nb_sec + sys_time.nb_sec_rem * sys_time.resolution_cpu_ticks);
+ 125:./mcu_periph/sys_time.h **** }
+ 126:./mcu_periph/sys_time.h **** 
+ 127:./mcu_periph/sys_time.h **** 
+ 128:./mcu_periph/sys_time.h **** /*
+ 129:./mcu_periph/sys_time.h ****  * Convenience functions to convert between seconds and sys_time ticks.
+ 130:./mcu_periph/sys_time.h ****  */
+ 131:./mcu_periph/sys_time.h **** static inline uint32_t sys_time_ticks_of_sec(float seconds) {
+ 132:./mcu_periph/sys_time.h ****   return (uint32_t)(seconds * sys_time.ticks_per_sec + 0.5);
+ 133:./mcu_periph/sys_time.h **** }
+ 134:./mcu_periph/sys_time.h **** 
+ 135:./mcu_periph/sys_time.h **** static inline uint32_t sys_time_ticks_of_msec(uint32_t msec) {
+ 136:./mcu_periph/sys_time.h ****   return msec * sys_time.ticks_per_sec / 1000;
+ 137:./mcu_periph/sys_time.h **** }
+ 138:./mcu_periph/sys_time.h **** 
+ 139:./mcu_periph/sys_time.h **** static inline uint32_t sys_time_ticks_of_usec(uint32_t usec) {
+ 140:./mcu_periph/sys_time.h ****   return usec * sys_time.ticks_per_sec / 1000000;
+ 141:./mcu_periph/sys_time.h **** }
+ 142:./mcu_periph/sys_time.h **** 
+ 143:./mcu_periph/sys_time.h **** static inline float sec_of_sys_time_ticks(uint32_t ticks) {
+ 144:./mcu_periph/sys_time.h ****   return (float)ticks * sys_time.resolution;
+ 145:./mcu_periph/sys_time.h **** }
+ 146:./mcu_periph/sys_time.h **** 
+ 147:./mcu_periph/sys_time.h **** static inline uint32_t msec_of_sys_time_ticks(uint32_t ticks) {
+ 148:./mcu_periph/sys_time.h ****   return ticks * 1000 / sys_time.ticks_per_sec;
+  81              		.loc 2 148 0
+  82 0002 0E4A     		ldr	r2, .L8+4
+  83              	.LBE5:
+  84              	.LBE4:
+  85              		.loc 1 54 0
+  86 0004 9968     		ldr	r1, [r3, #8]
+  87              	.LBB8:
+  88              	.LBB6:
+  89              		.loc 2 148 0
+  90 0006 D2F8B030 		ldr	r3, [r2, #176]
+  91              	.LBE6:
+  92              	.LBE8:
+  93              		.loc 1 54 0
+  94 000a 8842     		cmp	r0, r1
+  55:subsystems/gps.c ****     clock_delta = (0xFFFFFFFF - sys_ticks) + gps_time_sync.t0_ticks + 1;
+  95              		.loc 1 55 0
+  96 000c 34BF     		ite	cc
+  97 000e C0EB0101 		rsbcc	r1, r0, r1
+  98              	.LVL3:
+  56:subsystems/gps.c ****   } else {
+  57:subsystems/gps.c ****     clock_delta = sys_ticks - gps_time_sync.t0_ticks;
+  99              		.loc 1 57 0
+ 100 0012 C1EB0001 		rsbcs	r1, r1, r0
+ 101              	.LVL4:
+ 102              	.LBB9:
+ 103              	.LBB7:
+ 104              		.loc 2 148 0
+ 105 0016 4FF47A70 		mov	r0, #1000
+ 106              	.LVL5:
+ 107 001a 4843     		muls	r0, r1, r0
+ 108 001c B0FBF3F1 		udiv	r1, r0, r3
+ 109              	.LVL6:
+ 110              	.LBE7:
+ 111              	.LBE9:
+  58:subsystems/gps.c ****   }
+  59:subsystems/gps.c **** 
+  60:subsystems/gps.c ****   time_delta = msec_of_sys_time_ticks(clock_delta);
+  61:subsystems/gps.c **** 
+  62:subsystems/gps.c ****   itow_now = gps_time_sync.t0_tow + time_delta;
+ 112              		.loc 1 62 0
+ 113 0020 0548     		ldr	r0, .L8
+  63:subsystems/gps.c ****   if (itow_now > MSEC_PER_WEEK) {
+ 114              		.loc 1 63 0
+ 115 0022 074B     		ldr	r3, .L8+8
+  62:subsystems/gps.c ****   itow_now = gps_time_sync.t0_tow + time_delta;
+ 116              		.loc 1 62 0
+ 117 0024 0268     		ldr	r2, [r0, #0]
+ 118 0026 8818     		adds	r0, r1, r2
+ 119              	.LVL7:
+ 120              		.loc 1 63 0
+ 121 0028 9842     		cmp	r0, r3
+  64:subsystems/gps.c ****     itow_now %= MSEC_PER_WEEK;
+ 122              		.loc 1 64 0
+ 123 002a 84BF     		itt	hi
+ 124 002c B0FBF3F2 		udivhi	r2, r0, r3
+ 125 0030 03FB1200 		mlshi	r0, r3, r2, r0
+ 126              	.LVL8:
+  65:subsystems/gps.c ****   }
+  66:subsystems/gps.c **** 
+  67:subsystems/gps.c ****   return itow_now;
+  68:subsystems/gps.c **** }
+ 127              		.loc 1 68 0
+ 128 0034 7047     		bx	lr
+ 129              	.L9:
+ 130 0036 00BF     		.align	2
+ 131              	.L8:
+ 132 0038 00000000 		.word	.LANCHOR1
+ 133 003c 00000000 		.word	sys_time
+ 134 0040 00840C24 		.word	604800000
+ 135              		.cfi_endproc
+ 136              	.LFE21:
+ 138              		.global	gps_time_sync
+ 139              		.global	gps
+ 140              		.section	.bss.gps_time_sync,"aw",%nobits
+ 141              		.align	2
+ 142              		.set	.LANCHOR1,. + 0
+ 145              	gps_time_sync:
+ 146 0000 00000000 		.space	12
+ 146      00000000 
+ 146      00000000 
+ 147              		.section	.bss.gps,"aw",%nobits
+ 148              		.align	2
+ 149              		.set	.LANCHOR0,. + 0
+ 152              	gps:
+ 153 0000 00000000 		.space	244
+ 153      00000000 
+ 153      00000000 
+ 153      00000000 
+ 153      00000000 
+ 154              		.text
+ 155              	.Letext0:
+ 156              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 157              		.file 4 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 158              		.file 5 "./math/pprz_geodetic_int.h"
+ 159              		.file 6 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+ 160              		.file 7 "./subsystems/gps.h"
+ 161              		.file 8 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 gps.c
+/var/tmp//ccFP24TH.s:19     .text.gps_init:0000000000000000 $t
+/var/tmp//ccFP24TH.s:24     .text.gps_init:0000000000000000 gps_init
+/var/tmp//ccFP24TH.s:57     .text.gps_init:000000000000001c $d
+/var/tmp//ccFP24TH.s:63     .text.gps_tow_from_sys_ticks:0000000000000000 $t
+/var/tmp//ccFP24TH.s:68     .text.gps_tow_from_sys_ticks:0000000000000000 gps_tow_from_sys_ticks
+/var/tmp//ccFP24TH.s:132    .text.gps_tow_from_sys_ticks:0000000000000038 $d
+/var/tmp//ccFP24TH.s:145    .bss.gps_time_sync:0000000000000000 gps_time_sync
+/var/tmp//ccFP24TH.s:152    .bss.gps:0000000000000000 gps
+/var/tmp//ccFP24TH.s:141    .bss.gps_time_sync:0000000000000000 $d
+/var/tmp//ccFP24TH.s:148    .bss.gps:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+gpio_set
+gps_impl_init
+sys_time

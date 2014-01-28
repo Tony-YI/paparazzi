@@ -1,0 +1,738 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"mpu60x0_spi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.mpu60x0_spi_write_to_reg,"ax",%progbits
+  19              		.align	1
+  20              		.thumb
+  21              		.thumb_func
+  23              	mpu60x0_spi_write_to_reg:
+  24              	.LFB2:
+  25              		.file 1 "peripherals/mpu60x0_spi.c"
+   1:peripherals/mpu60x0_spi.c **** /*
+   2:peripherals/mpu60x0_spi.c ****  * Copyright (C) 2013 Gautier Hattenberger
+   3:peripherals/mpu60x0_spi.c ****  *
+   4:peripherals/mpu60x0_spi.c ****  * This file is part of paparazzi.
+   5:peripherals/mpu60x0_spi.c ****  *
+   6:peripherals/mpu60x0_spi.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:peripherals/mpu60x0_spi.c ****  * it under the terms of the GNU General Public License as published by
+   8:peripherals/mpu60x0_spi.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:peripherals/mpu60x0_spi.c ****  * any later version.
+  10:peripherals/mpu60x0_spi.c ****  *
+  11:peripherals/mpu60x0_spi.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:peripherals/mpu60x0_spi.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:peripherals/mpu60x0_spi.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:peripherals/mpu60x0_spi.c ****  * GNU General Public License for more details.
+  15:peripherals/mpu60x0_spi.c ****  *
+  16:peripherals/mpu60x0_spi.c ****  * You should have received a copy of the GNU General Public License
+  17:peripherals/mpu60x0_spi.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:peripherals/mpu60x0_spi.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:peripherals/mpu60x0_spi.c ****  * Boston, MA 02111-1307, USA.
+  20:peripherals/mpu60x0_spi.c ****  */
+  21:peripherals/mpu60x0_spi.c **** 
+  22:peripherals/mpu60x0_spi.c **** /**
+  23:peripherals/mpu60x0_spi.c ****  * @file peripherals/mpu60x0_spi.c
+  24:peripherals/mpu60x0_spi.c ****  *
+  25:peripherals/mpu60x0_spi.c ****  * Driver for the MPU-60X0 using SPI.
+  26:peripherals/mpu60x0_spi.c ****  *
+  27:peripherals/mpu60x0_spi.c ****  */
+  28:peripherals/mpu60x0_spi.c **** 
+  29:peripherals/mpu60x0_spi.c **** #include "peripherals/mpu60x0_spi.h"
+  30:peripherals/mpu60x0_spi.c **** 
+  31:peripherals/mpu60x0_spi.c **** void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t slave_idx)
+  32:peripherals/mpu60x0_spi.c **** {
+  33:peripherals/mpu60x0_spi.c ****   /* set spi_peripheral */
+  34:peripherals/mpu60x0_spi.c ****   mpu->spi_p = spi_p;
+  35:peripherals/mpu60x0_spi.c **** 
+  36:peripherals/mpu60x0_spi.c ****   /* configure spi transaction */
+  37:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cpol = SPICpolIdleHigh;
+  38:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cpha = SPICphaEdge2;
+  39:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.dss = SPIDss8bit;
+  40:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.bitorder = SPIMSBFirst;
+  41:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cdiv = SPIDiv64;
+  42:peripherals/mpu60x0_spi.c **** 
+  43:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.select = SPISelectUnselect;
+  44:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.slave_idx = slave_idx;
+  45:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_length = 2;
+  46:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_length = MPU60X0_BUFFER_LEN;
+  47:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.before_cb = NULL;
+  48:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.after_cb = NULL;
+  49:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_buf = &(mpu->rx_buf[0]);
+  50:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_buf = &(mpu->tx_buf[0]);
+  51:peripherals/mpu60x0_spi.c **** 
+  52:peripherals/mpu60x0_spi.c ****   /* set inital status: Success or Done */
+  53:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.status = SPITransDone;
+  54:peripherals/mpu60x0_spi.c **** 
+  55:peripherals/mpu60x0_spi.c ****   /* set default MPU60X0 config options */
+  56:peripherals/mpu60x0_spi.c ****   mpu60x0_set_default_config(&(mpu->config));
+  57:peripherals/mpu60x0_spi.c **** 
+  58:peripherals/mpu60x0_spi.c ****   mpu->data_available = FALSE;
+  59:peripherals/mpu60x0_spi.c ****   mpu->config.initialized = FALSE;
+  60:peripherals/mpu60x0_spi.c ****   mpu->config.init_status = MPU60X0_CONF_UNINIT;
+  61:peripherals/mpu60x0_spi.c **** 
+  62:peripherals/mpu60x0_spi.c ****   mpu->slave_init_status = MPU60X0_SPI_CONF_UNINIT;
+  63:peripherals/mpu60x0_spi.c **** }
+  64:peripherals/mpu60x0_spi.c **** 
+  65:peripherals/mpu60x0_spi.c **** 
+  66:peripherals/mpu60x0_spi.c **** static void mpu60x0_spi_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
+  26              		.loc 1 66 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  32              		.loc 1 66 0
+  33 0000 0346     		mov	r3, r0
+  34              	.LVL1:
+  67:peripherals/mpu60x0_spi.c ****   struct Mpu60x0_Spi* mpu_spi = (struct Mpu60x0_Spi*)(mpu);
+  68:peripherals/mpu60x0_spi.c ****   mpu_spi->spi_trans.output_length = 2;
+  35              		.loc 1 68 0
+  36 0002 0220     		movs	r0, #2
+  37              	.LVL2:
+  38 0004 5873     		strb	r0, [r3, #13]
+  69:peripherals/mpu60x0_spi.c ****   mpu_spi->spi_trans.input_length = 0;
+  39              		.loc 1 69 0
+  40 0006 0020     		movs	r0, #0
+  41 0008 1873     		strb	r0, [r3, #12]
+  70:peripherals/mpu60x0_spi.c ****   mpu_spi->tx_buf[0] = _reg;
+  71:peripherals/mpu60x0_spi.c ****   mpu_spi->tx_buf[1] = _val;
+  72:peripherals/mpu60x0_spi.c ****   spi_submit(mpu_spi->spi_p, &(mpu_spi->spi_trans));
+  42              		.loc 1 72 0
+  43 000a 1868     		ldr	r0, [r3, #0]
+  70:peripherals/mpu60x0_spi.c ****   mpu_spi->tx_buf[0] = _reg;
+  44              		.loc 1 70 0
+  45 000c 83F82410 		strb	r1, [r3, #36]
+  46              		.loc 1 72 0
+  47 0010 191D     		adds	r1, r3, #4
+  48              	.LVL3:
+  71:peripherals/mpu60x0_spi.c ****   mpu_spi->tx_buf[1] = _val;
+  49              		.loc 1 71 0
+  50 0012 83F82520 		strb	r2, [r3, #37]
+  73:peripherals/mpu60x0_spi.c **** }
+  51              		.loc 1 73 0
+  72:peripherals/mpu60x0_spi.c ****   spi_submit(mpu_spi->spi_p, &(mpu_spi->spi_trans));
+  52              		.loc 1 72 0
+  53 0016 FFF7FEBF 		b	spi_submit
+  54              	.LVL4:
+  55              		.cfi_endproc
+  56              	.LFE2:
+  58              		.section	.text.mpu60x0_spi_init,"ax",%progbits
+  59              		.align	1
+  60              		.global	mpu60x0_spi_init
+  61              		.thumb
+  62              		.thumb_func
+  64              	mpu60x0_spi_init:
+  65              	.LFB1:
+  32:peripherals/mpu60x0_spi.c **** {
+  66              		.loc 1 32 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              	.LVL5:
+  71 0000 38B5     		push	{r3, r4, r5, lr}
+  72              	.LCFI0:
+  73              		.cfi_def_cfa_offset 16
+  74              		.cfi_offset 3, -16
+  75              		.cfi_offset 4, -12
+  76              		.cfi_offset 5, -8
+  77              		.cfi_offset 14, -4
+  39:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.dss = SPIDss8bit;
+  78              		.loc 1 39 0
+  79 0002 0025     		movs	r5, #0
+  37:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cpol = SPICpolIdleHigh;
+  80              		.loc 1 37 0
+  81 0004 0123     		movs	r3, #1
+  32:peripherals/mpu60x0_spi.c **** {
+  82              		.loc 1 32 0
+  83 0006 0446     		mov	r4, r0
+  34:peripherals/mpu60x0_spi.c ****   mpu->spi_p = spi_p;
+  84              		.loc 1 34 0
+  85 0008 0160     		str	r1, [r0, #0]
+  37:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cpol = SPICpolIdleHigh;
+  86              		.loc 1 37 0
+  87 000a 0374     		strb	r3, [r0, #16]
+  38:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cpha = SPICphaEdge2;
+  88              		.loc 1 38 0
+  89 000c 4374     		strb	r3, [r0, #17]
+  39:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.dss = SPIDss8bit;
+  90              		.loc 1 39 0
+  91 000e 8574     		strb	r5, [r0, #18]
+  40:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.bitorder = SPIMSBFirst;
+  92              		.loc 1 40 0
+  93 0010 C574     		strb	r5, [r0, #19]
+  45:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_length = 2;
+  94              		.loc 1 45 0
+  95 0012 0221     		movs	r1, #2
+  96              	.LVL6:
+  41:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.cdiv = SPIDiv64;
+  97              		.loc 1 41 0
+  98 0014 0520     		movs	r0, #5
+  99              	.LVL7:
+ 100 0016 2075     		strb	r0, [r4, #20]
+  44:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.slave_idx = slave_idx;
+ 101              		.loc 1 44 0
+ 102 0018 A273     		strb	r2, [r4, #14]
+  45:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_length = 2;
+ 103              		.loc 1 45 0
+ 104 001a 6173     		strb	r1, [r4, #13]
+  46:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_length = MPU60X0_BUFFER_LEN;
+ 105              		.loc 1 46 0
+ 106 001c 2022     		movs	r2, #32
+ 107              	.LVL8:
+  49:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_buf = &(mpu->rx_buf[0]);
+ 108              		.loc 1 49 0
+ 109 001e 04F12603 		add	r3, r4, #38
+  50:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_buf = &(mpu->tx_buf[0]);
+ 110              		.loc 1 50 0
+ 111 0022 04F12400 		add	r0, r4, #36
+  53:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.status = SPITransDone;
+ 112              		.loc 1 53 0
+ 113 0026 0421     		movs	r1, #4
+  50:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.output_buf = &(mpu->tx_buf[0]);
+ 114              		.loc 1 50 0
+ 115 0028 A060     		str	r0, [r4, #8]
+  43:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.select = SPISelectUnselect;
+ 116              		.loc 1 43 0
+ 117 002a E573     		strb	r5, [r4, #15]
+  46:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_length = MPU60X0_BUFFER_LEN;
+ 118              		.loc 1 46 0
+ 119 002c 2273     		strb	r2, [r4, #12]
+  47:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.before_cb = NULL;
+ 120              		.loc 1 47 0
+ 121 002e A561     		str	r5, [r4, #24]
+  48:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.after_cb = NULL;
+ 122              		.loc 1 48 0
+ 123 0030 E561     		str	r5, [r4, #28]
+  49:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.input_buf = &(mpu->rx_buf[0]);
+ 124              		.loc 1 49 0
+ 125 0032 6360     		str	r3, [r4, #4]
+  53:peripherals/mpu60x0_spi.c ****   mpu->spi_trans.status = SPITransDone;
+ 126              		.loc 1 53 0
+ 127 0034 84F82010 		strb	r1, [r4, #32]
+  56:peripherals/mpu60x0_spi.c ****   mpu60x0_set_default_config(&(mpu->config));
+ 128              		.loc 1 56 0
+ 129 0038 04F16400 		add	r0, r4, #100
+ 130 003c FFF7FEFF 		bl	mpu60x0_set_default_config
+ 131              	.LVL9:
+  58:peripherals/mpu60x0_spi.c ****   mpu->data_available = FALSE;
+ 132              		.loc 1 58 0
+ 133 0040 84F84650 		strb	r5, [r4, #70]
+  59:peripherals/mpu60x0_spi.c ****   mpu->config.initialized = FALSE;
+ 134              		.loc 1 59 0
+ 135 0044 84F86C50 		strb	r5, [r4, #108]
+  60:peripherals/mpu60x0_spi.c ****   mpu->config.init_status = MPU60X0_CONF_UNINIT;
+ 136              		.loc 1 60 0
+ 137 0048 84F86B50 		strb	r5, [r4, #107]
+  62:peripherals/mpu60x0_spi.c ****   mpu->slave_init_status = MPU60X0_SPI_CONF_UNINIT;
+ 138              		.loc 1 62 0
+ 139 004c 84F88850 		strb	r5, [r4, #136]
+ 140 0050 38BD     		pop	{r3, r4, r5, pc}
+ 141              		.cfi_endproc
+ 142              	.LFE1:
+ 144              		.section	.text.mpu60x0_spi_start_configure,"ax",%progbits
+ 145              		.align	1
+ 146              		.global	mpu60x0_spi_start_configure
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	mpu60x0_spi_start_configure:
+ 151              	.LFB3:
+  74:peripherals/mpu60x0_spi.c **** 
+  75:peripherals/mpu60x0_spi.c **** // Configuration function called once before normal use
+  76:peripherals/mpu60x0_spi.c **** void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
+  77:peripherals/mpu60x0_spi.c **** {
+ 152              		.loc 1 77 0
+ 153              		.cfi_startproc
+ 154              		@ args = 0, pretend = 0, frame = 0
+ 155              		@ frame_needed = 0, uses_anonymous_args = 0
+ 156              		@ link register save eliminated.
+ 157              	.LVL10:
+  78:peripherals/mpu60x0_spi.c ****   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
+ 158              		.loc 1 78 0
+ 159 0000 90F86B30 		ldrb	r3, [r0, #107]	@ zero_extendqisi2
+  77:peripherals/mpu60x0_spi.c **** {
+ 160              		.loc 1 77 0
+ 161 0004 0146     		mov	r1, r0
+ 162              		.loc 1 78 0
+ 163 0006 7BB9     		cbnz	r3, .L3
+  79:peripherals/mpu60x0_spi.c ****     mpu->config.init_status++;
+  80:peripherals/mpu60x0_spi.c ****     if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
+ 164              		.loc 1 80 0
+ 165 0008 91F82020 		ldrb	r2, [r1, #32]	@ zero_extendqisi2
+  79:peripherals/mpu60x0_spi.c ****     mpu->config.init_status++;
+ 166              		.loc 1 79 0
+ 167 000c 0120     		movs	r0, #1
+ 168              	.LVL11:
+ 169              		.loc 1 80 0
+ 170 000e 022A     		cmp	r2, #2
+  79:peripherals/mpu60x0_spi.c ****     mpu->config.init_status++;
+ 171              		.loc 1 79 0
+ 172 0010 81F86B00 		strb	r0, [r1, #107]
+ 173              		.loc 1 80 0
+ 174 0014 03D0     		beq	.L6
+ 175              		.loc 1 80 0 is_stmt 0 discriminator 1
+ 176 0016 91F82030 		ldrb	r3, [r1, #32]	@ zero_extendqisi2
+ 177 001a 042B     		cmp	r3, #4
+ 178 001c 04D1     		bne	.L3
+ 179              	.L6:
+  81:peripherals/mpu60x0_spi.c ****       mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
+ 180              		.loc 1 81 0 is_stmt 1
+ 181 001e 0348     		ldr	r0, .L12
+ 182 0020 01F16402 		add	r2, r1, #100
+  82:peripherals/mpu60x0_spi.c ****     }
+  83:peripherals/mpu60x0_spi.c ****   }
+  84:peripherals/mpu60x0_spi.c **** }
+ 183              		.loc 1 84 0
+  81:peripherals/mpu60x0_spi.c ****       mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
+ 184              		.loc 1 81 0
+ 185 0024 FFF7FEBF 		b	mpu60x0_send_config
+ 186              	.LVL12:
+ 187              	.L3:
+ 188 0028 7047     		bx	lr
+ 189              	.L13:
+ 190 002a 00BF     		.align	2
+ 191              	.L12:
+ 192 002c 00000000 		.word	mpu60x0_spi_write_to_reg
+ 193              		.cfi_endproc
+ 194              	.LFE3:
+ 196              		.section	.text.mpu60x0_spi_read,"ax",%progbits
+ 197              		.align	1
+ 198              		.global	mpu60x0_spi_read
+ 199              		.thumb
+ 200              		.thumb_func
+ 202              	mpu60x0_spi_read:
+ 203              	.LFB4:
+  85:peripherals/mpu60x0_spi.c **** 
+  86:peripherals/mpu60x0_spi.c **** void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu)
+  87:peripherals/mpu60x0_spi.c **** {
+ 204              		.loc 1 87 0
+ 205              		.cfi_startproc
+ 206              		@ args = 0, pretend = 0, frame = 0
+ 207              		@ frame_needed = 0, uses_anonymous_args = 0
+ 208              		@ link register save eliminated.
+ 209              	.LVL13:
+  88:peripherals/mpu60x0_spi.c ****   if (mpu->config.initialized && mpu->spi_trans.status == SPITransDone) {
+ 210              		.loc 1 88 0
+ 211 0000 90F86C30 		ldrb	r3, [r0, #108]	@ zero_extendqisi2
+  87:peripherals/mpu60x0_spi.c **** {
+ 212              		.loc 1 87 0
+ 213 0004 0146     		mov	r1, r0
+ 214              		.loc 1 88 0
+ 215 0006 83B1     		cbz	r3, .L14
+ 216              		.loc 1 88 0 is_stmt 0 discriminator 1
+ 217 0008 90F82000 		ldrb	r0, [r0, #32]	@ zero_extendqisi2
+ 218              	.LVL14:
+ 219 000c 0428     		cmp	r0, #4
+ 220 000e 0CD1     		bne	.L14
+  89:peripherals/mpu60x0_spi.c ****     mpu->spi_trans.output_length = 1;
+  90:peripherals/mpu60x0_spi.c ****     mpu->spi_trans.input_length = 1 + mpu->config.nb_bytes;
+ 221              		.loc 1 90 0 is_stmt 1
+ 222 0010 91F86A30 		ldrb	r3, [r1, #106]	@ zero_extendqisi2
+  89:peripherals/mpu60x0_spi.c ****     mpu->spi_trans.output_length = 1;
+ 223              		.loc 1 89 0
+ 224 0014 0122     		movs	r2, #1
+ 225              		.loc 1 90 0
+ 226 0016 581C     		adds	r0, r3, #1
+  89:peripherals/mpu60x0_spi.c ****     mpu->spi_trans.output_length = 1;
+ 227              		.loc 1 89 0
+ 228 0018 4A73     		strb	r2, [r1, #13]
+ 229              		.loc 1 90 0
+ 230 001a 0873     		strb	r0, [r1, #12]
+  91:peripherals/mpu60x0_spi.c ****     /* set read bit and multiple byte bit, then address */
+  92:peripherals/mpu60x0_spi.c ****     mpu->tx_buf[0] = MPU60X0_REG_INT_STATUS | MPU60X0_SPI_READ;
+ 231              		.loc 1 92 0
+ 232 001c BA22     		movs	r2, #186
+  93:peripherals/mpu60x0_spi.c ****     spi_submit(mpu->spi_p, &(mpu->spi_trans));
+ 233              		.loc 1 93 0
+ 234 001e 0868     		ldr	r0, [r1, #0]
+  92:peripherals/mpu60x0_spi.c ****     mpu->tx_buf[0] = MPU60X0_REG_INT_STATUS | MPU60X0_SPI_READ;
+ 235              		.loc 1 92 0
+ 236 0020 81F82420 		strb	r2, [r1, #36]
+ 237              		.loc 1 93 0
+ 238 0024 0431     		adds	r1, r1, #4
+ 239              	.LVL15:
+  94:peripherals/mpu60x0_spi.c ****   }
+  95:peripherals/mpu60x0_spi.c **** }
+ 240              		.loc 1 95 0
+  93:peripherals/mpu60x0_spi.c ****     spi_submit(mpu->spi_p, &(mpu->spi_trans));
+ 241              		.loc 1 93 0
+ 242 0026 FFF7FEBF 		b	spi_submit
+ 243              	.LVL16:
+ 244              	.L14:
+ 245 002a 7047     		bx	lr
+ 246              		.cfi_endproc
+ 247              	.LFE4:
+ 249              		.section	.text.mpu60x0_spi_event,"ax",%progbits
+ 250              		.align	1
+ 251              		.global	mpu60x0_spi_event
+ 252              		.thumb
+ 253              		.thumb_func
+ 255              	mpu60x0_spi_event:
+ 256              	.LFB5:
+  96:peripherals/mpu60x0_spi.c **** 
+  97:peripherals/mpu60x0_spi.c **** #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
+  98:peripherals/mpu60x0_spi.c **** 
+  99:peripherals/mpu60x0_spi.c **** void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
+ 100:peripherals/mpu60x0_spi.c **** {
+ 257              		.loc 1 100 0
+ 258              		.cfi_startproc
+ 259              		@ args = 0, pretend = 0, frame = 0
+ 260              		@ frame_needed = 0, uses_anonymous_args = 0
+ 261              	.LVL17:
+ 262 0000 10B5     		push	{r4, lr}
+ 263              	.LCFI1:
+ 264              		.cfi_def_cfa_offset 8
+ 265              		.cfi_offset 4, -8
+ 266              		.cfi_offset 14, -4
+ 101:peripherals/mpu60x0_spi.c ****   if (mpu->config.initialized) {
+ 267              		.loc 1 101 0
+ 268 0002 90F86C30 		ldrb	r3, [r0, #108]	@ zero_extendqisi2
+ 100:peripherals/mpu60x0_spi.c **** {
+ 269              		.loc 1 100 0
+ 270 0006 0446     		mov	r4, r0
+ 271              		.loc 1 101 0
+ 272 0008 002B     		cmp	r3, #0
+ 273 000a 4BD0     		beq	.L20
+ 102:peripherals/mpu60x0_spi.c ****     if (mpu->spi_trans.status == SPITransFailed) {
+ 274              		.loc 1 102 0
+ 275 000c 90F82020 		ldrb	r2, [r0, #32]	@ zero_extendqisi2
+ 276 0010 032A     		cmp	r2, #3
+ 277 0012 5FD0     		beq	.L47
+ 278              	.L21:
+ 103:peripherals/mpu60x0_spi.c ****       mpu->spi_trans.status = SPITransDone;
+ 104:peripherals/mpu60x0_spi.c ****     }
+ 105:peripherals/mpu60x0_spi.c ****     else if (mpu->spi_trans.status == SPITransSuccess) {
+ 279              		.loc 1 105 0
+ 280 0014 90F82000 		ldrb	r0, [r0, #32]	@ zero_extendqisi2
+ 281              	.LVL18:
+ 282 0018 0228     		cmp	r0, #2
+ 283 001a 5ED1     		bne	.L19
+ 106:peripherals/mpu60x0_spi.c ****       // Successfull reading
+ 107:peripherals/mpu60x0_spi.c ****       if (bit_is_set(mpu->rx_buf[1], 0)) {
+ 284              		.loc 1 107 0
+ 285 001c 94F82710 		ldrb	r1, [r4, #39]	@ zero_extendqisi2
+ 286 0020 CB07     		lsls	r3, r1, #31
+ 287 0022 57D5     		bpl	.L47
+ 108:peripherals/mpu60x0_spi.c ****         // new data
+ 109:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf, 2);
+ 288              		.loc 1 109 0
+ 289 0024 94F82820 		ldrb	r2, [r4, #40]	@ zero_extendqisi2
+ 290 0028 94F82930 		ldrb	r3, [r4, #41]	@ zero_extendqisi2
+ 110:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf, 4);
+ 291              		.loc 1 110 0
+ 292 002c 94F82A10 		ldrb	r1, [r4, #42]	@ zero_extendqisi2
+ 109:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf, 2);
+ 293              		.loc 1 109 0
+ 294 0030 43EA0220 		orr	r0, r3, r2, lsl #8
+ 295              		.loc 1 110 0
+ 296 0034 94F82B20 		ldrb	r2, [r4, #43]	@ zero_extendqisi2
+ 109:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf, 2);
+ 297              		.loc 1 109 0
+ 298 0038 A4F84800 		strh	r0, [r4, #72]	@ movhi
+ 299              		.loc 1 110 0
+ 300 003c 42EA0123 		orr	r3, r2, r1, lsl #8
+ 111:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf, 6);
+ 301              		.loc 1 111 0
+ 302 0040 94F82C00 		ldrb	r0, [r4, #44]	@ zero_extendqisi2
+ 303 0044 94F82D10 		ldrb	r1, [r4, #45]	@ zero_extendqisi2
+ 110:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf, 4);
+ 304              		.loc 1 110 0
+ 305 0048 A4F84A30 		strh	r3, [r4, #74]	@ movhi
+ 306              		.loc 1 111 0
+ 307 004c 41EA0022 		orr	r2, r1, r0, lsl #8
+ 112:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf, 10);
+ 308              		.loc 1 112 0
+ 309 0050 94F83000 		ldrb	r0, [r4, #48]	@ zero_extendqisi2
+ 310 0054 94F83130 		ldrb	r3, [r4, #49]	@ zero_extendqisi2
+ 111:peripherals/mpu60x0_spi.c ****         mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf, 6);
+ 311              		.loc 1 111 0
+ 312 0058 A4F84C20 		strh	r2, [r4, #76]	@ movhi
+ 313              		.loc 1 112 0
+ 314 005c 43EA0021 		orr	r1, r3, r0, lsl #8
+ 113:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf, 12);
+ 315              		.loc 1 113 0
+ 316 0060 94F83220 		ldrb	r2, [r4, #50]	@ zero_extendqisi2
+ 317 0064 94F83300 		ldrb	r0, [r4, #51]	@ zero_extendqisi2
+ 112:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf, 10);
+ 318              		.loc 1 112 0
+ 319 0068 A4F84E10 		strh	r1, [r4, #78]	@ movhi
+ 320              		.loc 1 113 0
+ 321 006c 40EA0223 		orr	r3, r0, r2, lsl #8
+ 114:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
+ 322              		.loc 1 114 0
+ 323 0070 94F83410 		ldrb	r1, [r4, #52]	@ zero_extendqisi2
+ 324 0074 94F83520 		ldrb	r2, [r4, #53]	@ zero_extendqisi2
+ 113:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf, 12);
+ 325              		.loc 1 113 0
+ 326 0078 A4F85030 		strh	r3, [r4, #80]	@ movhi
+ 115:peripherals/mpu60x0_spi.c **** 
+ 116:peripherals/mpu60x0_spi.c ****         // if we are reading slaves, copy the ext_sens_data
+ 117:peripherals/mpu60x0_spi.c ****         if (mpu->config.nb_slaves > 0)
+ 327              		.loc 1 117 0
+ 328 007c 94F86E30 		ldrb	r3, [r4, #110]	@ zero_extendqisi2
+ 114:peripherals/mpu60x0_spi.c ****         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
+ 329              		.loc 1 114 0
+ 330 0080 42EA0120 		orr	r0, r2, r1, lsl #8
+ 331 0084 A4F85200 		strh	r0, [r4, #82]	@ movhi
+ 332              		.loc 1 117 0
+ 333 0088 43B1     		cbz	r3, .L25
+ 118:peripherals/mpu60x0_spi.c ****           memcpy(mpu->data_ext, (void *) &(mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
+ 334              		.loc 1 118 0
+ 335 008a 94F86A20 		ldrb	r2, [r4, #106]	@ zero_extendqisi2
+ 336 008e 04F15400 		add	r0, r4, #84
+ 337 0092 04F13601 		add	r1, r4, #54
+ 338 0096 0F3A     		subs	r2, r2, #15
+ 339 0098 FFF7FEFF 		bl	memcpy
+ 340              	.LVL19:
+ 341              	.L25:
+ 119:peripherals/mpu60x0_spi.c **** 
+ 120:peripherals/mpu60x0_spi.c ****         mpu->data_available = TRUE;
+ 342              		.loc 1 120 0
+ 343 009c 0121     		movs	r1, #1
+ 344 009e 84F84610 		strb	r1, [r4, #70]
+ 345 00a2 17E0     		b	.L47
+ 346              	.LVL20:
+ 347              	.L20:
+ 121:peripherals/mpu60x0_spi.c ****       }
+ 122:peripherals/mpu60x0_spi.c ****       mpu->spi_trans.status = SPITransDone;
+ 123:peripherals/mpu60x0_spi.c ****     }
+ 124:peripherals/mpu60x0_spi.c ****   }
+ 125:peripherals/mpu60x0_spi.c ****   else if (mpu->config.init_status != MPU60X0_CONF_UNINIT) { // Configuring but not yet initialized
+ 348              		.loc 1 125 0
+ 349 00a4 90F86B20 		ldrb	r2, [r0, #107]	@ zero_extendqisi2
+ 350 00a8 BAB1     		cbz	r2, .L19
+ 126:peripherals/mpu60x0_spi.c ****     switch (mpu->spi_trans.status) {
+ 351              		.loc 1 126 0
+ 352 00aa 90F82000 		ldrb	r0, [r0, #32]	@ zero_extendqisi2
+ 353              	.LVL21:
+ 354 00ae 0328     		cmp	r0, #3
+ 355 00b0 04D0     		beq	.L28
+ 356 00b2 0428     		cmp	r0, #4
+ 357 00b4 05D0     		beq	.L27
+ 358 00b6 0228     		cmp	r0, #2
+ 359 00b8 0FD1     		bne	.L19
+ 360 00ba 02E0     		b	.L27
+ 361              	.L28:
+ 127:peripherals/mpu60x0_spi.c ****       case SPITransFailed:
+ 128:peripherals/mpu60x0_spi.c ****         mpu->config.init_status--; // Retry config (TODO max retry)
+ 362              		.loc 1 128 0
+ 363 00bc 511E     		subs	r1, r2, #1
+ 364 00be 84F86B10 		strb	r1, [r4, #107]
+ 365              	.L27:
+ 129:peripherals/mpu60x0_spi.c ****       case SPITransSuccess:
+ 130:peripherals/mpu60x0_spi.c ****       case SPITransDone:
+ 131:peripherals/mpu60x0_spi.c ****         mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
+ 366              		.loc 1 131 0
+ 367 00c2 0648     		ldr	r0, .L48
+ 368 00c4 2146     		mov	r1, r4
+ 369 00c6 04F16402 		add	r2, r4, #100
+ 370 00ca FFF7FEFF 		bl	mpu60x0_send_config
+ 371              	.LVL22:
+ 132:peripherals/mpu60x0_spi.c ****         if (mpu->config.initialized)
+ 372              		.loc 1 132 0
+ 373 00ce 94F86C30 		ldrb	r3, [r4, #108]	@ zero_extendqisi2
+ 374 00d2 13B1     		cbz	r3, .L19
+ 375              	.L47:
+ 133:peripherals/mpu60x0_spi.c ****           mpu->spi_trans.status = SPITransDone;
+ 376              		.loc 1 133 0
+ 377 00d4 0422     		movs	r2, #4
+ 378 00d6 84F82020 		strb	r2, [r4, #32]
+ 379              	.L19:
+ 380 00da 10BD     		pop	{r4, pc}
+ 381              	.L49:
+ 382              		.align	2
+ 383              	.L48:
+ 384 00dc 00000000 		.word	mpu60x0_spi_write_to_reg
+ 385              		.cfi_endproc
+ 386              	.LFE5:
+ 388              		.section	.text.mpu60x0_configure_i2c_slaves,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	mpu60x0_configure_i2c_slaves
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	mpu60x0_configure_i2c_slaves:
+ 395              	.LFB6:
+ 134:peripherals/mpu60x0_spi.c ****         break;
+ 135:peripherals/mpu60x0_spi.c ****       default:
+ 136:peripherals/mpu60x0_spi.c ****         break;
+ 137:peripherals/mpu60x0_spi.c ****     }
+ 138:peripherals/mpu60x0_spi.c ****   }
+ 139:peripherals/mpu60x0_spi.c **** }
+ 140:peripherals/mpu60x0_spi.c **** 
+ 141:peripherals/mpu60x0_spi.c **** /** @todo: only one slave so far. */
+ 142:peripherals/mpu60x0_spi.c **** bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void* mpu)
+ 143:peripherals/mpu60x0_spi.c **** {
+ 396              		.loc 1 143 0
+ 397              		.cfi_startproc
+ 398              		@ args = 0, pretend = 0, frame = 0
+ 399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400              	.LVL23:
+ 144:peripherals/mpu60x0_spi.c ****   struct Mpu60x0_Spi* mpu_spi = (struct Mpu60x0_Spi*)(mpu);
+ 145:peripherals/mpu60x0_spi.c **** 
+ 146:peripherals/mpu60x0_spi.c ****   if (mpu_spi->slave_init_status == MPU60X0_SPI_CONF_UNINIT)
+ 401              		.loc 1 146 0
+ 402 0000 91F88820 		ldrb	r2, [r1, #136]	@ zero_extendqisi2
+ 143:peripherals/mpu60x0_spi.c **** {
+ 403              		.loc 1 143 0
+ 404 0004 10B5     		push	{r4, lr}
+ 405              	.LCFI2:
+ 406              		.cfi_def_cfa_offset 8
+ 407              		.cfi_offset 4, -8
+ 408              		.cfi_offset 14, -4
+ 143:peripherals/mpu60x0_spi.c **** {
+ 409              		.loc 1 143 0
+ 410 0006 0346     		mov	r3, r0
+ 411 0008 0C46     		mov	r4, r1
+ 412              		.loc 1 146 0
+ 413 000a 12B9     		cbnz	r2, .L51
+ 147:peripherals/mpu60x0_spi.c ****     mpu_spi->slave_init_status++;
+ 414              		.loc 1 147 0
+ 415 000c 0120     		movs	r0, #1
+ 416              	.LVL24:
+ 417 000e 81F88800 		strb	r0, [r1, #136]
+ 418              	.L51:
+ 148:peripherals/mpu60x0_spi.c **** 
+ 149:peripherals/mpu60x0_spi.c ****   switch (mpu_spi->slave_init_status) {
+ 419              		.loc 1 149 0
+ 420 0012 94F88810 		ldrb	r1, [r4, #136]	@ zero_extendqisi2
+ 421              	.LVL25:
+ 422 0016 4A1E     		subs	r2, r1, #1
+ 423 0018 042A     		cmp	r2, #4
+ 424 001a 21D8     		bhi	.L59
+ 425 001c DFE802F0 		tbb	[pc, r2]
+ 426              	.L58:
+ 427 0020 05       		.byte	(.L53-.L58)/2
+ 428 0021 0C       		.byte	(.L54-.L58)/2
+ 429 0022 11       		.byte	(.L55-.L58)/2
+ 430 0023 16       		.byte	(.L56-.L58)/2
+ 431 0024 03       		.byte	(.L57-.L58)/2
+ 432 0025 00       		.align	1
+ 433              	.L57:
+ 150:peripherals/mpu60x0_spi.c ****     case MPU60X0_SPI_CONF_I2C_MST_CLK:
+ 151:peripherals/mpu60x0_spi.c ****       /* configure MPU I2C master clock and stop/start between slave reads */
+ 152:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_I2C_MST_CTRL, ((1<<4) | mpu_spi->config.i2c_mst_clk));
+ 153:peripherals/mpu60x0_spi.c ****       mpu_spi->slave_init_status++;
+ 154:peripherals/mpu60x0_spi.c ****       break;
+ 155:peripherals/mpu60x0_spi.c ****     case MPU60X0_SPI_CONF_I2C_MST_DELAY:
+ 156:peripherals/mpu60x0_spi.c ****       /* Set I2C slaves delayed sample rate */
+ 157:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_I2C_MST_DELAY, mpu_spi->config.i2c_mst_delay);
+ 158:peripherals/mpu60x0_spi.c ****       mpu_spi->slave_init_status++;
+ 159:peripherals/mpu60x0_spi.c ****       break;
+ 160:peripherals/mpu60x0_spi.c ****     case MPU60X0_SPI_CONF_I2C_MST_EN:
+ 161:peripherals/mpu60x0_spi.c ****       /* enable internal I2C master and disable primary I2C interface */
+ 162:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_USER_CTRL, ((1 << MPU60X0_I2C_IF_DIS) |
+ 163:peripherals/mpu60x0_spi.c ****                                            (1 << MPU60X0_I2C_MST_EN)));
+ 164:peripherals/mpu60x0_spi.c ****       mpu_spi->slave_init_status++;
+ 165:peripherals/mpu60x0_spi.c ****       break;
+ 166:peripherals/mpu60x0_spi.c ****     case MPU60X0_SPI_CONF_SLAVES_CONFIGURE:
+ 167:peripherals/mpu60x0_spi.c ****       /* configure first slave, only one slave supported so far */
+ 168:peripherals/mpu60x0_spi.c ****       if (mpu_spi->config.slaves[0].configure(mpu_set, mpu))
+ 169:peripherals/mpu60x0_spi.c ****         mpu_spi->slave_init_status++;
+ 170:peripherals/mpu60x0_spi.c ****       break;
+ 171:peripherals/mpu60x0_spi.c ****     case MPU60X0_SPI_CONF_DONE:
+ 172:peripherals/mpu60x0_spi.c ****       return TRUE;
+ 434              		.loc 1 172 0
+ 435 0026 0120     		movs	r0, #1
+ 436 0028 10BD     		pop	{r4, pc}
+ 437              	.L53:
+ 152:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_I2C_MST_CTRL, ((1<<4) | mpu_spi->config.i2c_mst_clk));
+ 438              		.loc 1 152 0
+ 439 002a 94F88420 		ldrb	r2, [r4, #132]	@ zero_extendqisi2
+ 440 002e 2046     		mov	r0, r4
+ 441 0030 2421     		movs	r1, #36
+ 442 0032 42F01002 		orr	r2, r2, #16
+ 443 0036 07E0     		b	.L62
+ 444              	.L54:
+ 157:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_I2C_MST_DELAY, mpu_spi->config.i2c_mst_delay);
+ 445              		.loc 1 157 0
+ 446 0038 2046     		mov	r0, r4
+ 447 003a 6721     		movs	r1, #103
+ 448 003c 94F88520 		ldrb	r2, [r4, #133]	@ zero_extendqisi2
+ 449 0040 02E0     		b	.L62
+ 450              	.L55:
+ 162:peripherals/mpu60x0_spi.c ****       mpu_set(mpu, MPU60X0_REG_USER_CTRL, ((1 << MPU60X0_I2C_IF_DIS) |
+ 451              		.loc 1 162 0
+ 452 0042 2046     		mov	r0, r4
+ 453 0044 6A21     		movs	r1, #106
+ 454 0046 3022     		movs	r2, #48
+ 455              	.LVL26:
+ 456              	.L62:
+ 457 0048 9847     		blx	r3
+ 458              	.LVL27:
+ 459 004a 04E0     		b	.L61
+ 460              	.LVL28:
+ 461              	.L56:
+ 168:peripherals/mpu60x0_spi.c ****       if (mpu_spi->config.slaves[0].configure(mpu_set, mpu))
+ 462              		.loc 1 168 0
+ 463 004c 226F     		ldr	r2, [r4, #112]
+ 464 004e 1846     		mov	r0, r3
+ 465 0050 2146     		mov	r1, r4
+ 466 0052 9047     		blx	r2
+ 467              	.LVL29:
+ 468 0054 28B1     		cbz	r0, .L52
+ 469              	.L61:
+ 169:peripherals/mpu60x0_spi.c ****         mpu_spi->slave_init_status++;
+ 470              		.loc 1 169 0
+ 471 0056 94F88830 		ldrb	r3, [r4, #136]	@ zero_extendqisi2
+ 472 005a 581C     		adds	r0, r3, #1
+ 473 005c 84F88800 		strb	r0, [r4, #136]
+ 474              	.L59:
+ 173:peripherals/mpu60x0_spi.c ****     default:
+ 174:peripherals/mpu60x0_spi.c ****       break;
+ 175:peripherals/mpu60x0_spi.c ****   }
+ 176:peripherals/mpu60x0_spi.c ****   return FALSE;
+ 475              		.loc 1 176 0
+ 476 0060 0020     		movs	r0, #0
+ 477              	.L52:
+ 177:peripherals/mpu60x0_spi.c **** }
+ 478              		.loc 1 177 0
+ 479 0062 10BD     		pop	{r4, pc}
+ 480              		.cfi_endproc
+ 481              	.LFE6:
+ 483              		.text
+ 484              	.Letext0:
+ 485              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 486              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 487              		.file 4 "./math/pprz_algebra_int.h"
+ 488              		.file 5 "./mcu_periph/spi.h"
+ 489              		.file 6 "./peripherals/mpu60x0_regs.h"
+ 490              		.file 7 "./peripherals/mpu60x0.h"
+ 491              		.file 8 "./peripherals/mpu60x0_spi.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mpu60x0_spi.c
+/var/tmp//cc1C1JM5.s:19     .text.mpu60x0_spi_write_to_reg:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:23     .text.mpu60x0_spi_write_to_reg:0000000000000000 mpu60x0_spi_write_to_reg
+/var/tmp//cc1C1JM5.s:59     .text.mpu60x0_spi_init:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:64     .text.mpu60x0_spi_init:0000000000000000 mpu60x0_spi_init
+/var/tmp//cc1C1JM5.s:145    .text.mpu60x0_spi_start_configure:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:150    .text.mpu60x0_spi_start_configure:0000000000000000 mpu60x0_spi_start_configure
+/var/tmp//cc1C1JM5.s:192    .text.mpu60x0_spi_start_configure:000000000000002c $d
+/var/tmp//cc1C1JM5.s:197    .text.mpu60x0_spi_read:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:202    .text.mpu60x0_spi_read:0000000000000000 mpu60x0_spi_read
+/var/tmp//cc1C1JM5.s:250    .text.mpu60x0_spi_event:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:255    .text.mpu60x0_spi_event:0000000000000000 mpu60x0_spi_event
+/var/tmp//cc1C1JM5.s:384    .text.mpu60x0_spi_event:00000000000000dc $d
+/var/tmp//cc1C1JM5.s:389    .text.mpu60x0_configure_i2c_slaves:0000000000000000 $t
+/var/tmp//cc1C1JM5.s:394    .text.mpu60x0_configure_i2c_slaves:0000000000000000 mpu60x0_configure_i2c_slaves
+/var/tmp//cc1C1JM5.s:427    .text.mpu60x0_configure_i2c_slaves:0000000000000020 $d
+                     .debug_frame:0000000000000010 $d
+/var/tmp//cc1C1JM5.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000025 $d
+/var/tmp//cc1C1JM5.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000026 $t
+
+UNDEFINED SYMBOLS
+spi_submit
+mpu60x0_set_default_config
+mpu60x0_send_config
+memcpy

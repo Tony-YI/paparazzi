@@ -1,0 +1,40 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"radio_control.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	radio_control
+  19              		.section	.bss.radio_control,"aw",%nobits
+  20              		.align	1
+  23              	radio_control:
+  24 0000 00000000 		.space	22
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  25              		.text
+  26              	.Letext0:
+  27              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  28              		.file 2 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+  29              		.file 3 "./paparazzi.h"
+  30              		.file 4 "./mcu_periph/sys_time.h"
+  31              		.file 5 "./subsystems/radio_control.h"
+  32              		.file 6 "subsystems/radio_control.c"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 radio_control.c
+/var/tmp//ccCD16xS.s:23     .bss.radio_control:0000000000000000 radio_control
+/var/tmp//ccCD16xS.s:20     .bss.radio_control:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

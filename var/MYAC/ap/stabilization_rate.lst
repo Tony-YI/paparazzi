@@ -1,0 +1,2156 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"stabilization_rate.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stabilization_rate_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	stabilization_rate_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	stabilization_rate_init:
+  25              	.LFB122:
+  26              		.file 1 "firmwares/rotorcraft/stabilization/stabilization_rate.c"
+   1:firmwares/rotorcraft/stabilization/stabilization_rate.c **** /*
+   2:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
+   4:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *
+   5:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * This file is part of paparazzi.
+   6:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *
+   7:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   8:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * it under the terms of the GNU General Public License as published by
+   9:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * the Free Software Foundation; either version 2, or (at your option)
+  10:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * any later version.
+  11:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *
+  12:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * paparazzi is distributed in the hope that it will be useful,
+  13:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * GNU General Public License for more details.
+  16:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *
+  17:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * You should have received a copy of the GNU General Public License
+  18:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  19:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  20:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  * Boston, MA 02111-1307, USA.
+  21:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  */
+  22:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  23:firmwares/rotorcraft/stabilization/stabilization_rate.c **** /** @file stabilization_rate.c
+  24:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *  Rate stabilization for rotorcrafts.
+  25:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *
+  26:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  *  Control loops for angular velocity.
+  27:firmwares/rotorcraft/stabilization/stabilization_rate.c ****  */
+  28:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  29:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #include "firmwares/rotorcraft/stabilization.h"
+  30:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  31:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #include "state.h"
+  32:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  33:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #include "subsystems/imu.h"
+  34:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #include "subsystems/radio_control.h"
+  35:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #include "generated/airframe.h"
+  36:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  37:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define F_UPDATE_RES 9
+  38:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define REF_DOT_FRAC 11
+  39:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define REF_FRAC  16
+  40:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  41:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define MAX_SUM_ERR 4000000
+  42:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  43:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #if (STABILIZATION_RATE_GAIN_P < 0) || \
+  44:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   (STABILIZATION_RATE_GAIN_Q < 0)   || \
+  45:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   (STABILIZATION_RATE_GAIN_R < 0)
+  46:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #warning "ALL control gains are now positive!!!"
+  47:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  48:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  49:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DDGAIN_P
+  50:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DDGAIN_P 0
+  51:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  52:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DDGAIN_Q
+  53:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DDGAIN_Q 0
+  54:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  55:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DDGAIN_R
+  56:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DDGAIN_R 0
+  57:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  58:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  59:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_IGAIN_P
+  60:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_IGAIN_P 0
+  61:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #else
+  62:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #if (STABILIZATION_RATE_IGAIN_P < 0)
+  63:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #warning "ALL control gains are now positive!!!"
+  64:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  65:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  66:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_IGAIN_Q
+  67:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_IGAIN_Q 0
+  68:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #else
+  69:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #if (STABILIZATION_RATE_IGAIN_Q < 0)
+  70:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #warning "ALL control gains are now positive!!!"
+  71:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  72:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  73:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_IGAIN_R
+  74:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_IGAIN_R 0
+  75:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #else
+  76:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #if (STABILIZATION_RATE_IGAIN_R < 0)
+  77:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #warning "ALL control gains are now positive!!!"
+  78:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  79:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  80:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  81:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_REF_TAU
+  82:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_REF_TAU 4
+  83:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+  84:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  85:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
+  86:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
+  87:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  88:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_sp;
+  89:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_gain;
+  90:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_igain;
+  91:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_ddgain;
+  92:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_ref;
+  93:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_refdot;
+  94:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_sum_err;
+  95:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  96:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_fb_cmd;
+  97:firmwares/rotorcraft/stabilization/stabilization_rate.c **** struct Int32Rates stabilization_rate_ff_cmd;
+  98:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+  99:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 100:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DEADBAND_P
+ 101:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DEADBAND_P 0
+ 102:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+ 103:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DEADBAND_Q
+ 104:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DEADBAND_Q 0
+ 105:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+ 106:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #ifndef STABILIZATION_RATE_DEADBAND_R
+ 107:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define STABILIZATION_RATE_DEADBAND_R 200
+ 108:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #endif
+ 109:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 110:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define ROLL_RATE_DEADBAND_EXCEEDED()                                         \
+ 111:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   (radio_control.values[RADIO_ROLL] >  STABILIZATION_RATE_DEADBAND_P || \
+ 112:firmwares/rotorcraft/stabilization/stabilization_rate.c ****    radio_control.values[RADIO_ROLL] < -STABILIZATION_RATE_DEADBAND_P)
+ 113:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 114:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define PITCH_RATE_DEADBAND_EXCEEDED()                                         \
+ 115:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   (radio_control.values[RADIO_PITCH] >  STABILIZATION_RATE_DEADBAND_Q || \
+ 116:firmwares/rotorcraft/stabilization/stabilization_rate.c ****    radio_control.values[RADIO_PITCH] < -STABILIZATION_RATE_DEADBAND_Q)
+ 117:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 118:firmwares/rotorcraft/stabilization/stabilization_rate.c **** #define YAW_RATE_DEADBAND_EXCEEDED()                                         \
+ 119:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
+ 120:firmwares/rotorcraft/stabilization/stabilization_rate.c ****    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
+ 121:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 122:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 123:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_init(void) {
+  27              		.loc 1 123 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+ 124:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 125:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_sp);
+  32              		.loc 1 125 0
+  33 0000 124A     		ldr	r2, .L2
+  34 0002 0023     		movs	r3, #0
+ 126:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 127:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ASSIGN(stabilization_rate_gain,
+  35              		.loc 1 127 0
+  36 0004 1248     		ldr	r0, .L2+4
+ 125:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_sp);
+  37              		.loc 1 125 0
+  38 0006 1360     		str	r3, [r2, #0]
+  39 0008 5360     		str	r3, [r2, #4]
+  40 000a 9360     		str	r3, [r2, #8]
+  41              		.loc 1 127 0
+  42 000c 4FF4A071 		mov	r1, #320
+  43 0010 4FF4AF72 		mov	r2, #350
+  44 0014 0160     		str	r1, [r0, #0]
+  45 0016 4160     		str	r1, [r0, #4]
+  46 0018 8260     		str	r2, [r0, #8]
+ 128:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_GAIN_P,
+ 129:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_GAIN_Q,
+ 130:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_GAIN_R);
+ 131:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ASSIGN(stabilization_rate_igain,
+  47              		.loc 1 131 0
+  48 001a 0E48     		ldr	r0, .L2+8
+  49 001c 4FF49671 		mov	r1, #300
+ 132:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_IGAIN_P,
+ 133:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_IGAIN_Q,
+ 134:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_IGAIN_R);
+ 135:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ASSIGN(stabilization_rate_ddgain,
+  50              		.loc 1 135 0
+  51 0020 0D4A     		ldr	r2, .L2+12
+ 131:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ASSIGN(stabilization_rate_igain,
+  52              		.loc 1 131 0
+  53 0022 0160     		str	r1, [r0, #0]
+  54 0024 4160     		str	r1, [r0, #4]
+  55 0026 8160     		str	r1, [r0, #8]
+  56              		.loc 1 135 0
+  57 0028 0620     		movs	r0, #6
+  58 002a 0A21     		movs	r1, #10
+  59 002c 1060     		str	r0, [r2, #0]
+  60 002e 5060     		str	r0, [r2, #4]
+  61 0030 9160     		str	r1, [r2, #8]
+ 136:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_DDGAIN_P,
+ 137:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_DDGAIN_Q,
+ 138:firmwares/rotorcraft/stabilization/stabilization_rate.c ****                STABILIZATION_RATE_DDGAIN_R);
+ 139:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 140:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_ref);
+ 141:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_refdot);
+  62              		.loc 1 141 0
+  63 0032 0A48     		ldr	r0, .L2+16
+ 140:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_ref);
+  64              		.loc 1 140 0
+  65 0034 0A4A     		ldr	r2, .L2+20
+ 142:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_sum_err);
+  66              		.loc 1 142 0
+  67 0036 0B49     		ldr	r1, .L2+24
+ 140:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_ref);
+  68              		.loc 1 140 0
+  69 0038 1360     		str	r3, [r2, #0]
+  70 003a 5360     		str	r3, [r2, #4]
+  71 003c 9360     		str	r3, [r2, #8]
+ 141:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_refdot);
+  72              		.loc 1 141 0
+  73 003e 0360     		str	r3, [r0, #0]
+  74 0040 4360     		str	r3, [r0, #4]
+  75 0042 8360     		str	r3, [r0, #8]
+  76              		.loc 1 142 0
+  77 0044 0B60     		str	r3, [r1, #0]
+  78 0046 4B60     		str	r3, [r1, #4]
+  79 0048 8B60     		str	r3, [r1, #8]
+  80 004a 7047     		bx	lr
+  81              	.L3:
+  82              		.align	2
+  83              	.L2:
+  84 004c 00000000 		.word	.LANCHOR0
+  85 0050 00000000 		.word	.LANCHOR1
+  86 0054 00000000 		.word	.LANCHOR2
+  87 0058 00000000 		.word	.LANCHOR3
+  88 005c 00000000 		.word	.LANCHOR5
+  89 0060 00000000 		.word	.LANCHOR4
+  90 0064 00000000 		.word	.LANCHOR6
+  91              		.cfi_endproc
+  92              	.LFE122:
+  94              		.section	.text.stabilization_rate_read_rc,"ax",%progbits
+  95              		.align	1
+  96              		.global	stabilization_rate_read_rc
+  97              		.thumb
+  98              		.thumb_func
+ 100              	stabilization_rate_read_rc:
+ 101              	.LFB123:
+ 143:firmwares/rotorcraft/stabilization/stabilization_rate.c **** }
+ 144:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 145:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 146:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_read_rc( void ) {
+ 102              		.loc 1 146 0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106              		@ link register save eliminated.
+ 147:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 148:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(ROLL_RATE_DEADBAND_EXCEEDED())
+ 107              		.loc 1 148 0
+ 108 0000 214B     		ldr	r3, .L15
+ 109 0002 5A89     		ldrh	r2, [r3, #10]
+ 110 0004 02F13201 		add	r1, r2, #50
+ 111 0008 88B2     		uxth	r0, r1
+ 112 000a 6428     		cmp	r0, #100
+ 113 000c 1946     		mov	r1, r3
+ 114 000e 1F4B     		ldr	r3, .L15+4
+ 115 0010 08D9     		bls	.L5
+ 149:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX
+ 116              		.loc 1 149 0
+ 117 0012 42F21070 		movw	r0, #10000
+ 118 0016 12B2     		sxth	r2, r2
+ 119 0018 4243     		muls	r2, r0, r2
+ 120 001a 4FF41650 		mov	r0, #9600
+ 121 001e 92FBF0F2 		sdiv	r2, r2, r0
+ 122 0022 00E0     		b	.L11
+ 123              	.L5:
+ 150:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 151:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.p = 0;
+ 124              		.loc 1 151 0
+ 125 0024 0022     		movs	r2, #0
+ 126              	.L11:
+ 152:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 153:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(PITCH_RATE_DEADBAND_EXCEEDED())
+ 127              		.loc 1 153 0
+ 128 0026 0989     		ldrh	r1, [r1, #8]
+ 151:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.p = 0;
+ 129              		.loc 1 151 0
+ 130 0028 1A60     		str	r2, [r3, #0]
+ 131              		.loc 1 153 0
+ 132 002a 01F13203 		add	r3, r1, #50
+ 133 002e 9AB2     		uxth	r2, r3
+ 134 0030 642A     		cmp	r2, #100
+ 135 0032 1648     		ldr	r0, .L15+4
+ 136 0034 08D9     		bls	.L7
+ 154:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MA
+ 137              		.loc 1 154 0
+ 138 0036 0BB2     		sxth	r3, r1
+ 139 0038 42F21072 		movw	r2, #10000
+ 140 003c 5343     		muls	r3, r2, r3
+ 141 003e 4FF41651 		mov	r1, #9600
+ 142 0042 93FBF1F1 		sdiv	r1, r3, r1
+ 143 0046 00E0     		b	.L12
+ 144              	.L7:
+ 155:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 156:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.q = 0;
+ 145              		.loc 1 156 0
+ 146 0048 0021     		movs	r1, #0
+ 147              	.L12:
+ 148 004a 4160     		str	r1, [r0, #4]
+ 157:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 158:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(YAW_RATE_DEADBAND_EXCEEDED())
+ 149              		.loc 1 158 0
+ 150 004c 0E48     		ldr	r0, .L15
+ 151 004e 8289     		ldrh	r2, [r0, #12]
+ 152 0050 0E48     		ldr	r0, .L15+4
+ 153 0052 02F1C803 		add	r3, r2, #200
+ 154 0056 99B2     		uxth	r1, r3
+ 155 0058 B1F5C87F 		cmp	r1, #400
+ 156 005c 08D9     		bls	.L9
+ 159:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_
+ 157              		.loc 1 159 0
+ 158 005e 13B2     		sxth	r3, r2
+ 159 0060 42F21071 		movw	r1, #10000
+ 160 0064 4B43     		muls	r3, r1, r3
+ 161 0066 4FF41652 		mov	r2, #9600
+ 162 006a 93FBF2F2 		sdiv	r2, r3, r2
+ 163 006e 00E0     		b	.L13
+ 164              	.L9:
+ 160:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 161:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = 0;
+ 165              		.loc 1 161 0
+ 166 0070 0022     		movs	r2, #0
+ 167              	.L13:
+ 162:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 163:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   // Setpoint at ref resolution
+ 164:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
+ 168              		.loc 1 164 0
+ 169 0072 0368     		ldr	r3, [r0, #0]
+ 161:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = 0;
+ 170              		.loc 1 161 0
+ 171 0074 8260     		str	r2, [r0, #8]
+ 172              		.loc 1 164 0
+ 173 0076 1901     		lsls	r1, r3, #4
+ 174 0078 4268     		ldr	r2, [r0, #4]
+ 175 007a 0160     		str	r1, [r0, #0]
+ 176 007c 8168     		ldr	r1, [r0, #8]
+ 177 007e 1301     		lsls	r3, r2, #4
+ 178 0080 0A01     		lsls	r2, r1, #4
+ 179 0082 4360     		str	r3, [r0, #4]
+ 180 0084 8260     		str	r2, [r0, #8]
+ 181 0086 7047     		bx	lr
+ 182              	.L16:
+ 183              		.align	2
+ 184              	.L15:
+ 185 0088 00000000 		.word	radio_control
+ 186 008c 00000000 		.word	.LANCHOR0
+ 187              		.cfi_endproc
+ 188              	.LFE123:
+ 190              		.section	.text.stabilization_rate_read_rc_switched_sticks,"ax",%progbits
+ 191              		.align	1
+ 192              		.global	stabilization_rate_read_rc_switched_sticks
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	stabilization_rate_read_rc_switched_sticks:
+ 197              	.LFB124:
+ 165:firmwares/rotorcraft/stabilization/stabilization_rate.c **** }
+ 166:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 167:firmwares/rotorcraft/stabilization/stabilization_rate.c **** //Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sti
+ 168:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_read_rc_switched_sticks( void ) {
+ 198              		.loc 1 168 0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+ 202              		@ link register save eliminated.
+ 169:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 170:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(ROLL_RATE_DEADBAND_EXCEEDED())
+ 203              		.loc 1 170 0
+ 204 0000 214B     		ldr	r3, .L27
+ 205 0002 5A89     		ldrh	r2, [r3, #10]
+ 206 0004 02F13201 		add	r1, r2, #50
+ 207 0008 88B2     		uxth	r0, r1
+ 208 000a 6428     		cmp	r0, #100
+ 209 000c 1946     		mov	r1, r3
+ 210 000e 1F4B     		ldr	r3, .L27+4
+ 211 0010 07D9     		bls	.L18
+ 171:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = (int32_t) -radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_M
+ 212              		.loc 1 171 0
+ 213 0012 1F48     		ldr	r0, .L27+8
+ 214 0014 12B2     		sxth	r2, r2
+ 215 0016 4243     		muls	r2, r0, r2
+ 216 0018 4FF41650 		mov	r0, #9600
+ 217 001c 92FBF0F2 		sdiv	r2, r2, r0
+ 218 0020 00E0     		b	.L24
+ 219              	.L18:
+ 172:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 173:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = 0;
+ 220              		.loc 1 173 0
+ 221 0022 0022     		movs	r2, #0
+ 222              	.L24:
+ 174:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 175:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(PITCH_RATE_DEADBAND_EXCEEDED())
+ 223              		.loc 1 175 0
+ 224 0024 0989     		ldrh	r1, [r1, #8]
+ 173:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.r = 0;
+ 225              		.loc 1 173 0
+ 226 0026 9A60     		str	r2, [r3, #8]
+ 227              		.loc 1 175 0
+ 228 0028 01F13203 		add	r3, r1, #50
+ 229 002c 9AB2     		uxth	r2, r3
+ 230 002e 642A     		cmp	r2, #100
+ 231 0030 1648     		ldr	r0, .L27+4
+ 232 0032 08D9     		bls	.L20
+ 176:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MA
+ 233              		.loc 1 176 0
+ 234 0034 0BB2     		sxth	r3, r1
+ 235 0036 42F21072 		movw	r2, #10000
+ 236 003a 5343     		muls	r3, r2, r3
+ 237 003c 4FF41651 		mov	r1, #9600
+ 238 0040 93FBF1F1 		sdiv	r1, r3, r1
+ 239 0044 00E0     		b	.L25
+ 240              	.L20:
+ 177:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 178:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.q = 0;
+ 241              		.loc 1 178 0
+ 242 0046 0021     		movs	r1, #0
+ 243              	.L25:
+ 244 0048 4160     		str	r1, [r0, #4]
+ 179:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 180:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if(YAW_RATE_DEADBAND_EXCEEDED())
+ 245              		.loc 1 180 0
+ 246 004a 0F48     		ldr	r0, .L27
+ 247 004c 8289     		ldrh	r2, [r0, #12]
+ 248 004e 0F48     		ldr	r0, .L27+4
+ 249 0050 02F1C803 		add	r3, r2, #200
+ 250 0054 99B2     		uxth	r1, r3
+ 251 0056 B1F5C87F 		cmp	r1, #400
+ 252 005a 08D9     		bls	.L22
+ 181:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_
+ 253              		.loc 1 181 0
+ 254 005c 13B2     		sxth	r3, r2
+ 255 005e 42F21071 		movw	r1, #10000
+ 256 0062 4B43     		muls	r3, r1, r3
+ 257 0064 4FF41652 		mov	r2, #9600
+ 258 0068 93FBF2F2 		sdiv	r2, r3, r2
+ 259 006c 00E0     		b	.L26
+ 260              	.L22:
+ 182:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else
+ 183:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_sp.p = 0;
+ 261              		.loc 1 183 0
+ 262 006e 0022     		movs	r2, #0
+ 263              	.L26:
+ 264 0070 0260     		str	r2, [r0, #0]
+ 184:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 185:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   // Setpoint at ref resolution
+ 186:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
+ 265              		.loc 1 186 0
+ 266 0072 0368     		ldr	r3, [r0, #0]
+ 267 0074 4268     		ldr	r2, [r0, #4]
+ 268 0076 1901     		lsls	r1, r3, #4
+ 269 0078 0160     		str	r1, [r0, #0]
+ 270 007a 8168     		ldr	r1, [r0, #8]
+ 271 007c 1301     		lsls	r3, r2, #4
+ 272 007e 0A01     		lsls	r2, r1, #4
+ 273 0080 4360     		str	r3, [r0, #4]
+ 274 0082 8260     		str	r2, [r0, #8]
+ 275 0084 7047     		bx	lr
+ 276              	.L28:
+ 277 0086 00BF     		.align	2
+ 278              	.L27:
+ 279 0088 00000000 		.word	radio_control
+ 280 008c 00000000 		.word	.LANCHOR0
+ 281 0090 F0D8FFFF 		.word	-10000
+ 282              		.cfi_endproc
+ 283              	.LFE124:
+ 285              		.section	.text.stabilization_rate_enter,"ax",%progbits
+ 286              		.align	1
+ 287              		.global	stabilization_rate_enter
+ 288              		.thumb
+ 289              		.thumb_func
+ 291              	stabilization_rate_enter:
+ 292              	.LFB125:
+ 187:firmwares/rotorcraft/stabilization/stabilization_rate.c **** }
+ 188:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 189:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_enter(void) {
+ 293              		.loc 1 189 0
+ 294              		.cfi_startproc
+ 295              		@ args = 0, pretend = 0, frame = 0
+ 296              		@ frame_needed = 0, uses_anonymous_args = 0
+ 297              		@ link register save eliminated.
+ 190:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_COPY(stabilization_rate_ref, stabilization_rate_sp);
+ 298              		.loc 1 190 0
+ 299 0000 064A     		ldr	r2, .L30
+ 300 0002 074B     		ldr	r3, .L30+4
+ 301 0004 1168     		ldr	r1, [r2, #0]
+ 302 0006 5068     		ldr	r0, [r2, #4]
+ 303 0008 9268     		ldr	r2, [r2, #8]
+ 304 000a 1960     		str	r1, [r3, #0]
+ 305 000c 5860     		str	r0, [r3, #4]
+ 306 000e 9A60     		str	r2, [r3, #8]
+ 191:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   INT_RATES_ZERO(stabilization_rate_sum_err);
+ 307              		.loc 1 191 0
+ 308 0010 044B     		ldr	r3, .L30+8
+ 309 0012 0021     		movs	r1, #0
+ 310 0014 1960     		str	r1, [r3, #0]
+ 311 0016 5960     		str	r1, [r3, #4]
+ 312 0018 9960     		str	r1, [r3, #8]
+ 313 001a 7047     		bx	lr
+ 314              	.L31:
+ 315              		.align	2
+ 316              	.L30:
+ 317 001c 00000000 		.word	.LANCHOR0
+ 318 0020 00000000 		.word	.LANCHOR4
+ 319 0024 00000000 		.word	.LANCHOR6
+ 320              		.cfi_endproc
+ 321              	.LFE125:
+ 323              		.section	.text.stabilization_rate_run,"ax",%progbits
+ 324              		.align	1
+ 325              		.global	stabilization_rate_run
+ 326              		.thumb
+ 327              		.thumb_func
+ 329              	stabilization_rate_run:
+ 330              	.LFB126:
+ 192:firmwares/rotorcraft/stabilization/stabilization_rate.c **** }
+ 193:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 194:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_run(bool_t in_flight) {
+ 331              		.loc 1 194 0
+ 332              		.cfi_startproc
+ 333              		@ args = 0, pretend = 0, frame = 0
+ 334              		@ frame_needed = 0, uses_anonymous_args = 0
+ 335              	.LVL0:
+ 195:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 196:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* reference */
+ 197:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   struct Int32Rates _r;
+ 198:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_DIFF(_r, stabilization_rate_sp, stabilization_rate_ref);
+ 336              		.loc 1 198 0
+ 337 0000 6649     		ldr	r1, .L45
+ 194:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_run(bool_t in_flight) {
+ 338              		.loc 1 194 0
+ 339 0002 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 340              	.LCFI0:
+ 341              		.cfi_def_cfa_offset 32
+ 342              		.cfi_offset 3, -32
+ 343              		.cfi_offset 4, -28
+ 344              		.cfi_offset 5, -24
+ 345              		.cfi_offset 6, -20
+ 346              		.cfi_offset 7, -16
+ 347              		.cfi_offset 8, -12
+ 348              		.cfi_offset 9, -8
+ 349              		.cfi_offset 14, -4
+ 350              		.loc 1 198 0
+ 351 0006 664B     		ldr	r3, .L45+4
+ 352 0008 0D68     		ldr	r5, [r1, #0]
+ 353 000a 9F68     		ldr	r7, [r3, #8]
+ 354 000c 8A68     		ldr	r2, [r1, #8]
+ 194:firmwares/rotorcraft/stabilization/stabilization_rate.c **** void stabilization_rate_run(bool_t in_flight) {
+ 355              		.loc 1 194 0
+ 356 000e 0446     		mov	r4, r0
+ 357              		.loc 1 198 0
+ 358 0010 4868     		ldr	r0, [r1, #4]
+ 359              	.LVL1:
+ 360 0012 93E80011 		ldmia	r3, {r8, ip}
+ 199:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_SDIV(stabilization_rate_refdot, _r, STABILIZATION_RATE_REF_TAU);
+ 361              		.loc 1 199 0
+ 362 0016 0426     		movs	r6, #4
+ 198:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_DIFF(_r, stabilization_rate_sp, stabilization_rate_ref);
+ 363              		.loc 1 198 0
+ 364 0018 C8EB0501 		rsb	r1, r8, r5
+ 365              		.loc 1 199 0
+ 366 001c 91FBF6F5 		sdiv	r5, r1, r6
+ 198:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_DIFF(_r, stabilization_rate_sp, stabilization_rate_ref);
+ 367              		.loc 1 198 0
+ 368 0020 CCEB0000 		rsb	r0, ip, r0
+ 369              	.LVL2:
+ 370              		.loc 1 199 0
+ 371 0024 5F49     		ldr	r1, .L45+8
+ 198:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_DIFF(_r, stabilization_rate_sp, stabilization_rate_ref);
+ 372              		.loc 1 198 0
+ 373 0026 D21B     		subs	r2, r2, r7
+ 374              	.LVL3:
+ 375              		.loc 1 199 0
+ 376 0028 90FBF6F0 		sdiv	r0, r0, r6
+ 377              	.LVL4:
+ 378 002c 92FBF6F2 		sdiv	r2, r2, r6
+ 379              	.LVL5:
+ 380 0030 0D60     		str	r5, [r1, #0]
+ 381 0032 4860     		str	r0, [r1, #4]
+ 382 0034 8A60     		str	r2, [r1, #8]
+ 383              	.LVL6:
+ 200:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* integrate ref */
+ 201:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   const struct Int32Rates _delta_ref = {
+ 202:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_refdot.p >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+ 203:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_refdot.q >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+ 204:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     stabilization_rate_refdot.r >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC)};
+ 205:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ADD(stabilization_rate_ref, _delta_ref);
+ 206:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 207:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* compute feed-forward command */
+ 208:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refd
+ 384              		.loc 1 208 0
+ 385 0036 5C49     		ldr	r1, .L45+12
+ 205:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ADD(stabilization_rate_ref, _delta_ref);
+ 386              		.loc 1 205 0
+ 387 0038 08EB2518 		add	r8, r8, r5, asr #4
+ 388              		.loc 1 208 0
+ 389 003c 0E68     		ldr	r6, [r1, #0]
+ 205:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ADD(stabilization_rate_ref, _delta_ref);
+ 390              		.loc 1 205 0
+ 391 003e 0CEB201C 		add	ip, ip, r0, asr #4
+ 392              	.LVL7:
+ 393              		.loc 1 208 0
+ 394 0042 7543     		muls	r5, r6, r5
+ 395              	.LVL8:
+ 396 0044 4E68     		ldr	r6, [r1, #4]
+ 397 0046 8968     		ldr	r1, [r1, #8]
+ 205:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ADD(stabilization_rate_ref, _delta_ref);
+ 398              		.loc 1 205 0
+ 399 0048 07EB2217 		add	r7, r7, r2, asr #4
+ 400              	.LVL9:
+ 401 004c C3F80080 		str	r8, [r3, #0]
+ 402 0050 9F60     		str	r7, [r3, #8]
+ 403              		.loc 1 208 0
+ 404 0052 7043     		muls	r0, r6, r0
+ 405              	.LVL10:
+ 205:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_ADD(stabilization_rate_ref, _delta_ref);
+ 406              		.loc 1 205 0
+ 407 0054 C3F804C0 		str	ip, [r3, #4]
+ 408              		.loc 1 208 0
+ 409 0058 4A43     		muls	r2, r1, r2
+ 410              	.LVL11:
+ 411 005a 544B     		ldr	r3, .L45+16
+ 412 005c 6D12     		asrs	r5, r5, #9
+ 413 005e 1D60     		str	r5, [r3, #0]
+ 414              	.LBB4:
+ 415              	.LBB5:
+ 416              		.file 2 "./state.h"
+   1:./state.h     **** /*
+   2:./state.h     ****  * Copyright (C) 2011-2012 Felix Ruess <felix.ruess@gmail.com>
+   3:./state.h     ****  *
+   4:./state.h     ****  * This file is part of paparazzi.
+   5:./state.h     ****  *
+   6:./state.h     ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./state.h     ****  * it under the terms of the GNU General Public License as published by
+   8:./state.h     ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./state.h     ****  * any later version.
+  10:./state.h     ****  *
+  11:./state.h     ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./state.h     ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./state.h     ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./state.h     ****  * GNU General Public License for more details.
+  15:./state.h     ****  *
+  16:./state.h     ****  * You should have received a copy of the GNU General Public License
+  17:./state.h     ****  * along with paparazzi; see the file COPYING.  If not, see
+  18:./state.h     ****  * <http://www.gnu.org/licenses/>.
+  19:./state.h     ****  */
+  20:./state.h     **** 
+  21:./state.h     **** /**
+  22:./state.h     ****  * @file state.h
+  23:./state.h     ****  *
+  24:./state.h     ****  * API to get/set the generic vehicle states.
+  25:./state.h     ****  *
+  26:./state.h     ****  * Also see the @ref state_interface "State Interface" page.
+  27:./state.h     ****  *
+  28:./state.h     ****  * @author Felix Ruess <felix.ruess@gmail.com>
+  29:./state.h     ****  */
+  30:./state.h     **** 
+  31:./state.h     **** #ifndef STATE_H
+  32:./state.h     **** #define STATE_H
+  33:./state.h     **** 
+  34:./state.h     **** #include "math/pprz_algebra_int.h"
+  35:./state.h     **** #include "math/pprz_algebra_float.h"
+  36:./state.h     **** #include "math/pprz_geodetic_int.h"
+  37:./state.h     **** #include "math/pprz_geodetic_float.h"
+  38:./state.h     **** #include "math/pprz_orientation_conversion.h"
+  39:./state.h     **** 
+  40:./state.h     **** #include "std.h"
+  41:./state.h     **** #include <string.h>
+  42:./state.h     **** 
+  43:./state.h     **** /**
+  44:./state.h     ****  * This general state interface holds all the most important vehicle states like
+  45:./state.h     ****  * position, velocity, attitude, etc. It handles coordinate system and
+  46:./state.h     ****  * fixed-/floating-point conversion on the fly when needed.
+  47:./state.h     ****  *
+  48:./state.h     ****  * You can set e.g. the position in any coordinate system you wish:
+  49:./state.h     ****  * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
+  50:./state.h     ****  * If you need to read the position somewhere else in a different representation,
+  51:./state.h     ****  * call: stateGetPositionLla_f() and only then the LLA float position representation
+  52:./state.h     ****  * is calculated on the fly and returned. It's also only calculated once,
+  53:./state.h     ****  * until a new position is set which invalidates all the other representations again.
+  54:./state.h     ****  */
+  55:./state.h     **** 
+  56:./state.h     **** /**
+  57:./state.h     ****  * @defgroup state_interface State interface
+  58:./state.h     ****  * @{
+  59:./state.h     ****  */
+  60:./state.h     **** 
+  61:./state.h     **** /**
+  62:./state.h     ****  * @defgroup state_position Position representations
+  63:./state.h     ****  * @{
+  64:./state.h     ****  */
+  65:./state.h     **** #define POS_ECEF_I 0
+  66:./state.h     **** #define POS_NED_I  1
+  67:./state.h     **** #define POS_ENU_I  2
+  68:./state.h     **** #define POS_LLA_I  3
+  69:./state.h     **** #define POS_UTM_I  4
+  70:./state.h     **** #define POS_ECEF_F 5
+  71:./state.h     **** #define POS_NED_F  6
+  72:./state.h     **** #define POS_ENU_F  7
+  73:./state.h     **** #define POS_LLA_F  8
+  74:./state.h     **** #define POS_UTM_F  9
+  75:./state.h     **** #define POS_LOCAL_COORD ((1<<POS_NED_I)|(1<<POS_NED_F)|(1<<POS_ENU_I)|(1<<POS_ENU_F))
+  76:./state.h     **** #define POS_GLOBAL_COORD ((1<<POS_ECEF_I)|(1<<POS_ECEF_F)|(1<<POS_LLA_I)|(1<<POS_LLA_F)|(1<<POS_UTM
+  77:./state.h     **** /**@}*/
+  78:./state.h     **** 
+  79:./state.h     **** /**
+  80:./state.h     ****  * @defgroup state_velocity Speed representations
+  81:./state.h     ****  * @{
+  82:./state.h     ****  */
+  83:./state.h     **** #define SPEED_ECEF_I  0
+  84:./state.h     **** #define SPEED_NED_I   1
+  85:./state.h     **** #define SPEED_ENU_I   2
+  86:./state.h     **** #define SPEED_HNORM_I 3
+  87:./state.h     **** #define SPEED_HDIR_I  4
+  88:./state.h     **** #define SPEED_ECEF_F  5
+  89:./state.h     **** #define SPEED_NED_F   6
+  90:./state.h     **** #define SPEED_ENU_F   7
+  91:./state.h     **** #define SPEED_HNORM_F 8
+  92:./state.h     **** #define SPEED_HDIR_F  9
+  93:./state.h     **** #define SPEED_LOCAL_COORD ((1<<SPEED_NED_I)|(1<<SPEED_ENU_I)|(1<<SPEED_NED_F)|(1<<SPEED_ENU_F))
+  94:./state.h     **** /**@}*/
+  95:./state.h     **** 
+  96:./state.h     **** /**
+  97:./state.h     ****  * @defgroup state_acceleration Acceleration representations
+  98:./state.h     ****  * @{
+  99:./state.h     ****  */
+ 100:./state.h     **** #define ACCEL_ECEF_I 0
+ 101:./state.h     **** #define ACCEL_NED_I  1
+ 102:./state.h     **** #define ACCEL_ECEF_F 2
+ 103:./state.h     **** #define ACCEL_NED_F  3
+ 104:./state.h     **** /**@}*/
+ 105:./state.h     **** 
+ 106:./state.h     **** /**
+ 107:./state.h     ****  * @defgroup state_rate Angular rate representations
+ 108:./state.h     ****  * @{
+ 109:./state.h     ****  */
+ 110:./state.h     **** #define RATE_I 0
+ 111:./state.h     **** #define RATE_F 1
+ 112:./state.h     **** /**@}*/
+ 113:./state.h     **** 
+ 114:./state.h     **** /**
+ 115:./state.h     ****  * @defgroup state_wind_airspeed Wind- and airspeed representations
+ 116:./state.h     ****  * @{
+ 117:./state.h     ****  */
+ 118:./state.h     **** #define WINDSPEED_I 0
+ 119:./state.h     **** #define AIRSPEED_I  1
+ 120:./state.h     **** #define WINDSPEED_F 2
+ 121:./state.h     **** #define AIRSPEED_F  3
+ 122:./state.h     **** #define AOA_F       4
+ 123:./state.h     **** #define SIDESLIP_F  5
+ 124:./state.h     **** /**@}*/
+ 125:./state.h     **** 
+ 126:./state.h     **** 
+ 127:./state.h     **** /**
+ 128:./state.h     ****  * Structure holding vehicle state data.
+ 129:./state.h     ****  */
+ 130:./state.h     **** struct State {
+ 131:./state.h     **** 
+ 132:./state.h     ****   /** @addtogroup state_position
+ 133:./state.h     ****    *  @{ */
+ 134:./state.h     **** 
+ 135:./state.h     ****   /**
+ 136:./state.h     ****    * Holds the status bits for all position representations.
+ 137:./state.h     ****    * When the corresponding bit is set the representation
+ 138:./state.h     ****    * is already computed.
+ 139:./state.h     ****    */
+ 140:./state.h     ****   uint16_t pos_status;
+ 141:./state.h     **** 
+ 142:./state.h     ****   /**
+ 143:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 144:./state.h     ****    * Units: centimeters
+ 145:./state.h     ****    */
+ 146:./state.h     ****   struct EcefCoor_i ecef_pos_i;
+ 147:./state.h     **** 
+ 148:./state.h     ****   /**
+ 149:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 150:./state.h     ****    * Units lat,lon: radians*1e7
+ 151:./state.h     ****    * Units alt: milimeters above reference ellipsoid
+ 152:./state.h     ****    */
+ 153:./state.h     ****   struct LlaCoor_i lla_pos_i;
+ 154:./state.h     **** 
+ 155:./state.h     ****   /**
+ 156:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 157:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 158:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 159:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 160:./state.h     ****    * (int version)
+ 161:./state.h     ****    */
+ 162:./state.h     ****   struct LtpDef_i ned_origin_i;
+ 163:./state.h     **** 
+ 164:./state.h     ****   /**
+ 165:./state.h     ****    * true if local int coordinate frame is initialsed
+ 166:./state.h     ****    */
+ 167:./state.h     ****   bool_t ned_initialized_i;
+ 168:./state.h     **** 
+ 169:./state.h     ****   /**
+ 170:./state.h     ****    * Position in North East Down coordinates.
+ 171:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 172:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 173:./state.h     ****    */
+ 174:./state.h     ****   struct NedCoor_i ned_pos_i;
+ 175:./state.h     **** 
+ 176:./state.h     ****   /**
+ 177:./state.h     ****    * Position in East North Up coordinates.
+ 178:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 179:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 180:./state.h     ****    */
+ 181:./state.h     ****   struct EnuCoor_i enu_pos_i;
+ 182:./state.h     **** 
+ 183:./state.h     ****   /**
+ 184:./state.h     ****    * Position in UTM coordinates.
+ 185:./state.h     ****    * Units x,y: meters.
+ 186:./state.h     ****    * Units z: meters above MSL
+ 187:./state.h     ****    */
+ 188:./state.h     ****   struct UtmCoor_f utm_pos_f;
+ 189:./state.h     **** 
+ 190:./state.h     ****   /**
+ 191:./state.h     ****    * Altitude above ground level.
+ 192:./state.h     ****    * Unit: meters
+ 193:./state.h     ****    */
+ 194:./state.h     ****   float alt_agl_f;
+ 195:./state.h     **** 
+ 196:./state.h     ****   /**
+ 197:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 198:./state.h     ****    * Units lat,lon: radians
+ 199:./state.h     ****    * Units alt: meters above reference ellipsoid
+ 200:./state.h     ****    */
+ 201:./state.h     ****   struct LlaCoor_f lla_pos_f;
+ 202:./state.h     **** 
+ 203:./state.h     ****   /**
+ 204:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 205:./state.h     ****    * Units: meters
+ 206:./state.h     ****    */
+ 207:./state.h     ****   struct EcefCoor_f ecef_pos_f;
+ 208:./state.h     **** 
+ 209:./state.h     ****   /**
+ 210:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 211:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 212:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 213:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 214:./state.h     ****    * (float version)
+ 215:./state.h     ****    */
+ 216:./state.h     ****   struct LtpDef_f ned_origin_f;
+ 217:./state.h     **** 
+ 218:./state.h     ****   /// True if local float coordinate frame is initialsed
+ 219:./state.h     ****   bool_t ned_initialized_f;
+ 220:./state.h     **** 
+ 221:./state.h     ****   /**
+ 222:./state.h     ****    * Definition of the origin of Utm coordinate system.
+ 223:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 224:./state.h     ****    * in UTM coordinates, used as a reference when ned_origin is not
+ 225:./state.h     ****    * initialized.
+ 226:./state.h     ****    * (float version)
+ 227:./state.h     ****    */
+ 228:./state.h     ****   struct UtmCoor_f utm_origin_f;
+ 229:./state.h     **** 
+ 230:./state.h     ****   /// True if utm origin (float) coordinate frame is initialsed
+ 231:./state.h     ****   bool_t utm_initialized_f;
+ 232:./state.h     **** 
+ 233:./state.h     ****   /**
+ 234:./state.h     ****    * Position in North East Down coordinates.
+ 235:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 236:./state.h     ****    * Units: meters
+ 237:./state.h     ****    */
+ 238:./state.h     ****   struct NedCoor_f ned_pos_f;
+ 239:./state.h     **** 
+ 240:./state.h     ****   /**
+ 241:./state.h     ****    * Position in East North Up coordinates.
+ 242:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 243:./state.h     ****    * Units: meters
+ 244:./state.h     ****    */
+ 245:./state.h     ****   struct EnuCoor_f enu_pos_f;
+ 246:./state.h     ****   /** @}*/
+ 247:./state.h     **** 
+ 248:./state.h     **** 
+ 249:./state.h     ****   /** @addtogroup state_velocity
+ 250:./state.h     ****    *  @{ */
+ 251:./state.h     ****   /**
+ 252:./state.h     ****    * Holds the status bits for all ground speed representations.
+ 253:./state.h     ****    * When the corresponding bit is one the representation
+ 254:./state.h     ****    * is already computed.
+ 255:./state.h     ****    */
+ 256:./state.h     ****   uint16_t speed_status;
+ 257:./state.h     **** 
+ 258:./state.h     ****   /**
+ 259:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 260:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 261:./state.h     ****    */
+ 262:./state.h     ****   struct EcefCoor_i ecef_speed_i;
+ 263:./state.h     **** 
+ 264:./state.h     ****   /**
+ 265:./state.h     ****    * Velocity in North East Down coordinates.
+ 266:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 267:./state.h     ****    */
+ 268:./state.h     ****   struct NedCoor_i ned_speed_i;
+ 269:./state.h     **** 
+ 270:./state.h     ****   /**
+ 271:./state.h     ****    * Velocity in East North Up coordinates.
+ 272:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 273:./state.h     ****    */
+ 274:./state.h     ****   struct EnuCoor_i enu_speed_i;
+ 275:./state.h     **** 
+ 276:./state.h     ****   /**
+ 277:./state.h     ****    * Norm of horizontal ground speed.
+ 278:./state.h     ****    * Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 279:./state.h     ****    */
+ 280:./state.h     ****   int32_t h_speed_norm_i;
+ 281:./state.h     **** 
+ 282:./state.h     ****   /**
+ 283:./state.h     ****    * Direction of horizontal ground speed.
+ 284:./state.h     ****    * Unit: rad in BFP with #INT32_ANGLE_FRAC
+ 285:./state.h     ****    * (clockwise, zero=north)
+ 286:./state.h     ****    */
+ 287:./state.h     ****   int32_t h_speed_dir_i;
+ 288:./state.h     **** 
+ 289:./state.h     ****   /**
+ 290:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 291:./state.h     ****    * Units: m/s
+ 292:./state.h     ****    */
+ 293:./state.h     ****   struct EcefCoor_f ecef_speed_f;
+ 294:./state.h     **** 
+ 295:./state.h     ****   /**
+ 296:./state.h     ****    * @brief speed in North East Down coordinates
+ 297:./state.h     ****    * @details Units: m/s */
+ 298:./state.h     ****   struct NedCoor_f ned_speed_f;
+ 299:./state.h     **** 
+ 300:./state.h     ****   /**
+ 301:./state.h     ****    * Velocity in East North Up coordinates.
+ 302:./state.h     ****    * Units: m/s
+ 303:./state.h     ****    */
+ 304:./state.h     ****   struct EnuCoor_f enu_speed_f;
+ 305:./state.h     **** 
+ 306:./state.h     ****   /**
+ 307:./state.h     ****    * Norm of horizontal ground speed.
+ 308:./state.h     ****    * Unit: m/s
+ 309:./state.h     ****    */
+ 310:./state.h     ****   float h_speed_norm_f;
+ 311:./state.h     **** 
+ 312:./state.h     ****   /**
+ 313:./state.h     ****    * Direction of horizontal ground speed.
+ 314:./state.h     ****    * Unit: rad (clockwise, zero=north)
+ 315:./state.h     ****    */
+ 316:./state.h     ****   float h_speed_dir_f;
+ 317:./state.h     ****   /** @}*/
+ 318:./state.h     **** 
+ 319:./state.h     **** 
+ 320:./state.h     ****   /** @addtogroup state_acceleration
+ 321:./state.h     ****    *  @{ */
+ 322:./state.h     ****   /**
+ 323:./state.h     ****    * Holds the status bits for all acceleration representations.
+ 324:./state.h     ****    * When the corresponding bit is one the representation
+ 325:./state.h     ****    * is already computed.
+ 326:./state.h     ****    */
+ 327:./state.h     ****   uint8_t accel_status;
+ 328:./state.h     **** 
+ 329:./state.h     ****   /**
+ 330:./state.h     ****    * Acceleration in North East Down coordinates.
+ 331:./state.h     ****    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
+ 332:./state.h     ****    */
+ 333:./state.h     ****   struct NedCoor_i ned_accel_i;
+ 334:./state.h     **** 
+ 335:./state.h     ****   /**
+ 336:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 337:./state.h     ****    * Units: m/s^2 in BFP with INT32_ACCEL_FRAC
+ 338:./state.h     ****    */
+ 339:./state.h     ****   struct EcefCoor_i ecef_accel_i;
+ 340:./state.h     **** 
+ 341:./state.h     ****   /**
+ 342:./state.h     ****    * Acceleration in North East Down coordinates.
+ 343:./state.h     ****    * Units: m/s^2
+ 344:./state.h     ****    */
+ 345:./state.h     ****   struct NedCoor_f ned_accel_f;
+ 346:./state.h     **** 
+ 347:./state.h     ****   /**
+ 348:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 349:./state.h     ****    * Units: m/s^2
+ 350:./state.h     ****    */
+ 351:./state.h     ****   struct EcefCoor_f ecef_accel_f;
+ 352:./state.h     ****   /** @}*/
+ 353:./state.h     **** 
+ 354:./state.h     **** 
+ 355:./state.h     ****   /** @defgroup state_attitude Attitude representations
+ 356:./state.h     ****    */
+ 357:./state.h     ****   struct OrientationReps ned_to_body_orientation;
+ 358:./state.h     **** 
+ 359:./state.h     **** 
+ 360:./state.h     ****   /** @addtogroup state_rate
+ 361:./state.h     ****    *  @{ */
+ 362:./state.h     ****   /**
+ 363:./state.h     ****    * Holds the status bits for all angular rate representations.
+ 364:./state.h     ****    * When the corresponding bit is one the representation
+ 365:./state.h     ****    * is already computed.
+ 366:./state.h     ****    */
+ 367:./state.h     ****   uint8_t rate_status;
+ 368:./state.h     **** 
+ 369:./state.h     ****   /**
+ 370:./state.h     ****    * Angular rates in body frame.
+ 371:./state.h     ****    * Units: rad/s in BFP with #INT32_RATE_FRAC
+ 372:./state.h     ****    */
+ 373:./state.h     ****   struct Int32Rates  body_rates_i;
+ 374:./state.h     **** 
+ 375:./state.h     ****   /**
+ 376:./state.h     ****    * Angular rates in body frame.
+ 377:./state.h     ****    * Units: rad/s
+ 378:./state.h     ****    */
+ 379:./state.h     ****   struct FloatRates  body_rates_f;
+ 380:./state.h     ****   /** @}*/
+ 381:./state.h     **** 
+ 382:./state.h     **** 
+ 383:./state.h     ****   /** @addtogroup state_wind_airspeed
+ 384:./state.h     ****    *  @{ */
+ 385:./state.h     ****   /**
+ 386:./state.h     ****    * Holds the status bits for all wind- and airspeed representations.
+ 387:./state.h     ****    * When the corresponding bit is one the representation
+ 388:./state.h     ****    * is already computed.
+ 389:./state.h     ****    */
+ 390:./state.h     ****   uint8_t wind_air_status;
+ 391:./state.h     **** 
+ 392:./state.h     ****   /**
+ 393:./state.h     ****    * Horizontal windspeed in north/east.
+ 394:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 395:./state.h     ****    */
+ 396:./state.h     ****   struct Int32Vect2 h_windspeed_i;
+ 397:./state.h     **** 
+ 398:./state.h     ****   /**
+ 399:./state.h     ****    * Norm of horizontal ground speed.
+ 400:./state.h     ****    * @details Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 401:./state.h     ****    */
+ 402:./state.h     ****   int32_t airspeed_i;
+ 403:./state.h     **** 
+ 404:./state.h     ****   /**
+ 405:./state.h     ****    * Horizontal windspeed.
+ 406:./state.h     ****    * Units: m/s with x=north, y=east
+ 407:./state.h     ****    */
+ 408:./state.h     ****   struct FloatVect2 h_windspeed_f;
+ 409:./state.h     **** 
+ 410:./state.h     ****   /**
+ 411:./state.h     ****    * Norm of relative air speed.
+ 412:./state.h     ****    * Unit: m/s
+ 413:./state.h     ****    */
+ 414:./state.h     ****   float airspeed_f;
+ 415:./state.h     **** 
+ 416:./state.h     ****   /**
+ 417:./state.h     ****    * Angle of attack
+ 418:./state.h     ****    * Unit: rad
+ 419:./state.h     ****    */
+ 420:./state.h     ****   float angle_of_attack_f;
+ 421:./state.h     **** 
+ 422:./state.h     ****   /**
+ 423:./state.h     ****    * Sideslip angle
+ 424:./state.h     ****    * Unit: rad
+ 425:./state.h     ****    */
+ 426:./state.h     ****   float sideslip_f;
+ 427:./state.h     **** 
+ 428:./state.h     ****   /** @}*/
+ 429:./state.h     **** 
+ 430:./state.h     **** };
+ 431:./state.h     **** 
+ 432:./state.h     **** extern struct State state;
+ 433:./state.h     **** 
+ 434:./state.h     **** extern void stateInit(void);
+ 435:./state.h     **** 
+ 436:./state.h     **** /** @addtogroup state_position
+ 437:./state.h     ****  *  @{ */
+ 438:./state.h     **** 
+ 439:./state.h     **** /// Set the local (flat earth) coordinate frame origin (int).
+ 440:./state.h     **** static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
+ 441:./state.h     ****   memcpy(&state.ned_origin_i, ltp_def, sizeof(struct LtpDef_i));
+ 442:./state.h     ****   /* convert to float */
+ 443:./state.h     ****   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
+ 444:./state.h     ****   LLA_FLOAT_OF_BFP(state.ned_origin_f.lla, state.ned_origin_i.lla);
+ 445:./state.h     ****   RMAT_FLOAT_OF_BFP(state.ned_origin_f.ltp_of_ecef, state.ned_origin_i.ltp_of_ecef);
+ 446:./state.h     ****   state.ned_origin_f.hmsl = M_OF_MM(state.ned_origin_i.hmsl);
+ 447:./state.h     **** 
+ 448:./state.h     ****   /* clear bits for all local frame representations */
+ 449:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 450:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 451:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 452:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 453:./state.h     **** 
+ 454:./state.h     ****   state.ned_initialized_i = TRUE;
+ 455:./state.h     ****   state.ned_initialized_f = TRUE;
+ 456:./state.h     **** }
+ 457:./state.h     **** 
+ 458:./state.h     **** /// Set the local (flat earth) coordinate frame origin from UTM (float).
+ 459:./state.h     **** static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
+ 460:./state.h     ****   memcpy(&state.utm_origin_f, utm_def, sizeof(struct UtmCoor_f));
+ 461:./state.h     ****   state.utm_initialized_f = TRUE;
+ 462:./state.h     **** 
+ 463:./state.h     ****   /* clear bits for all local frame representations */
+ 464:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 465:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 466:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 467:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 468:./state.h     **** }
+ 469:./state.h     **** /*******************************************************************************
+ 470:./state.h     ****  *                                                                             *
+ 471:./state.h     ****  * Set and Get functions for the POSITION representations                      *
+ 472:./state.h     ****  *                                                                             *
+ 473:./state.h     ****  ******************************************************************************/
+ 474:./state.h     **** 
+ 475:./state.h     **** /************* declaration of transformation functions ************/
+ 476:./state.h     **** extern void stateCalcPositionEcef_i(void);
+ 477:./state.h     **** extern void stateCalcPositionNed_i(void);
+ 478:./state.h     **** extern void stateCalcPositionEnu_i(void);
+ 479:./state.h     **** extern void stateCalcPositionLla_i(void);
+ 480:./state.h     **** extern void stateCalcPositionUtm_f(void);
+ 481:./state.h     **** extern void stateCalcPositionEcef_f(void);
+ 482:./state.h     **** extern void stateCalcPositionNed_f(void);
+ 483:./state.h     **** extern void stateCalcPositionEnu_f(void);
+ 484:./state.h     **** extern void stateCalcPositionLla_f(void);
+ 485:./state.h     **** 
+ 486:./state.h     **** /*********************** validity test functions ******************/
+ 487:./state.h     **** 
+ 488:./state.h     **** /// Test if local coordinates are valid.
+ 489:./state.h     **** static inline bool_t stateIsLocalCoordinateValid(void) {
+ 490:./state.h     ****   return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & (POS_LOCAL_CO
+ 491:./state.h     **** }
+ 492:./state.h     **** 
+ 493:./state.h     **** /// Test if global coordinates are valid.
+ 494:./state.h     **** static inline bool_t stateIsGlobalCoordinateValid(void) {
+ 495:./state.h     ****   return ((state.pos_status & (POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+ 496:./state.h     **** }
+ 497:./state.h     **** 
+ 498:./state.h     **** /************************ Set functions ****************************/
+ 499:./state.h     **** 
+ 500:./state.h     **** /// Set position from ECEF coordinates (int).
+ 501:./state.h     **** static inline void stateSetPositionEcef_i(struct EcefCoor_i* ecef_pos) {
+ 502:./state.h     ****   INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 503:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 504:./state.h     ****   state.pos_status = (1 << POS_ECEF_I);
+ 505:./state.h     **** }
+ 506:./state.h     **** 
+ 507:./state.h     **** /// Set position from local NED coordinates (int).
+ 508:./state.h     **** static inline void stateSetPositionNed_i(struct NedCoor_i* ned_pos) {
+ 509:./state.h     ****   INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 510:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 511:./state.h     ****   state.pos_status = (1 << POS_NED_I);
+ 512:./state.h     **** }
+ 513:./state.h     **** 
+ 514:./state.h     **** /// Set position from local ENU coordinates (int).
+ 515:./state.h     **** static inline void stateSetPositionEnu_i(struct EnuCoor_i* enu_pos) {
+ 516:./state.h     ****   INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 517:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 518:./state.h     ****   state.pos_status = (1 << POS_ENU_I);
+ 519:./state.h     **** }
+ 520:./state.h     **** 
+ 521:./state.h     **** /// Set position from LLA coordinates (int).
+ 522:./state.h     **** static inline void stateSetPositionLla_i(struct LlaCoor_i* lla_pos) {
+ 523:./state.h     ****   LLA_COPY(state.lla_pos_i, *lla_pos);
+ 524:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 525:./state.h     ****   state.pos_status = (1 << POS_LLA_I);
+ 526:./state.h     **** }
+ 527:./state.h     **** 
+ 528:./state.h     **** /// Set multiple position coordinates (int).
+ 529:./state.h     **** static inline void stateSetPosition_i(
+ 530:./state.h     ****     struct EcefCoor_i* ecef_pos,
+ 531:./state.h     ****     struct NedCoor_i* ned_pos,
+ 532:./state.h     ****     struct EnuCoor_i* enu_pos,
+ 533:./state.h     ****     struct LlaCoor_i* lla_pos) {
+ 534:./state.h     ****   /* clear all status bit */
+ 535:./state.h     ****   state.pos_status = 0;
+ 536:./state.h     ****   if (ecef_pos != NULL) {
+ 537:./state.h     ****     INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 538:./state.h     ****     state.pos_status |= (1 << POS_ECEF_I);
+ 539:./state.h     ****   }
+ 540:./state.h     ****   if (ned_pos != NULL) {
+ 541:./state.h     ****     INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 542:./state.h     ****     state.pos_status |= (1 << POS_NED_I);
+ 543:./state.h     ****   }
+ 544:./state.h     ****   if (enu_pos != NULL) {
+ 545:./state.h     ****     INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 546:./state.h     ****     state.pos_status |= (1 << POS_ENU_I);
+ 547:./state.h     ****   }
+ 548:./state.h     ****   if (lla_pos != NULL) {
+ 549:./state.h     ****     LLA_COPY(state.lla_pos_i, *lla_pos);
+ 550:./state.h     ****     state.pos_status |= (1 << POS_LLA_I);
+ 551:./state.h     ****   }
+ 552:./state.h     **** }
+ 553:./state.h     **** 
+ 554:./state.h     **** /// Set position from UTM coordinates (float).
+ 555:./state.h     **** static inline void stateSetPositionUtm_f(struct UtmCoor_f* utm_pos) {
+ 556:./state.h     ****   memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 557:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 558:./state.h     ****   state.pos_status = (1 << POS_UTM_F);
+ 559:./state.h     **** }
+ 560:./state.h     **** 
+ 561:./state.h     **** /// Set position from ECEF coordinates (float).
+ 562:./state.h     **** static inline void stateSetPositionEcef_f(struct EcefCoor_f* ecef_pos) {
+ 563:./state.h     ****   VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 564:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 565:./state.h     ****   state.pos_status = (1 << POS_ECEF_F);
+ 566:./state.h     **** }
+ 567:./state.h     **** 
+ 568:./state.h     **** /// Set position from local NED coordinates (float).
+ 569:./state.h     **** static inline void stateSetPositionNed_f(struct NedCoor_f* ned_pos) {
+ 570:./state.h     ****   VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 571:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 572:./state.h     ****   state.pos_status = (1 << POS_NED_F);
+ 573:./state.h     **** }
+ 574:./state.h     **** 
+ 575:./state.h     **** /// Set position from local ENU coordinates (float).
+ 576:./state.h     **** static inline void stateSetPositionEnu_f(struct EnuCoor_f* enu_pos) {
+ 577:./state.h     ****   VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 578:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 579:./state.h     ****   state.pos_status = (1 << POS_ENU_F);
+ 580:./state.h     **** }
+ 581:./state.h     **** 
+ 582:./state.h     **** /// Set position from LLA coordinates (float).
+ 583:./state.h     **** static inline void stateSetPositionLla_f(struct LlaCoor_f* lla_pos) {
+ 584:./state.h     ****   LLA_COPY(state.lla_pos_f, *lla_pos);
+ 585:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 586:./state.h     ****   state.pos_status = (1 << POS_LLA_F);
+ 587:./state.h     **** }
+ 588:./state.h     **** 
+ 589:./state.h     **** /// Set multiple position coordinates (float).
+ 590:./state.h     **** static inline void stateSetPosition_f(
+ 591:./state.h     ****     struct EcefCoor_f* ecef_pos,
+ 592:./state.h     ****     struct NedCoor_f* ned_pos,
+ 593:./state.h     ****     struct EnuCoor_f* enu_pos,
+ 594:./state.h     ****     struct LlaCoor_f* lla_pos,
+ 595:./state.h     ****     struct UtmCoor_f* utm_pos) {
+ 596:./state.h     ****   /* clear all status bit */
+ 597:./state.h     ****   state.pos_status = 0;
+ 598:./state.h     ****   if (ecef_pos != NULL) {
+ 599:./state.h     ****     VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 600:./state.h     ****     state.pos_status |= (1 << POS_ECEF_F);
+ 601:./state.h     ****   }
+ 602:./state.h     ****   if (ned_pos != NULL) {
+ 603:./state.h     ****     VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 604:./state.h     ****     state.pos_status |= (1 << POS_NED_F);
+ 605:./state.h     ****   }
+ 606:./state.h     ****   if (enu_pos != NULL) {
+ 607:./state.h     ****     VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 608:./state.h     ****     state.pos_status |= (1 << POS_ENU_F);
+ 609:./state.h     ****   }
+ 610:./state.h     ****   if (lla_pos != NULL) {
+ 611:./state.h     ****     LLA_COPY(state.lla_pos_f, *lla_pos);
+ 612:./state.h     ****     state.pos_status |= (1 << POS_LLA_F);
+ 613:./state.h     ****   }
+ 614:./state.h     ****   if (utm_pos != NULL) {
+ 615:./state.h     ****     memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 616:./state.h     ****     state.pos_status |= (1 << POS_UTM_F);
+ 617:./state.h     ****   }
+ 618:./state.h     **** }
+ 619:./state.h     **** 
+ 620:./state.h     **** /************************ Get functions ****************************/
+ 621:./state.h     **** 
+ 622:./state.h     **** /// Get position in ECEF coordinates (int).
+ 623:./state.h     **** static inline struct EcefCoor_i* stateGetPositionEcef_i(void) {
+ 624:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_I))
+ 625:./state.h     ****     stateCalcPositionEcef_i();
+ 626:./state.h     ****   return &state.ecef_pos_i;
+ 627:./state.h     **** }
+ 628:./state.h     **** 
+ 629:./state.h     **** /// Get position in local NED coordinates (int).
+ 630:./state.h     **** static inline struct NedCoor_i* stateGetPositionNed_i(void) {
+ 631:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_I))
+ 632:./state.h     ****     stateCalcPositionNed_i();
+ 633:./state.h     ****   return &state.ned_pos_i;
+ 634:./state.h     **** }
+ 635:./state.h     **** 
+ 636:./state.h     **** /// Get position in local ENU coordinates (int).
+ 637:./state.h     **** static inline struct EnuCoor_i* stateGetPositionEnu_i(void) {
+ 638:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_I))
+ 639:./state.h     ****     stateCalcPositionEnu_i();
+ 640:./state.h     ****   return &state.enu_pos_i;
+ 641:./state.h     **** }
+ 642:./state.h     **** 
+ 643:./state.h     **** /// Get position in LLA coordinates (int).
+ 644:./state.h     **** static inline struct LlaCoor_i* stateGetPositionLla_i(void) {
+ 645:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_I))
+ 646:./state.h     ****     stateCalcPositionLla_i();
+ 647:./state.h     ****   return &state.lla_pos_i;
+ 648:./state.h     **** }
+ 649:./state.h     **** 
+ 650:./state.h     **** /// Get position in UTM coordinates (float).
+ 651:./state.h     **** static inline struct UtmCoor_f* stateGetPositionUtm_f(void) {
+ 652:./state.h     ****   if (!bit_is_set(state.pos_status, POS_UTM_F))
+ 653:./state.h     ****     stateCalcPositionUtm_f();
+ 654:./state.h     ****   return &state.utm_pos_f;
+ 655:./state.h     **** }
+ 656:./state.h     **** 
+ 657:./state.h     **** /// Get position in ECEF coordinates (float).
+ 658:./state.h     **** static inline struct EcefCoor_f* stateGetPositionEcef_f(void) {
+ 659:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_F))
+ 660:./state.h     ****     stateCalcPositionEcef_f();
+ 661:./state.h     ****   return &state.ecef_pos_f;
+ 662:./state.h     **** }
+ 663:./state.h     **** 
+ 664:./state.h     **** /// Get position in local NED coordinates (float).
+ 665:./state.h     **** static inline struct NedCoor_f* stateGetPositionNed_f(void) {
+ 666:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_F))
+ 667:./state.h     ****     stateCalcPositionNed_f();
+ 668:./state.h     ****   return &state.ned_pos_f;
+ 669:./state.h     **** }
+ 670:./state.h     **** 
+ 671:./state.h     **** /// Get position in local ENU coordinates (float).
+ 672:./state.h     **** static inline struct EnuCoor_f* stateGetPositionEnu_f(void) {
+ 673:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_F))
+ 674:./state.h     ****     stateCalcPositionEnu_f();
+ 675:./state.h     ****   return &state.enu_pos_f;
+ 676:./state.h     **** }
+ 677:./state.h     **** 
+ 678:./state.h     **** /// Get position in LLA coordinates (float).
+ 679:./state.h     **** static inline struct LlaCoor_f* stateGetPositionLla_f(void) {
+ 680:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_F))
+ 681:./state.h     ****     stateCalcPositionLla_f();
+ 682:./state.h     ****   return &state.lla_pos_f;
+ 683:./state.h     **** }
+ 684:./state.h     **** 
+ 685:./state.h     **** /** @}*/
+ 686:./state.h     **** 
+ 687:./state.h     **** 
+ 688:./state.h     **** 
+ 689:./state.h     **** /******************************************************************************
+ 690:./state.h     ****  *                                                                            *
+ 691:./state.h     ****  * Set and Get functions for the SPEED representations                        *
+ 692:./state.h     ****  *                                                                            *
+ 693:./state.h     ****  *****************************************************************************/
+ 694:./state.h     **** /** @addtogroup state_velocity
+ 695:./state.h     ****  *  @{ */
+ 696:./state.h     **** 
+ 697:./state.h     **** /************* declaration of transformation functions ************/
+ 698:./state.h     **** extern void stateCalcSpeedNed_i(void);
+ 699:./state.h     **** extern void stateCalcSpeedEnu_i(void);
+ 700:./state.h     **** extern void stateCalcSpeedEcef_i(void);
+ 701:./state.h     **** extern void stateCalcHorizontalSpeedNorm_i(void);
+ 702:./state.h     **** extern void stateCalcHorizontalSpeedDir_i(void);
+ 703:./state.h     **** extern void stateCalcSpeedNed_f(void);
+ 704:./state.h     **** extern void stateCalcSpeedEnu_f(void);
+ 705:./state.h     **** extern void stateCalcSpeedEcef_f(void);
+ 706:./state.h     **** extern void stateCalcHorizontalSpeedNorm_f(void);
+ 707:./state.h     **** extern void stateCalcHorizontalSpeedDir_f(void);
+ 708:./state.h     **** 
+ 709:./state.h     **** /************************ Set functions ****************************/
+ 710:./state.h     **** 
+ 711:./state.h     **** /// Set ground speed in local NED coordinates (int).
+ 712:./state.h     **** static inline void stateSetSpeedNed_i(struct NedCoor_i* ned_speed) {
+ 713:./state.h     ****   INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 714:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 715:./state.h     ****   state.speed_status = (1 << SPEED_NED_I);
+ 716:./state.h     **** }
+ 717:./state.h     **** 
+ 718:./state.h     **** /// Set ground speed in local ENU coordinates (int).
+ 719:./state.h     **** static inline void stateSetSpeedEnu_i(struct EnuCoor_i* enu_speed) {
+ 720:./state.h     ****   INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 721:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 722:./state.h     ****   state.speed_status = (1 << SPEED_ENU_I);
+ 723:./state.h     **** }
+ 724:./state.h     **** 
+ 725:./state.h     **** /// Set ground speed in ECEF coordinates (int).
+ 726:./state.h     **** static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
+ 727:./state.h     ****   INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 728:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 729:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_I);
+ 730:./state.h     **** }
+ 731:./state.h     **** 
+ 732:./state.h     **** /// Set multiple speed coordinates (int).
+ 733:./state.h     **** static inline void stateSetSpeed_i(
+ 734:./state.h     ****     struct EcefCoor_i* ecef_speed,
+ 735:./state.h     ****     struct NedCoor_i* ned_speed,
+ 736:./state.h     ****     struct EnuCoor_i* enu_speed) {
+ 737:./state.h     ****   /* clear all status bit */
+ 738:./state.h     ****   state.speed_status = 0;
+ 739:./state.h     ****   if (ecef_speed != NULL) {
+ 740:./state.h     ****     INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 741:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_I);
+ 742:./state.h     ****   }
+ 743:./state.h     ****   if (ned_speed != NULL) {
+ 744:./state.h     ****     INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 745:./state.h     ****     state.speed_status |= (1 << SPEED_NED_I);
+ 746:./state.h     ****   }
+ 747:./state.h     ****   if (enu_speed != NULL) {
+ 748:./state.h     ****     INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 749:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_I);
+ 750:./state.h     ****   }
+ 751:./state.h     **** }
+ 752:./state.h     **** 
+ 753:./state.h     **** /// Set ground speed in local NED coordinates (float).
+ 754:./state.h     **** static inline void stateSetSpeedNed_f(struct NedCoor_f* ned_speed) {
+ 755:./state.h     ****   VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 756:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 757:./state.h     ****   state.speed_status = (1 << SPEED_NED_F);
+ 758:./state.h     **** }
+ 759:./state.h     **** 
+ 760:./state.h     **** /// Set ground speed in local ENU coordinates (float).
+ 761:./state.h     **** static inline void stateSetSpeedEnu_f(struct EnuCoor_f* enu_speed) {
+ 762:./state.h     ****   VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 763:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 764:./state.h     ****   state.speed_status = (1 << SPEED_ENU_F);
+ 765:./state.h     **** }
+ 766:./state.h     **** 
+ 767:./state.h     **** /// Set ground speed in ECEF coordinates (float).
+ 768:./state.h     **** static inline void stateSetSpeedEcef_f(struct EcefCoor_f* ecef_speed) {
+ 769:./state.h     ****   VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 770:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 771:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_F);
+ 772:./state.h     **** }
+ 773:./state.h     **** 
+ 774:./state.h     **** /// Set multiple speed coordinates (float).
+ 775:./state.h     **** static inline void stateSetSpeed_f(
+ 776:./state.h     ****     struct EcefCoor_f* ecef_speed,
+ 777:./state.h     ****     struct NedCoor_f* ned_speed,
+ 778:./state.h     ****     struct EnuCoor_f* enu_speed) {
+ 779:./state.h     ****   /* clear all status bit */
+ 780:./state.h     ****   state.speed_status = 0;
+ 781:./state.h     ****   if (ecef_speed != NULL) {
+ 782:./state.h     ****     VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 783:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_F);
+ 784:./state.h     ****   }
+ 785:./state.h     ****   if (ned_speed != NULL) {
+ 786:./state.h     ****     VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 787:./state.h     ****     state.speed_status |= (1 << SPEED_NED_F);
+ 788:./state.h     ****   }
+ 789:./state.h     ****   if (enu_speed != NULL) {
+ 790:./state.h     ****     VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 791:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_F);
+ 792:./state.h     ****   }
+ 793:./state.h     **** }
+ 794:./state.h     **** 
+ 795:./state.h     **** /************************ Get functions ****************************/
+ 796:./state.h     **** 
+ 797:./state.h     **** /// Get ground speed in local NED coordinates (int).
+ 798:./state.h     **** static inline struct NedCoor_i* stateGetSpeedNed_i(void) {
+ 799:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_I))
+ 800:./state.h     ****     stateCalcSpeedNed_i();
+ 801:./state.h     ****   return &state.ned_speed_i;
+ 802:./state.h     **** }
+ 803:./state.h     **** 
+ 804:./state.h     **** /// Get ground speed in local ENU coordinates (int).
+ 805:./state.h     **** static inline struct EnuCoor_i* stateGetSpeedEnu_i(void) {
+ 806:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_I))
+ 807:./state.h     ****     stateCalcSpeedEnu_i();
+ 808:./state.h     ****   return &state.enu_speed_i;
+ 809:./state.h     **** }
+ 810:./state.h     **** 
+ 811:./state.h     **** /// Get ground speed in ECEF coordinates (int).
+ 812:./state.h     **** static inline struct EcefCoor_i* stateGetSpeedEcef_i(void) {
+ 813:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_I))
+ 814:./state.h     ****     stateCalcSpeedEcef_i();
+ 815:./state.h     ****   return &state.ecef_speed_i;
+ 816:./state.h     **** }
+ 817:./state.h     **** 
+ 818:./state.h     **** /// Get norm of horizontal ground speed (int).
+ 819:./state.h     **** static inline int32_t* stateGetHorizontalSpeedNorm_i(void) {
+ 820:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_I))
+ 821:./state.h     ****     stateCalcHorizontalSpeedNorm_i();
+ 822:./state.h     ****   return &state.h_speed_norm_i;
+ 823:./state.h     **** }
+ 824:./state.h     **** 
+ 825:./state.h     **** /// Get dir of horizontal ground speed (int).
+ 826:./state.h     **** static inline int32_t* stateGetHorizontalSpeedDir_i(void) {
+ 827:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_I))
+ 828:./state.h     ****     stateCalcHorizontalSpeedDir_i();
+ 829:./state.h     ****   return &state.h_speed_dir_i;
+ 830:./state.h     **** }
+ 831:./state.h     **** 
+ 832:./state.h     **** /// Get ground speed in local NED coordinates (float).
+ 833:./state.h     **** static inline struct NedCoor_f* stateGetSpeedNed_f(void) {
+ 834:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_F))
+ 835:./state.h     ****     stateCalcSpeedNed_f();
+ 836:./state.h     ****   return &state.ned_speed_f;
+ 837:./state.h     **** }
+ 838:./state.h     **** 
+ 839:./state.h     **** /// Get ground speed in local ENU coordinates (float).
+ 840:./state.h     **** static inline struct EnuCoor_f* stateGetSpeedEnu_f(void) {
+ 841:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_F))
+ 842:./state.h     ****     stateCalcSpeedEnu_f();
+ 843:./state.h     ****   return &state.enu_speed_f;
+ 844:./state.h     **** }
+ 845:./state.h     **** 
+ 846:./state.h     **** /// Get ground speed in ECEF coordinates (float).
+ 847:./state.h     **** static inline struct EcefCoor_f* stateGetSpeedEcef_f(void) {
+ 848:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_F))
+ 849:./state.h     ****     stateCalcSpeedEcef_f();
+ 850:./state.h     ****   return &state.ecef_speed_f;
+ 851:./state.h     **** }
+ 852:./state.h     **** 
+ 853:./state.h     **** /// Get norm of horizontal ground speed (float).
+ 854:./state.h     **** static inline float* stateGetHorizontalSpeedNorm_f(void) {
+ 855:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_F))
+ 856:./state.h     ****     stateCalcHorizontalSpeedNorm_f();
+ 857:./state.h     ****   return &state.h_speed_norm_f;
+ 858:./state.h     **** }
+ 859:./state.h     **** 
+ 860:./state.h     **** /// Get dir of horizontal ground speed (float).
+ 861:./state.h     **** static inline float* stateGetHorizontalSpeedDir_f(void) {
+ 862:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_F))
+ 863:./state.h     ****     stateCalcHorizontalSpeedDir_f();
+ 864:./state.h     ****   return &state.h_speed_dir_f;
+ 865:./state.h     **** }
+ 866:./state.h     **** /** @}*/
+ 867:./state.h     **** 
+ 868:./state.h     **** 
+ 869:./state.h     **** 
+ 870:./state.h     **** /******************************************************************************
+ 871:./state.h     ****  *                                                                            *
+ 872:./state.h     ****  * Set and Get functions for the ACCELERATION representations                 *
+ 873:./state.h     ****  *                                                                            *
+ 874:./state.h     ****  *****************************************************************************/
+ 875:./state.h     **** /** @addtogroup state_acceleration
+ 876:./state.h     ****  *  @{ */
+ 877:./state.h     **** 
+ 878:./state.h     **** /************* declaration of transformation functions ************/
+ 879:./state.h     **** extern void stateCalcAccelNed_i(void);
+ 880:./state.h     **** extern void stateCalcAccelEcef_i(void);
+ 881:./state.h     **** extern void stateCalcAccelNed_f(void);
+ 882:./state.h     **** extern void stateCalcAccelEcef_f(void);
+ 883:./state.h     **** 
+ 884:./state.h     **** /*********************** validity test functions ******************/
+ 885:./state.h     **** 
+ 886:./state.h     **** /// Test if accelerations are valid.
+ 887:./state.h     **** static inline bool_t stateIsAccelValid(void) {
+ 888:./state.h     ****   return (state.accel_status);
+ 889:./state.h     **** }
+ 890:./state.h     **** 
+ 891:./state.h     **** /************************ Set functions ****************************/
+ 892:./state.h     **** 
+ 893:./state.h     **** /// Set acceleration in NED coordinates (int).
+ 894:./state.h     **** static inline void stateSetAccelNed_i(struct NedCoor_i* ned_accel) {
+ 895:./state.h     ****   INT32_VECT3_COPY(state.ned_accel_i, *ned_accel);
+ 896:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 897:./state.h     ****   state.accel_status = (1 << ACCEL_NED_I);
+ 898:./state.h     **** }
+ 899:./state.h     **** 
+ 900:./state.h     **** /// Set acceleration in ECEF coordinates (int).
+ 901:./state.h     **** static inline void stateSetAccelEcef_i(struct EcefCoor_i* ecef_accel) {
+ 902:./state.h     ****   INT32_VECT3_COPY(state.ecef_accel_i, *ecef_accel);
+ 903:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 904:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_I);
+ 905:./state.h     **** }
+ 906:./state.h     **** 
+ 907:./state.h     **** /// Set acceleration in NED coordinates (float).
+ 908:./state.h     **** static inline void stateSetAccelNed_f(struct NedCoor_f* ned_accel) {
+ 909:./state.h     ****   VECT3_COPY(state.ned_accel_f, *ned_accel);
+ 910:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 911:./state.h     ****   state.accel_status = (1 << ACCEL_NED_F);
+ 912:./state.h     **** }
+ 913:./state.h     **** 
+ 914:./state.h     **** /// Set acceleration in ECEF coordinates (float).
+ 915:./state.h     **** static inline void stateSetAccelEcef_f(struct EcefCoor_f* ecef_accel) {
+ 916:./state.h     ****   VECT3_COPY(state.ecef_accel_f, *ecef_accel);
+ 917:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 918:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_F);
+ 919:./state.h     **** }
+ 920:./state.h     **** 
+ 921:./state.h     **** /************************ Get functions ****************************/
+ 922:./state.h     **** 
+ 923:./state.h     **** /// Get acceleration in NED coordinates (int).
+ 924:./state.h     **** static inline struct NedCoor_i* stateGetAccelNed_i(void) {
+ 925:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_I))
+ 926:./state.h     ****     stateCalcAccelNed_i();
+ 927:./state.h     ****   return &state.ned_accel_i;
+ 928:./state.h     **** }
+ 929:./state.h     **** 
+ 930:./state.h     **** /// Get acceleration in ECEF coordinates (int).
+ 931:./state.h     **** static inline struct EcefCoor_i* stateGetAccelEcef_i(void) {
+ 932:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_I))
+ 933:./state.h     ****     stateCalcAccelEcef_i();
+ 934:./state.h     ****   return &state.ecef_accel_i;
+ 935:./state.h     **** }
+ 936:./state.h     **** 
+ 937:./state.h     **** /// Get acceleration in NED coordinates (float).
+ 938:./state.h     **** static inline struct NedCoor_f* stateGetAccelNed_f(void) {
+ 939:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_F))
+ 940:./state.h     ****     stateCalcAccelNed_f();
+ 941:./state.h     ****   return &state.ned_accel_f;
+ 942:./state.h     **** }
+ 943:./state.h     **** 
+ 944:./state.h     **** /// Get acceleration in ECEF coordinates (float).
+ 945:./state.h     **** static inline struct EcefCoor_f* stateGetAccelEcef_f(void) {
+ 946:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_F))
+ 947:./state.h     ****     stateCalcAccelEcef_f();
+ 948:./state.h     ****   return &state.ecef_accel_f;
+ 949:./state.h     **** }
+ 950:./state.h     **** /** @}*/
+ 951:./state.h     **** 
+ 952:./state.h     **** /******************************************************************************
+ 953:./state.h     **** *                                                                             *
+ 954:./state.h     **** * Set and Get functions for the ATTITUDE representations                      *
+ 955:./state.h     **** * (Calls the functions in math/pprz_orientation_conversion)                   *
+ 956:./state.h     **** *                                                                             *
+ 957:./state.h     **** *****************************************************************************/
+ 958:./state.h     **** /** @addtogroup state_attitude
+ 959:./state.h     **** * @{ */
+ 960:./state.h     **** /*********************** validity test functions ******************/
+ 961:./state.h     **** 
+ 962:./state.h     **** /// Test if attitudes are valid.
+ 963:./state.h     **** static inline bool_t stateIsAttitudeValid(void) {
+ 964:./state.h     ****   return (orienationCheckValid(&state.ned_to_body_orientation));
+ 965:./state.h     **** }
+ 966:./state.h     **** 
+ 967:./state.h     **** /************************ Set functions ****************************/
+ 968:./state.h     **** 
+ 969:./state.h     **** /// Set vehicle body attitude from quaternion (int).
+ 970:./state.h     **** static inline void stateSetNedToBodyQuat_i(struct Int32Quat* ned_to_body_quat) {
+ 971:./state.h     ****   orientationSetQuat_i(&state.ned_to_body_orientation,ned_to_body_quat);
+ 972:./state.h     **** }
+ 973:./state.h     **** 
+ 974:./state.h     **** /// Set vehicle body attitude from rotation matrix (int).
+ 975:./state.h     **** static inline void stateSetNedToBodyRMat_i(struct Int32RMat* ned_to_body_rmat) {
+ 976:./state.h     ****   orientationSetRMat_i(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 977:./state.h     **** }
+ 978:./state.h     **** 
+ 979:./state.h     **** /// Set vehicle body attitude from euler angles (int).
+ 980:./state.h     **** static inline void stateSetNedToBodyEulers_i(struct Int32Eulers* ned_to_body_eulers) {
+ 981:./state.h     ****   orientationSetEulers_i(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 982:./state.h     **** }
+ 983:./state.h     **** 
+ 984:./state.h     **** /// Set vehicle body attitude from quaternion (float).
+ 985:./state.h     **** static inline void stateSetNedToBodyQuat_f(struct FloatQuat* ned_to_body_quat) {
+ 986:./state.h     ****   orientationSetQuat_f(&state.ned_to_body_orientation,ned_to_body_quat);
+ 987:./state.h     **** }
+ 988:./state.h     **** 
+ 989:./state.h     **** /// Set vehicle body attitude from rotation matrix (float).
+ 990:./state.h     **** static inline void stateSetNedToBodyRMat_f(struct FloatRMat* ned_to_body_rmat) {
+ 991:./state.h     ****   orientationSetRMat_f(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 992:./state.h     **** }
+ 993:./state.h     **** 
+ 994:./state.h     **** /// Set vehicle body attitude from euler angles (float).
+ 995:./state.h     **** static inline void stateSetNedToBodyEulers_f(struct FloatEulers* ned_to_body_eulers) {
+ 996:./state.h     ****   orientationSetEulers_f(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 997:./state.h     **** }
+ 998:./state.h     **** 
+ 999:./state.h     **** /************************ Get functions ****************************/
+1000:./state.h     **** 
+1001:./state.h     **** /// Get vehicle body attitude quaternion (int).
+1002:./state.h     **** static inline struct Int32Quat* stateGetNedToBodyQuat_i(void) {
+1003:./state.h     ****   return orientationGetQuat_i(&state.ned_to_body_orientation);
+1004:./state.h     **** }
+1005:./state.h     **** 
+1006:./state.h     **** /// Get vehicle body attitude rotation matrix (int).
+1007:./state.h     **** static inline struct Int32RMat* stateGetNedToBodyRMat_i(void) {
+1008:./state.h     ****   return orientationGetRMat_i(&state.ned_to_body_orientation);
+1009:./state.h     **** }
+1010:./state.h     **** 
+1011:./state.h     **** /// Get vehicle body attitude euler angles (int).
+1012:./state.h     **** static inline struct Int32Eulers* stateGetNedToBodyEulers_i(void) {
+1013:./state.h     ****   return orientationGetEulers_i(&state.ned_to_body_orientation);
+1014:./state.h     **** }
+1015:./state.h     **** 
+1016:./state.h     **** /// Get vehicle body attitude quaternion (float).
+1017:./state.h     **** static inline struct FloatQuat* stateGetNedToBodyQuat_f(void) {
+1018:./state.h     ****   return orientationGetQuat_f(&state.ned_to_body_orientation);
+1019:./state.h     **** }
+1020:./state.h     **** 
+1021:./state.h     **** /// Get vehicle body attitude rotation matrix (float).
+1022:./state.h     **** static inline struct FloatRMat* stateGetNedToBodyRMat_f(void) {
+1023:./state.h     ****   return orientationGetRMat_f(&state.ned_to_body_orientation);
+1024:./state.h     **** }
+1025:./state.h     **** 
+1026:./state.h     **** /// Get vehicle body attitude euler angles (float).
+1027:./state.h     **** static inline struct FloatEulers* stateGetNedToBodyEulers_f(void) {
+1028:./state.h     ****   return orientationGetEulers_f(&state.ned_to_body_orientation);
+1029:./state.h     **** }
+1030:./state.h     **** /** @}*/
+1031:./state.h     **** 
+1032:./state.h     **** 
+1033:./state.h     **** /******************************************************************************
+1034:./state.h     ****  *                                                                            *
+1035:./state.h     ****  * Set and Get functions for the ANGULAR RATE representations                 *
+1036:./state.h     ****  *                                                                            *
+1037:./state.h     ****  *****************************************************************************/
+1038:./state.h     **** /** @addtogroup state_rate
+1039:./state.h     ****  *  @{ */
+1040:./state.h     **** 
+1041:./state.h     **** /************* declaration of transformation functions ************/
+1042:./state.h     **** extern void stateCalcBodyRates_i(void);
+1043:./state.h     **** extern void stateCalcBodyRates_f(void);
+1044:./state.h     **** 
+1045:./state.h     **** /*********************** validity test functions ******************/
+1046:./state.h     **** 
+1047:./state.h     **** /// Test if rates are valid.
+1048:./state.h     **** static inline bool_t stateIsRateValid(void) {
+1049:./state.h     ****   return (state.rate_status);
+1050:./state.h     **** }
+1051:./state.h     **** 
+1052:./state.h     **** /************************ Set functions ****************************/
+1053:./state.h     **** 
+1054:./state.h     **** /// Set vehicle body angular rate (int).
+1055:./state.h     **** static inline void stateSetBodyRates_i(struct Int32Rates* body_rate) {
+1056:./state.h     ****   RATES_COPY(state.body_rates_i, *body_rate);
+1057:./state.h     ****   /* clear bits for all attitude representations and only set the new one */
+1058:./state.h     ****   state.rate_status = (1 << RATE_I);
+1059:./state.h     **** }
+1060:./state.h     **** 
+1061:./state.h     **** /// Set vehicle body angular rate (float).
+1062:./state.h     **** static inline void stateSetBodyRates_f(struct FloatRates* body_rate) {
+1063:./state.h     ****   RATES_COPY(state.body_rates_f, *body_rate);
+1064:./state.h     ****   /* clear bits for all attitude representations and only set the new one */
+1065:./state.h     ****   state.rate_status = (1 << RATE_F);
+1066:./state.h     **** }
+1067:./state.h     **** 
+1068:./state.h     **** /************************ Get functions ****************************/
+1069:./state.h     **** 
+1070:./state.h     **** /// Get vehicle body angular rate (int).
+1071:./state.h     **** static inline struct Int32Rates* stateGetBodyRates_i(void) {
+1072:./state.h     ****   if (!bit_is_set(state.rate_status, RATE_I))
+ 417              		.loc 2 1072 0
+ 418 0060 534D     		ldr	r5, .L45+20
+ 419              	.LBE5:
+ 420              	.LBE4:
+ 421              		.loc 1 208 0
+ 422 0062 4012     		asrs	r0, r0, #9
+ 423 0064 5212     		asrs	r2, r2, #9
+ 424              	.LBB7:
+ 425              		.loc 2 1072 0
+ 426 0066 95F82862 		ldrb	r6, [r5, #552]	@ zero_extendqisi2
+ 427              	.LBE7:
+ 209:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 210:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 211:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* compute feed-back command */
+ 212:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* error for feedback */
+ 213:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   const struct Int32Rates _ref_scaled = {
+ 214:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.p, (REF_FRAC - INT32_RATE_FRAC)),
+ 428              		.loc 1 214 0
+ 429 006a 08F10809 		add	r9, r8, #8
+ 215:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
+ 216:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
+ 430              		.loc 1 216 0
+ 431 006e 0837     		adds	r7, r7, #8
+ 208:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refd
+ 432              		.loc 1 208 0
+ 433 0070 5860     		str	r0, [r3, #4]
+ 434 0072 9A60     		str	r2, [r3, #8]
+ 215:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
+ 435              		.loc 1 215 0
+ 436 0074 0CF10803 		add	r3, ip, #8
+ 214:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.p, (REF_FRAC - INT32_RATE_FRAC)),
+ 437              		.loc 1 214 0
+ 438 0078 4FEA2918 		asr	r8, r9, #4
+ 439              	.LVL12:
+ 440              		.loc 1 216 0
+ 441 007c 3F11     		asrs	r7, r7, #4
+ 215:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
+ 442              		.loc 1 215 0
+ 443 007e 4FEA2319 		asr	r9, r3, #4
+ 444              	.LVL13:
+ 445              	.LBB8:
+ 446              	.LBB6:
+ 447              		.loc 2 1072 0
+ 448 0082 F307     		lsls	r3, r6, #31
+ 449 0084 01D4     		bmi	.L33
+1073:./state.h     ****     stateCalcBodyRates_i();
+ 450              		.loc 2 1073 0
+ 451 0086 FFF7FEFF 		bl	stateCalcBodyRates_i
+ 452              	.LVL14:
+ 453              	.L33:
+ 454              	.LBE6:
+ 455              	.LBE8:
+ 217:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   struct Int32Rates _error;
+ 218:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   struct Int32Rates* body_rate = stateGetBodyRates_i();
+ 219:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   RATES_DIFF(_error, _ref_scaled, (*body_rate));
+ 456              		.loc 1 219 0
+ 457 008a D5F82C02 		ldr	r0, [r5, #556]
+ 458 008e D5F83012 		ldr	r1, [r5, #560]
+ 459 0092 D5F83422 		ldr	r2, [r5, #564]
+ 460 0096 C0EB0806 		rsb	r6, r0, r8
+ 461              	.LVL15:
+ 462 009a C1EB090C 		rsb	ip, r1, r9
+ 463              	.LVL16:
+ 464 009e B81A     		subs	r0, r7, r2
+ 465              	.LVL17:
+ 466 00a0 444B     		ldr	r3, .L45+24
+ 220:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   if (in_flight) {
+ 467              		.loc 1 220 0
+ 468 00a2 F4B1     		cbz	r4, .L34
+ 221:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     /* update integrator */
+ 222:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     RATES_ADD(stabilization_rate_sum_err, _error);
+ 469              		.loc 1 222 0
+ 470 00a4 9D68     		ldr	r5, [r3, #8]
+ 471 00a6 5C68     		ldr	r4, [r3, #4]
+ 472 00a8 1A68     		ldr	r2, [r3, #0]
+ 473 00aa 4119     		adds	r1, r0, r5
+ 223:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     RATES_BOUND_CUBE(stabilization_rate_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
+ 474              		.loc 1 223 0
+ 475 00ac 424D     		ldr	r5, .L45+28
+ 222:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     RATES_ADD(stabilization_rate_sum_err, _error);
+ 476              		.loc 1 222 0
+ 477 00ae 0CEB0407 		add	r7, ip, r4
+ 478              	.LVL18:
+ 479 00b2 B218     		adds	r2, r6, r2
+ 480              		.loc 1 223 0
+ 481 00b4 414C     		ldr	r4, .L45+32
+ 482 00b6 AA42     		cmp	r2, r5
+ 483 00b8 A8BF     		it	ge
+ 484 00ba 2A46     		movge	r2, r5
+ 485 00bc AF42     		cmp	r7, r5
+ 486 00be A8BF     		it	ge
+ 487 00c0 2F46     		movge	r7, r5
+ 488 00c2 A942     		cmp	r1, r5
+ 489 00c4 B8BF     		it	lt
+ 490 00c6 0D46     		movlt	r5, r1
+ 491 00c8 A242     		cmp	r2, r4
+ 492 00ca ACBF     		ite	ge
+ 493 00cc 1A60     		strge	r2, [r3, #0]
+ 494 00ce 1C60     		strlt	r4, [r3, #0]
+ 495 00d0 A742     		cmp	r7, r4
+ 496 00d2 ACBF     		ite	ge
+ 497 00d4 5F60     		strge	r7, [r3, #4]
+ 498 00d6 5C60     		strlt	r4, [r3, #4]
+ 499 00d8 A542     		cmp	r5, r4
+ 500 00da ACBF     		ite	ge
+ 501 00dc 9D60     		strge	r5, [r3, #8]
+ 502 00de 9C60     		strlt	r4, [r3, #8]
+ 503 00e0 02E0     		b	.L35
+ 504              	.LVL19:
+ 505              	.L34:
+ 224:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   }
+ 225:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   else {
+ 226:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     INT_RATES_ZERO(stabilization_rate_sum_err);
+ 506              		.loc 1 226 0
+ 507 00e2 1C60     		str	r4, [r3, #0]
+ 508 00e4 5C60     		str	r4, [r3, #4]
+ 509 00e6 9C60     		str	r4, [r3, #8]
+ 510              	.LVL20:
+ 511              	.L35:
+ 227:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   }
+ 228:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 229:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* PI */
+ 230:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
+ 231:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+ 512              		.loc 1 231 0
+ 513 00e8 354D     		ldr	r5, .L45+36
+ 514 00ea 324C     		ldr	r4, .L45+24
+ 232:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 233:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
+ 234:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
+ 515              		.loc 1 234 0
+ 516 00ec 6A68     		ldr	r2, [r5, #4]
+ 517 00ee 6168     		ldr	r1, [r4, #4]
+ 231:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+ 518              		.loc 1 231 0
+ 519 00f0 2B68     		ldr	r3, [r5, #0]
+ 520              		.loc 1 234 0
+ 521 00f2 5143     		muls	r1, r2, r1
+ 231:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+ 522              		.loc 1 231 0
+ 523 00f4 2768     		ldr	r7, [r4, #0]
+ 235:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 236:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
+ 237:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
+ 524              		.loc 1 237 0
+ 525 00f6 AD68     		ldr	r5, [r5, #8]
+ 526 00f8 A468     		ldr	r4, [r4, #8]
+ 231:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+ 527              		.loc 1 231 0
+ 528 00fa 5F43     		muls	r7, r3, r7
+ 529              		.loc 1 237 0
+ 530 00fc 6C43     		muls	r4, r5, r4
+ 233:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
+ 531              		.loc 1 233 0
+ 532 00fe 314B     		ldr	r3, .L45+40
+ 234:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
+ 533              		.loc 1 234 0
+ 534 0100 01F50078 		add	r8, r1, #512
+ 535              	.LVL21:
+ 233:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
+ 536              		.loc 1 233 0
+ 537 0104 5A68     		ldr	r2, [r3, #4]
+ 234:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
+ 538              		.loc 1 234 0
+ 539 0106 A8EBD171 		sub	r1, r8, r1, lsr #31
+ 540 010a 8912     		asrs	r1, r1, #10
+ 233:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
+ 541              		.loc 1 233 0
+ 542 010c 02FB0C11 		mla	r1, r2, ip, r1
+ 543              		.loc 1 237 0
+ 544 0110 04F50072 		add	r2, r4, #512
+ 236:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
+ 545              		.loc 1 236 0
+ 546 0114 9D68     		ldr	r5, [r3, #8]
+ 547              		.loc 1 237 0
+ 548 0116 A2EBD474 		sub	r4, r2, r4, lsr #31
+ 549 011a A212     		asrs	r2, r4, #10
+ 236:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
+ 550              		.loc 1 236 0
+ 551 011c 05FB0025 		mla	r5, r5, r0, r2
+ 230:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
+ 552              		.loc 1 230 0
+ 553 0120 1868     		ldr	r0, [r3, #0]
+ 554              	.LVL22:
+ 231:firmwares/rotorcraft/stabilization/stabilization_rate.c ****     OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+ 555              		.loc 1 231 0
+ 556 0122 07F50073 		add	r3, r7, #512
+ 557 0126 A3EBD777 		sub	r7, r3, r7, lsr #31
+ 558 012a BF12     		asrs	r7, r7, #10
+ 230:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
+ 559              		.loc 1 230 0
+ 560 012c 00FB0674 		mla	r4, r0, r6, r7
+ 238:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 239:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+ 561              		.loc 1 239 0
+ 562 0130 E012     		asrs	r0, r4, #11
+ 240:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+ 241:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
+ 242:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 243:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* sum to final command */
+ 244:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
+ 563              		.loc 1 244 0
+ 564 0132 1E4C     		ldr	r4, .L45+16
+ 239:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+ 565              		.loc 1 239 0
+ 566 0134 244B     		ldr	r3, .L45+44
+ 241:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
+ 567              		.loc 1 241 0
+ 568 0136 EA12     		asrs	r2, r5, #11
+ 569              		.loc 1 244 0
+ 570 0138 2568     		ldr	r5, [r4, #0]
+ 239:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+ 571              		.loc 1 239 0
+ 572 013a 1860     		str	r0, [r3, #0]
+ 240:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+ 573              		.loc 1 240 0
+ 574 013c C912     		asrs	r1, r1, #11
+ 575              		.loc 1 244 0
+ 576 013e 4019     		adds	r0, r0, r5
+ 245:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
+ 577              		.loc 1 245 0
+ 578 0140 6568     		ldr	r5, [r4, #4]
+ 246:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_YAW]   = stabilization_rate_ff_cmd.r + stabilization_rate_fb_cmd.r;
+ 579              		.loc 1 246 0
+ 580 0142 A468     		ldr	r4, [r4, #8]
+ 240:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+ 581              		.loc 1 240 0
+ 582 0144 5960     		str	r1, [r3, #4]
+ 241:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
+ 583              		.loc 1 241 0
+ 584 0146 9A60     		str	r2, [r3, #8]
+ 244:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
+ 585              		.loc 1 244 0
+ 586 0148 204B     		ldr	r3, .L45+48
+ 245:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
+ 587              		.loc 1 245 0
+ 588 014a 4919     		adds	r1, r1, r5
+ 589              		.loc 1 246 0
+ 590 014c 1219     		adds	r2, r2, r4
+ 247:firmwares/rotorcraft/stabilization/stabilization_rate.c **** 
+ 248:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   /* bound the result */
+ 249:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+ 591              		.loc 1 249 0
+ 592 014e B0F5165F 		cmp	r0, #9600
+ 244:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
+ 593              		.loc 1 244 0
+ 594 0152 1860     		str	r0, [r3, #0]
+ 245:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
+ 595              		.loc 1 245 0
+ 596 0154 5960     		str	r1, [r3, #4]
+ 246:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   stabilization_cmd[COMMAND_YAW]   = stabilization_rate_ff_cmd.r + stabilization_rate_fb_cmd.r;
+ 597              		.loc 1 246 0
+ 598 0156 9A60     		str	r2, [r3, #8]
+ 599              		.loc 1 249 0
+ 600 0158 02DD     		ble	.L36
+ 601              		.loc 1 249 0 is_stmt 0 discriminator 1
+ 602 015a 4FF41650 		mov	r0, #9600
+ 603 015e 03E0     		b	.L42
+ 604              	.L36:
+ 605              		.loc 1 249 0 discriminator 2
+ 606 0160 10F5165F 		cmn	r0, #9600
+ 607 0164 01DA     		bge	.L37
+ 608              		.loc 1 249 0 discriminator 3
+ 609 0166 1A48     		ldr	r0, .L45+52
+ 610              	.L42:
+ 611 0168 1860     		str	r0, [r3, #0]
+ 612              	.L37:
+ 250:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+ 613              		.loc 1 250 0 is_stmt 1
+ 614 016a B1F5165F 		cmp	r1, #9600
+ 615 016e 02DD     		ble	.L38
+ 616              		.loc 1 250 0 is_stmt 0 discriminator 1
+ 617 0170 4FF41651 		mov	r1, #9600
+ 618 0174 03E0     		b	.L43
+ 619              	.L38:
+ 620              		.loc 1 250 0 discriminator 2
+ 621 0176 11F5165F 		cmn	r1, #9600
+ 622 017a 01DA     		bge	.L39
+ 623              		.loc 1 250 0 discriminator 3
+ 624 017c 1449     		ldr	r1, .L45+52
+ 625              	.L43:
+ 626 017e 5960     		str	r1, [r3, #4]
+ 627              	.L39:
+ 251:firmwares/rotorcraft/stabilization/stabilization_rate.c ****   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+ 628              		.loc 1 251 0 is_stmt 1
+ 629 0180 B2F5165F 		cmp	r2, #9600
+ 630 0184 02DD     		ble	.L40
+ 631              		.loc 1 251 0 is_stmt 0 discriminator 1
+ 632 0186 4FF41652 		mov	r2, #9600
+ 633 018a 03E0     		b	.L44
+ 634              	.L40:
+ 635              		.loc 1 251 0 discriminator 2
+ 636 018c 12F5165F 		cmn	r2, #9600
+ 637 0190 02DA     		bge	.L32
+ 638              		.loc 1 251 0 discriminator 3
+ 639 0192 0F4A     		ldr	r2, .L45+52
+ 640              	.L44:
+ 641 0194 0D4B     		ldr	r3, .L45+48
+ 642 0196 9A60     		str	r2, [r3, #8]
+ 643              	.L32:
+ 644 0198 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 645              	.L46:
+ 646              		.align	2
+ 647              	.L45:
+ 648 019c 00000000 		.word	.LANCHOR0
+ 649 01a0 00000000 		.word	.LANCHOR4
+ 650 01a4 00000000 		.word	.LANCHOR5
+ 651 01a8 00000000 		.word	.LANCHOR3
+ 652 01ac 00000000 		.word	.LANCHOR7
+ 653 01b0 00000000 		.word	state
+ 654 01b4 00000000 		.word	.LANCHOR6
+ 655 01b8 00093D00 		.word	4000000
+ 656 01bc 00F7C2FF 		.word	-4000000
+ 657 01c0 00000000 		.word	.LANCHOR2
+ 658 01c4 00000000 		.word	.LANCHOR1
+ 659 01c8 00000000 		.word	.LANCHOR8
+ 660 01cc 00000000 		.word	stabilization_cmd
+ 661 01d0 80DAFFFF 		.word	-9600
+ 662              		.cfi_endproc
+ 663              	.LFE126:
+ 665              		.global	stabilization_rate_ff_cmd
+ 666              		.global	stabilization_rate_fb_cmd
+ 667              		.global	stabilization_rate_sum_err
+ 668              		.global	stabilization_rate_refdot
+ 669              		.global	stabilization_rate_ref
+ 670              		.global	stabilization_rate_ddgain
+ 671              		.global	stabilization_rate_igain
+ 672              		.global	stabilization_rate_gain
+ 673              		.global	stabilization_rate_sp
+ 674              		.section	.bss.stabilization_rate_sum_err,"aw",%nobits
+ 675              		.align	2
+ 676              		.set	.LANCHOR6,. + 0
+ 679              	stabilization_rate_sum_err:
+ 680 0000 00000000 		.space	12
+ 680      00000000 
+ 680      00000000 
+ 681              		.section	.bss.stabilization_rate_ff_cmd,"aw",%nobits
+ 682              		.align	2
+ 683              		.set	.LANCHOR7,. + 0
+ 686              	stabilization_rate_ff_cmd:
+ 687 0000 00000000 		.space	12
+ 687      00000000 
+ 687      00000000 
+ 688              		.section	.bss.stabilization_rate_igain,"aw",%nobits
+ 689              		.align	2
+ 690              		.set	.LANCHOR2,. + 0
+ 693              	stabilization_rate_igain:
+ 694 0000 00000000 		.space	12
+ 694      00000000 
+ 694      00000000 
+ 695              		.section	.bss.stabilization_rate_refdot,"aw",%nobits
+ 696              		.align	2
+ 697              		.set	.LANCHOR5,. + 0
+ 700              	stabilization_rate_refdot:
+ 701 0000 00000000 		.space	12
+ 701      00000000 
+ 701      00000000 
+ 702              		.section	.bss.stabilization_rate_ref,"aw",%nobits
+ 703              		.align	2
+ 704              		.set	.LANCHOR4,. + 0
+ 707              	stabilization_rate_ref:
+ 708 0000 00000000 		.space	12
+ 708      00000000 
+ 708      00000000 
+ 709              		.section	.bss.stabilization_rate_gain,"aw",%nobits
+ 710              		.align	2
+ 711              		.set	.LANCHOR1,. + 0
+ 714              	stabilization_rate_gain:
+ 715 0000 00000000 		.space	12
+ 715      00000000 
+ 715      00000000 
+ 716              		.section	.bss.stabilization_rate_fb_cmd,"aw",%nobits
+ 717              		.align	2
+ 718              		.set	.LANCHOR8,. + 0
+ 721              	stabilization_rate_fb_cmd:
+ 722 0000 00000000 		.space	12
+ 722      00000000 
+ 722      00000000 
+ 723              		.section	.bss.stabilization_rate_ddgain,"aw",%nobits
+ 724              		.align	2
+ 725              		.set	.LANCHOR3,. + 0
+ 728              	stabilization_rate_ddgain:
+ 729 0000 00000000 		.space	12
+ 729      00000000 
+ 729      00000000 
+ 730              		.section	.bss.stabilization_rate_sp,"aw",%nobits
+ 731              		.align	2
+ 732              		.set	.LANCHOR0,. + 0
+ 735              	stabilization_rate_sp:
+ 736 0000 00000000 		.space	12
+ 736      00000000 
+ 736      00000000 
+ 737              		.text
+ 738              	.Letext0:
+ 739              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 740              		.file 4 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 741              		.file 5 "./math/pprz_algebra_int.h"
+ 742              		.file 6 "./math/pprz_algebra_float.h"
+ 743              		.file 7 "./math/pprz_geodetic_int.h"
+ 744              		.file 8 "./math/pprz_geodetic_float.h"
+ 745              		.file 9 "./math/pprz_orientation_conversion.h"
+ 746              		.file 10 "./mcu_periph/spi.h"
+ 747              		.file 11 "./peripherals/mpu60x0_regs.h"
+ 748              		.file 12 "./peripherals/mpu60x0.h"
+ 749              		.file 13 "./peripherals/mpu60x0_spi.h"
+ 750              		.file 14 "./subsystems/imu/imu_aspirin_2_spi.h"
+ 751              		.file 15 "./paparazzi.h"
+ 752              		.file 16 "./mcu_periph/sys_time.h"
+ 753              		.file 17 "./subsystems/radio_control.h"
+ 754              		.file 18 "./firmwares/rotorcraft/stabilization.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stabilization_rate.c
+/var/tmp//ccO6O8ee.s:19     .text.stabilization_rate_init:0000000000000000 $t
+/var/tmp//ccO6O8ee.s:24     .text.stabilization_rate_init:0000000000000000 stabilization_rate_init
+/var/tmp//ccO6O8ee.s:84     .text.stabilization_rate_init:000000000000004c $d
+/var/tmp//ccO6O8ee.s:95     .text.stabilization_rate_read_rc:0000000000000000 $t
+/var/tmp//ccO6O8ee.s:100    .text.stabilization_rate_read_rc:0000000000000000 stabilization_rate_read_rc
+/var/tmp//ccO6O8ee.s:185    .text.stabilization_rate_read_rc:0000000000000088 $d
+/var/tmp//ccO6O8ee.s:191    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 $t
+/var/tmp//ccO6O8ee.s:196    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 stabilization_rate_read_rc_switched_sticks
+/var/tmp//ccO6O8ee.s:279    .text.stabilization_rate_read_rc_switched_sticks:0000000000000088 $d
+/var/tmp//ccO6O8ee.s:286    .text.stabilization_rate_enter:0000000000000000 $t
+/var/tmp//ccO6O8ee.s:291    .text.stabilization_rate_enter:0000000000000000 stabilization_rate_enter
+/var/tmp//ccO6O8ee.s:317    .text.stabilization_rate_enter:000000000000001c $d
+/var/tmp//ccO6O8ee.s:324    .text.stabilization_rate_run:0000000000000000 $t
+/var/tmp//ccO6O8ee.s:329    .text.stabilization_rate_run:0000000000000000 stabilization_rate_run
+/var/tmp//ccO6O8ee.s:648    .text.stabilization_rate_run:000000000000019c $d
+/var/tmp//ccO6O8ee.s:686    .bss.stabilization_rate_ff_cmd:0000000000000000 stabilization_rate_ff_cmd
+/var/tmp//ccO6O8ee.s:721    .bss.stabilization_rate_fb_cmd:0000000000000000 stabilization_rate_fb_cmd
+/var/tmp//ccO6O8ee.s:679    .bss.stabilization_rate_sum_err:0000000000000000 stabilization_rate_sum_err
+/var/tmp//ccO6O8ee.s:700    .bss.stabilization_rate_refdot:0000000000000000 stabilization_rate_refdot
+/var/tmp//ccO6O8ee.s:707    .bss.stabilization_rate_ref:0000000000000000 stabilization_rate_ref
+/var/tmp//ccO6O8ee.s:728    .bss.stabilization_rate_ddgain:0000000000000000 stabilization_rate_ddgain
+/var/tmp//ccO6O8ee.s:693    .bss.stabilization_rate_igain:0000000000000000 stabilization_rate_igain
+/var/tmp//ccO6O8ee.s:714    .bss.stabilization_rate_gain:0000000000000000 stabilization_rate_gain
+/var/tmp//ccO6O8ee.s:735    .bss.stabilization_rate_sp:0000000000000000 stabilization_rate_sp
+/var/tmp//ccO6O8ee.s:675    .bss.stabilization_rate_sum_err:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:682    .bss.stabilization_rate_ff_cmd:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:689    .bss.stabilization_rate_igain:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:696    .bss.stabilization_rate_refdot:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:703    .bss.stabilization_rate_ref:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:710    .bss.stabilization_rate_gain:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:717    .bss.stabilization_rate_fb_cmd:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:724    .bss.stabilization_rate_ddgain:0000000000000000 $d
+/var/tmp//ccO6O8ee.s:731    .bss.stabilization_rate_sp:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+radio_control
+stateCalcBodyRates_i
+state
+stabilization_cmd

@@ -1,0 +1,31 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"telemetry.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	telemetry_mode_Main
+  19              		.section	.bss.telemetry_mode_Main,"aw",%nobits
+  22              	telemetry_mode_Main:
+  23 0000 00       		.space	1
+  24              		.text
+  25              	.Letext0:
+  26              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  27              		.file 2 "/Users/tony-yi/git/paparazzi_local/var/MYAC/generated/periodic_telemetry.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 telemetry.c
+/var/tmp//ccpCOKdy.s:22     .bss.telemetry_mode_Main:0000000000000000 telemetry_mode_Main
+/var/tmp//ccpCOKdy.s:23     .bss.telemetry_mode_Main:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

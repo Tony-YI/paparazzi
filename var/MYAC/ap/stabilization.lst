@@ -1,0 +1,117 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"stabilization.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stabilization_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	stabilization_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	stabilization_init:
+  25              	.LFB100:
+  26              		.file 1 "firmwares/rotorcraft/stabilization.c"
+   1:firmwares/rotorcraft/stabilization.c **** /*
+   2:firmwares/rotorcraft/stabilization.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:firmwares/rotorcraft/stabilization.c ****  *
+   4:firmwares/rotorcraft/stabilization.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/stabilization.c ****  *
+   6:firmwares/rotorcraft/stabilization.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/stabilization.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/stabilization.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/stabilization.c ****  * any later version.
+  10:firmwares/rotorcraft/stabilization.c ****  *
+  11:firmwares/rotorcraft/stabilization.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/stabilization.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/stabilization.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/stabilization.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/stabilization.c ****  *
+  16:firmwares/rotorcraft/stabilization.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/stabilization.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/stabilization.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/stabilization.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/stabilization.c ****  */
+  21:firmwares/rotorcraft/stabilization.c **** 
+  22:firmwares/rotorcraft/stabilization.c **** /** @file firmwares/rotorcraft/stabilization.c
+  23:firmwares/rotorcraft/stabilization.c ****  *  General stabilization interface for rotorcrafts.
+  24:firmwares/rotorcraft/stabilization.c ****  */
+  25:firmwares/rotorcraft/stabilization.c **** 
+  26:firmwares/rotorcraft/stabilization.c **** #include "firmwares/rotorcraft/stabilization.h"
+  27:firmwares/rotorcraft/stabilization.c **** 
+  28:firmwares/rotorcraft/stabilization.c **** int32_t stabilization_cmd[COMMANDS_NB];
+  29:firmwares/rotorcraft/stabilization.c **** 
+  30:firmwares/rotorcraft/stabilization.c **** void stabilization_init(void) {
+  27              		.loc 1 30 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  31:firmwares/rotorcraft/stabilization.c **** #ifndef STABILIZATION_SKIP_RATE
+  32:firmwares/rotorcraft/stabilization.c ****   stabilization_none_init();
+  36              		.loc 1 32 0
+  37 0002 FFF7FEFF 		bl	stabilization_none_init
+  38              	.LVL0:
+  33:firmwares/rotorcraft/stabilization.c ****   stabilization_rate_init();
+  39              		.loc 1 33 0
+  40 0006 FFF7FEFF 		bl	stabilization_rate_init
+  41              	.LVL1:
+  34:firmwares/rotorcraft/stabilization.c **** #endif
+  35:firmwares/rotorcraft/stabilization.c ****   stabilization_attitude_init();
+  36:firmwares/rotorcraft/stabilization.c **** }
+  42              		.loc 1 36 0
+  43 000a BDE80840 		pop	{r3, lr}
+  35:firmwares/rotorcraft/stabilization.c ****   stabilization_attitude_init();
+  44              		.loc 1 35 0
+  45 000e FFF7FEBF 		b	stabilization_attitude_init
+  46              	.LVL2:
+  47              		.cfi_endproc
+  48              	.LFE100:
+  50              		.global	stabilization_cmd
+  51              		.section	.bss.stabilization_cmd,"aw",%nobits
+  52              		.align	2
+  55              	stabilization_cmd:
+  56 0000 00000000 		.space	16
+  56      00000000 
+  56      00000000 
+  56      00000000 
+  57              		.text
+  58              	.Letext0:
+  59              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  60              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+  61              		.file 4 "./math/pprz_algebra_int.h"
+  62              		.file 5 "./math/pprz_algebra_float.h"
+  63              		.file 6 "./math/pprz_geodetic_int.h"
+  64              		.file 7 "./math/pprz_geodetic_float.h"
+  65              		.file 8 "./math/pprz_orientation_conversion.h"
+  66              		.file 9 "./state.h"
+  67              		.file 10 "./firmwares/rotorcraft/stabilization/stabilization_none.h"
+  68              		.file 11 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
+  69              		.file 12 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stabilization.c
+/var/tmp//ccchM4h3.s:19     .text.stabilization_init:0000000000000000 $t
+/var/tmp//ccchM4h3.s:24     .text.stabilization_init:0000000000000000 stabilization_init
+/var/tmp//ccchM4h3.s:55     .bss.stabilization_cmd:0000000000000000 stabilization_cmd
+/var/tmp//ccchM4h3.s:52     .bss.stabilization_cmd:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+stabilization_none_init
+stabilization_rate_init
+stabilization_attitude_init

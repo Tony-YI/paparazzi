@@ -1,4 +1,4 @@
-/* Generated from /Users/tony-yi/git/paparazzi/conf/mtk.xml */
+/* Generated from /Users/tony-yi/git/paparazzi_local/conf/mtk.xml */
 /* Please DO NOT EDIT */
 
 #define MTK_DIY14_SYNC1 0xB5

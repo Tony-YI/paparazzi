@@ -1,0 +1,3455 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"guidance_h.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stateGetPositionNed_i,"ax",%progbits
+  19              		.align	1
+  20              		.thumb
+  21              		.thumb_func
+  23              	stateGetPositionNed_i:
+  24              	.LFB31:
+  25              		.file 1 "./state.h"
+   1:./state.h     **** /*
+   2:./state.h     ****  * Copyright (C) 2011-2012 Felix Ruess <felix.ruess@gmail.com>
+   3:./state.h     ****  *
+   4:./state.h     ****  * This file is part of paparazzi.
+   5:./state.h     ****  *
+   6:./state.h     ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./state.h     ****  * it under the terms of the GNU General Public License as published by
+   8:./state.h     ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./state.h     ****  * any later version.
+  10:./state.h     ****  *
+  11:./state.h     ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./state.h     ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./state.h     ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./state.h     ****  * GNU General Public License for more details.
+  15:./state.h     ****  *
+  16:./state.h     ****  * You should have received a copy of the GNU General Public License
+  17:./state.h     ****  * along with paparazzi; see the file COPYING.  If not, see
+  18:./state.h     ****  * <http://www.gnu.org/licenses/>.
+  19:./state.h     ****  */
+  20:./state.h     **** 
+  21:./state.h     **** /**
+  22:./state.h     ****  * @file state.h
+  23:./state.h     ****  *
+  24:./state.h     ****  * API to get/set the generic vehicle states.
+  25:./state.h     ****  *
+  26:./state.h     ****  * Also see the @ref state_interface "State Interface" page.
+  27:./state.h     ****  *
+  28:./state.h     ****  * @author Felix Ruess <felix.ruess@gmail.com>
+  29:./state.h     ****  */
+  30:./state.h     **** 
+  31:./state.h     **** #ifndef STATE_H
+  32:./state.h     **** #define STATE_H
+  33:./state.h     **** 
+  34:./state.h     **** #include "math/pprz_algebra_int.h"
+  35:./state.h     **** #include "math/pprz_algebra_float.h"
+  36:./state.h     **** #include "math/pprz_geodetic_int.h"
+  37:./state.h     **** #include "math/pprz_geodetic_float.h"
+  38:./state.h     **** #include "math/pprz_orientation_conversion.h"
+  39:./state.h     **** 
+  40:./state.h     **** #include "std.h"
+  41:./state.h     **** #include <string.h>
+  42:./state.h     **** 
+  43:./state.h     **** /**
+  44:./state.h     ****  * This general state interface holds all the most important vehicle states like
+  45:./state.h     ****  * position, velocity, attitude, etc. It handles coordinate system and
+  46:./state.h     ****  * fixed-/floating-point conversion on the fly when needed.
+  47:./state.h     ****  *
+  48:./state.h     ****  * You can set e.g. the position in any coordinate system you wish:
+  49:./state.h     ****  * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
+  50:./state.h     ****  * If you need to read the position somewhere else in a different representation,
+  51:./state.h     ****  * call: stateGetPositionLla_f() and only then the LLA float position representation
+  52:./state.h     ****  * is calculated on the fly and returned. It's also only calculated once,
+  53:./state.h     ****  * until a new position is set which invalidates all the other representations again.
+  54:./state.h     ****  */
+  55:./state.h     **** 
+  56:./state.h     **** /**
+  57:./state.h     ****  * @defgroup state_interface State interface
+  58:./state.h     ****  * @{
+  59:./state.h     ****  */
+  60:./state.h     **** 
+  61:./state.h     **** /**
+  62:./state.h     ****  * @defgroup state_position Position representations
+  63:./state.h     ****  * @{
+  64:./state.h     ****  */
+  65:./state.h     **** #define POS_ECEF_I 0
+  66:./state.h     **** #define POS_NED_I  1
+  67:./state.h     **** #define POS_ENU_I  2
+  68:./state.h     **** #define POS_LLA_I  3
+  69:./state.h     **** #define POS_UTM_I  4
+  70:./state.h     **** #define POS_ECEF_F 5
+  71:./state.h     **** #define POS_NED_F  6
+  72:./state.h     **** #define POS_ENU_F  7
+  73:./state.h     **** #define POS_LLA_F  8
+  74:./state.h     **** #define POS_UTM_F  9
+  75:./state.h     **** #define POS_LOCAL_COORD ((1<<POS_NED_I)|(1<<POS_NED_F)|(1<<POS_ENU_I)|(1<<POS_ENU_F))
+  76:./state.h     **** #define POS_GLOBAL_COORD ((1<<POS_ECEF_I)|(1<<POS_ECEF_F)|(1<<POS_LLA_I)|(1<<POS_LLA_F)|(1<<POS_UTM
+  77:./state.h     **** /**@}*/
+  78:./state.h     **** 
+  79:./state.h     **** /**
+  80:./state.h     ****  * @defgroup state_velocity Speed representations
+  81:./state.h     ****  * @{
+  82:./state.h     ****  */
+  83:./state.h     **** #define SPEED_ECEF_I  0
+  84:./state.h     **** #define SPEED_NED_I   1
+  85:./state.h     **** #define SPEED_ENU_I   2
+  86:./state.h     **** #define SPEED_HNORM_I 3
+  87:./state.h     **** #define SPEED_HDIR_I  4
+  88:./state.h     **** #define SPEED_ECEF_F  5
+  89:./state.h     **** #define SPEED_NED_F   6
+  90:./state.h     **** #define SPEED_ENU_F   7
+  91:./state.h     **** #define SPEED_HNORM_F 8
+  92:./state.h     **** #define SPEED_HDIR_F  9
+  93:./state.h     **** #define SPEED_LOCAL_COORD ((1<<SPEED_NED_I)|(1<<SPEED_ENU_I)|(1<<SPEED_NED_F)|(1<<SPEED_ENU_F))
+  94:./state.h     **** /**@}*/
+  95:./state.h     **** 
+  96:./state.h     **** /**
+  97:./state.h     ****  * @defgroup state_acceleration Acceleration representations
+  98:./state.h     ****  * @{
+  99:./state.h     ****  */
+ 100:./state.h     **** #define ACCEL_ECEF_I 0
+ 101:./state.h     **** #define ACCEL_NED_I  1
+ 102:./state.h     **** #define ACCEL_ECEF_F 2
+ 103:./state.h     **** #define ACCEL_NED_F  3
+ 104:./state.h     **** /**@}*/
+ 105:./state.h     **** 
+ 106:./state.h     **** /**
+ 107:./state.h     ****  * @defgroup state_rate Angular rate representations
+ 108:./state.h     ****  * @{
+ 109:./state.h     ****  */
+ 110:./state.h     **** #define RATE_I 0
+ 111:./state.h     **** #define RATE_F 1
+ 112:./state.h     **** /**@}*/
+ 113:./state.h     **** 
+ 114:./state.h     **** /**
+ 115:./state.h     ****  * @defgroup state_wind_airspeed Wind- and airspeed representations
+ 116:./state.h     ****  * @{
+ 117:./state.h     ****  */
+ 118:./state.h     **** #define WINDSPEED_I 0
+ 119:./state.h     **** #define AIRSPEED_I  1
+ 120:./state.h     **** #define WINDSPEED_F 2
+ 121:./state.h     **** #define AIRSPEED_F  3
+ 122:./state.h     **** #define AOA_F       4
+ 123:./state.h     **** #define SIDESLIP_F  5
+ 124:./state.h     **** /**@}*/
+ 125:./state.h     **** 
+ 126:./state.h     **** 
+ 127:./state.h     **** /**
+ 128:./state.h     ****  * Structure holding vehicle state data.
+ 129:./state.h     ****  */
+ 130:./state.h     **** struct State {
+ 131:./state.h     **** 
+ 132:./state.h     ****   /** @addtogroup state_position
+ 133:./state.h     ****    *  @{ */
+ 134:./state.h     **** 
+ 135:./state.h     ****   /**
+ 136:./state.h     ****    * Holds the status bits for all position representations.
+ 137:./state.h     ****    * When the corresponding bit is set the representation
+ 138:./state.h     ****    * is already computed.
+ 139:./state.h     ****    */
+ 140:./state.h     ****   uint16_t pos_status;
+ 141:./state.h     **** 
+ 142:./state.h     ****   /**
+ 143:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 144:./state.h     ****    * Units: centimeters
+ 145:./state.h     ****    */
+ 146:./state.h     ****   struct EcefCoor_i ecef_pos_i;
+ 147:./state.h     **** 
+ 148:./state.h     ****   /**
+ 149:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 150:./state.h     ****    * Units lat,lon: radians*1e7
+ 151:./state.h     ****    * Units alt: milimeters above reference ellipsoid
+ 152:./state.h     ****    */
+ 153:./state.h     ****   struct LlaCoor_i lla_pos_i;
+ 154:./state.h     **** 
+ 155:./state.h     ****   /**
+ 156:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 157:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 158:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 159:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 160:./state.h     ****    * (int version)
+ 161:./state.h     ****    */
+ 162:./state.h     ****   struct LtpDef_i ned_origin_i;
+ 163:./state.h     **** 
+ 164:./state.h     ****   /**
+ 165:./state.h     ****    * true if local int coordinate frame is initialsed
+ 166:./state.h     ****    */
+ 167:./state.h     ****   bool_t ned_initialized_i;
+ 168:./state.h     **** 
+ 169:./state.h     ****   /**
+ 170:./state.h     ****    * Position in North East Down coordinates.
+ 171:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 172:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 173:./state.h     ****    */
+ 174:./state.h     ****   struct NedCoor_i ned_pos_i;
+ 175:./state.h     **** 
+ 176:./state.h     ****   /**
+ 177:./state.h     ****    * Position in East North Up coordinates.
+ 178:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 179:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 180:./state.h     ****    */
+ 181:./state.h     ****   struct EnuCoor_i enu_pos_i;
+ 182:./state.h     **** 
+ 183:./state.h     ****   /**
+ 184:./state.h     ****    * Position in UTM coordinates.
+ 185:./state.h     ****    * Units x,y: meters.
+ 186:./state.h     ****    * Units z: meters above MSL
+ 187:./state.h     ****    */
+ 188:./state.h     ****   struct UtmCoor_f utm_pos_f;
+ 189:./state.h     **** 
+ 190:./state.h     ****   /**
+ 191:./state.h     ****    * Altitude above ground level.
+ 192:./state.h     ****    * Unit: meters
+ 193:./state.h     ****    */
+ 194:./state.h     ****   float alt_agl_f;
+ 195:./state.h     **** 
+ 196:./state.h     ****   /**
+ 197:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 198:./state.h     ****    * Units lat,lon: radians
+ 199:./state.h     ****    * Units alt: meters above reference ellipsoid
+ 200:./state.h     ****    */
+ 201:./state.h     ****   struct LlaCoor_f lla_pos_f;
+ 202:./state.h     **** 
+ 203:./state.h     ****   /**
+ 204:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 205:./state.h     ****    * Units: meters
+ 206:./state.h     ****    */
+ 207:./state.h     ****   struct EcefCoor_f ecef_pos_f;
+ 208:./state.h     **** 
+ 209:./state.h     ****   /**
+ 210:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 211:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 212:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 213:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 214:./state.h     ****    * (float version)
+ 215:./state.h     ****    */
+ 216:./state.h     ****   struct LtpDef_f ned_origin_f;
+ 217:./state.h     **** 
+ 218:./state.h     ****   /// True if local float coordinate frame is initialsed
+ 219:./state.h     ****   bool_t ned_initialized_f;
+ 220:./state.h     **** 
+ 221:./state.h     ****   /**
+ 222:./state.h     ****    * Definition of the origin of Utm coordinate system.
+ 223:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 224:./state.h     ****    * in UTM coordinates, used as a reference when ned_origin is not
+ 225:./state.h     ****    * initialized.
+ 226:./state.h     ****    * (float version)
+ 227:./state.h     ****    */
+ 228:./state.h     ****   struct UtmCoor_f utm_origin_f;
+ 229:./state.h     **** 
+ 230:./state.h     ****   /// True if utm origin (float) coordinate frame is initialsed
+ 231:./state.h     ****   bool_t utm_initialized_f;
+ 232:./state.h     **** 
+ 233:./state.h     ****   /**
+ 234:./state.h     ****    * Position in North East Down coordinates.
+ 235:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 236:./state.h     ****    * Units: meters
+ 237:./state.h     ****    */
+ 238:./state.h     ****   struct NedCoor_f ned_pos_f;
+ 239:./state.h     **** 
+ 240:./state.h     ****   /**
+ 241:./state.h     ****    * Position in East North Up coordinates.
+ 242:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 243:./state.h     ****    * Units: meters
+ 244:./state.h     ****    */
+ 245:./state.h     ****   struct EnuCoor_f enu_pos_f;
+ 246:./state.h     ****   /** @}*/
+ 247:./state.h     **** 
+ 248:./state.h     **** 
+ 249:./state.h     ****   /** @addtogroup state_velocity
+ 250:./state.h     ****    *  @{ */
+ 251:./state.h     ****   /**
+ 252:./state.h     ****    * Holds the status bits for all ground speed representations.
+ 253:./state.h     ****    * When the corresponding bit is one the representation
+ 254:./state.h     ****    * is already computed.
+ 255:./state.h     ****    */
+ 256:./state.h     ****   uint16_t speed_status;
+ 257:./state.h     **** 
+ 258:./state.h     ****   /**
+ 259:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 260:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 261:./state.h     ****    */
+ 262:./state.h     ****   struct EcefCoor_i ecef_speed_i;
+ 263:./state.h     **** 
+ 264:./state.h     ****   /**
+ 265:./state.h     ****    * Velocity in North East Down coordinates.
+ 266:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 267:./state.h     ****    */
+ 268:./state.h     ****   struct NedCoor_i ned_speed_i;
+ 269:./state.h     **** 
+ 270:./state.h     ****   /**
+ 271:./state.h     ****    * Velocity in East North Up coordinates.
+ 272:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 273:./state.h     ****    */
+ 274:./state.h     ****   struct EnuCoor_i enu_speed_i;
+ 275:./state.h     **** 
+ 276:./state.h     ****   /**
+ 277:./state.h     ****    * Norm of horizontal ground speed.
+ 278:./state.h     ****    * Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 279:./state.h     ****    */
+ 280:./state.h     ****   int32_t h_speed_norm_i;
+ 281:./state.h     **** 
+ 282:./state.h     ****   /**
+ 283:./state.h     ****    * Direction of horizontal ground speed.
+ 284:./state.h     ****    * Unit: rad in BFP with #INT32_ANGLE_FRAC
+ 285:./state.h     ****    * (clockwise, zero=north)
+ 286:./state.h     ****    */
+ 287:./state.h     ****   int32_t h_speed_dir_i;
+ 288:./state.h     **** 
+ 289:./state.h     ****   /**
+ 290:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 291:./state.h     ****    * Units: m/s
+ 292:./state.h     ****    */
+ 293:./state.h     ****   struct EcefCoor_f ecef_speed_f;
+ 294:./state.h     **** 
+ 295:./state.h     ****   /**
+ 296:./state.h     ****    * @brief speed in North East Down coordinates
+ 297:./state.h     ****    * @details Units: m/s */
+ 298:./state.h     ****   struct NedCoor_f ned_speed_f;
+ 299:./state.h     **** 
+ 300:./state.h     ****   /**
+ 301:./state.h     ****    * Velocity in East North Up coordinates.
+ 302:./state.h     ****    * Units: m/s
+ 303:./state.h     ****    */
+ 304:./state.h     ****   struct EnuCoor_f enu_speed_f;
+ 305:./state.h     **** 
+ 306:./state.h     ****   /**
+ 307:./state.h     ****    * Norm of horizontal ground speed.
+ 308:./state.h     ****    * Unit: m/s
+ 309:./state.h     ****    */
+ 310:./state.h     ****   float h_speed_norm_f;
+ 311:./state.h     **** 
+ 312:./state.h     ****   /**
+ 313:./state.h     ****    * Direction of horizontal ground speed.
+ 314:./state.h     ****    * Unit: rad (clockwise, zero=north)
+ 315:./state.h     ****    */
+ 316:./state.h     ****   float h_speed_dir_f;
+ 317:./state.h     ****   /** @}*/
+ 318:./state.h     **** 
+ 319:./state.h     **** 
+ 320:./state.h     ****   /** @addtogroup state_acceleration
+ 321:./state.h     ****    *  @{ */
+ 322:./state.h     ****   /**
+ 323:./state.h     ****    * Holds the status bits for all acceleration representations.
+ 324:./state.h     ****    * When the corresponding bit is one the representation
+ 325:./state.h     ****    * is already computed.
+ 326:./state.h     ****    */
+ 327:./state.h     ****   uint8_t accel_status;
+ 328:./state.h     **** 
+ 329:./state.h     ****   /**
+ 330:./state.h     ****    * Acceleration in North East Down coordinates.
+ 331:./state.h     ****    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
+ 332:./state.h     ****    */
+ 333:./state.h     ****   struct NedCoor_i ned_accel_i;
+ 334:./state.h     **** 
+ 335:./state.h     ****   /**
+ 336:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 337:./state.h     ****    * Units: m/s^2 in BFP with INT32_ACCEL_FRAC
+ 338:./state.h     ****    */
+ 339:./state.h     ****   struct EcefCoor_i ecef_accel_i;
+ 340:./state.h     **** 
+ 341:./state.h     ****   /**
+ 342:./state.h     ****    * Acceleration in North East Down coordinates.
+ 343:./state.h     ****    * Units: m/s^2
+ 344:./state.h     ****    */
+ 345:./state.h     ****   struct NedCoor_f ned_accel_f;
+ 346:./state.h     **** 
+ 347:./state.h     ****   /**
+ 348:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 349:./state.h     ****    * Units: m/s^2
+ 350:./state.h     ****    */
+ 351:./state.h     ****   struct EcefCoor_f ecef_accel_f;
+ 352:./state.h     ****   /** @}*/
+ 353:./state.h     **** 
+ 354:./state.h     **** 
+ 355:./state.h     ****   /** @defgroup state_attitude Attitude representations
+ 356:./state.h     ****    */
+ 357:./state.h     ****   struct OrientationReps ned_to_body_orientation;
+ 358:./state.h     **** 
+ 359:./state.h     **** 
+ 360:./state.h     ****   /** @addtogroup state_rate
+ 361:./state.h     ****    *  @{ */
+ 362:./state.h     ****   /**
+ 363:./state.h     ****    * Holds the status bits for all angular rate representations.
+ 364:./state.h     ****    * When the corresponding bit is one the representation
+ 365:./state.h     ****    * is already computed.
+ 366:./state.h     ****    */
+ 367:./state.h     ****   uint8_t rate_status;
+ 368:./state.h     **** 
+ 369:./state.h     ****   /**
+ 370:./state.h     ****    * Angular rates in body frame.
+ 371:./state.h     ****    * Units: rad/s in BFP with #INT32_RATE_FRAC
+ 372:./state.h     ****    */
+ 373:./state.h     ****   struct Int32Rates  body_rates_i;
+ 374:./state.h     **** 
+ 375:./state.h     ****   /**
+ 376:./state.h     ****    * Angular rates in body frame.
+ 377:./state.h     ****    * Units: rad/s
+ 378:./state.h     ****    */
+ 379:./state.h     ****   struct FloatRates  body_rates_f;
+ 380:./state.h     ****   /** @}*/
+ 381:./state.h     **** 
+ 382:./state.h     **** 
+ 383:./state.h     ****   /** @addtogroup state_wind_airspeed
+ 384:./state.h     ****    *  @{ */
+ 385:./state.h     ****   /**
+ 386:./state.h     ****    * Holds the status bits for all wind- and airspeed representations.
+ 387:./state.h     ****    * When the corresponding bit is one the representation
+ 388:./state.h     ****    * is already computed.
+ 389:./state.h     ****    */
+ 390:./state.h     ****   uint8_t wind_air_status;
+ 391:./state.h     **** 
+ 392:./state.h     ****   /**
+ 393:./state.h     ****    * Horizontal windspeed in north/east.
+ 394:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 395:./state.h     ****    */
+ 396:./state.h     ****   struct Int32Vect2 h_windspeed_i;
+ 397:./state.h     **** 
+ 398:./state.h     ****   /**
+ 399:./state.h     ****    * Norm of horizontal ground speed.
+ 400:./state.h     ****    * @details Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 401:./state.h     ****    */
+ 402:./state.h     ****   int32_t airspeed_i;
+ 403:./state.h     **** 
+ 404:./state.h     ****   /**
+ 405:./state.h     ****    * Horizontal windspeed.
+ 406:./state.h     ****    * Units: m/s with x=north, y=east
+ 407:./state.h     ****    */
+ 408:./state.h     ****   struct FloatVect2 h_windspeed_f;
+ 409:./state.h     **** 
+ 410:./state.h     ****   /**
+ 411:./state.h     ****    * Norm of relative air speed.
+ 412:./state.h     ****    * Unit: m/s
+ 413:./state.h     ****    */
+ 414:./state.h     ****   float airspeed_f;
+ 415:./state.h     **** 
+ 416:./state.h     ****   /**
+ 417:./state.h     ****    * Angle of attack
+ 418:./state.h     ****    * Unit: rad
+ 419:./state.h     ****    */
+ 420:./state.h     ****   float angle_of_attack_f;
+ 421:./state.h     **** 
+ 422:./state.h     ****   /**
+ 423:./state.h     ****    * Sideslip angle
+ 424:./state.h     ****    * Unit: rad
+ 425:./state.h     ****    */
+ 426:./state.h     ****   float sideslip_f;
+ 427:./state.h     **** 
+ 428:./state.h     ****   /** @}*/
+ 429:./state.h     **** 
+ 430:./state.h     **** };
+ 431:./state.h     **** 
+ 432:./state.h     **** extern struct State state;
+ 433:./state.h     **** 
+ 434:./state.h     **** extern void stateInit(void);
+ 435:./state.h     **** 
+ 436:./state.h     **** /** @addtogroup state_position
+ 437:./state.h     ****  *  @{ */
+ 438:./state.h     **** 
+ 439:./state.h     **** /// Set the local (flat earth) coordinate frame origin (int).
+ 440:./state.h     **** static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
+ 441:./state.h     ****   memcpy(&state.ned_origin_i, ltp_def, sizeof(struct LtpDef_i));
+ 442:./state.h     ****   /* convert to float */
+ 443:./state.h     ****   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
+ 444:./state.h     ****   LLA_FLOAT_OF_BFP(state.ned_origin_f.lla, state.ned_origin_i.lla);
+ 445:./state.h     ****   RMAT_FLOAT_OF_BFP(state.ned_origin_f.ltp_of_ecef, state.ned_origin_i.ltp_of_ecef);
+ 446:./state.h     ****   state.ned_origin_f.hmsl = M_OF_MM(state.ned_origin_i.hmsl);
+ 447:./state.h     **** 
+ 448:./state.h     ****   /* clear bits for all local frame representations */
+ 449:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 450:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 451:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 452:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 453:./state.h     **** 
+ 454:./state.h     ****   state.ned_initialized_i = TRUE;
+ 455:./state.h     ****   state.ned_initialized_f = TRUE;
+ 456:./state.h     **** }
+ 457:./state.h     **** 
+ 458:./state.h     **** /// Set the local (flat earth) coordinate frame origin from UTM (float).
+ 459:./state.h     **** static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
+ 460:./state.h     ****   memcpy(&state.utm_origin_f, utm_def, sizeof(struct UtmCoor_f));
+ 461:./state.h     ****   state.utm_initialized_f = TRUE;
+ 462:./state.h     **** 
+ 463:./state.h     ****   /* clear bits for all local frame representations */
+ 464:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 465:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 466:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 467:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 468:./state.h     **** }
+ 469:./state.h     **** /*******************************************************************************
+ 470:./state.h     ****  *                                                                             *
+ 471:./state.h     ****  * Set and Get functions for the POSITION representations                      *
+ 472:./state.h     ****  *                                                                             *
+ 473:./state.h     ****  ******************************************************************************/
+ 474:./state.h     **** 
+ 475:./state.h     **** /************* declaration of transformation functions ************/
+ 476:./state.h     **** extern void stateCalcPositionEcef_i(void);
+ 477:./state.h     **** extern void stateCalcPositionNed_i(void);
+ 478:./state.h     **** extern void stateCalcPositionEnu_i(void);
+ 479:./state.h     **** extern void stateCalcPositionLla_i(void);
+ 480:./state.h     **** extern void stateCalcPositionUtm_f(void);
+ 481:./state.h     **** extern void stateCalcPositionEcef_f(void);
+ 482:./state.h     **** extern void stateCalcPositionNed_f(void);
+ 483:./state.h     **** extern void stateCalcPositionEnu_f(void);
+ 484:./state.h     **** extern void stateCalcPositionLla_f(void);
+ 485:./state.h     **** 
+ 486:./state.h     **** /*********************** validity test functions ******************/
+ 487:./state.h     **** 
+ 488:./state.h     **** /// Test if local coordinates are valid.
+ 489:./state.h     **** static inline bool_t stateIsLocalCoordinateValid(void) {
+ 490:./state.h     ****   return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & (POS_LOCAL_CO
+ 491:./state.h     **** }
+ 492:./state.h     **** 
+ 493:./state.h     **** /// Test if global coordinates are valid.
+ 494:./state.h     **** static inline bool_t stateIsGlobalCoordinateValid(void) {
+ 495:./state.h     ****   return ((state.pos_status & (POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+ 496:./state.h     **** }
+ 497:./state.h     **** 
+ 498:./state.h     **** /************************ Set functions ****************************/
+ 499:./state.h     **** 
+ 500:./state.h     **** /// Set position from ECEF coordinates (int).
+ 501:./state.h     **** static inline void stateSetPositionEcef_i(struct EcefCoor_i* ecef_pos) {
+ 502:./state.h     ****   INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 503:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 504:./state.h     ****   state.pos_status = (1 << POS_ECEF_I);
+ 505:./state.h     **** }
+ 506:./state.h     **** 
+ 507:./state.h     **** /// Set position from local NED coordinates (int).
+ 508:./state.h     **** static inline void stateSetPositionNed_i(struct NedCoor_i* ned_pos) {
+ 509:./state.h     ****   INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 510:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 511:./state.h     ****   state.pos_status = (1 << POS_NED_I);
+ 512:./state.h     **** }
+ 513:./state.h     **** 
+ 514:./state.h     **** /// Set position from local ENU coordinates (int).
+ 515:./state.h     **** static inline void stateSetPositionEnu_i(struct EnuCoor_i* enu_pos) {
+ 516:./state.h     ****   INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 517:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 518:./state.h     ****   state.pos_status = (1 << POS_ENU_I);
+ 519:./state.h     **** }
+ 520:./state.h     **** 
+ 521:./state.h     **** /// Set position from LLA coordinates (int).
+ 522:./state.h     **** static inline void stateSetPositionLla_i(struct LlaCoor_i* lla_pos) {
+ 523:./state.h     ****   LLA_COPY(state.lla_pos_i, *lla_pos);
+ 524:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 525:./state.h     ****   state.pos_status = (1 << POS_LLA_I);
+ 526:./state.h     **** }
+ 527:./state.h     **** 
+ 528:./state.h     **** /// Set multiple position coordinates (int).
+ 529:./state.h     **** static inline void stateSetPosition_i(
+ 530:./state.h     ****     struct EcefCoor_i* ecef_pos,
+ 531:./state.h     ****     struct NedCoor_i* ned_pos,
+ 532:./state.h     ****     struct EnuCoor_i* enu_pos,
+ 533:./state.h     ****     struct LlaCoor_i* lla_pos) {
+ 534:./state.h     ****   /* clear all status bit */
+ 535:./state.h     ****   state.pos_status = 0;
+ 536:./state.h     ****   if (ecef_pos != NULL) {
+ 537:./state.h     ****     INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 538:./state.h     ****     state.pos_status |= (1 << POS_ECEF_I);
+ 539:./state.h     ****   }
+ 540:./state.h     ****   if (ned_pos != NULL) {
+ 541:./state.h     ****     INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 542:./state.h     ****     state.pos_status |= (1 << POS_NED_I);
+ 543:./state.h     ****   }
+ 544:./state.h     ****   if (enu_pos != NULL) {
+ 545:./state.h     ****     INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 546:./state.h     ****     state.pos_status |= (1 << POS_ENU_I);
+ 547:./state.h     ****   }
+ 548:./state.h     ****   if (lla_pos != NULL) {
+ 549:./state.h     ****     LLA_COPY(state.lla_pos_i, *lla_pos);
+ 550:./state.h     ****     state.pos_status |= (1 << POS_LLA_I);
+ 551:./state.h     ****   }
+ 552:./state.h     **** }
+ 553:./state.h     **** 
+ 554:./state.h     **** /// Set position from UTM coordinates (float).
+ 555:./state.h     **** static inline void stateSetPositionUtm_f(struct UtmCoor_f* utm_pos) {
+ 556:./state.h     ****   memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 557:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 558:./state.h     ****   state.pos_status = (1 << POS_UTM_F);
+ 559:./state.h     **** }
+ 560:./state.h     **** 
+ 561:./state.h     **** /// Set position from ECEF coordinates (float).
+ 562:./state.h     **** static inline void stateSetPositionEcef_f(struct EcefCoor_f* ecef_pos) {
+ 563:./state.h     ****   VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 564:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 565:./state.h     ****   state.pos_status = (1 << POS_ECEF_F);
+ 566:./state.h     **** }
+ 567:./state.h     **** 
+ 568:./state.h     **** /// Set position from local NED coordinates (float).
+ 569:./state.h     **** static inline void stateSetPositionNed_f(struct NedCoor_f* ned_pos) {
+ 570:./state.h     ****   VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 571:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 572:./state.h     ****   state.pos_status = (1 << POS_NED_F);
+ 573:./state.h     **** }
+ 574:./state.h     **** 
+ 575:./state.h     **** /// Set position from local ENU coordinates (float).
+ 576:./state.h     **** static inline void stateSetPositionEnu_f(struct EnuCoor_f* enu_pos) {
+ 577:./state.h     ****   VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 578:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 579:./state.h     ****   state.pos_status = (1 << POS_ENU_F);
+ 580:./state.h     **** }
+ 581:./state.h     **** 
+ 582:./state.h     **** /// Set position from LLA coordinates (float).
+ 583:./state.h     **** static inline void stateSetPositionLla_f(struct LlaCoor_f* lla_pos) {
+ 584:./state.h     ****   LLA_COPY(state.lla_pos_f, *lla_pos);
+ 585:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 586:./state.h     ****   state.pos_status = (1 << POS_LLA_F);
+ 587:./state.h     **** }
+ 588:./state.h     **** 
+ 589:./state.h     **** /// Set multiple position coordinates (float).
+ 590:./state.h     **** static inline void stateSetPosition_f(
+ 591:./state.h     ****     struct EcefCoor_f* ecef_pos,
+ 592:./state.h     ****     struct NedCoor_f* ned_pos,
+ 593:./state.h     ****     struct EnuCoor_f* enu_pos,
+ 594:./state.h     ****     struct LlaCoor_f* lla_pos,
+ 595:./state.h     ****     struct UtmCoor_f* utm_pos) {
+ 596:./state.h     ****   /* clear all status bit */
+ 597:./state.h     ****   state.pos_status = 0;
+ 598:./state.h     ****   if (ecef_pos != NULL) {
+ 599:./state.h     ****     VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 600:./state.h     ****     state.pos_status |= (1 << POS_ECEF_F);
+ 601:./state.h     ****   }
+ 602:./state.h     ****   if (ned_pos != NULL) {
+ 603:./state.h     ****     VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 604:./state.h     ****     state.pos_status |= (1 << POS_NED_F);
+ 605:./state.h     ****   }
+ 606:./state.h     ****   if (enu_pos != NULL) {
+ 607:./state.h     ****     VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 608:./state.h     ****     state.pos_status |= (1 << POS_ENU_F);
+ 609:./state.h     ****   }
+ 610:./state.h     ****   if (lla_pos != NULL) {
+ 611:./state.h     ****     LLA_COPY(state.lla_pos_f, *lla_pos);
+ 612:./state.h     ****     state.pos_status |= (1 << POS_LLA_F);
+ 613:./state.h     ****   }
+ 614:./state.h     ****   if (utm_pos != NULL) {
+ 615:./state.h     ****     memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 616:./state.h     ****     state.pos_status |= (1 << POS_UTM_F);
+ 617:./state.h     ****   }
+ 618:./state.h     **** }
+ 619:./state.h     **** 
+ 620:./state.h     **** /************************ Get functions ****************************/
+ 621:./state.h     **** 
+ 622:./state.h     **** /// Get position in ECEF coordinates (int).
+ 623:./state.h     **** static inline struct EcefCoor_i* stateGetPositionEcef_i(void) {
+ 624:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_I))
+ 625:./state.h     ****     stateCalcPositionEcef_i();
+ 626:./state.h     ****   return &state.ecef_pos_i;
+ 627:./state.h     **** }
+ 628:./state.h     **** 
+ 629:./state.h     **** /// Get position in local NED coordinates (int).
+ 630:./state.h     **** static inline struct NedCoor_i* stateGetPositionNed_i(void) {
+  26              		.loc 1 630 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 08B5     		push	{r3, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 3, -8
+  34              		.cfi_offset 14, -4
+ 631:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_I))
+  35              		.loc 1 631 0
+  36 0002 044B     		ldr	r3, .L4
+  37 0004 1888     		ldrh	r0, [r3, #0]
+  38 0006 8307     		lsls	r3, r0, #30
+  39 0008 01D4     		bmi	.L2
+ 632:./state.h     ****     stateCalcPositionNed_i();
+  40              		.loc 1 632 0
+  41 000a FFF7FEFF 		bl	stateCalcPositionNed_i
+  42              	.LVL0:
+  43              	.L2:
+ 633:./state.h     ****   return &state.ned_pos_i;
+ 634:./state.h     **** }
+  44              		.loc 1 634 0
+  45 000e 0248     		ldr	r0, .L4+4
+  46 0010 08BD     		pop	{r3, pc}
+  47              	.L5:
+  48 0012 00BF     		.align	2
+  49              	.L4:
+  50 0014 00000000 		.word	state
+  51 0018 60000000 		.word	state+96
+  52              		.cfi_endproc
+  53              	.LFE31:
+  55              		.section	.text.stateGetSpeedNed_i,"ax",%progbits
+  56              		.align	1
+  57              		.thumb
+  58              		.thumb_func
+  60              	stateGetSpeedNed_i:
+  61              	.LFB47:
+ 635:./state.h     **** 
+ 636:./state.h     **** /// Get position in local ENU coordinates (int).
+ 637:./state.h     **** static inline struct EnuCoor_i* stateGetPositionEnu_i(void) {
+ 638:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_I))
+ 639:./state.h     ****     stateCalcPositionEnu_i();
+ 640:./state.h     ****   return &state.enu_pos_i;
+ 641:./state.h     **** }
+ 642:./state.h     **** 
+ 643:./state.h     **** /// Get position in LLA coordinates (int).
+ 644:./state.h     **** static inline struct LlaCoor_i* stateGetPositionLla_i(void) {
+ 645:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_I))
+ 646:./state.h     ****     stateCalcPositionLla_i();
+ 647:./state.h     ****   return &state.lla_pos_i;
+ 648:./state.h     **** }
+ 649:./state.h     **** 
+ 650:./state.h     **** /// Get position in UTM coordinates (float).
+ 651:./state.h     **** static inline struct UtmCoor_f* stateGetPositionUtm_f(void) {
+ 652:./state.h     ****   if (!bit_is_set(state.pos_status, POS_UTM_F))
+ 653:./state.h     ****     stateCalcPositionUtm_f();
+ 654:./state.h     ****   return &state.utm_pos_f;
+ 655:./state.h     **** }
+ 656:./state.h     **** 
+ 657:./state.h     **** /// Get position in ECEF coordinates (float).
+ 658:./state.h     **** static inline struct EcefCoor_f* stateGetPositionEcef_f(void) {
+ 659:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_F))
+ 660:./state.h     ****     stateCalcPositionEcef_f();
+ 661:./state.h     ****   return &state.ecef_pos_f;
+ 662:./state.h     **** }
+ 663:./state.h     **** 
+ 664:./state.h     **** /// Get position in local NED coordinates (float).
+ 665:./state.h     **** static inline struct NedCoor_f* stateGetPositionNed_f(void) {
+ 666:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_F))
+ 667:./state.h     ****     stateCalcPositionNed_f();
+ 668:./state.h     ****   return &state.ned_pos_f;
+ 669:./state.h     **** }
+ 670:./state.h     **** 
+ 671:./state.h     **** /// Get position in local ENU coordinates (float).
+ 672:./state.h     **** static inline struct EnuCoor_f* stateGetPositionEnu_f(void) {
+ 673:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_F))
+ 674:./state.h     ****     stateCalcPositionEnu_f();
+ 675:./state.h     ****   return &state.enu_pos_f;
+ 676:./state.h     **** }
+ 677:./state.h     **** 
+ 678:./state.h     **** /// Get position in LLA coordinates (float).
+ 679:./state.h     **** static inline struct LlaCoor_f* stateGetPositionLla_f(void) {
+ 680:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_F))
+ 681:./state.h     ****     stateCalcPositionLla_f();
+ 682:./state.h     ****   return &state.lla_pos_f;
+ 683:./state.h     **** }
+ 684:./state.h     **** 
+ 685:./state.h     **** /** @}*/
+ 686:./state.h     **** 
+ 687:./state.h     **** 
+ 688:./state.h     **** 
+ 689:./state.h     **** /******************************************************************************
+ 690:./state.h     ****  *                                                                            *
+ 691:./state.h     ****  * Set and Get functions for the SPEED representations                        *
+ 692:./state.h     ****  *                                                                            *
+ 693:./state.h     ****  *****************************************************************************/
+ 694:./state.h     **** /** @addtogroup state_velocity
+ 695:./state.h     ****  *  @{ */
+ 696:./state.h     **** 
+ 697:./state.h     **** /************* declaration of transformation functions ************/
+ 698:./state.h     **** extern void stateCalcSpeedNed_i(void);
+ 699:./state.h     **** extern void stateCalcSpeedEnu_i(void);
+ 700:./state.h     **** extern void stateCalcSpeedEcef_i(void);
+ 701:./state.h     **** extern void stateCalcHorizontalSpeedNorm_i(void);
+ 702:./state.h     **** extern void stateCalcHorizontalSpeedDir_i(void);
+ 703:./state.h     **** extern void stateCalcSpeedNed_f(void);
+ 704:./state.h     **** extern void stateCalcSpeedEnu_f(void);
+ 705:./state.h     **** extern void stateCalcSpeedEcef_f(void);
+ 706:./state.h     **** extern void stateCalcHorizontalSpeedNorm_f(void);
+ 707:./state.h     **** extern void stateCalcHorizontalSpeedDir_f(void);
+ 708:./state.h     **** 
+ 709:./state.h     **** /************************ Set functions ****************************/
+ 710:./state.h     **** 
+ 711:./state.h     **** /// Set ground speed in local NED coordinates (int).
+ 712:./state.h     **** static inline void stateSetSpeedNed_i(struct NedCoor_i* ned_speed) {
+ 713:./state.h     ****   INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 714:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 715:./state.h     ****   state.speed_status = (1 << SPEED_NED_I);
+ 716:./state.h     **** }
+ 717:./state.h     **** 
+ 718:./state.h     **** /// Set ground speed in local ENU coordinates (int).
+ 719:./state.h     **** static inline void stateSetSpeedEnu_i(struct EnuCoor_i* enu_speed) {
+ 720:./state.h     ****   INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 721:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 722:./state.h     ****   state.speed_status = (1 << SPEED_ENU_I);
+ 723:./state.h     **** }
+ 724:./state.h     **** 
+ 725:./state.h     **** /// Set ground speed in ECEF coordinates (int).
+ 726:./state.h     **** static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
+ 727:./state.h     ****   INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 728:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 729:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_I);
+ 730:./state.h     **** }
+ 731:./state.h     **** 
+ 732:./state.h     **** /// Set multiple speed coordinates (int).
+ 733:./state.h     **** static inline void stateSetSpeed_i(
+ 734:./state.h     ****     struct EcefCoor_i* ecef_speed,
+ 735:./state.h     ****     struct NedCoor_i* ned_speed,
+ 736:./state.h     ****     struct EnuCoor_i* enu_speed) {
+ 737:./state.h     ****   /* clear all status bit */
+ 738:./state.h     ****   state.speed_status = 0;
+ 739:./state.h     ****   if (ecef_speed != NULL) {
+ 740:./state.h     ****     INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 741:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_I);
+ 742:./state.h     ****   }
+ 743:./state.h     ****   if (ned_speed != NULL) {
+ 744:./state.h     ****     INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 745:./state.h     ****     state.speed_status |= (1 << SPEED_NED_I);
+ 746:./state.h     ****   }
+ 747:./state.h     ****   if (enu_speed != NULL) {
+ 748:./state.h     ****     INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 749:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_I);
+ 750:./state.h     ****   }
+ 751:./state.h     **** }
+ 752:./state.h     **** 
+ 753:./state.h     **** /// Set ground speed in local NED coordinates (float).
+ 754:./state.h     **** static inline void stateSetSpeedNed_f(struct NedCoor_f* ned_speed) {
+ 755:./state.h     ****   VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 756:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 757:./state.h     ****   state.speed_status = (1 << SPEED_NED_F);
+ 758:./state.h     **** }
+ 759:./state.h     **** 
+ 760:./state.h     **** /// Set ground speed in local ENU coordinates (float).
+ 761:./state.h     **** static inline void stateSetSpeedEnu_f(struct EnuCoor_f* enu_speed) {
+ 762:./state.h     ****   VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 763:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 764:./state.h     ****   state.speed_status = (1 << SPEED_ENU_F);
+ 765:./state.h     **** }
+ 766:./state.h     **** 
+ 767:./state.h     **** /// Set ground speed in ECEF coordinates (float).
+ 768:./state.h     **** static inline void stateSetSpeedEcef_f(struct EcefCoor_f* ecef_speed) {
+ 769:./state.h     ****   VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 770:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 771:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_F);
+ 772:./state.h     **** }
+ 773:./state.h     **** 
+ 774:./state.h     **** /// Set multiple speed coordinates (float).
+ 775:./state.h     **** static inline void stateSetSpeed_f(
+ 776:./state.h     ****     struct EcefCoor_f* ecef_speed,
+ 777:./state.h     ****     struct NedCoor_f* ned_speed,
+ 778:./state.h     ****     struct EnuCoor_f* enu_speed) {
+ 779:./state.h     ****   /* clear all status bit */
+ 780:./state.h     ****   state.speed_status = 0;
+ 781:./state.h     ****   if (ecef_speed != NULL) {
+ 782:./state.h     ****     VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 783:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_F);
+ 784:./state.h     ****   }
+ 785:./state.h     ****   if (ned_speed != NULL) {
+ 786:./state.h     ****     VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 787:./state.h     ****     state.speed_status |= (1 << SPEED_NED_F);
+ 788:./state.h     ****   }
+ 789:./state.h     ****   if (enu_speed != NULL) {
+ 790:./state.h     ****     VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 791:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_F);
+ 792:./state.h     ****   }
+ 793:./state.h     **** }
+ 794:./state.h     **** 
+ 795:./state.h     **** /************************ Get functions ****************************/
+ 796:./state.h     **** 
+ 797:./state.h     **** /// Get ground speed in local NED coordinates (int).
+ 798:./state.h     **** static inline struct NedCoor_i* stateGetSpeedNed_i(void) {
+  62              		.loc 1 798 0
+  63              		.cfi_startproc
+  64              		@ args = 0, pretend = 0, frame = 0
+  65              		@ frame_needed = 0, uses_anonymous_args = 0
+  66 0000 08B5     		push	{r3, lr}
+  67              	.LCFI1:
+  68              		.cfi_def_cfa_offset 8
+  69              		.cfi_offset 3, -8
+  70              		.cfi_offset 14, -4
+ 799:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_I))
+  71              		.loc 1 799 0
+  72 0002 044B     		ldr	r3, .L8
+  73 0004 B3F81401 		ldrh	r0, [r3, #276]
+  74 0008 8207     		lsls	r2, r0, #30
+  75 000a 01D4     		bmi	.L7
+ 800:./state.h     ****     stateCalcSpeedNed_i();
+  76              		.loc 1 800 0
+  77 000c FFF7FEFF 		bl	stateCalcSpeedNed_i
+  78              	.LVL1:
+  79              	.L7:
+ 801:./state.h     ****   return &state.ned_speed_i;
+ 802:./state.h     **** }
+  80              		.loc 1 802 0
+  81 0010 0148     		ldr	r0, .L8+4
+  82 0012 08BD     		pop	{r3, pc}
+  83              	.L9:
+  84              		.align	2
+  85              	.L8:
+  86 0014 00000000 		.word	state
+  87 0018 24010000 		.word	state+292
+  88              		.cfi_endproc
+  89              	.LFE47:
+  91              		.section	.text.reset_guidance_reference_from_current_position,"ax",%progbits
+  92              		.align	1
+  93              		.thumb
+  94              		.thumb_func
+  96              	reset_guidance_reference_from_current_position:
+  97              	.LFB121:
+  98              		.file 2 "firmwares/rotorcraft/guidance/guidance_h.c"
+   1:firmwares/rotorcraft/guidance/guidance_h.c **** /*
+   2:firmwares/rotorcraft/guidance/guidance_h.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:firmwares/rotorcraft/guidance/guidance_h.c ****  *
+   4:firmwares/rotorcraft/guidance/guidance_h.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/guidance/guidance_h.c ****  *
+   6:firmwares/rotorcraft/guidance/guidance_h.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/guidance/guidance_h.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/guidance/guidance_h.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/guidance/guidance_h.c ****  * any later version.
+  10:firmwares/rotorcraft/guidance/guidance_h.c ****  *
+  11:firmwares/rotorcraft/guidance/guidance_h.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/guidance/guidance_h.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/guidance/guidance_h.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/guidance/guidance_h.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/guidance/guidance_h.c ****  *
+  16:firmwares/rotorcraft/guidance/guidance_h.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/guidance/guidance_h.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/guidance/guidance_h.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/guidance/guidance_h.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/guidance/guidance_h.c ****  */
+  21:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  22:firmwares/rotorcraft/guidance/guidance_h.c **** /** @file firmwares/rotorcraft/guidance/guidance_h.c
+  23:firmwares/rotorcraft/guidance/guidance_h.c ****  *  Horizontal guidance for rotorcrafts.
+  24:firmwares/rotorcraft/guidance/guidance_h.c ****  *
+  25:firmwares/rotorcraft/guidance/guidance_h.c ****  */
+  26:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  27:firmwares/rotorcraft/guidance/guidance_h.c **** #include "firmwares/rotorcraft/guidance/guidance_h.h"
+  28:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  29:firmwares/rotorcraft/guidance/guidance_h.c **** #include "firmwares/rotorcraft/stabilization.h"
+  30:firmwares/rotorcraft/guidance/guidance_h.c **** #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+  31:firmwares/rotorcraft/guidance/guidance_h.c **** #include "firmwares/rotorcraft/navigation.h"
+  32:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  33:firmwares/rotorcraft/guidance/guidance_h.c **** #include "state.h"
+  34:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  35:firmwares/rotorcraft/guidance/guidance_h.c **** #include "generated/airframe.h"
+  36:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  37:firmwares/rotorcraft/guidance/guidance_h.c **** /* error if some gains are negative */
+  38:firmwares/rotorcraft/guidance/guidance_h.c **** #if (GUIDANCE_H_PGAIN < 0) ||                   \
+  39:firmwares/rotorcraft/guidance/guidance_h.c ****   (GUIDANCE_H_DGAIN < 0)   ||                   \
+  40:firmwares/rotorcraft/guidance/guidance_h.c ****   (GUIDANCE_H_IGAIN < 0)
+  41:firmwares/rotorcraft/guidance/guidance_h.c **** #error "ALL control gains have to be positive!!!"
+  42:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+  43:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  44:firmwares/rotorcraft/guidance/guidance_h.c **** #ifndef GUIDANCE_H_AGAIN
+  45:firmwares/rotorcraft/guidance/guidance_h.c **** #define GUIDANCE_H_AGAIN 0
+  46:firmwares/rotorcraft/guidance/guidance_h.c **** #else
+  47:firmwares/rotorcraft/guidance/guidance_h.c **** #if (GUIDANCE_H_AGAIN < 0)
+  48:firmwares/rotorcraft/guidance/guidance_h.c **** #error "ALL control gains have to be positive!!!"
+  49:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+  50:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+  51:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  52:firmwares/rotorcraft/guidance/guidance_h.c **** #ifndef GUIDANCE_H_MAX_BANK
+  53:firmwares/rotorcraft/guidance/guidance_h.c **** #define GUIDANCE_H_MAX_BANK RadOfDeg(20)
+  54:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+  55:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  56:firmwares/rotorcraft/guidance/guidance_h.c **** PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
+  57:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  58:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  59:firmwares/rotorcraft/guidance/guidance_h.c **** uint8_t guidance_h_mode;
+  60:firmwares/rotorcraft/guidance/guidance_h.c **** bool_t guidance_h_use_ref;
+  61:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  62:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_pos_sp;
+  63:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_pos_ref;
+  64:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_speed_ref;
+  65:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_accel_ref;
+  66:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  67:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_pos_err;
+  68:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_speed_err;
+  69:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_pos_err_sum;
+  70:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2 guidance_h_nav_err;
+  71:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  72:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Eulers guidance_h_rc_sp;
+  73:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2  guidance_h_command_earth;
+  74:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Vect2  guidance_h_stick_earth_sp;
+  75:firmwares/rotorcraft/guidance/guidance_h.c **** struct Int32Eulers guidance_h_command_body;
+  76:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  77:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t guidance_h_pgain;
+  78:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t guidance_h_dgain;
+  79:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t guidance_h_igain;
+  80:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t guidance_h_again;
+  81:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  82:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t transition_percentage;
+  83:firmwares/rotorcraft/guidance/guidance_h.c **** int32_t transition_theta_offset;
+  84:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  85:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  86:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_update_reference(void);
+  87:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_traj_run(bool_t in_flight);
+  88:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_hover_enter(void);
+  89:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_nav_enter(void);
+  90:firmwares/rotorcraft/guidance/guidance_h.c **** static inline void transition_run(void);
+  91:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  92:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  93:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_init(void) {
+  94:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  95:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = GUIDANCE_H_MODE_KILL;
+  96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
+  97:firmwares/rotorcraft/guidance/guidance_h.c **** 
+  98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
+  99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 100:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_rc_sp);
+ 101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
+ 102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
+ 103:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_igain = GUIDANCE_H_IGAIN;
+ 104:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_dgain = GUIDANCE_H_DGAIN;
+ 105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
+ 106:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage = 0;
+ 107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
+ 108:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 109:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 110:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 111:firmwares/rotorcraft/guidance/guidance_h.c **** static inline void reset_guidance_reference_from_current_position(void) {
+  99              		.loc 2 111 0
+ 100              		.cfi_startproc
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 104              	.LCFI2:
+ 105              		.cfi_def_cfa_offset 24
+ 106              		.cfi_offset 0, -24
+ 107              		.cfi_offset 1, -20
+ 108              		.cfi_offset 4, -16
+ 109              		.cfi_offset 5, -12
+ 110              		.cfi_offset 6, -8
+ 111              		.cfi_offset 14, -4
+ 112:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_pos_ref, *stateGetPositionNed_i());
+ 112              		.loc 2 112 0
+ 113 0002 FFF7FEFF 		bl	stateGetPositionNed_i
+ 114              	.LVL2:
+ 115 0006 114D     		ldr	r5, .L11
+ 116 0008 0368     		ldr	r3, [r0, #0]
+ 113:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 117              		.loc 2 113 0
+ 118 000a 114E     		ldr	r6, .L11+4
+ 112:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_pos_ref, *stateGetPositionNed_i());
+ 119              		.loc 2 112 0
+ 120 000c 2B60     		str	r3, [r5, #0]
+ 121 000e FFF7FEFF 		bl	stateGetPositionNed_i
+ 122              	.LVL3:
+ 123 0012 4068     		ldr	r0, [r0, #4]
+ 114:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_accel_ref);
+ 124              		.loc 2 114 0
+ 125 0014 0024     		movs	r4, #0
+ 112:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_pos_ref, *stateGetPositionNed_i());
+ 126              		.loc 2 112 0
+ 127 0016 6860     		str	r0, [r5, #4]
+ 113:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 128              		.loc 2 113 0
+ 129 0018 FFF7FEFF 		bl	stateGetSpeedNed_i
+ 130              	.LVL4:
+ 131 001c 0168     		ldr	r1, [r0, #0]
+ 132 001e 3160     		str	r1, [r6, #0]
+ 133 0020 FFF7FEFF 		bl	stateGetSpeedNed_i
+ 134              	.LVL5:
+ 135              		.loc 2 114 0
+ 136 0024 0B4B     		ldr	r3, .L11+8
+ 113:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 137              		.loc 2 113 0
+ 138 0026 4268     		ldr	r2, [r0, #4]
+ 139              		.loc 2 114 0
+ 140 0028 1C60     		str	r4, [r3, #0]
+ 141 002a 5C60     		str	r4, [r3, #4]
+ 113:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 142              		.loc 2 113 0
+ 143 002c 7260     		str	r2, [r6, #4]
+ 115:firmwares/rotorcraft/guidance/guidance_h.c ****   gh_set_ref(guidance_h_pos_ref, guidance_h_speed_ref, guidance_h_accel_ref);
+ 144              		.loc 2 115 0
+ 145 002e 93E80300 		ldmia	r3, {r0, r1}
+ 146 0032 96E80C00 		ldmia	r6, {r2, r3}
+ 147 0036 8DE80300 		stmia	sp, {r0, r1}
+ 148 003a 95E80300 		ldmia	r5, {r0, r1}
+ 149 003e FFF7FEFF 		bl	gh_set_ref
+ 150              	.LVL6:
+ 116:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 117:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 151              		.loc 2 117 0
+ 152 0042 0548     		ldr	r0, .L11+12
+ 153 0044 0460     		str	r4, [r0, #0]
+ 154 0046 4460     		str	r4, [r0, #4]
+ 118:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 155              		.loc 2 118 0
+ 156 0048 7CBD     		pop	{r2, r3, r4, r5, r6, pc}
+ 157              	.L12:
+ 158 004a 00BF     		.align	2
+ 159              	.L11:
+ 160 004c 00000000 		.word	.LANCHOR0
+ 161 0050 00000000 		.word	.LANCHOR1
+ 162 0054 00000000 		.word	.LANCHOR2
+ 163 0058 00000000 		.word	.LANCHOR3
+ 164              		.cfi_endproc
+ 165              	.LFE121:
+ 167              		.section	.text.guidance_h_update_reference,"ax",%progbits
+ 168              		.align	1
+ 169              		.thumb
+ 170              		.thumb_func
+ 172              	guidance_h_update_reference:
+ 173              	.LFB125:
+ 119:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 120:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_mode_changed(uint8_t new_mode) {
+ 121:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode == guidance_h_mode)
+ 122:firmwares/rotorcraft/guidance/guidance_h.c ****     return;
+ 123:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 124:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+ 125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
+ 126:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_theta_offset = 0;
+ 127:firmwares/rotorcraft/guidance/guidance_h.c ****    }
+ 128:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 129:firmwares/rotorcraft/guidance/guidance_h.c ****   switch (new_mode) {
+ 130:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RC_DIRECT:
+ 131:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_enter();
+ 132:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 133:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 134:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RATE:
+ 135:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_enter();
+ 136:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 137:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 138:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_CARE_FREE:
+ 139:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_reset_care_free_heading();
+ 140:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_FORWARD:
+ 141:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_ATTITUDE:
+ 142:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_enter();
+ 143:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 144:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 145:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_HOVER:
+ 146:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_hover_enter();
+ 147:firmwares/rotorcraft/guidance/guidance_h.c ****       /* reset attitude stabilization if previous mode was not using it */
+ 148:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+ 149:firmwares/rotorcraft/guidance/guidance_h.c ****           guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+ 150:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_enter();
+ 151:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 152:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 153:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 154:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_NAV:
+ 155:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_nav_enter();
+ 156:firmwares/rotorcraft/guidance/guidance_h.c ****       /* reset attitude stabilization if previous mode was not using it */
+ 157:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+ 158:firmwares/rotorcraft/guidance/guidance_h.c ****           guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+ 159:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_enter();
+ 160:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 161:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 162:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 163:firmwares/rotorcraft/guidance/guidance_h.c ****     default:
+ 164:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 165:firmwares/rotorcraft/guidance/guidance_h.c ****   }
+ 166:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 167:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = new_mode;
+ 168:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 169:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 170:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 171:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 172:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_read_rc(bool_t  in_flight) {
+ 173:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 174:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 175:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 176:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RC_DIRECT:
+ 177:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_read_rc();
+ 178:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 179:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 180:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RATE:
+ 181:firmwares/rotorcraft/guidance/guidance_h.c **** #if SWITCH_STICKS_FOR_RATE_CONTROL
+ 182:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_read_rc_switched_sticks();
+ 183:firmwares/rotorcraft/guidance/guidance_h.c **** #else
+ 184:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_read_rc();
+ 185:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+ 186:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 187:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 188:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_FORWARD:
+ 189:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_CARE_FREE:
+ 190:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_ATTITUDE:
+ 191:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc(in_flight);
+ 192:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 193:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 194:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_HOVER:
+ 195:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+ 196:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 197:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 198:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_NAV:
+ 199:firmwares/rotorcraft/guidance/guidance_h.c ****       if (radio_control.status == RC_OK) {
+ 200:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+ 201:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 202:firmwares/rotorcraft/guidance/guidance_h.c ****       else {
+ 203:firmwares/rotorcraft/guidance/guidance_h.c ****         INT_EULERS_ZERO(guidance_h_rc_sp);
+ 204:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 205:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 206:firmwares/rotorcraft/guidance/guidance_h.c ****     default:
+ 207:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 208:firmwares/rotorcraft/guidance/guidance_h.c ****   }
+ 209:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 210:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 211:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 212:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 213:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_run(bool_t  in_flight) {
+ 214:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 215:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 216:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RC_DIRECT:
+ 217:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_run(in_flight);
+ 218:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 219:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 220:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_RATE:
+ 221:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_run(in_flight);
+ 222:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 223:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 224:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_FORWARD:
+ 225:firmwares/rotorcraft/guidance/guidance_h.c ****       if(transition_percentage < (100<<INT32_PERCENTAGE_FRAC)) {
+ 226:firmwares/rotorcraft/guidance/guidance_h.c ****         transition_run();
+ 227:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 228:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_CARE_FREE:
+ 229:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_ATTITUDE:
+ 230:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_run(in_flight);
+ 231:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 232:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 233:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_HOVER:
+ 234:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
+ 235:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_hover_enter();
+ 236:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 237:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_update_reference();
+ 238:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 239:firmwares/rotorcraft/guidance/guidance_h.c ****       /* set psi command */
+ 240:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_command_body.psi = guidance_h_rc_sp.psi;
+ 241:firmwares/rotorcraft/guidance/guidance_h.c ****       /* compute roll and pitch commands and set final attitude setpoint */
+ 242:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_traj_run(in_flight);
+ 243:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 244:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_run(in_flight);
+ 245:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 246:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 247:firmwares/rotorcraft/guidance/guidance_h.c ****     case GUIDANCE_H_MODE_NAV:
+ 248:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
+ 249:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_nav_enter();
+ 250:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 251:firmwares/rotorcraft/guidance/guidance_h.c ****       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+ 252:firmwares/rotorcraft/guidance/guidance_h.c ****         struct Int32Eulers sp_euler_i;
+ 253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
+ 254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
+ 255:firmwares/rotorcraft/guidance/guidance_h.c ****         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
+ 256:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.psi = stateGetNedToBodyEulers_i()->psi;
+ 257:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_set_from_eulers_i(&sp_euler_i);
+ 258:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 259:firmwares/rotorcraft/guidance/guidance_h.c ****       else {
+ 260:firmwares/rotorcraft/guidance/guidance_h.c ****         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
+ 261:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 262:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_update_reference();
+ 263:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 264:firmwares/rotorcraft/guidance/guidance_h.c ****         /* set psi command */
+ 265:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_command_body.psi = nav_heading;
+ 266:firmwares/rotorcraft/guidance/guidance_h.c ****         /* compute roll and pitch commands and set final attitude setpoint */
+ 267:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_traj_run(in_flight);
+ 268:firmwares/rotorcraft/guidance/guidance_h.c ****       }
+ 269:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_run(in_flight);
+ 270:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 271:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 272:firmwares/rotorcraft/guidance/guidance_h.c ****     default:
+ 273:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 274:firmwares/rotorcraft/guidance/guidance_h.c ****   }
+ 275:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 276:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 277:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 278:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_update_reference(void) {
+ 174              		.loc 2 278 0
+ 175              		.cfi_startproc
+ 176              		@ args = 0, pretend = 0, frame = 0
+ 177              		@ frame_needed = 0, uses_anonymous_args = 0
+ 178 0000 10B5     		push	{r4, lr}
+ 179              	.LCFI3:
+ 180              		.cfi_def_cfa_offset 8
+ 181              		.cfi_offset 4, -8
+ 182              		.cfi_offset 14, -4
+ 279:firmwares/rotorcraft/guidance/guidance_h.c ****   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
+ 280:firmwares/rotorcraft/guidance/guidance_h.c **** #if GUIDANCE_H_USE_REF
+ 281:firmwares/rotorcraft/guidance/guidance_h.c ****   gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+ 183              		.loc 2 281 0
+ 184 0002 194C     		ldr	r4, .L16
+ 185 0004 94E80300 		ldmia	r4, {r0, r1}
+ 186 0008 FFF7FEFF 		bl	gh_update_ref_from_pos_sp
+ 187              	.LVL7:
+ 282:firmwares/rotorcraft/guidance/guidance_h.c **** #endif
+ 283:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 284:firmwares/rotorcraft/guidance/guidance_h.c ****   /* either use the reference or simply copy the pos setpoint */
+ 285:firmwares/rotorcraft/guidance/guidance_h.c ****   if (guidance_h_use_ref) {
+ 188              		.loc 2 285 0
+ 189 000c 174B     		ldr	r3, .L16+4
+ 190 000e 184A     		ldr	r2, .L16+8
+ 191 0010 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 192 0012 E8B1     		cbz	r0, .L14
+ 193              	.LBB4:
+ 194              	.LBB5:
+ 286:firmwares/rotorcraft/guidance/guidance_h.c ****     /* convert our reference to generic representation */
+ 287:firmwares/rotorcraft/guidance/guidance_h.c ****     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
+ 195              		.loc 2 287 0
+ 196 0014 174B     		ldr	r3, .L16+12
+ 197 0016 93E80300 		ldmia	r3, {r0, r1}
+ 198 001a 800C     		lsrs	r0, r0, #18
+ 199 001c 40EA8131 		orr	r1, r0, r1, lsl #14
+ 200 0020 D868     		ldr	r0, [r3, #12]
+ 201 0022 9B68     		ldr	r3, [r3, #8]
+ 202 0024 1160     		str	r1, [r2, #0]
+ 203 0026 990C     		lsrs	r1, r3, #18
+ 204 0028 41EA8030 		orr	r0, r1, r0, lsl #14
+ 205 002c 5060     		str	r0, [r2, #4]
+ 288:firmwares/rotorcraft/guidance/guidance_h.c ****     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+ 206              		.loc 2 288 0
+ 207 002e 124A     		ldr	r2, .L16+16
+ 208 0030 124B     		ldr	r3, .L16+20
+ 209 0032 1168     		ldr	r1, [r2, #0]
+ 210 0034 5268     		ldr	r2, [r2, #4]
+ 211 0036 8800     		lsls	r0, r1, #2
+ 212 0038 1860     		str	r0, [r3, #0]
+ 289:firmwares/rotorcraft/guidance/guidance_h.c ****     INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
+ 213              		.loc 2 289 0
+ 214 003a 1148     		ldr	r0, .L16+24
+ 288:firmwares/rotorcraft/guidance/guidance_h.c ****     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+ 215              		.loc 2 288 0
+ 216 003c 9100     		lsls	r1, r2, #2
+ 217              		.loc 2 289 0
+ 218 003e 0268     		ldr	r2, [r0, #0]
+ 219 0040 4068     		ldr	r0, [r0, #4]
+ 288:firmwares/rotorcraft/guidance/guidance_h.c ****     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+ 220              		.loc 2 288 0
+ 221 0042 5960     		str	r1, [r3, #4]
+ 222              		.loc 2 289 0
+ 223 0044 0F4B     		ldr	r3, .L16+28
+ 224 0046 9100     		lsls	r1, r2, #2
+ 225 0048 8200     		lsls	r2, r0, #2
+ 226 004a 1960     		str	r1, [r3, #0]
+ 227 004c 5A60     		str	r2, [r3, #4]
+ 228 004e 10BD     		pop	{r4, pc}
+ 229              	.L14:
+ 230              	.LBE5:
+ 231              	.LBE4:
+ 290:firmwares/rotorcraft/guidance/guidance_h.c ****   } else {
+ 291:firmwares/rotorcraft/guidance/guidance_h.c ****     VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
+ 232              		.loc 2 291 0
+ 233 0050 2168     		ldr	r1, [r4, #0]
+ 234 0052 6368     		ldr	r3, [r4, #4]
+ 235 0054 1160     		str	r1, [r2, #0]
+ 236 0056 5360     		str	r3, [r2, #4]
+ 292:firmwares/rotorcraft/guidance/guidance_h.c ****     INT_VECT2_ZERO(guidance_h_speed_ref);
+ 293:firmwares/rotorcraft/guidance/guidance_h.c ****     INT_VECT2_ZERO(guidance_h_accel_ref);
+ 237              		.loc 2 293 0
+ 238 0058 0A49     		ldr	r1, .L16+28
+ 292:firmwares/rotorcraft/guidance/guidance_h.c ****     INT_VECT2_ZERO(guidance_h_speed_ref);
+ 239              		.loc 2 292 0
+ 240 005a 084A     		ldr	r2, .L16+20
+ 241              		.loc 2 293 0
+ 242 005c 0860     		str	r0, [r1, #0]
+ 292:firmwares/rotorcraft/guidance/guidance_h.c ****     INT_VECT2_ZERO(guidance_h_speed_ref);
+ 243              		.loc 2 292 0
+ 244 005e 1060     		str	r0, [r2, #0]
+ 245 0060 5060     		str	r0, [r2, #4]
+ 246              		.loc 2 293 0
+ 247 0062 4860     		str	r0, [r1, #4]
+ 248 0064 10BD     		pop	{r4, pc}
+ 249              	.L17:
+ 250 0066 00BF     		.align	2
+ 251              	.L16:
+ 252 0068 00000000 		.word	.LANCHOR4
+ 253 006c 00000000 		.word	.LANCHOR5
+ 254 0070 00000000 		.word	.LANCHOR0
+ 255 0074 00000000 		.word	gh_pos_ref
+ 256 0078 00000000 		.word	gh_speed_ref
+ 257 007c 00000000 		.word	.LANCHOR1
+ 258 0080 00000000 		.word	gh_accel_ref
+ 259 0084 00000000 		.word	.LANCHOR2
+ 260              		.cfi_endproc
+ 261              	.LFE125:
+ 263              		.section	.text.orientationGetEulers_i.constprop.1,"ax",%progbits
+ 264              		.align	1
+ 265              		.thumb
+ 266              		.thumb_func
+ 268              	orientationGetEulers_i.constprop.1:
+ 269              	.LFB131:
+ 270              		.file 3 "./math/pprz_orientation_conversion.h"
+   1:./math/pprz_orientation_conversion.h **** /*
+   2:./math/pprz_orientation_conversion.h ****  * Copyright (C) 2011-2012 The Paparazzi Team
+   3:./math/pprz_orientation_conversion.h ****  *
+   4:./math/pprz_orientation_conversion.h ****  * This file is part of paparazzi.
+   5:./math/pprz_orientation_conversion.h ****  *
+   6:./math/pprz_orientation_conversion.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./math/pprz_orientation_conversion.h ****  * it under the terms of the GNU General Public License as published by
+   8:./math/pprz_orientation_conversion.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./math/pprz_orientation_conversion.h ****  * any later version.
+  10:./math/pprz_orientation_conversion.h ****  *
+  11:./math/pprz_orientation_conversion.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./math/pprz_orientation_conversion.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./math/pprz_orientation_conversion.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./math/pprz_orientation_conversion.h ****  * GNU General Public License for more details.
+  15:./math/pprz_orientation_conversion.h ****  *
+  16:./math/pprz_orientation_conversion.h ****  * You should have received a copy of the GNU General Public License
+  17:./math/pprz_orientation_conversion.h ****  * along with paparazzi; see the file COPYING.  If not, see
+  18:./math/pprz_orientation_conversion.h ****  * <http://www.gnu.org/licenses/>.
+  19:./math/pprz_orientation_conversion.h ****  *
+  20:./math/pprz_orientation_conversion.h ****  */
+  21:./math/pprz_orientation_conversion.h **** 
+  22:./math/pprz_orientation_conversion.h **** /**
+  23:./math/pprz_orientation_conversion.h ****  * @file math/pprz_orientation_conversion.h
+  24:./math/pprz_orientation_conversion.h ****  * Generic orientation representation and conversions.
+  25:./math/pprz_orientation_conversion.h ****  *
+  26:./math/pprz_orientation_conversion.h ****  * This file contains the functions to automatically convert between
+  27:./math/pprz_orientation_conversion.h ****  * the different representations. They should normally not be used
+  28:./math/pprz_orientation_conversion.h ****  * directly and instead the stateGet/Set interfaces used.
+  29:./math/pprz_orientation_conversion.h ****  * Also see the @ref math_orientation_representation "Generic Orientation Representation" page.
+  30:./math/pprz_orientation_conversion.h ****  *
+  31:./math/pprz_orientation_conversion.h ****  * @author Felix Ruess <felix.ruess@gmail.com>
+  32:./math/pprz_orientation_conversion.h ****  */
+  33:./math/pprz_orientation_conversion.h **** 
+  34:./math/pprz_orientation_conversion.h **** /**
+  35:./math/pprz_orientation_conversion.h ****  * @addtogroup math
+  36:./math/pprz_orientation_conversion.h ****  * @{
+  37:./math/pprz_orientation_conversion.h ****  */
+  38:./math/pprz_orientation_conversion.h **** 
+  39:./math/pprz_orientation_conversion.h **** /**
+  40:./math/pprz_orientation_conversion.h ****  * This generic orientation representation consists of a struct, containing the 6 orientation
+  41:./math/pprz_orientation_conversion.h ****  * representations, and a status variable. The bits in the status variable indicate  which
+  42:./math/pprz_orientation_conversion.h ****  * representations of the orientation are up-to-date.
+  43:./math/pprz_orientation_conversion.h ****  *
+  44:./math/pprz_orientation_conversion.h ****  * When a getter is used to get a certain representation, the status bit is checked to see if
+  45:./math/pprz_orientation_conversion.h ****  * the current value is already available in the desired orientation representation.
+  46:./math/pprz_orientation_conversion.h ****  * If the desired representation is not available, it will be calculated.
+  47:./math/pprz_orientation_conversion.h ****  *
+  48:./math/pprz_orientation_conversion.h ****  * When a setter is used to set a representation, all status bits are cleared, and only the
+  49:./math/pprz_orientation_conversion.h ****  * status bit for the set representation is set to one.
+  50:./math/pprz_orientation_conversion.h ****  */
+  51:./math/pprz_orientation_conversion.h **** 
+  52:./math/pprz_orientation_conversion.h **** /**
+  53:./math/pprz_orientation_conversion.h ****  * @defgroup math_orientation_representation Generic Orientation Representations
+  54:./math/pprz_orientation_conversion.h ****  * @{
+  55:./math/pprz_orientation_conversion.h ****  */
+  56:./math/pprz_orientation_conversion.h **** 
+  57:./math/pprz_orientation_conversion.h **** #ifndef PPRZ_ORIENTATION_CONVERSION_H
+  58:./math/pprz_orientation_conversion.h **** #define PPRZ_ORIENTATION_CONVERSION_H
+  59:./math/pprz_orientation_conversion.h **** 
+  60:./math/pprz_orientation_conversion.h **** #include "math/pprz_algebra_int.h"
+  61:./math/pprz_orientation_conversion.h **** #include "math/pprz_algebra_float.h"
+  62:./math/pprz_orientation_conversion.h **** 
+  63:./math/pprz_orientation_conversion.h **** #include "std.h"
+  64:./math/pprz_orientation_conversion.h **** 
+  65:./math/pprz_orientation_conversion.h **** 
+  66:./math/pprz_orientation_conversion.h **** #define ORREP_QUAT_I  0  ///< Quaternion (BFP int)
+  67:./math/pprz_orientation_conversion.h **** #define ORREP_EULER_I 1  ///< zyx Euler (BFP int)
+  68:./math/pprz_orientation_conversion.h **** #define ORREP_RMAT_I  2  ///< Rotation Matrix (BFP int)
+  69:./math/pprz_orientation_conversion.h **** #define ORREP_QUAT_F  3  ///< Quaternion (float)
+  70:./math/pprz_orientation_conversion.h **** #define ORREP_EULER_F 4  ///< zyx Euler (float)
+  71:./math/pprz_orientation_conversion.h **** #define ORREP_RMAT_F  5  ///< Rotation Matrix (float)
+  72:./math/pprz_orientation_conversion.h **** 
+  73:./math/pprz_orientation_conversion.h **** /*
+  74:./math/pprz_orientation_conversion.h ****  * @brief Struct with euler/rmat/quaternion orientation representations in BFP int and float
+  75:./math/pprz_orientation_conversion.h ****  */
+  76:./math/pprz_orientation_conversion.h **** struct OrientationReps {
+  77:./math/pprz_orientation_conversion.h ****   /**
+  78:./math/pprz_orientation_conversion.h ****    * Holds the status bits for all orientation representations.
+  79:./math/pprz_orientation_conversion.h ****    * When the corresponding bit is set, the representation
+  80:./math/pprz_orientation_conversion.h ****    * is already computed.
+  81:./math/pprz_orientation_conversion.h ****    */
+  82:./math/pprz_orientation_conversion.h ****   uint8_t status;
+  83:./math/pprz_orientation_conversion.h **** 
+  84:./math/pprz_orientation_conversion.h ****   /**
+  85:./math/pprz_orientation_conversion.h ****    * Orientation quaternion.
+  86:./math/pprz_orientation_conversion.h ****    * Units: #INT32_QUAT_FRAC
+  87:./math/pprz_orientation_conversion.h ****    */
+  88:./math/pprz_orientation_conversion.h ****   struct Int32Quat quat_i;
+  89:./math/pprz_orientation_conversion.h **** 
+  90:./math/pprz_orientation_conversion.h ****   /**
+  91:./math/pprz_orientation_conversion.h ****    * Orientation in zyx euler angles.
+  92:./math/pprz_orientation_conversion.h ****    * Units: rad in BFP with #INT32_ANGLE_FRAC
+  93:./math/pprz_orientation_conversion.h ****    */
+  94:./math/pprz_orientation_conversion.h ****   struct Int32Eulers eulers_i;
+  95:./math/pprz_orientation_conversion.h **** 
+  96:./math/pprz_orientation_conversion.h ****   /**
+  97:./math/pprz_orientation_conversion.h ****    * Orientation rotation matrix.
+  98:./math/pprz_orientation_conversion.h ****    * Units: rad in BFP with #INT32_TRIG_FRAC
+  99:./math/pprz_orientation_conversion.h ****    */
+ 100:./math/pprz_orientation_conversion.h ****   struct Int32RMat rmat_i;
+ 101:./math/pprz_orientation_conversion.h **** 
+ 102:./math/pprz_orientation_conversion.h ****   /**
+ 103:./math/pprz_orientation_conversion.h ****    * Orientation as quaternion.
+ 104:./math/pprz_orientation_conversion.h ****    * Units: unit length quaternion
+ 105:./math/pprz_orientation_conversion.h ****    */
+ 106:./math/pprz_orientation_conversion.h ****   struct FloatQuat quat_f;
+ 107:./math/pprz_orientation_conversion.h **** 
+ 108:./math/pprz_orientation_conversion.h ****   /**
+ 109:./math/pprz_orientation_conversion.h ****    * Orienation in zyx euler angles.
+ 110:./math/pprz_orientation_conversion.h ****    * Units: rad
+ 111:./math/pprz_orientation_conversion.h ****    */
+ 112:./math/pprz_orientation_conversion.h ****   struct FloatEulers eulers_f;
+ 113:./math/pprz_orientation_conversion.h **** 
+ 114:./math/pprz_orientation_conversion.h ****   /**
+ 115:./math/pprz_orientation_conversion.h ****    * Orientation rotation matrix.
+ 116:./math/pprz_orientation_conversion.h ****    * Units: rad
+ 117:./math/pprz_orientation_conversion.h ****    */
+ 118:./math/pprz_orientation_conversion.h ****   struct FloatRMat   rmat_f;
+ 119:./math/pprz_orientation_conversion.h **** };
+ 120:./math/pprz_orientation_conversion.h **** 
+ 121:./math/pprz_orientation_conversion.h **** /************* declaration of transformation functions ************/
+ 122:./math/pprz_orientation_conversion.h **** extern void orientationCalcQuat_i(struct OrientationReps* orientation);
+ 123:./math/pprz_orientation_conversion.h **** extern void orientationCalcRMat_i(struct OrientationReps* orientation);
+ 124:./math/pprz_orientation_conversion.h **** extern void orientationCalcEulers_i(struct OrientationReps* orientation);
+ 125:./math/pprz_orientation_conversion.h **** extern void orientationCalcQuat_f(struct OrientationReps* orientation);
+ 126:./math/pprz_orientation_conversion.h **** extern void orientationCalcRMat_f(struct OrientationReps* orientation);
+ 127:./math/pprz_orientation_conversion.h **** extern void orientationCalcEulers_f(struct OrientationReps* orientation);
+ 128:./math/pprz_orientation_conversion.h **** 
+ 129:./math/pprz_orientation_conversion.h **** 
+ 130:./math/pprz_orientation_conversion.h **** /*********************** validity test functions ******************/
+ 131:./math/pprz_orientation_conversion.h **** /// Test if orientations are valid.
+ 132:./math/pprz_orientation_conversion.h **** static inline bool_t orienationCheckValid(struct OrientationReps* orientation) {
+ 133:./math/pprz_orientation_conversion.h ****   return (orientation->status);
+ 134:./math/pprz_orientation_conversion.h **** }
+ 135:./math/pprz_orientation_conversion.h **** 
+ 136:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from quaternion (int).
+ 137:./math/pprz_orientation_conversion.h **** static inline void orientationSetQuat_i(struct OrientationReps* orientation, struct Int32Quat* quat
+ 138:./math/pprz_orientation_conversion.h ****   QUAT_COPY(orientation->quat_i, *quat);
+ 139:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 140:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_QUAT_I);
+ 141:./math/pprz_orientation_conversion.h **** }
+ 142:./math/pprz_orientation_conversion.h **** 
+ 143:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from rotation matrix (int).
+ 144:./math/pprz_orientation_conversion.h **** static inline void orientationSetRMat_i(struct OrientationReps* orientation, struct Int32RMat* rmat
+ 145:./math/pprz_orientation_conversion.h ****   RMAT_COPY(orientation->rmat_i, *rmat);
+ 146:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 147:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_RMAT_I);
+ 148:./math/pprz_orientation_conversion.h **** }
+ 149:./math/pprz_orientation_conversion.h **** 
+ 150:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from euler angles (int).
+ 151:./math/pprz_orientation_conversion.h **** static inline void orientationSetEulers_i(struct OrientationReps* orientation, struct Int32Eulers* 
+ 152:./math/pprz_orientation_conversion.h ****   EULERS_COPY(orientation->eulers_i, *eulers);
+ 153:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 154:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_EULER_I);
+ 155:./math/pprz_orientation_conversion.h **** }
+ 156:./math/pprz_orientation_conversion.h **** 
+ 157:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from quaternion (float).
+ 158:./math/pprz_orientation_conversion.h **** static inline void orientationSetQuat_f(struct OrientationReps* orientation, struct FloatQuat* quat
+ 159:./math/pprz_orientation_conversion.h ****   QUAT_COPY(orientation->quat_f, *quat);
+ 160:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 161:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_QUAT_F);
+ 162:./math/pprz_orientation_conversion.h **** }
+ 163:./math/pprz_orientation_conversion.h **** 
+ 164:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from rotation matrix (float).
+ 165:./math/pprz_orientation_conversion.h **** static inline void orientationSetRMat_f(struct OrientationReps* orientation, struct FloatRMat* rmat
+ 166:./math/pprz_orientation_conversion.h ****   RMAT_COPY(orientation->rmat_f, *rmat);
+ 167:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 168:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_RMAT_F);
+ 169:./math/pprz_orientation_conversion.h **** }
+ 170:./math/pprz_orientation_conversion.h **** 
+ 171:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from euler angles (float).
+ 172:./math/pprz_orientation_conversion.h **** static inline void orientationSetEulers_f(struct OrientationReps* orientation, struct FloatEulers* 
+ 173:./math/pprz_orientation_conversion.h ****   EULERS_COPY(orientation->eulers_f, *eulers);
+ 174:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 175:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_EULER_F);
+ 176:./math/pprz_orientation_conversion.h **** }
+ 177:./math/pprz_orientation_conversion.h **** 
+ 178:./math/pprz_orientation_conversion.h **** 
+ 179:./math/pprz_orientation_conversion.h **** /// Get vehicle body attitude quaternion (int).
+ 180:./math/pprz_orientation_conversion.h **** static inline struct Int32Quat* orientationGetQuat_i(struct OrientationReps* orientation) {
+ 181:./math/pprz_orientation_conversion.h ****   if (!bit_is_set(orientation->status, ORREP_QUAT_I))
+ 182:./math/pprz_orientation_conversion.h ****     orientationCalcQuat_i(orientation);
+ 183:./math/pprz_orientation_conversion.h ****   return &orientation->quat_i;
+ 184:./math/pprz_orientation_conversion.h **** }
+ 185:./math/pprz_orientation_conversion.h **** 
+ 186:./math/pprz_orientation_conversion.h **** /// Get vehicle body attitude rotation matrix (int).
+ 187:./math/pprz_orientation_conversion.h **** static inline struct Int32RMat* orientationGetRMat_i(struct OrientationReps* orientation) {
+ 188:./math/pprz_orientation_conversion.h ****   if (!bit_is_set(orientation->status, ORREP_RMAT_I))
+ 189:./math/pprz_orientation_conversion.h ****     orientationCalcRMat_i(orientation);
+ 190:./math/pprz_orientation_conversion.h ****   return &orientation->rmat_i;
+ 191:./math/pprz_orientation_conversion.h **** }
+ 192:./math/pprz_orientation_conversion.h **** 
+ 193:./math/pprz_orientation_conversion.h **** /// Get vehicle body attitude euler angles (int).
+ 194:./math/pprz_orientation_conversion.h **** static inline struct Int32Eulers* orientationGetEulers_i(struct OrientationReps* orientation) {
+ 271              		.loc 3 194 0
+ 272              		.cfi_startproc
+ 273              		@ args = 0, pretend = 0, frame = 0
+ 274              		@ frame_needed = 0, uses_anonymous_args = 0
+ 275              	.LVL8:
+ 276 0000 08B5     		push	{r3, lr}
+ 277              	.LCFI4:
+ 278              		.cfi_def_cfa_offset 8
+ 279              		.cfi_offset 3, -8
+ 280              		.cfi_offset 14, -4
+ 195:./math/pprz_orientation_conversion.h ****   if (!bit_is_set(orientation->status, ORREP_EULER_I))
+ 281              		.loc 3 195 0
+ 282 0002 0548     		ldr	r0, .L20
+ 283 0004 90F8A431 		ldrb	r3, [r0, #420]	@ zero_extendqisi2
+ 284 0008 9907     		lsls	r1, r3, #30
+ 285 000a 03D4     		bmi	.L19
+ 196:./math/pprz_orientation_conversion.h ****     orientationCalcEulers_i(orientation);
+ 286              		.loc 3 196 0
+ 287 000c 00F5D270 		add	r0, r0, #420
+ 288 0010 FFF7FEFF 		bl	orientationCalcEulers_i
+ 289              	.LVL9:
+ 290              	.L19:
+ 197:./math/pprz_orientation_conversion.h ****   return &orientation->eulers_i;
+ 198:./math/pprz_orientation_conversion.h **** }
+ 291              		.loc 3 198 0
+ 292 0014 0148     		ldr	r0, .L20+4
+ 293 0016 08BD     		pop	{r3, pc}
+ 294              	.L21:
+ 295              		.align	2
+ 296              	.L20:
+ 297 0018 00000000 		.word	state
+ 298 001c B8010000 		.word	state+440
+ 299              		.cfi_endproc
+ 300              	.LFE131:
+ 302              		.global	__aeabi_i2d
+ 303              		.global	__aeabi_dcmplt
+ 304              		.global	__aeabi_dcmpgt
+ 305              		.global	__aeabi_d2iz
+ 306              		.section	.text.guidance_h_traj_run,"ax",%progbits
+ 307              		.align	1
+ 308              		.thumb
+ 309              		.thumb_func
+ 311              	guidance_h_traj_run:
+ 312              	.LFB126:
+ 294:firmwares/rotorcraft/guidance/guidance_h.c ****   }
+ 295:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 296:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 297:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 298:firmwares/rotorcraft/guidance/guidance_h.c **** #define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
+ 299:firmwares/rotorcraft/guidance/guidance_h.c **** #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
+ 300:firmwares/rotorcraft/guidance/guidance_h.c **** #define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
+ 301:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 302:firmwares/rotorcraft/guidance/guidance_h.c **** /* with a pgain of 100 and a scale of 2,
+ 303:firmwares/rotorcraft/guidance/guidance_h.c ****  * you get an angle of 5.6 degrees for 1m pos error */
+ 304:firmwares/rotorcraft/guidance/guidance_h.c **** #define GH_GAIN_SCALE 2
+ 305:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 306:firmwares/rotorcraft/guidance/guidance_h.c **** /** maximum bank angle: default 20 deg */
+ 307:firmwares/rotorcraft/guidance/guidance_h.c **** #define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
+ 308:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 309:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_traj_run(bool_t in_flight) {
+ 313              		.loc 2 309 0
+ 314              		.cfi_startproc
+ 315              		@ args = 0, pretend = 0, frame = 0
+ 316              		@ frame_needed = 0, uses_anonymous_args = 0
+ 317              	.LVL10:
+ 318 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 319              	.LCFI5:
+ 320              		.cfi_def_cfa_offset 24
+ 321              		.cfi_offset 4, -24
+ 322              		.cfi_offset 5, -20
+ 323              		.cfi_offset 6, -16
+ 324              		.cfi_offset 7, -12
+ 325              		.cfi_offset 8, -8
+ 326              		.cfi_offset 14, -4
+ 310:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 311:firmwares/rotorcraft/guidance/guidance_h.c ****   /* compute position error    */
+ 312:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
+ 327              		.loc 2 312 0
+ 328 0004 A04D     		ldr	r5, .L65+16
+ 309:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_traj_run(bool_t in_flight) {
+ 329              		.loc 2 309 0
+ 330 0006 0646     		mov	r6, r0
+ 331              		.loc 2 312 0
+ 332 0008 2F68     		ldr	r7, [r5, #0]
+ 333 000a FFF7FEFF 		bl	stateGetPositionNed_i
+ 334              	.LVL11:
+ 335 000e 0368     		ldr	r3, [r0, #0]
+ 336 0010 9E4C     		ldr	r4, .L65+20
+ 337 0012 F81A     		subs	r0, r7, r3
+ 338 0014 6D68     		ldr	r5, [r5, #4]
+ 339 0016 2060     		str	r0, [r4, #0]
+ 340 0018 FFF7FEFF 		bl	stateGetPositionNed_i
+ 341              	.LVL12:
+ 342 001c 4168     		ldr	r1, [r0, #4]
+ 313:firmwares/rotorcraft/guidance/guidance_h.c ****   /* saturate it               */
+ 314:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
+ 343              		.loc 2 314 0
+ 344 001e 2068     		ldr	r0, [r4, #0]
+ 312:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
+ 345              		.loc 2 312 0
+ 346 0020 6F1A     		subs	r7, r5, r1
+ 347              		.loc 2 314 0
+ 348 0022 FFF7FEFF 		bl	__aeabi_i2d
+ 349              	.LVL13:
+ 350 0026 0022     		movs	r2, #0
+ 351 0028 994B     		ldr	r3, .L65+24
+ 352 002a 0446     		mov	r4, r0
+ 353 002c 0D46     		mov	r5, r1
+ 354 002e FFF7FEFF 		bl	__aeabi_dcmplt
+ 355              	.LVL14:
+ 356 0032 58B9     		cbnz	r0, .L49
+ 357              		.loc 2 314 0 is_stmt 0 discriminator 2
+ 358 0034 2046     		mov	r0, r4
+ 359 0036 2946     		mov	r1, r5
+ 360 0038 0022     		movs	r2, #0
+ 361 003a 964B     		ldr	r3, .L65+28
+ 362 003c FFF7FEFF 		bl	__aeabi_dcmpgt
+ 363              	.LVL15:
+ 364 0040 30B9     		cbnz	r0, .L50
+ 365              		.loc 2 314 0 discriminator 4
+ 366 0042 2046     		mov	r0, r4
+ 367 0044 2946     		mov	r1, r5
+ 368 0046 FFF7FEFF 		bl	__aeabi_d2iz
+ 369              	.LVL16:
+ 370 004a 03E0     		b	.L23
+ 371              	.L49:
+ 372              		.loc 2 314 0
+ 373 004c 9248     		ldr	r0, .L65+32
+ 374 004e 01E0     		b	.L23
+ 375              	.L50:
+ 376 0050 4FF48050 		mov	r0, #4096
+ 377              	.L23:
+ 378              		.loc 2 314 0 discriminator 6
+ 379 0054 8D4A     		ldr	r2, .L65+20
+ 380 0056 1060     		str	r0, [r2, #0]
+ 381 0058 3846     		mov	r0, r7
+ 382 005a FFF7FEFF 		bl	__aeabi_i2d
+ 383              	.LVL17:
+ 384 005e 0022     		movs	r2, #0
+ 385 0060 8B4B     		ldr	r3, .L65+24
+ 386 0062 0746     		mov	r7, r0
+ 387 0064 0C46     		mov	r4, r1
+ 388 0066 FFF7FEFF 		bl	__aeabi_dcmplt
+ 389              	.LVL18:
+ 390 006a 58B9     		cbnz	r0, .L51
+ 391              		.loc 2 314 0 discriminator 8
+ 392 006c 3846     		mov	r0, r7
+ 393 006e 2146     		mov	r1, r4
+ 394 0070 0022     		movs	r2, #0
+ 395 0072 884B     		ldr	r3, .L65+28
+ 396 0074 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 397              	.LVL19:
+ 398 0078 30B9     		cbnz	r0, .L52
+ 399              		.loc 2 314 0 discriminator 10
+ 400 007a 3846     		mov	r0, r7
+ 401 007c 2146     		mov	r1, r4
+ 402 007e FFF7FEFF 		bl	__aeabi_d2iz
+ 403              	.LVL20:
+ 404 0082 03E0     		b	.L24
+ 405              	.L51:
+ 406              		.loc 2 314 0
+ 407 0084 8448     		ldr	r0, .L65+32
+ 408 0086 01E0     		b	.L24
+ 409              	.L52:
+ 410 0088 4FF48050 		mov	r0, #4096
+ 411              	.L24:
+ 412              		.loc 2 314 0 discriminator 12
+ 413 008c 7F4B     		ldr	r3, .L65+20
+ 315:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 316:firmwares/rotorcraft/guidance/guidance_h.c ****   /* compute speed error    */
+ 317:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 414              		.loc 2 317 0 is_stmt 1 discriminator 12
+ 415 008e 834D     		ldr	r5, .L65+36
+ 314:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
+ 416              		.loc 2 314 0 discriminator 12
+ 417 0090 5860     		str	r0, [r3, #4]
+ 418              		.loc 2 317 0 discriminator 12
+ 419 0092 2F68     		ldr	r7, [r5, #0]
+ 420 0094 FFF7FEFF 		bl	stateGetSpeedNed_i
+ 421              	.LVL21:
+ 422 0098 0068     		ldr	r0, [r0, #0]
+ 423 009a 814C     		ldr	r4, .L65+40
+ 424 009c 391A     		subs	r1, r7, r0
+ 425 009e 2160     		str	r1, [r4, #0]
+ 426 00a0 6D68     		ldr	r5, [r5, #4]
+ 427 00a2 FFF7FEFF 		bl	stateGetSpeedNed_i
+ 428              	.LVL22:
+ 429 00a6 4268     		ldr	r2, [r0, #4]
+ 318:firmwares/rotorcraft/guidance/guidance_h.c ****   /* saturate it               */
+ 319:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
+ 430              		.loc 2 319 0 discriminator 12
+ 431 00a8 2068     		ldr	r0, [r4, #0]
+ 317:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, *stateGetSpeedNed_i());
+ 432              		.loc 2 317 0 discriminator 12
+ 433 00aa C2EB0508 		rsb	r8, r2, r5
+ 434              		.loc 2 319 0 discriminator 12
+ 435 00ae FFF7FEFF 		bl	__aeabi_i2d
+ 436              	.LVL23:
+ 437 00b2 0022     		movs	r2, #0
+ 438 00b4 7B4B     		ldr	r3, .L65+44
+ 439 00b6 0746     		mov	r7, r0
+ 440 00b8 0C46     		mov	r4, r1
+ 441 00ba FFF7FEFF 		bl	__aeabi_dcmplt
+ 442              	.LVL24:
+ 443 00be 60B9     		cbnz	r0, .L53
+ 444              		.loc 2 319 0 is_stmt 0 discriminator 2
+ 445 00c0 3846     		mov	r0, r7
+ 446 00c2 2146     		mov	r1, r4
+ 447 00c4 0022     		movs	r2, #0
+ 448 00c6 784B     		ldr	r3, .L65+48
+ 449 00c8 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 450              	.LVL25:
+ 451 00cc 38B9     		cbnz	r0, .L54
+ 452              		.loc 2 319 0 discriminator 4
+ 453 00ce 3846     		mov	r0, r7
+ 454 00d0 2146     		mov	r1, r4
+ 455 00d2 FFF7FEFF 		bl	__aeabi_d2iz
+ 456              	.LVL26:
+ 457 00d6 0746     		mov	r7, r0
+ 458 00d8 03E0     		b	.L25
+ 459              	.L53:
+ 460              		.loc 2 319 0
+ 461 00da 744F     		ldr	r7, .L65+52
+ 462 00dc 01E0     		b	.L25
+ 463              	.L54:
+ 464 00de 4FF40007 		mov	r7, #8388608
+ 465              	.L25:
+ 466              		.loc 2 319 0 discriminator 6
+ 467 00e2 6F4B     		ldr	r3, .L65+40
+ 468 00e4 4046     		mov	r0, r8
+ 469 00e6 1F60     		str	r7, [r3, #0]
+ 470 00e8 FFF7FEFF 		bl	__aeabi_i2d
+ 471              	.LVL27:
+ 472 00ec 0022     		movs	r2, #0
+ 473 00ee 6D4B     		ldr	r3, .L65+44
+ 474 00f0 0446     		mov	r4, r0
+ 475 00f2 0D46     		mov	r5, r1
+ 476 00f4 FFF7FEFF 		bl	__aeabi_dcmplt
+ 477              	.LVL28:
+ 478 00f8 58B9     		cbnz	r0, .L55
+ 479              		.loc 2 319 0 discriminator 8
+ 480 00fa 2046     		mov	r0, r4
+ 481 00fc 2946     		mov	r1, r5
+ 482 00fe 0022     		movs	r2, #0
+ 483 0100 694B     		ldr	r3, .L65+48
+ 484 0102 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 485              	.LVL29:
+ 486 0106 30B9     		cbnz	r0, .L56
+ 487              		.loc 2 319 0 discriminator 10
+ 488 0108 2046     		mov	r0, r4
+ 489 010a 2946     		mov	r1, r5
+ 490 010c FFF7FEFF 		bl	__aeabi_d2iz
+ 491              	.LVL30:
+ 492 0110 03E0     		b	.L26
+ 493              	.L55:
+ 494              		.loc 2 319 0
+ 495 0112 6648     		ldr	r0, .L65+52
+ 496 0114 01E0     		b	.L26
+ 497              	.L56:
+ 498 0116 4FF40000 		mov	r0, #8388608
+ 499              	.L26:
+ 500              		.loc 2 319 0 discriminator 12
+ 501 011a 6149     		ldr	r1, .L65+40
+ 502 011c 644B     		ldr	r3, .L65+56
+ 503 011e 4860     		str	r0, [r1, #4]
+ 320:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 321:firmwares/rotorcraft/guidance/guidance_h.c ****   /* update pos error integral, zero it if not in_flight */
+ 322:firmwares/rotorcraft/guidance/guidance_h.c ****   if (in_flight) {
+ 504              		.loc 2 322 0 is_stmt 1 discriminator 12
+ 505 0120 F6B1     		cbz	r6, .L27
+ 323:firmwares/rotorcraft/guidance/guidance_h.c ****     VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
+ 506              		.loc 2 323 0
+ 507 0122 5A4E     		ldr	r6, .L65+20
+ 508 0124 5A68     		ldr	r2, [r3, #4]
+ 509 0126 7468     		ldr	r4, [r6, #4]
+ 510 0128 1968     		ldr	r1, [r3, #0]
+ 511 012a 3668     		ldr	r6, [r6, #0]
+ 512 012c 1519     		adds	r5, r2, r4
+ 513 012e 8A19     		adds	r2, r1, r6
+ 324:firmwares/rotorcraft/guidance/guidance_h.c ****     /* saturate it               */
+ 325:firmwares/rotorcraft/guidance/guidance_h.c ****     VECT2_STRIM(guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
+ 514              		.loc 2 325 0
+ 515 0130 B2F1807F 		cmp	r2, #16777216
+ 516 0134 A8BF     		it	ge
+ 517 0136 4FF08072 		movge	r2, #16777216
+ 518 013a B5F1807F 		cmp	r5, #16777216
+ 519 013e B4BF     		ite	lt
+ 520 0140 2C46     		movlt	r4, r5
+ 521 0142 4FF08074 		movge	r4, #16777216
+ 522 0146 B2F17F4F 		cmp	r2, #-16777216
+ 523 014a B8BF     		it	lt
+ 524 014c 4FF07F42 		movlt	r2, #-16777216
+ 525 0150 B4F17F4F 		cmp	r4, #-16777216
+ 526 0154 B8BF     		it	lt
+ 527 0156 4FF07F44 		movlt	r4, #-16777216
+ 528 015a 1A60     		str	r2, [r3, #0]
+ 529 015c 5C60     		str	r4, [r3, #4]
+ 530 015e 01E0     		b	.L28
+ 531              	.L27:
+ 326:firmwares/rotorcraft/guidance/guidance_h.c ****   } else {
+ 327:firmwares/rotorcraft/guidance/guidance_h.c ****     INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 532              		.loc 2 327 0
+ 533 0160 1E60     		str	r6, [r3, #0]
+ 534 0162 5E60     		str	r6, [r3, #4]
+ 535              	.L28:
+ 328:firmwares/rotorcraft/guidance/guidance_h.c ****   }
+ 329:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 330:firmwares/rotorcraft/guidance/guidance_h.c ****   /* run PID */
+ 331:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_earth.x =
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 536              		.loc 2 333 0
+ 537 0164 534D     		ldr	r5, .L65+60
+ 334:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 335:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
+ 336:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_earth.y =
+ 337:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 538              		.loc 2 337 0
+ 539 0166 DFF824C1 		ldr	ip, .L65+20
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 540              		.loc 2 332 0
+ 541 016a 534B     		ldr	r3, .L65+64
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 542              		.loc 2 333 0
+ 543 016c 2D68     		ldr	r5, [r5, #0]
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 544              		.loc 2 332 0
+ 545 016e D3F800E0 		ldr	lr, [r3, #0]
+ 546              		.loc 2 337 0
+ 547 0172 DCF80420 		ldr	r2, [ip, #4]
+ 338:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 548              		.loc 2 338 0
+ 549 0176 8010     		asrs	r0, r0, #2
+ 550 0178 6843     		muls	r0, r5, r0
+ 337:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 551              		.loc 2 337 0
+ 552 017a 02FB0EF4 		mul	r4, r2, lr
+ 335:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
+ 553              		.loc 2 335 0
+ 554 017e 4F4E     		ldr	r6, .L65+68
+ 334:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 555              		.loc 2 334 0
+ 556 0180 4F49     		ldr	r1, .L65+72
+ 335:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
+ 557              		.loc 2 335 0
+ 558 0182 3368     		ldr	r3, [r6, #0]
+ 559              		.loc 2 338 0
+ 560 0184 C613     		asrs	r6, r0, #15
+ 337:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 561              		.loc 2 337 0
+ 562 0186 06EBA410 		add	r0, r6, r4, asr #6
+ 339:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 563              		.loc 2 339 0
+ 564 018a 494C     		ldr	r4, .L65+56
+ 334:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 565              		.loc 2 334 0
+ 566 018c 0968     		ldr	r1, [r1, #0]
+ 567              		.loc 2 339 0
+ 568 018e 6268     		ldr	r2, [r4, #4]
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 569              		.loc 2 333 0
+ 570 0190 BF10     		asrs	r7, r7, #2
+ 571              		.loc 2 339 0
+ 572 0192 1613     		asrs	r6, r2, #12
+ 573 0194 4E43     		muls	r6, r1, r6
+ 340:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
+ 574              		.loc 2 340 0
+ 575 0196 4B4A     		ldr	r2, .L65+76
+ 338:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 576              		.loc 2 338 0
+ 577 0198 00EBA616 		add	r6, r0, r6, asr #6
+ 578              		.loc 2 340 0
+ 579 019c 5068     		ldr	r0, [r2, #4]
+ 334:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 580              		.loc 2 334 0
+ 581 019e 2468     		ldr	r4, [r4, #0]
+ 582              		.loc 2 340 0
+ 583 01a0 5843     		muls	r0, r3, r0
+ 339:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 584              		.loc 2 339 0
+ 585 01a2 06EB2026 		add	r6, r6, r0, asr #8
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 586              		.loc 2 332 0
+ 587 01a6 DCF80000 		ldr	r0, [ip, #0]
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 588              		.loc 2 333 0
+ 589 01aa 7D43     		muls	r5, r7, r5
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 590              		.loc 2 332 0
+ 591 01ac 00FB0EFE 		mul	lr, r0, lr
+ 335:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
+ 592              		.loc 2 335 0
+ 593 01b0 1268     		ldr	r2, [r2, #0]
+ 334:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 594              		.loc 2 334 0
+ 595 01b2 2013     		asrs	r0, r4, #12
+ 596 01b4 4143     		muls	r1, r0, r1
+ 335:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
+ 597              		.loc 2 335 0
+ 598 01b6 5343     		muls	r3, r2, r3
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 599              		.loc 2 333 0
+ 600 01b8 ED13     		asrs	r5, r5, #15
+ 332:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+ 601              		.loc 2 332 0
+ 602 01ba 05EBAE1C 		add	ip, r5, lr, asr #6
+ 333:firmwares/rotorcraft/guidance/guidance_h.c ****     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) 
+ 603              		.loc 2 333 0
+ 604 01be 0CEBA111 		add	r1, ip, r1, asr #6
+ 341:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 342:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
+ 605              		.loc 2 342 0
+ 606 01c2 01EB2320 		add	r0, r1, r3, asr #8
+ 607 01c6 FFF7FEFF 		bl	__aeabi_i2d
+ 608              	.LVL31:
+ 609 01ca 2BA3     		adr	r3, .L65
+ 610 01cc D3E90023 		ldrd	r2, [r3]
+ 611 01d0 0746     		mov	r7, r0
+ 612 01d2 0D46     		mov	r5, r1
+ 613 01d4 FFF7FEFF 		bl	__aeabi_dcmplt
+ 614              	.LVL32:
+ 615 01d8 60B9     		cbnz	r0, .L57
+ 616              		.loc 2 342 0 is_stmt 0 discriminator 2
+ 617 01da 3846     		mov	r0, r7
+ 618 01dc 2946     		mov	r1, r5
+ 619 01de 28A3     		adr	r3, .L65+8
+ 620 01e0 D3E90023 		ldrd	r2, [r3]
+ 621 01e4 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 622              	.LVL33:
+ 623 01e8 30B9     		cbnz	r0, .L58
+ 624              		.loc 2 342 0 discriminator 4
+ 625 01ea 3846     		mov	r0, r7
+ 626 01ec 2946     		mov	r1, r5
+ 627 01ee FFF7FEFF 		bl	__aeabi_d2iz
+ 628              	.LVL34:
+ 629 01f2 03E0     		b	.L29
+ 630              	.L57:
+ 631              		.loc 2 342 0
+ 632 01f4 3448     		ldr	r0, .L65+80
+ 633 01f6 01E0     		b	.L29
+ 634              	.L58:
+ 635 01f8 4FF48660 		mov	r0, #1072
+ 636              	.L29:
+ 637              		.loc 2 342 0 discriminator 6
+ 638 01fc 334B     		ldr	r3, .L65+84
+ 639 01fe 1860     		str	r0, [r3, #0]
+ 640 0200 3046     		mov	r0, r6
+ 641 0202 FFF7FEFF 		bl	__aeabi_i2d
+ 642              	.LVL35:
+ 643 0206 1CA3     		adr	r3, .L65
+ 644 0208 D3E90023 		ldrd	r2, [r3]
+ 645 020c 0646     		mov	r6, r0
+ 646 020e 0C46     		mov	r4, r1
+ 647 0210 FFF7FEFF 		bl	__aeabi_dcmplt
+ 648              	.LVL36:
+ 649 0214 60B9     		cbnz	r0, .L59
+ 650              		.loc 2 342 0 discriminator 8
+ 651 0216 3046     		mov	r0, r6
+ 652 0218 2146     		mov	r1, r4
+ 653 021a 19A3     		adr	r3, .L65+8
+ 654 021c D3E90023 		ldrd	r2, [r3]
+ 655 0220 FFF7FEFF 		bl	__aeabi_dcmpgt
+ 656              	.LVL37:
+ 657 0224 30B9     		cbnz	r0, .L60
+ 658              		.loc 2 342 0 discriminator 10
+ 659 0226 3046     		mov	r0, r6
+ 660 0228 2146     		mov	r1, r4
+ 661 022a FFF7FEFF 		bl	__aeabi_d2iz
+ 662              	.LVL38:
+ 663 022e 03E0     		b	.L30
+ 664              	.L59:
+ 665              		.loc 2 342 0
+ 666 0230 2548     		ldr	r0, .L65+80
+ 667 0232 01E0     		b	.L30
+ 668              	.L60:
+ 669 0234 4FF48660 		mov	r0, #1072
+ 670              	.L30:
+ 671              		.loc 2 342 0 discriminator 12
+ 672 0238 2449     		ldr	r1, .L65+84
+ 673 023a 4860     		str	r0, [r1, #4]
+ 674              	.LBB10:
+ 675              	.LBB11:
+ 803:./state.h     **** 
+ 804:./state.h     **** /// Get ground speed in local ENU coordinates (int).
+ 805:./state.h     **** static inline struct EnuCoor_i* stateGetSpeedEnu_i(void) {
+ 806:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_I))
+ 807:./state.h     ****     stateCalcSpeedEnu_i();
+ 808:./state.h     ****   return &state.enu_speed_i;
+ 809:./state.h     **** }
+ 810:./state.h     **** 
+ 811:./state.h     **** /// Get ground speed in ECEF coordinates (int).
+ 812:./state.h     **** static inline struct EcefCoor_i* stateGetSpeedEcef_i(void) {
+ 813:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_I))
+ 814:./state.h     ****     stateCalcSpeedEcef_i();
+ 815:./state.h     ****   return &state.ecef_speed_i;
+ 816:./state.h     **** }
+ 817:./state.h     **** 
+ 818:./state.h     **** /// Get norm of horizontal ground speed (int).
+ 819:./state.h     **** static inline int32_t* stateGetHorizontalSpeedNorm_i(void) {
+ 820:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_I))
+ 821:./state.h     ****     stateCalcHorizontalSpeedNorm_i();
+ 822:./state.h     ****   return &state.h_speed_norm_i;
+ 823:./state.h     **** }
+ 824:./state.h     **** 
+ 825:./state.h     **** /// Get dir of horizontal ground speed (int).
+ 826:./state.h     **** static inline int32_t* stateGetHorizontalSpeedDir_i(void) {
+ 827:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_I))
+ 828:./state.h     ****     stateCalcHorizontalSpeedDir_i();
+ 829:./state.h     ****   return &state.h_speed_dir_i;
+ 830:./state.h     **** }
+ 831:./state.h     **** 
+ 832:./state.h     **** /// Get ground speed in local NED coordinates (float).
+ 833:./state.h     **** static inline struct NedCoor_f* stateGetSpeedNed_f(void) {
+ 834:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_F))
+ 835:./state.h     ****     stateCalcSpeedNed_f();
+ 836:./state.h     ****   return &state.ned_speed_f;
+ 837:./state.h     **** }
+ 838:./state.h     **** 
+ 839:./state.h     **** /// Get ground speed in local ENU coordinates (float).
+ 840:./state.h     **** static inline struct EnuCoor_f* stateGetSpeedEnu_f(void) {
+ 841:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_F))
+ 842:./state.h     ****     stateCalcSpeedEnu_f();
+ 843:./state.h     ****   return &state.enu_speed_f;
+ 844:./state.h     **** }
+ 845:./state.h     **** 
+ 846:./state.h     **** /// Get ground speed in ECEF coordinates (float).
+ 847:./state.h     **** static inline struct EcefCoor_f* stateGetSpeedEcef_f(void) {
+ 848:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_F))
+ 849:./state.h     ****     stateCalcSpeedEcef_f();
+ 850:./state.h     ****   return &state.ecef_speed_f;
+ 851:./state.h     **** }
+ 852:./state.h     **** 
+ 853:./state.h     **** /// Get norm of horizontal ground speed (float).
+ 854:./state.h     **** static inline float* stateGetHorizontalSpeedNorm_f(void) {
+ 855:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_F))
+ 856:./state.h     ****     stateCalcHorizontalSpeedNorm_f();
+ 857:./state.h     ****   return &state.h_speed_norm_f;
+ 858:./state.h     **** }
+ 859:./state.h     **** 
+ 860:./state.h     **** /// Get dir of horizontal ground speed (float).
+ 861:./state.h     **** static inline float* stateGetHorizontalSpeedDir_f(void) {
+ 862:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_F))
+ 863:./state.h     ****     stateCalcHorizontalSpeedDir_f();
+ 864:./state.h     ****   return &state.h_speed_dir_f;
+ 865:./state.h     **** }
+ 866:./state.h     **** /** @}*/
+ 867:./state.h     **** 
+ 868:./state.h     **** 
+ 869:./state.h     **** 
+ 870:./state.h     **** /******************************************************************************
+ 871:./state.h     ****  *                                                                            *
+ 872:./state.h     ****  * Set and Get functions for the ACCELERATION representations                 *
+ 873:./state.h     ****  *                                                                            *
+ 874:./state.h     ****  *****************************************************************************/
+ 875:./state.h     **** /** @addtogroup state_acceleration
+ 876:./state.h     ****  *  @{ */
+ 877:./state.h     **** 
+ 878:./state.h     **** /************* declaration of transformation functions ************/
+ 879:./state.h     **** extern void stateCalcAccelNed_i(void);
+ 880:./state.h     **** extern void stateCalcAccelEcef_i(void);
+ 881:./state.h     **** extern void stateCalcAccelNed_f(void);
+ 882:./state.h     **** extern void stateCalcAccelEcef_f(void);
+ 883:./state.h     **** 
+ 884:./state.h     **** /*********************** validity test functions ******************/
+ 885:./state.h     **** 
+ 886:./state.h     **** /// Test if accelerations are valid.
+ 887:./state.h     **** static inline bool_t stateIsAccelValid(void) {
+ 888:./state.h     ****   return (state.accel_status);
+ 889:./state.h     **** }
+ 890:./state.h     **** 
+ 891:./state.h     **** /************************ Set functions ****************************/
+ 892:./state.h     **** 
+ 893:./state.h     **** /// Set acceleration in NED coordinates (int).
+ 894:./state.h     **** static inline void stateSetAccelNed_i(struct NedCoor_i* ned_accel) {
+ 895:./state.h     ****   INT32_VECT3_COPY(state.ned_accel_i, *ned_accel);
+ 896:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 897:./state.h     ****   state.accel_status = (1 << ACCEL_NED_I);
+ 898:./state.h     **** }
+ 899:./state.h     **** 
+ 900:./state.h     **** /// Set acceleration in ECEF coordinates (int).
+ 901:./state.h     **** static inline void stateSetAccelEcef_i(struct EcefCoor_i* ecef_accel) {
+ 902:./state.h     ****   INT32_VECT3_COPY(state.ecef_accel_i, *ecef_accel);
+ 903:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 904:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_I);
+ 905:./state.h     **** }
+ 906:./state.h     **** 
+ 907:./state.h     **** /// Set acceleration in NED coordinates (float).
+ 908:./state.h     **** static inline void stateSetAccelNed_f(struct NedCoor_f* ned_accel) {
+ 909:./state.h     ****   VECT3_COPY(state.ned_accel_f, *ned_accel);
+ 910:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 911:./state.h     ****   state.accel_status = (1 << ACCEL_NED_F);
+ 912:./state.h     **** }
+ 913:./state.h     **** 
+ 914:./state.h     **** /// Set acceleration in ECEF coordinates (float).
+ 915:./state.h     **** static inline void stateSetAccelEcef_f(struct EcefCoor_f* ecef_accel) {
+ 916:./state.h     ****   VECT3_COPY(state.ecef_accel_f, *ecef_accel);
+ 917:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 918:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_F);
+ 919:./state.h     **** }
+ 920:./state.h     **** 
+ 921:./state.h     **** /************************ Get functions ****************************/
+ 922:./state.h     **** 
+ 923:./state.h     **** /// Get acceleration in NED coordinates (int).
+ 924:./state.h     **** static inline struct NedCoor_i* stateGetAccelNed_i(void) {
+ 925:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_I))
+ 926:./state.h     ****     stateCalcAccelNed_i();
+ 927:./state.h     ****   return &state.ned_accel_i;
+ 928:./state.h     **** }
+ 929:./state.h     **** 
+ 930:./state.h     **** /// Get acceleration in ECEF coordinates (int).
+ 931:./state.h     **** static inline struct EcefCoor_i* stateGetAccelEcef_i(void) {
+ 932:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_I))
+ 933:./state.h     ****     stateCalcAccelEcef_i();
+ 934:./state.h     ****   return &state.ecef_accel_i;
+ 935:./state.h     **** }
+ 936:./state.h     **** 
+ 937:./state.h     **** /// Get acceleration in NED coordinates (float).
+ 938:./state.h     **** static inline struct NedCoor_f* stateGetAccelNed_f(void) {
+ 939:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_F))
+ 940:./state.h     ****     stateCalcAccelNed_f();
+ 941:./state.h     ****   return &state.ned_accel_f;
+ 942:./state.h     **** }
+ 943:./state.h     **** 
+ 944:./state.h     **** /// Get acceleration in ECEF coordinates (float).
+ 945:./state.h     **** static inline struct EcefCoor_f* stateGetAccelEcef_f(void) {
+ 946:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_F))
+ 947:./state.h     ****     stateCalcAccelEcef_f();
+ 948:./state.h     ****   return &state.ecef_accel_f;
+ 949:./state.h     **** }
+ 950:./state.h     **** /** @}*/
+ 951:./state.h     **** 
+ 952:./state.h     **** /******************************************************************************
+ 953:./state.h     **** *                                                                             *
+ 954:./state.h     **** * Set and Get functions for the ATTITUDE representations                      *
+ 955:./state.h     **** * (Calls the functions in math/pprz_orientation_conversion)                   *
+ 956:./state.h     **** *                                                                             *
+ 957:./state.h     **** *****************************************************************************/
+ 958:./state.h     **** /** @addtogroup state_attitude
+ 959:./state.h     **** * @{ */
+ 960:./state.h     **** /*********************** validity test functions ******************/
+ 961:./state.h     **** 
+ 962:./state.h     **** /// Test if attitudes are valid.
+ 963:./state.h     **** static inline bool_t stateIsAttitudeValid(void) {
+ 964:./state.h     ****   return (orienationCheckValid(&state.ned_to_body_orientation));
+ 965:./state.h     **** }
+ 966:./state.h     **** 
+ 967:./state.h     **** /************************ Set functions ****************************/
+ 968:./state.h     **** 
+ 969:./state.h     **** /// Set vehicle body attitude from quaternion (int).
+ 970:./state.h     **** static inline void stateSetNedToBodyQuat_i(struct Int32Quat* ned_to_body_quat) {
+ 971:./state.h     ****   orientationSetQuat_i(&state.ned_to_body_orientation,ned_to_body_quat);
+ 972:./state.h     **** }
+ 973:./state.h     **** 
+ 974:./state.h     **** /// Set vehicle body attitude from rotation matrix (int).
+ 975:./state.h     **** static inline void stateSetNedToBodyRMat_i(struct Int32RMat* ned_to_body_rmat) {
+ 976:./state.h     ****   orientationSetRMat_i(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 977:./state.h     **** }
+ 978:./state.h     **** 
+ 979:./state.h     **** /// Set vehicle body attitude from euler angles (int).
+ 980:./state.h     **** static inline void stateSetNedToBodyEulers_i(struct Int32Eulers* ned_to_body_eulers) {
+ 981:./state.h     ****   orientationSetEulers_i(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 982:./state.h     **** }
+ 983:./state.h     **** 
+ 984:./state.h     **** /// Set vehicle body attitude from quaternion (float).
+ 985:./state.h     **** static inline void stateSetNedToBodyQuat_f(struct FloatQuat* ned_to_body_quat) {
+ 986:./state.h     ****   orientationSetQuat_f(&state.ned_to_body_orientation,ned_to_body_quat);
+ 987:./state.h     **** }
+ 988:./state.h     **** 
+ 989:./state.h     **** /// Set vehicle body attitude from rotation matrix (float).
+ 990:./state.h     **** static inline void stateSetNedToBodyRMat_f(struct FloatRMat* ned_to_body_rmat) {
+ 991:./state.h     ****   orientationSetRMat_f(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 992:./state.h     **** }
+ 993:./state.h     **** 
+ 994:./state.h     **** /// Set vehicle body attitude from euler angles (float).
+ 995:./state.h     **** static inline void stateSetNedToBodyEulers_f(struct FloatEulers* ned_to_body_eulers) {
+ 996:./state.h     ****   orientationSetEulers_f(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 997:./state.h     **** }
+ 998:./state.h     **** 
+ 999:./state.h     **** /************************ Get functions ****************************/
+1000:./state.h     **** 
+1001:./state.h     **** /// Get vehicle body attitude quaternion (int).
+1002:./state.h     **** static inline struct Int32Quat* stateGetNedToBodyQuat_i(void) {
+1003:./state.h     ****   return orientationGetQuat_i(&state.ned_to_body_orientation);
+1004:./state.h     **** }
+1005:./state.h     **** 
+1006:./state.h     **** /// Get vehicle body attitude rotation matrix (int).
+1007:./state.h     **** static inline struct Int32RMat* stateGetNedToBodyRMat_i(void) {
+1008:./state.h     ****   return orientationGetRMat_i(&state.ned_to_body_orientation);
+1009:./state.h     **** }
+1010:./state.h     **** 
+1011:./state.h     **** /// Get vehicle body attitude euler angles (int).
+1012:./state.h     **** static inline struct Int32Eulers* stateGetNedToBodyEulers_i(void) {
+1013:./state.h     ****   return orientationGetEulers_i(&state.ned_to_body_orientation);
+ 676              		.loc 1 1013 0 is_stmt 1 discriminator 12
+ 677 023c FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
+ 678              	.LVL39:
+ 679              	.LBE11:
+ 680              	.LBE10:
+ 343:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 344:firmwares/rotorcraft/guidance/guidance_h.c ****   /* Rotate to body frame */
+ 345:firmwares/rotorcraft/guidance/guidance_h.c ****   int32_t s_psi, c_psi;
+ 346:firmwares/rotorcraft/guidance/guidance_h.c ****   int32_t psi = stateGetNedToBodyEulers_i()->psi;
+ 681              		.loc 2 346 0 discriminator 12
+ 682 0240 8368     		ldr	r3, [r0, #8]
+ 683              	.LVL40:
+ 684              	.LBB12:
+ 347:firmwares/rotorcraft/guidance/guidance_h.c ****   PPRZ_ITRIG_SIN(s_psi, psi);
+ 685              		.loc 2 347 0 discriminator 12
+ 686 0242 1A46     		mov	r2, r3
+ 687              	.LVL41:
+ 688              	.L31:
+ 689              		.loc 2 347 0 is_stmt 0 discriminator 1
+ 690 0244 43F24320 		movw	r0, #12867
+ 691 0248 8242     		cmp	r2, r0
+ 692 024a 03DD     		ble	.L61
+ 693              	.L32:
+ 694              		.loc 2 347 0 discriminator 2
+ 695 024c A2F5C947 		sub	r7, r2, #25728
+ 696 0250 FA1F     		subs	r2, r7, #7
+ 697              	.LVL42:
+ 698 0252 F7E7     		b	.L31
+ 699              	.LVL43:
+ 700              	.L61:
+ 701              		.loc 2 347 0 discriminator 4
+ 702 0254 1E4F     		ldr	r7, .L65+88
+ 703 0256 BA42     		cmp	r2, r7
+ 704 0258 03DA     		bge	.L63
+ 705              	.L34:
+ 706              		.loc 2 347 0 discriminator 5
+ 707 025a 02F5C944 		add	r4, r2, #25728
+ 708 025e E21D     		adds	r2, r4, #7
+ 709              	.LVL44:
+ 710 0260 F8E7     		b	.L61
+ 711              	.LVL45:
+ 712              	.L63:
+ 713              		.loc 2 347 0 discriminator 6
+ 714 0262 41F62115 		movw	r5, #6433
+ 715 0266 AA42     		cmp	r2, r5
+ 716 0268 1A4E     		ldr	r6, .L65+92
+ 717 026a 35DD     		ble	.L35
+ 718              		.loc 2 347 0 discriminator 7
+ 719 026c C2F54955 		rsb	r5, r2, #12864
+ 720 0270 EA1C     		adds	r2, r5, #3
+ 721              	.LVL46:
+ 722 0272 3EE0     		b	.L36
+ 723              	.L66:
+ 724 0274 AFF30080 		.align	3
+ 725              	.L65:
+ 726 0278 A038DB37 		.word	937113760
+ 727 027c 52C190C0 		.word	-1064255150
+ 728 0280 A038DB37 		.word	937113760
+ 729 0284 52C19040 		.word	1083228498
+ 730 0288 00000000 		.word	.LANCHOR0
+ 731 028c 00000000 		.word	.LANCHOR6
+ 732 0290 0000B0C0 		.word	-1062207488
+ 733 0294 0000B040 		.word	1085276160
+ 734 0298 00F0FFFF 		.word	-4096
+ 735 029c 00000000 		.word	.LANCHOR1
+ 736 02a0 00000000 		.word	.LANCHOR7
+ 737 02a4 000060C1 		.word	-1050673152
+ 738 02a8 00006041 		.word	1096810496
+ 739 02ac 000080FF 		.word	-8388608
+ 740 02b0 00000000 		.word	.LANCHOR3
+ 741 02b4 00000000 		.word	.LANCHOR9
+ 742 02b8 00000000 		.word	.LANCHOR8
+ 743 02bc 00000000 		.word	.LANCHOR11
+ 744 02c0 00000000 		.word	.LANCHOR10
+ 745 02c4 00000000 		.word	.LANCHOR2
+ 746 02c8 D0FBFFFF 		.word	-1072
+ 747 02cc 00000000 		.word	.LANCHOR12
+ 748 02d0 BDCDFFFF 		.word	-12867
+ 749 02d4 00000000 		.word	pprz_trig_int
+ 750              	.L35:
+ 751              		.loc 2 347 0 discriminator 8
+ 752 02d8 6FF4C954 		mvn	r4, #6432
+ 753 02dc A242     		cmp	r2, r4
+ 754 02de 06DA     		bge	.L37
+ 755              		.loc 2 347 0 discriminator 9
+ 756 02e0 C2F17F42 		rsb	r2, r2, #-16777216
+ 757              	.LVL47:
+ 758 02e4 02F57F01 		add	r1, r2, #16711680
+ 759 02e8 01F54D42 		add	r2, r1, #52480
+ 760 02ec BD32     		adds	r2, r2, #189
+ 761              	.LVL48:
+ 762              	.L37:
+ 763              		.loc 2 347 0 discriminator 10
+ 764 02ee 002A     		cmp	r2, #0
+ 765 02f0 02DB     		blt	.L38
+ 766              	.L36:
+ 767              		.loc 2 347 0 discriminator 11
+ 768 02f2 36F91220 		ldrsh	r2, [r6, r2, lsl #1]
+ 769              	.LVL49:
+ 770 02f6 03E0     		b	.L39
+ 771              	.LVL50:
+ 772              	.L38:
+ 773              		.loc 2 347 0 discriminator 12
+ 774 02f8 5042     		negs	r0, r2
+ 775 02fa 36F91070 		ldrsh	r7, [r6, r0, lsl #1]
+ 776 02fe 7A42     		negs	r2, r7
+ 777              	.LVL51:
+ 778              	.L39:
+ 779              	.LBE12:
+ 780              	.LBB13:
+ 348:firmwares/rotorcraft/guidance/guidance_h.c ****   PPRZ_ITRIG_COS(c_psi, psi);
+ 781              		.loc 2 348 0 is_stmt 1
+ 782 0300 03F5C953 		add	r3, r3, #6432
+ 783              	.LVL52:
+ 784 0304 5D1C     		adds	r5, r3, #1
+ 785              	.LVL53:
+ 786              	.L40:
+ 787              		.loc 2 348 0 is_stmt 0 discriminator 1
+ 788 0306 43F24326 		movw	r6, #12867
+ 789 030a B542     		cmp	r5, r6
+ 790 030c 03DD     		ble	.L62
+ 791              	.L41:
+ 792              		.loc 2 348 0 discriminator 2
+ 793 030e A5F5C945 		sub	r5, r5, #25728
+ 794              	.LVL54:
+ 795 0312 073D     		subs	r5, r5, #7
+ 796              	.LVL55:
+ 797 0314 F7E7     		b	.L40
+ 798              	.LVL56:
+ 799              	.L62:
+ 800              		.loc 2 348 0 discriminator 4
+ 801 0316 1E4C     		ldr	r4, .L67
+ 802 0318 A542     		cmp	r5, r4
+ 803 031a 03DA     		bge	.L64
+ 804              	.L43:
+ 805              		.loc 2 348 0 discriminator 5
+ 806 031c 05F5C940 		add	r0, r5, #25728
+ 807 0320 C51D     		adds	r5, r0, #7
+ 808              	.LVL57:
+ 809 0322 F8E7     		b	.L62
+ 810              	.LVL58:
+ 811              	.L64:
+ 812              		.loc 2 348 0 discriminator 6
+ 813 0324 41F62111 		movw	r1, #6433
+ 814 0328 8D42     		cmp	r5, r1
+ 815 032a 1A4F     		ldr	r7, .L67+4
+ 816 032c 03DD     		ble	.L44
+ 817              		.loc 2 348 0 discriminator 7
+ 818 032e C5F54951 		rsb	r1, r5, #12864
+ 819 0332 CD1C     		adds	r5, r1, #3
+ 820              	.LVL59:
+ 821 0334 0CE0     		b	.L45
+ 822              	.L44:
+ 823              		.loc 2 348 0 discriminator 8
+ 824 0336 6FF4C950 		mvn	r0, #6432
+ 825 033a 8542     		cmp	r5, r0
+ 826 033c 06DA     		bge	.L46
+ 827              		.loc 2 348 0 discriminator 9
+ 828 033e C5F17F45 		rsb	r5, r5, #-16777216
+ 829              	.LVL60:
+ 830 0342 05F57F03 		add	r3, r5, #16711680
+ 831              	.LVL61:
+ 832 0346 03F54D45 		add	r5, r3, #52480
+ 833 034a BD35     		adds	r5, r5, #189
+ 834              	.LVL62:
+ 835              	.L46:
+ 836              		.loc 2 348 0 discriminator 10
+ 837 034c 002D     		cmp	r5, #0
+ 838 034e 02DB     		blt	.L47
+ 839              	.L45:
+ 840              		.loc 2 348 0 discriminator 11
+ 841 0350 37F91530 		ldrsh	r3, [r7, r5, lsl #1]
+ 842              	.LVL63:
+ 843 0354 03E0     		b	.L48
+ 844              	.LVL64:
+ 845              	.L47:
+ 846              		.loc 2 348 0 discriminator 12
+ 847 0356 6E42     		negs	r6, r5
+ 848 0358 37F91640 		ldrsh	r4, [r7, r6, lsl #1]
+ 849 035c 6342     		negs	r3, r4
+ 850              	.LVL65:
+ 851              	.L48:
+ 852              	.LBE13:
+ 349:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 350:firmwares/rotorcraft/guidance/guidance_h.c ****   // Restore angle ref resolution after rotation
+ 351:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.phi =
+ 352:firmwares/rotorcraft/guidance/guidance_h.c ****     ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC
+ 853              		.loc 2 352 0 is_stmt 1
+ 854 035e 0E4F     		ldr	r7, .L67+8
+ 353:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.theta =
+ 354:firmwares/rotorcraft/guidance/guidance_h.c ****     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC
+ 355:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 356:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 357:firmwares/rotorcraft/guidance/guidance_h.c ****   /* Add RC roll and pitch setpoints for emergency corrections */
+ 358:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+ 855              		.loc 2 358 0
+ 856 0360 0E49     		ldr	r1, .L67+12
+ 352:firmwares/rotorcraft/guidance/guidance_h.c ****     ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC
+ 857              		.loc 2 352 0
+ 858 0362 97E83000 		ldmia	r7, {r4, r5}
+ 859              	.LVL66:
+ 860 0366 05FB03F6 		mul	r6, r5, r3
+ 861 036a 02FB1467 		mls	r7, r2, r4, r6
+ 354:firmwares/rotorcraft/guidance/guidance_h.c ****     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC
+ 862              		.loc 2 354 0
+ 863 036e 6A43     		muls	r2, r5, r2
+ 864              	.LVL67:
+ 865 0370 04FB0322 		mla	r2, r4, r3, r2
+ 866              		.loc 2 358 0
+ 867 0374 0E68     		ldr	r6, [r1, #0]
+ 359:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
+ 868              		.loc 2 359 0
+ 869 0376 4968     		ldr	r1, [r1, #4]
+ 358:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+ 870              		.loc 2 358 0
+ 871 0378 0948     		ldr	r0, .L67+16
+ 354:firmwares/rotorcraft/guidance/guidance_h.c ****     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC
+ 872              		.loc 2 354 0
+ 873 037a 5342     		negs	r3, r2
+ 874              	.LVL68:
+ 358:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+ 875              		.loc 2 358 0
+ 876 037c 06EBA736 		add	r6, r6, r7, asr #14
+ 877              		.loc 2 359 0
+ 878 0380 01EBA332 		add	r2, r1, r3, asr #14
+ 358:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+ 879              		.loc 2 358 0
+ 880 0384 0660     		str	r6, [r0, #0]
+ 881              		.loc 2 359 0
+ 882 0386 4260     		str	r2, [r0, #4]
+ 360:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 361:firmwares/rotorcraft/guidance/guidance_h.c ****   /* Set attitude setpoint from pseudo-eulers */
+ 362:firmwares/rotorcraft/guidance/guidance_h.c ****   stabilization_attitude_set_from_eulers_i(&guidance_h_command_body);
+ 363:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 883              		.loc 2 363 0
+ 884 0388 BDE8F041 		pop	{r4, r5, r6, r7, r8, lr}
+ 362:firmwares/rotorcraft/guidance/guidance_h.c ****   stabilization_attitude_set_from_eulers_i(&guidance_h_command_body);
+ 885              		.loc 2 362 0
+ 886 038c FFF7FEBF 		b	stabilization_attitude_set_from_eulers_i
+ 887              	.LVL69:
+ 888              	.L68:
+ 889              		.align	2
+ 890              	.L67:
+ 891 0390 BDCDFFFF 		.word	-12867
+ 892 0394 00000000 		.word	pprz_trig_int
+ 893 0398 00000000 		.word	.LANCHOR12
+ 894 039c 00000000 		.word	.LANCHOR14
+ 895 03a0 00000000 		.word	.LANCHOR13
+ 896              		.cfi_endproc
+ 897              	.LFE126:
+ 899 03a4 AFF30080 		.section	.text.guidance_h_hover_enter,"ax",%progbits
+ 900              		.align	1
+ 901              		.thumb
+ 902              		.thumb_func
+ 904              	guidance_h_hover_enter:
+ 905              	.LFB127:
+ 364:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 365:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_hover_enter(void) {
+ 906              		.loc 2 365 0
+ 907              		.cfi_startproc
+ 908              		@ args = 0, pretend = 0, frame = 0
+ 909              		@ frame_needed = 0, uses_anonymous_args = 0
+ 910 0000 10B5     		push	{r4, lr}
+ 911              	.LCFI6:
+ 912              		.cfi_def_cfa_offset 8
+ 913              		.cfi_offset 4, -8
+ 914              		.cfi_offset 14, -4
+ 366:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 367:firmwares/rotorcraft/guidance/guidance_h.c ****   /* set horizontal setpoint to current position */
+ 368:firmwares/rotorcraft/guidance/guidance_h.c ****   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
+ 915              		.loc 2 368 0
+ 916 0002 FFF7FEFF 		bl	stateGetPositionNed_i
+ 917              	.LVL70:
+ 918 0006 074C     		ldr	r4, .L70
+ 919 0008 0368     		ldr	r3, [r0, #0]
+ 920 000a 2360     		str	r3, [r4, #0]
+ 921 000c FFF7FEFF 		bl	stateGetPositionNed_i
+ 922              	.LVL71:
+ 923 0010 4068     		ldr	r0, [r0, #4]
+ 924 0012 6060     		str	r0, [r4, #4]
+ 369:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 370:firmwares/rotorcraft/guidance/guidance_h.c ****   reset_guidance_reference_from_current_position();
+ 925              		.loc 2 370 0
+ 926 0014 FFF7FEFF 		bl	reset_guidance_reference_from_current_position
+ 927              	.LVL72:
+ 928              	.LBB16:
+ 929              	.LBB17:
+ 930              		.loc 1 1013 0
+ 931 0018 FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
+ 932              	.LVL73:
+ 933              	.LBE17:
+ 934              	.LBE16:
+ 371:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 372:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
+ 935              		.loc 2 372 0
+ 936 001c 0249     		ldr	r1, .L70+4
+ 937 001e 8268     		ldr	r2, [r0, #8]
+ 938 0020 8A60     		str	r2, [r1, #8]
+ 939 0022 10BD     		pop	{r4, pc}
+ 940              	.L71:
+ 941              		.align	2
+ 942              	.L70:
+ 943 0024 00000000 		.word	.LANCHOR4
+ 944 0028 00000000 		.word	.LANCHOR14
+ 945              		.cfi_endproc
+ 946              	.LFE127:
+ 948              		.section	.text.guidance_h_nav_enter,"ax",%progbits
+ 949              		.align	1
+ 950              		.thumb
+ 951              		.thumb_func
+ 953              	guidance_h_nav_enter:
+ 954              	.LFB128:
+ 373:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 374:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 375:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_nav_enter(void) {
+ 955              		.loc 2 375 0
+ 956              		.cfi_startproc
+ 957              		@ args = 0, pretend = 0, frame = 0
+ 958              		@ frame_needed = 0, uses_anonymous_args = 0
+ 376:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 377:firmwares/rotorcraft/guidance/guidance_h.c ****   /* horizontal position setpoint from navigation/flightplan */
+ 378:firmwares/rotorcraft/guidance/guidance_h.c ****   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
+ 959              		.loc 2 378 0
+ 960 0000 074A     		ldr	r2, .L73
+ 375:firmwares/rotorcraft/guidance/guidance_h.c **** static void guidance_h_nav_enter(void) {
+ 961              		.loc 2 375 0
+ 962 0002 08B5     		push	{r3, lr}
+ 963              	.LCFI7:
+ 964              		.cfi_def_cfa_offset 8
+ 965              		.cfi_offset 3, -8
+ 966              		.cfi_offset 14, -4
+ 967              		.loc 2 378 0
+ 968 0004 5168     		ldr	r1, [r2, #4]
+ 969 0006 074B     		ldr	r3, .L73+4
+ 970 0008 1068     		ldr	r0, [r2, #0]
+ 971 000a 1960     		str	r1, [r3, #0]
+ 972 000c 5860     		str	r0, [r3, #4]
+ 379:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 380:firmwares/rotorcraft/guidance/guidance_h.c ****   reset_guidance_reference_from_current_position();
+ 973              		.loc 2 380 0
+ 974 000e FFF7FEFF 		bl	reset_guidance_reference_from_current_position
+ 975              	.LVL74:
+ 976              	.LBB20:
+ 977              	.LBB21:
+ 978              		.loc 1 1013 0
+ 979 0012 FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
+ 980              	.LVL75:
+ 981              	.LBE21:
+ 982              	.LBE20:
+ 381:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 382:firmwares/rotorcraft/guidance/guidance_h.c ****   nav_heading = stateGetNedToBodyEulers_i()->psi;
+ 983              		.loc 2 382 0
+ 984 0016 044B     		ldr	r3, .L73+8
+ 985 0018 8268     		ldr	r2, [r0, #8]
+ 986 001a 1A60     		str	r2, [r3, #0]
+ 987 001c 08BD     		pop	{r3, pc}
+ 988              	.L74:
+ 989 001e 00BF     		.align	2
+ 990              	.L73:
+ 991 0020 00000000 		.word	navigation_carrot
+ 992 0024 00000000 		.word	.LANCHOR4
+ 993 0028 00000000 		.word	nav_heading
+ 994              		.cfi_endproc
+ 995              	.LFE128:
+ 997              		.section	.text.guidance_h_init,"ax",%progbits
+ 998              		.align	1
+ 999              		.global	guidance_h_init
+ 1000              		.thumb
+ 1001              		.thumb_func
+ 1003              	guidance_h_init:
+ 1004              	.LFB120:
+  93:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_init(void) {
+ 1005              		.loc 2 93 0
+ 1006              		.cfi_startproc
+ 1007              		@ args = 0, pretend = 0, frame = 0
+ 1008              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1009              		@ link register save eliminated.
+  95:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = GUIDANCE_H_MODE_KILL;
+ 1010              		.loc 2 95 0
+ 1011 0000 124A     		ldr	r2, .L76
+ 1012 0002 0023     		movs	r3, #0
+  96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
+ 1013              		.loc 2 96 0
+ 1014 0004 1248     		ldr	r0, .L76+4
+  95:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = GUIDANCE_H_MODE_KILL;
+ 1015              		.loc 2 95 0
+ 1016 0006 1370     		strb	r3, [r2, #0]
+  96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
+ 1017              		.loc 2 96 0
+ 1018 0008 0121     		movs	r1, #1
+  98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
+ 1019              		.loc 2 98 0
+ 1020 000a 124A     		ldr	r2, .L76+8
+  96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
+ 1021              		.loc 2 96 0
+ 1022 000c 0170     		strb	r1, [r0, #0]
+ 100:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_rc_sp);
+ 1023              		.loc 2 100 0
+ 1024 000e 1248     		ldr	r0, .L76+12
+  98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
+ 1025              		.loc 2 98 0
+ 1026 0010 1360     		str	r3, [r2, #0]
+  99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 1027              		.loc 2 99 0
+ 1028 0012 1249     		ldr	r1, .L76+16
+  98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
+ 1029              		.loc 2 98 0
+ 1030 0014 5360     		str	r3, [r2, #4]
+ 101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
+ 1031              		.loc 2 101 0
+ 1032 0016 124A     		ldr	r2, .L76+20
+ 100:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_rc_sp);
+ 1033              		.loc 2 100 0
+ 1034 0018 0360     		str	r3, [r0, #0]
+ 1035 001a 4360     		str	r3, [r0, #4]
+ 1036 001c 8360     		str	r3, [r0, #8]
+ 102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
+ 1037              		.loc 2 102 0
+ 1038 001e 1148     		ldr	r0, .L76+24
+  99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 1039              		.loc 2 99 0
+ 1040 0020 0B60     		str	r3, [r1, #0]
+ 101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
+ 1041              		.loc 2 101 0
+ 1042 0022 1360     		str	r3, [r2, #0]
+  99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+ 1043              		.loc 2 99 0
+ 1044 0024 4B60     		str	r3, [r1, #4]
+ 101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
+ 1045              		.loc 2 101 0
+ 1046 0026 5360     		str	r3, [r2, #4]
+ 102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
+ 1047              		.loc 2 102 0
+ 1048 0028 1921     		movs	r1, #25
+ 101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
+ 1049              		.loc 2 101 0
+ 1050 002a 9360     		str	r3, [r2, #8]
+ 103:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_igain = GUIDANCE_H_IGAIN;
+ 1051              		.loc 2 103 0
+ 1052 002c 0E4A     		ldr	r2, .L76+28
+ 102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
+ 1053              		.loc 2 102 0
+ 1054 002e 0160     		str	r1, [r0, #0]
+ 103:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_igain = GUIDANCE_H_IGAIN;
+ 1055              		.loc 2 103 0
+ 1056 0030 1C21     		movs	r1, #28
+ 1057 0032 1160     		str	r1, [r2, #0]
+ 104:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_dgain = GUIDANCE_H_DGAIN;
+ 1058              		.loc 2 104 0
+ 1059 0034 0D49     		ldr	r1, .L76+32
+ 1060 0036 4B20     		movs	r0, #75
+ 105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
+ 1061              		.loc 2 105 0
+ 1062 0038 0D4A     		ldr	r2, .L76+36
+ 104:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_dgain = GUIDANCE_H_DGAIN;
+ 1063              		.loc 2 104 0
+ 1064 003a 0860     		str	r0, [r1, #0]
+ 105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
+ 1065              		.loc 2 105 0
+ 1066 003c 0520     		movs	r0, #5
+ 1067 003e 1060     		str	r0, [r2, #0]
+ 106:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage = 0;
+ 1068              		.loc 2 106 0
+ 1069 0040 0C49     		ldr	r1, .L76+40
+ 107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
+ 1070              		.loc 2 107 0
+ 1071 0042 0D48     		ldr	r0, .L76+44
+ 106:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage = 0;
+ 1072              		.loc 2 106 0
+ 1073 0044 0B60     		str	r3, [r1, #0]
+ 107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
+ 1074              		.loc 2 107 0
+ 1075 0046 0360     		str	r3, [r0, #0]
+ 1076 0048 7047     		bx	lr
+ 1077              	.L77:
+ 1078 004a 00BF     		.align	2
+ 1079              	.L76:
+ 1080 004c 00000000 		.word	.LANCHOR15
+ 1081 0050 00000000 		.word	.LANCHOR5
+ 1082 0054 00000000 		.word	.LANCHOR4
+ 1083 0058 00000000 		.word	.LANCHOR14
+ 1084 005c 00000000 		.word	.LANCHOR3
+ 1085 0060 00000000 		.word	.LANCHOR13
+ 1086 0064 00000000 		.word	.LANCHOR8
+ 1087 0068 00000000 		.word	.LANCHOR10
+ 1088 006c 00000000 		.word	.LANCHOR9
+ 1089 0070 00000000 		.word	.LANCHOR11
+ 1090 0074 00000000 		.word	.LANCHOR16
+ 1091 0078 00000000 		.word	.LANCHOR17
+ 1092              		.cfi_endproc
+ 1093              	.LFE120:
+ 1095              		.section	.text.guidance_h_mode_changed,"ax",%progbits
+ 1096              		.align	1
+ 1097              		.global	guidance_h_mode_changed
+ 1098              		.thumb
+ 1099              		.thumb_func
+ 1101              	guidance_h_mode_changed:
+ 1102              	.LFB122:
+ 120:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_mode_changed(uint8_t new_mode) {
+ 1103              		.loc 2 120 0
+ 1104              		.cfi_startproc
+ 1105              		@ args = 0, pretend = 0, frame = 0
+ 1106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1107              	.LVL76:
+ 1108 0000 38B5     		push	{r3, r4, r5, lr}
+ 1109              	.LCFI8:
+ 1110              		.cfi_def_cfa_offset 16
+ 1111              		.cfi_offset 3, -16
+ 1112              		.cfi_offset 4, -12
+ 1113              		.cfi_offset 5, -8
+ 1114              		.cfi_offset 14, -4
+ 121:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode == guidance_h_mode)
+ 1115              		.loc 2 121 0
+ 1116 0002 184D     		ldr	r5, .L109
+ 120:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_mode_changed(uint8_t new_mode) {
+ 1117              		.loc 2 120 0
+ 1118 0004 0446     		mov	r4, r0
+ 121:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode == guidance_h_mode)
+ 1119              		.loc 2 121 0
+ 1120 0006 2B78     		ldrb	r3, [r5, #0]	@ zero_extendqisi2
+ 1121 0008 8342     		cmp	r3, r0
+ 1122 000a 29D0     		beq	.L78
+ 124:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+ 1123              		.loc 2 124 0
+ 1124 000c 0728     		cmp	r0, #7
+ 1125 000e 1DD0     		beq	.L89
+ 124:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+ 1126              		.loc 2 124 0 is_stmt 0 discriminator 1
+ 1127 0010 0128     		cmp	r0, #1
+ 1128 0012 10D0     		beq	.L81
+ 125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
+ 1129              		.loc 2 125 0 is_stmt 1
+ 1130 0014 144A     		ldr	r2, .L109+4
+ 126:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_theta_offset = 0;
+ 1131              		.loc 2 126 0
+ 1132 0016 1549     		ldr	r1, .L109+8
+ 125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
+ 1133              		.loc 2 125 0
+ 1134 0018 0020     		movs	r0, #0
+ 1135              	.LVL77:
+ 129:firmwares/rotorcraft/guidance/guidance_h.c ****   switch (new_mode) {
+ 1136              		.loc 2 129 0
+ 1137 001a 631E     		subs	r3, r4, #1
+ 125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
+ 1138              		.loc 2 125 0
+ 1139 001c 1060     		str	r0, [r2, #0]
+ 126:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_theta_offset = 0;
+ 1140              		.loc 2 126 0
+ 1141 001e 0860     		str	r0, [r1, #0]
+ 129:firmwares/rotorcraft/guidance/guidance_h.c ****   switch (new_mode) {
+ 1142              		.loc 2 129 0
+ 1143 0020 062B     		cmp	r3, #6
+ 1144 0022 1BD8     		bhi	.L82
+ 1145 0024 DFE803F0 		tbb	[pc, r3]
+ 1146              	.L87:
+ 1147 0028 07       		.byte	(.L81-.L87)/2
+ 1148 0029 12       		.byte	(.L89-.L87)/2
+ 1149 002a 0D       		.byte	(.L83-.L87)/2
+ 1150 002b 15       		.byte	(.L84-.L87)/2
+ 1151 002c 04       		.byte	(.L85-.L87)/2
+ 1152 002d 0A       		.byte	(.L86-.L87)/2
+ 1153 002e 12       		.byte	(.L89-.L87)/2
+ 1154 002f 00       		.align	1
+ 1155              	.L85:
+ 131:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_enter();
+ 1156              		.loc 2 131 0
+ 1157 0030 FFF7FEFF 		bl	stabilization_none_enter
+ 1158              	.LVL78:
+ 132:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 1159              		.loc 2 132 0
+ 1160 0034 12E0     		b	.L82
+ 1161              	.L81:
+ 135:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_enter();
+ 1162              		.loc 2 135 0
+ 1163 0036 FFF7FEFF 		bl	stabilization_rate_enter
+ 1164              	.LVL79:
+ 136:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 1165              		.loc 2 136 0
+ 1166 003a 0FE0     		b	.L82
+ 1167              	.L86:
+ 139:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_reset_care_free_heading();
+ 1168              		.loc 2 139 0
+ 1169 003c FFF7FEFF 		bl	stabilization_attitude_reset_care_free_heading
+ 1170              	.LVL80:
+ 1171 0040 04E0     		b	.L89
+ 1172              	.L83:
+ 146:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_hover_enter();
+ 1173              		.loc 2 146 0
+ 1174 0042 FFF7FEFF 		bl	guidance_h_hover_enter
+ 1175              	.LVL81:
+ 1176              	.L108:
+ 148:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+ 1177              		.loc 2 148 0
+ 1178 0046 2878     		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 1179 0048 0528     		cmp	r0, #5
+ 1180 004a 05D1     		bne	.L107
+ 1181              	.L89:
+ 150:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_enter();
+ 1182              		.loc 2 150 0
+ 1183 004c FFF7FEFF 		bl	stabilization_attitude_enter
+ 1184              	.LVL82:
+ 1185 0050 04E0     		b	.L82
+ 1186              	.L84:
+ 155:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_nav_enter();
+ 1187              		.loc 2 155 0
+ 1188 0052 FFF7FEFF 		bl	guidance_h_nav_enter
+ 1189              	.LVL83:
+ 1190 0056 F6E7     		b	.L108
+ 1191              	.L107:
+ 157:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+ 1192              		.loc 2 157 0 discriminator 1
+ 1193 0058 0128     		cmp	r0, #1
+ 1194 005a F7D0     		beq	.L89
+ 1195              	.L82:
+ 167:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = new_mode;
+ 1196              		.loc 2 167 0
+ 1197 005c 014A     		ldr	r2, .L109
+ 1198 005e 1470     		strb	r4, [r2, #0]
+ 1199              	.L78:
+ 1200 0060 38BD     		pop	{r3, r4, r5, pc}
+ 1201              	.L110:
+ 1202 0062 00BF     		.align	2
+ 1203              	.L109:
+ 1204 0064 00000000 		.word	.LANCHOR15
+ 1205 0068 00000000 		.word	.LANCHOR16
+ 1206 006c 00000000 		.word	.LANCHOR17
+ 1207              		.cfi_endproc
+ 1208              	.LFE122:
+ 1210              		.section	.text.guidance_h_read_rc,"ax",%progbits
+ 1211              		.align	1
+ 1212              		.global	guidance_h_read_rc
+ 1213              		.thumb
+ 1214              		.thumb_func
+ 1216              	guidance_h_read_rc:
+ 1217              	.LFB123:
+ 172:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_read_rc(bool_t  in_flight) {
+ 1218              		.loc 2 172 0
+ 1219              		.cfi_startproc
+ 1220              		@ args = 0, pretend = 0, frame = 0
+ 1221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1222              		@ link register save eliminated.
+ 1223              	.LVL84:
+ 174:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 1224              		.loc 2 174 0
+ 1225 0000 0F4B     		ldr	r3, .L121
+ 172:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_read_rc(bool_t  in_flight) {
+ 1226              		.loc 2 172 0
+ 1227 0002 0146     		mov	r1, r0
+ 174:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 1228              		.loc 2 174 0
+ 1229 0004 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 1230              	.LVL85:
+ 1231 0006 431E     		subs	r3, r0, #1
+ 1232 0008 062B     		cmp	r3, #6
+ 1233 000a 17D8     		bhi	.L111
+ 1234 000c DFE803F0 		tbb	[pc, r3]
+ 1235              	.L118:
+ 1236 0010 06       		.byte	(.L113-.L118)/2
+ 1237 0011 08       		.byte	(.L114-.L118)/2
+ 1238 0012 0E       		.byte	(.L120-.L118)/2
+ 1239 0013 0B       		.byte	(.L116-.L118)/2
+ 1240 0014 04       		.byte	(.L117-.L118)/2
+ 1241 0015 08       		.byte	(.L114-.L118)/2
+ 1242 0016 08       		.byte	(.L114-.L118)/2
+ 1243 0017 00       		.align	1
+ 1244              	.L117:
+ 210:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 1245              		.loc 2 210 0
+ 177:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_read_rc();
+ 1246              		.loc 2 177 0
+ 1247 0018 FFF7FEBF 		b	stabilization_none_read_rc
+ 1248              	.LVL86:
+ 1249              	.L113:
+ 210:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 1250              		.loc 2 210 0
+ 184:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_read_rc();
+ 1251              		.loc 2 184 0
+ 1252 001c FFF7FEBF 		b	stabilization_rate_read_rc
+ 1253              	.LVL87:
+ 1254              	.L114:
+ 191:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc(in_flight);
+ 1255              		.loc 2 191 0
+ 1256 0020 0846     		mov	r0, r1
+ 210:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 1257              		.loc 2 210 0
+ 191:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc(in_flight);
+ 1258              		.loc 2 191 0
+ 1259 0022 FFF7FEBF 		b	stabilization_attitude_read_rc
+ 1260              	.LVL88:
+ 1261              	.L116:
+ 199:firmwares/rotorcraft/guidance/guidance_h.c ****       if (radio_control.status == RC_OK) {
+ 1262              		.loc 2 199 0
+ 1263 0026 074A     		ldr	r2, .L121+4
+ 1264 0028 1078     		ldrb	r0, [r2, #0]	@ zero_extendqisi2
+ 1265 002a 10B9     		cbnz	r0, .L119
+ 1266              	.L120:
+ 200:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+ 1267              		.loc 2 200 0
+ 1268 002c 0648     		ldr	r0, .L121+8
+ 210:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 1269              		.loc 2 210 0
+ 200:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+ 1270              		.loc 2 200 0
+ 1271 002e FFF7FEBF 		b	stabilization_attitude_read_rc_setpoint_eulers
+ 1272              	.LVL89:
+ 1273              	.L119:
+ 203:firmwares/rotorcraft/guidance/guidance_h.c ****         INT_EULERS_ZERO(guidance_h_rc_sp);
+ 1274              		.loc 2 203 0
+ 1275 0032 0549     		ldr	r1, .L121+8
+ 1276 0034 0023     		movs	r3, #0
+ 1277 0036 0B60     		str	r3, [r1, #0]
+ 1278 0038 4B60     		str	r3, [r1, #4]
+ 1279 003a 8B60     		str	r3, [r1, #8]
+ 1280              	.L111:
+ 1281 003c 7047     		bx	lr
+ 1282              	.L122:
+ 1283 003e 00BF     		.align	2
+ 1284              	.L121:
+ 1285 0040 00000000 		.word	.LANCHOR15
+ 1286 0044 00000000 		.word	radio_control
+ 1287 0048 00000000 		.word	.LANCHOR14
+ 1288              		.cfi_endproc
+ 1289              	.LFE123:
+ 1291              		.section	.text.guidance_h_run,"ax",%progbits
+ 1292              		.align	1
+ 1293              		.global	guidance_h_run
+ 1294              		.thumb
+ 1295              		.thumb_func
+ 1297              	guidance_h_run:
+ 1298              	.LFB124:
+ 213:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_run(bool_t  in_flight) {
+ 1299              		.loc 2 213 0
+ 1300              		.cfi_startproc
+ 1301              		@ args = 0, pretend = 0, frame = 16
+ 1302              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1303              	.LVL90:
+ 1304 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 1305              	.LCFI9:
+ 1306              		.cfi_def_cfa_offset 24
+ 1307              		.cfi_offset 0, -24
+ 1308              		.cfi_offset 1, -20
+ 1309              		.cfi_offset 2, -16
+ 1310              		.cfi_offset 3, -12
+ 1311              		.cfi_offset 4, -8
+ 1312              		.cfi_offset 14, -4
+ 214:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 1313              		.loc 2 214 0
+ 1314 0002 264B     		ldr	r3, .L137
+ 213:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_run(bool_t  in_flight) {
+ 1315              		.loc 2 213 0
+ 1316 0004 0446     		mov	r4, r0
+ 214:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
+ 1317              		.loc 2 214 0
+ 1318 0006 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 1319              	.LVL91:
+ 1320 0008 411E     		subs	r1, r0, #1
+ 1321 000a 0629     		cmp	r1, #6
+ 1322 000c 44D8     		bhi	.L123
+ 1323 000e DFE801F0 		tbb	[pc, r1]
+ 1324              	.L131:
+ 1325 0012 08       		.byte	(.L125-.L131)/2
+ 1326 0013 40       		.byte	(.L135-.L131)/2
+ 1327 0014 14       		.byte	(.L127-.L131)/2
+ 1328 0015 1C       		.byte	(.L128-.L131)/2
+ 1329 0016 04       		.byte	(.L129-.L131)/2
+ 1330 0017 40       		.byte	(.L135-.L131)/2
+ 1331 0018 0C       		.byte	(.L130-.L131)/2
+ 1332 0019 00       		.align	1
+ 1333              	.L129:
+ 217:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_run(in_flight);
+ 1334              		.loc 2 217 0
+ 1335 001a 2046     		mov	r0, r4
+ 1336 001c FFF7FEFF 		bl	stabilization_none_run
+ 1337              	.LVL92:
+ 218:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 1338              		.loc 2 218 0
+ 1339 0020 3AE0     		b	.L123
+ 1340              	.L125:
+ 221:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_run(in_flight);
+ 1341              		.loc 2 221 0
+ 1342 0022 2046     		mov	r0, r4
+ 1343 0024 FFF7FEFF 		bl	stabilization_rate_run
+ 1344              	.LVL93:
+ 222:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
+ 1345              		.loc 2 222 0
+ 1346 0028 36E0     		b	.L123
+ 1347              	.L130:
+ 225:firmwares/rotorcraft/guidance/guidance_h.c ****       if(transition_percentage < (100<<INT32_PERCENTAGE_FRAC)) {
+ 1348              		.loc 2 225 0
+ 1349 002a 1D4B     		ldr	r3, .L137+4
+ 1350 002c 1A68     		ldr	r2, [r3, #0]
+ 1351 002e B2F5C83F 		cmp	r2, #102400
+ 1352 0032 2EDA     		bge	.L135
+ 1353              	.LBB27:
+ 1354              	.LBB28:
+ 383:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 384:firmwares/rotorcraft/guidance/guidance_h.c **** 
+ 385:firmwares/rotorcraft/guidance/guidance_h.c **** static inline void transition_run(void) {
+ 386:firmwares/rotorcraft/guidance/guidance_h.c ****   //Add 0.00625%
+ 387:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage += 1<<(INT32_PERCENTAGE_FRAC-4);
+ 1355              		.loc 2 387 0
+ 1356 0034 4032     		adds	r2, r2, #64
+ 1357 0036 1A60     		str	r2, [r3, #0]
+ 1358 0038 2BE0     		b	.L135
+ 1359              	.L127:
+ 1360              	.LBE28:
+ 1361              	.LBE27:
+ 234:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
+ 1362              		.loc 2 234 0
+ 1363 003a 0CB9     		cbnz	r4, .L132
+ 235:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_hover_enter();
+ 1364              		.loc 2 235 0
+ 1365 003c FFF7FEFF 		bl	guidance_h_hover_enter
+ 1366              	.LVL94:
+ 1367              	.L132:
+ 237:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_update_reference();
+ 1368              		.loc 2 237 0
+ 1369 0040 FFF7FEFF 		bl	guidance_h_update_reference
+ 1370              	.LVL95:
+ 240:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_command_body.psi = guidance_h_rc_sp.psi;
+ 1371              		.loc 2 240 0
+ 1372 0044 1749     		ldr	r1, .L137+8
+ 1373 0046 8A68     		ldr	r2, [r1, #8]
+ 1374 0048 1EE0     		b	.L136
+ 1375              	.L128:
+ 248:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
+ 1376              		.loc 2 248 0
+ 1377 004a 0CB9     		cbnz	r4, .L133
+ 249:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_nav_enter();
+ 1378              		.loc 2 249 0
+ 1379 004c FFF7FEFF 		bl	guidance_h_nav_enter
+ 1380              	.LVL96:
+ 1381              	.L133:
+ 251:firmwares/rotorcraft/guidance/guidance_h.c ****       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+ 1382              		.loc 2 251 0
+ 1383 0050 1548     		ldr	r0, .L137+12
+ 1384 0052 0178     		ldrb	r1, [r0, #0]	@ zero_extendqisi2
+ 1385 0054 0329     		cmp	r1, #3
+ 1386 0056 0DD1     		bne	.L134
+ 1387              	.LBB29:
+ 254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
+ 1388              		.loc 2 254 0
+ 1389 0058 144B     		ldr	r3, .L137+16
+ 253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
+ 1390              		.loc 2 253 0
+ 1391 005a 1548     		ldr	r0, .L137+20
+ 254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
+ 1392              		.loc 2 254 0
+ 1393 005c 1A68     		ldr	r2, [r3, #0]
+ 253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
+ 1394              		.loc 2 253 0
+ 1395 005e 0168     		ldr	r1, [r0, #0]
+ 254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
+ 1396              		.loc 2 254 0
+ 1397 0060 0292     		str	r2, [sp, #8]
+ 253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
+ 1398              		.loc 2 253 0
+ 1399 0062 0191     		str	r1, [sp, #4]
+ 1400              	.LBB30:
+ 1401              	.LBB31:
+ 1402              		.loc 1 1013 0
+ 1403 0064 FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
+ 1404              	.LVL97:
+ 1405              	.LBE31:
+ 1406              	.LBE30:
+ 256:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.psi = stateGetNedToBodyEulers_i()->psi;
+ 1407              		.loc 2 256 0
+ 1408 0068 8068     		ldr	r0, [r0, #8]
+ 1409 006a 0390     		str	r0, [sp, #12]
+ 257:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_set_from_eulers_i(&sp_euler_i);
+ 1410              		.loc 2 257 0
+ 1411 006c 01A8     		add	r0, sp, #4
+ 1412 006e FFF7FEFF 		bl	stabilization_attitude_set_from_eulers_i
+ 1413              	.LVL98:
+ 1414 0072 0EE0     		b	.L135
+ 1415              	.L134:
+ 1416              	.LBE29:
+ 260:firmwares/rotorcraft/guidance/guidance_h.c ****         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
+ 1417              		.loc 2 260 0
+ 1418 0074 0F4A     		ldr	r2, .L137+24
+ 1419 0076 104B     		ldr	r3, .L137+28
+ 1420 0078 5068     		ldr	r0, [r2, #4]
+ 1421 007a 1168     		ldr	r1, [r2, #0]
+ 1422 007c 1860     		str	r0, [r3, #0]
+ 1423 007e 5960     		str	r1, [r3, #4]
+ 262:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_update_reference();
+ 1424              		.loc 2 262 0
+ 1425 0080 FFF7FEFF 		bl	guidance_h_update_reference
+ 1426              	.LVL99:
+ 265:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_command_body.psi = nav_heading;
+ 1427              		.loc 2 265 0
+ 1428 0084 0D4B     		ldr	r3, .L137+32
+ 1429 0086 1A68     		ldr	r2, [r3, #0]
+ 1430              	.L136:
+ 1431 0088 0D4B     		ldr	r3, .L137+36
+ 267:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_traj_run(in_flight);
+ 1432              		.loc 2 267 0
+ 1433 008a 2046     		mov	r0, r4
+ 265:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_command_body.psi = nav_heading;
+ 1434              		.loc 2 265 0
+ 1435 008c 9A60     		str	r2, [r3, #8]
+ 267:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_traj_run(in_flight);
+ 1436              		.loc 2 267 0
+ 1437 008e FFF7FEFF 		bl	guidance_h_traj_run
+ 1438              	.LVL100:
+ 1439              	.L135:
+ 269:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_run(in_flight);
+ 1440              		.loc 2 269 0
+ 1441 0092 2046     		mov	r0, r4
+ 1442 0094 FFF7FEFF 		bl	stabilization_attitude_run
+ 1443              	.LVL101:
+ 1444              	.L123:
+ 275:firmwares/rotorcraft/guidance/guidance_h.c **** }
+ 1445              		.loc 2 275 0
+ 1446 0098 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
+ 1447              	.L138:
+ 1448 009a 00BF     		.align	2
+ 1449              	.L137:
+ 1450 009c 00000000 		.word	.LANCHOR15
+ 1451 00a0 00000000 		.word	.LANCHOR16
+ 1452 00a4 00000000 		.word	.LANCHOR14
+ 1453 00a8 00000000 		.word	horizontal_mode
+ 1454 00ac 00000000 		.word	nav_pitch
+ 1455 00b0 00000000 		.word	nav_roll
+ 1456 00b4 00000000 		.word	navigation_carrot
+ 1457 00b8 00000000 		.word	.LANCHOR4
+ 1458 00bc 00000000 		.word	nav_heading
+ 1459 00c0 00000000 		.word	.LANCHOR13
+ 1460              		.cfi_endproc
+ 1461              	.LFE124:
+ 1463              		.global	transition_theta_offset
+ 1464              		.global	transition_percentage
+ 1465              		.global	guidance_h_again
+ 1466              		.global	guidance_h_igain
+ 1467              		.global	guidance_h_dgain
+ 1468              		.global	guidance_h_pgain
+ 1469              		.global	guidance_h_command_body
+ 1470              		.global	guidance_h_stick_earth_sp
+ 1471              		.global	guidance_h_command_earth
+ 1472              		.global	guidance_h_rc_sp
+ 1473              		.global	guidance_h_nav_err
+ 1474              		.global	guidance_h_pos_err_sum
+ 1475              		.global	guidance_h_speed_err
+ 1476              		.global	guidance_h_pos_err
+ 1477              		.global	guidance_h_accel_ref
+ 1478              		.global	guidance_h_speed_ref
+ 1479              		.global	guidance_h_pos_ref
+ 1480              		.global	guidance_h_pos_sp
+ 1481              		.global	guidance_h_use_ref
+ 1482              		.global	guidance_h_mode
+ 1483              		.section	.bss.guidance_h_mode,"aw",%nobits
+ 1484              		.set	.LANCHOR15,. + 0
+ 1487              	guidance_h_mode:
+ 1488 0000 00       		.space	1
+ 1489              		.section	.bss.guidance_h_rc_sp,"aw",%nobits
+ 1490              		.align	2
+ 1491              		.set	.LANCHOR14,. + 0
+ 1494              	guidance_h_rc_sp:
+ 1495 0000 00000000 		.space	12
+ 1495      00000000 
+ 1495      00000000 
+ 1496              		.section	.bss.guidance_h_pos_ref,"aw",%nobits
+ 1497              		.align	2
+ 1498              		.set	.LANCHOR0,. + 0
+ 1501              	guidance_h_pos_ref:
+ 1502 0000 00000000 		.space	8
+ 1502      00000000 
+ 1503              		.section	.bss.guidance_h_stick_earth_sp,"aw",%nobits
+ 1504              		.align	2
+ 1507              	guidance_h_stick_earth_sp:
+ 1508 0000 00000000 		.space	8
+ 1508      00000000 
+ 1509              		.section	.bss.guidance_h_speed_ref,"aw",%nobits
+ 1510              		.align	2
+ 1511              		.set	.LANCHOR1,. + 0
+ 1514              	guidance_h_speed_ref:
+ 1515 0000 00000000 		.space	8
+ 1515      00000000 
+ 1516              		.section	.bss.transition_percentage,"aw",%nobits
+ 1517              		.align	2
+ 1518              		.set	.LANCHOR16,. + 0
+ 1521              	transition_percentage:
+ 1522 0000 00000000 		.space	4
+ 1523              		.section	.bss.guidance_h_nav_err,"aw",%nobits
+ 1524              		.align	2
+ 1527              	guidance_h_nav_err:
+ 1528 0000 00000000 		.space	8
+ 1528      00000000 
+ 1529              		.section	.bss.guidance_h_again,"aw",%nobits
+ 1530              		.align	2
+ 1531              		.set	.LANCHOR11,. + 0
+ 1534              	guidance_h_again:
+ 1535 0000 00000000 		.space	4
+ 1536              		.section	.bss.guidance_h_use_ref,"aw",%nobits
+ 1537              		.set	.LANCHOR5,. + 0
+ 1540              	guidance_h_use_ref:
+ 1541 0000 00       		.space	1
+ 1542              		.section	.bss.guidance_h_igain,"aw",%nobits
+ 1543              		.align	2
+ 1544              		.set	.LANCHOR10,. + 0
+ 1547              	guidance_h_igain:
+ 1548 0000 00000000 		.space	4
+ 1549              		.section	.bss.guidance_h_pos_err,"aw",%nobits
+ 1550              		.align	2
+ 1551              		.set	.LANCHOR6,. + 0
+ 1554              	guidance_h_pos_err:
+ 1555 0000 00000000 		.space	8
+ 1555      00000000 
+ 1556              		.section	.bss.guidance_h_pos_err_sum,"aw",%nobits
+ 1557              		.align	2
+ 1558              		.set	.LANCHOR3,. + 0
+ 1561              	guidance_h_pos_err_sum:
+ 1562 0000 00000000 		.space	8
+ 1562      00000000 
+ 1563              		.section	.bss.guidance_h_accel_ref,"aw",%nobits
+ 1564              		.align	2
+ 1565              		.set	.LANCHOR2,. + 0
+ 1568              	guidance_h_accel_ref:
+ 1569 0000 00000000 		.space	8
+ 1569      00000000 
+ 1570              		.section	.bss.guidance_h_command_earth,"aw",%nobits
+ 1571              		.align	2
+ 1572              		.set	.LANCHOR12,. + 0
+ 1575              	guidance_h_command_earth:
+ 1576 0000 00000000 		.space	8
+ 1576      00000000 
+ 1577              		.section	.bss.guidance_h_speed_err,"aw",%nobits
+ 1578              		.align	2
+ 1579              		.set	.LANCHOR7,. + 0
+ 1582              	guidance_h_speed_err:
+ 1583 0000 00000000 		.space	8
+ 1583      00000000 
+ 1584              		.section	.bss.guidance_h_pgain,"aw",%nobits
+ 1585              		.align	2
+ 1586              		.set	.LANCHOR8,. + 0
+ 1589              	guidance_h_pgain:
+ 1590 0000 00000000 		.space	4
+ 1591              		.section	.bss.transition_theta_offset,"aw",%nobits
+ 1592              		.align	2
+ 1593              		.set	.LANCHOR17,. + 0
+ 1596              	transition_theta_offset:
+ 1597 0000 00000000 		.space	4
+ 1598              		.section	.bss.guidance_h_dgain,"aw",%nobits
+ 1599              		.align	2
+ 1600              		.set	.LANCHOR9,. + 0
+ 1603              	guidance_h_dgain:
+ 1604 0000 00000000 		.space	4
+ 1605              		.section	.bss.guidance_h_command_body,"aw",%nobits
+ 1606              		.align	2
+ 1607              		.set	.LANCHOR13,. + 0
+ 1610              	guidance_h_command_body:
+ 1611 0000 00000000 		.space	12
+ 1611      00000000 
+ 1611      00000000 
+ 1612              		.section	.bss.guidance_h_pos_sp,"aw",%nobits
+ 1613              		.align	2
+ 1614              		.set	.LANCHOR4,. + 0
+ 1617              	guidance_h_pos_sp:
+ 1618 0000 00000000 		.space	8
+ 1618      00000000 
+ 1619              		.text
+ 1620              	.Letext0:
+ 1621              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1622              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1623              		.file 6 "./math/pprz_algebra_int.h"
+ 1624              		.file 7 "./math/pprz_algebra_float.h"
+ 1625              		.file 8 "./math/pprz_geodetic_int.h"
+ 1626              		.file 9 "./math/pprz_geodetic_float.h"
+ 1627              		.file 10 "./paparazzi.h"
+ 1628              		.file 11 "./mcu_periph/sys_time.h"
+ 1629              		.file 12 "./subsystems/radio_control.h"
+ 1630              		.file 13 "./math/pprz_trig_int.h"
+ 1631              		.file 14 "./firmwares/rotorcraft/guidance/guidance_h_ref.h"
+ 1632              		.file 15 "./firmwares/rotorcraft/navigation.h"
+ 1633              		.file 16 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+ 1634              		.file 17 "./firmwares/rotorcraft/stabilization/stabilization_none.h"
+ 1635              		.file 18 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
+ 1636              		.file 19 "./firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 guidance_h.c
+/var/tmp//ccEx5Q2a.s:19     .text.stateGetPositionNed_i:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:23     .text.stateGetPositionNed_i:0000000000000000 stateGetPositionNed_i
+/var/tmp//ccEx5Q2a.s:50     .text.stateGetPositionNed_i:0000000000000014 $d
+/var/tmp//ccEx5Q2a.s:56     .text.stateGetSpeedNed_i:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:60     .text.stateGetSpeedNed_i:0000000000000000 stateGetSpeedNed_i
+/var/tmp//ccEx5Q2a.s:86     .text.stateGetSpeedNed_i:0000000000000014 $d
+/var/tmp//ccEx5Q2a.s:92     .text.reset_guidance_reference_from_current_position:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:96     .text.reset_guidance_reference_from_current_position:0000000000000000 reset_guidance_reference_from_current_position
+/var/tmp//ccEx5Q2a.s:160    .text.reset_guidance_reference_from_current_position:000000000000004c $d
+/var/tmp//ccEx5Q2a.s:168    .text.guidance_h_update_reference:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:172    .text.guidance_h_update_reference:0000000000000000 guidance_h_update_reference
+/var/tmp//ccEx5Q2a.s:252    .text.guidance_h_update_reference:0000000000000068 $d
+/var/tmp//ccEx5Q2a.s:264    .text.orientationGetEulers_i.constprop.1:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:268    .text.orientationGetEulers_i.constprop.1:0000000000000000 orientationGetEulers_i.constprop.1
+/var/tmp//ccEx5Q2a.s:297    .text.orientationGetEulers_i.constprop.1:0000000000000018 $d
+/var/tmp//ccEx5Q2a.s:307    .text.guidance_h_traj_run:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:311    .text.guidance_h_traj_run:0000000000000000 guidance_h_traj_run
+/var/tmp//ccEx5Q2a.s:726    .text.guidance_h_traj_run:0000000000000278 $d
+/var/tmp//ccEx5Q2a.s:752    .text.guidance_h_traj_run:00000000000002d8 $t
+/var/tmp//ccEx5Q2a.s:891    .text.guidance_h_traj_run:0000000000000390 $d
+/var/tmp//ccEx5Q2a.s:900    .text.guidance_h_hover_enter:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:904    .text.guidance_h_hover_enter:0000000000000000 guidance_h_hover_enter
+/var/tmp//ccEx5Q2a.s:943    .text.guidance_h_hover_enter:0000000000000024 $d
+/var/tmp//ccEx5Q2a.s:949    .text.guidance_h_nav_enter:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:953    .text.guidance_h_nav_enter:0000000000000000 guidance_h_nav_enter
+/var/tmp//ccEx5Q2a.s:991    .text.guidance_h_nav_enter:0000000000000020 $d
+/var/tmp//ccEx5Q2a.s:998    .text.guidance_h_init:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:1003   .text.guidance_h_init:0000000000000000 guidance_h_init
+/var/tmp//ccEx5Q2a.s:1080   .text.guidance_h_init:000000000000004c $d
+/var/tmp//ccEx5Q2a.s:1096   .text.guidance_h_mode_changed:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:1101   .text.guidance_h_mode_changed:0000000000000000 guidance_h_mode_changed
+/var/tmp//ccEx5Q2a.s:1147   .text.guidance_h_mode_changed:0000000000000028 $d
+/var/tmp//ccEx5Q2a.s:1204   .text.guidance_h_mode_changed:0000000000000064 $d
+/var/tmp//ccEx5Q2a.s:1211   .text.guidance_h_read_rc:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:1216   .text.guidance_h_read_rc:0000000000000000 guidance_h_read_rc
+/var/tmp//ccEx5Q2a.s:1236   .text.guidance_h_read_rc:0000000000000010 $d
+/var/tmp//ccEx5Q2a.s:1285   .text.guidance_h_read_rc:0000000000000040 $d
+/var/tmp//ccEx5Q2a.s:1292   .text.guidance_h_run:0000000000000000 $t
+/var/tmp//ccEx5Q2a.s:1297   .text.guidance_h_run:0000000000000000 guidance_h_run
+/var/tmp//ccEx5Q2a.s:1325   .text.guidance_h_run:0000000000000012 $d
+/var/tmp//ccEx5Q2a.s:1450   .text.guidance_h_run:000000000000009c $d
+/var/tmp//ccEx5Q2a.s:1596   .bss.transition_theta_offset:0000000000000000 transition_theta_offset
+/var/tmp//ccEx5Q2a.s:1521   .bss.transition_percentage:0000000000000000 transition_percentage
+/var/tmp//ccEx5Q2a.s:1534   .bss.guidance_h_again:0000000000000000 guidance_h_again
+/var/tmp//ccEx5Q2a.s:1547   .bss.guidance_h_igain:0000000000000000 guidance_h_igain
+/var/tmp//ccEx5Q2a.s:1603   .bss.guidance_h_dgain:0000000000000000 guidance_h_dgain
+/var/tmp//ccEx5Q2a.s:1589   .bss.guidance_h_pgain:0000000000000000 guidance_h_pgain
+/var/tmp//ccEx5Q2a.s:1610   .bss.guidance_h_command_body:0000000000000000 guidance_h_command_body
+/var/tmp//ccEx5Q2a.s:1507   .bss.guidance_h_stick_earth_sp:0000000000000000 guidance_h_stick_earth_sp
+/var/tmp//ccEx5Q2a.s:1575   .bss.guidance_h_command_earth:0000000000000000 guidance_h_command_earth
+/var/tmp//ccEx5Q2a.s:1494   .bss.guidance_h_rc_sp:0000000000000000 guidance_h_rc_sp
+/var/tmp//ccEx5Q2a.s:1527   .bss.guidance_h_nav_err:0000000000000000 guidance_h_nav_err
+/var/tmp//ccEx5Q2a.s:1561   .bss.guidance_h_pos_err_sum:0000000000000000 guidance_h_pos_err_sum
+/var/tmp//ccEx5Q2a.s:1582   .bss.guidance_h_speed_err:0000000000000000 guidance_h_speed_err
+/var/tmp//ccEx5Q2a.s:1554   .bss.guidance_h_pos_err:0000000000000000 guidance_h_pos_err
+/var/tmp//ccEx5Q2a.s:1568   .bss.guidance_h_accel_ref:0000000000000000 guidance_h_accel_ref
+/var/tmp//ccEx5Q2a.s:1514   .bss.guidance_h_speed_ref:0000000000000000 guidance_h_speed_ref
+/var/tmp//ccEx5Q2a.s:1501   .bss.guidance_h_pos_ref:0000000000000000 guidance_h_pos_ref
+/var/tmp//ccEx5Q2a.s:1617   .bss.guidance_h_pos_sp:0000000000000000 guidance_h_pos_sp
+/var/tmp//ccEx5Q2a.s:1540   .bss.guidance_h_use_ref:0000000000000000 guidance_h_use_ref
+/var/tmp//ccEx5Q2a.s:1487   .bss.guidance_h_mode:0000000000000000 guidance_h_mode
+/var/tmp//ccEx5Q2a.s:1488   .bss.guidance_h_mode:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1490   .bss.guidance_h_rc_sp:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1497   .bss.guidance_h_pos_ref:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1504   .bss.guidance_h_stick_earth_sp:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1510   .bss.guidance_h_speed_ref:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1517   .bss.transition_percentage:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1524   .bss.guidance_h_nav_err:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1530   .bss.guidance_h_again:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1541   .bss.guidance_h_use_ref:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1543   .bss.guidance_h_igain:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1550   .bss.guidance_h_pos_err:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1557   .bss.guidance_h_pos_err_sum:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1564   .bss.guidance_h_accel_ref:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1571   .bss.guidance_h_command_earth:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1578   .bss.guidance_h_speed_err:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1585   .bss.guidance_h_pgain:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1592   .bss.transition_theta_offset:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1599   .bss.guidance_h_dgain:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1606   .bss.guidance_h_command_body:0000000000000000 $d
+/var/tmp//ccEx5Q2a.s:1613   .bss.guidance_h_pos_sp:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+/var/tmp//ccEx5Q2a.s:899    .text.guidance_h_traj_run:00000000000003a4 $t
+/var/tmp//ccEx5Q2a.s:1154   .text.guidance_h_mode_changed:000000000000002f $d
+/var/tmp//ccEx5Q2a.s:1154   .text.guidance_h_mode_changed:0000000000000030 $t
+/var/tmp//ccEx5Q2a.s:1243   .text.guidance_h_read_rc:0000000000000017 $d
+/var/tmp//ccEx5Q2a.s:1243   .text.guidance_h_read_rc:0000000000000018 $t
+/var/tmp//ccEx5Q2a.s:1332   .text.guidance_h_run:0000000000000019 $d
+/var/tmp//ccEx5Q2a.s:1332   .text.guidance_h_run:000000000000001a $t
+
+UNDEFINED SYMBOLS
+stateCalcPositionNed_i
+state
+stateCalcSpeedNed_i
+gh_set_ref
+gh_update_ref_from_pos_sp
+gh_pos_ref
+gh_speed_ref
+gh_accel_ref
+orientationCalcEulers_i
+__aeabi_i2d
+__aeabi_dcmplt
+__aeabi_dcmpgt
+__aeabi_d2iz
+pprz_trig_int
+stabilization_attitude_set_from_eulers_i
+navigation_carrot
+nav_heading
+stabilization_none_enter
+stabilization_rate_enter
+stabilization_attitude_reset_care_free_heading
+stabilization_attitude_enter
+stabilization_none_read_rc
+stabilization_rate_read_rc
+stabilization_attitude_read_rc
+stabilization_attitude_read_rc_setpoint_eulers
+radio_control
+stabilization_none_run
+stabilization_rate_run
+stabilization_attitude_run
+horizontal_mode
+nav_pitch
+nav_roll

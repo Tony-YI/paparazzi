@@ -1,0 +1,423 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"mcu.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.mcu_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	mcu_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	mcu_init:
+  25              	.LFB19:
+  26              		.file 1 "mcu.c"
+   1:mcu.c         **** /*
+   2:mcu.c         ****  * Copyright (C) 2010-2012 The Paparazzi team
+   3:mcu.c         ****  *
+   4:mcu.c         ****  * This file is part of Paparazzi.
+   5:mcu.c         ****  *
+   6:mcu.c         ****  * Paparazzi is free software; you can redistribute it and/or modify
+   7:mcu.c         ****  * it under the terms of the GNU General Public License as published by
+   8:mcu.c         ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:mcu.c         ****  * any later version.
+  10:mcu.c         ****  *
+  11:mcu.c         ****  * Paparazzi is distributed in the hope that it will be useful,
+  12:mcu.c         ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:mcu.c         ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:mcu.c         ****  * GNU General Public License for more details.
+  15:mcu.c         ****  *
+  16:mcu.c         ****  * You should have received a copy of the GNU General Public License
+  17:mcu.c         ****  * along with Paparazzi; see the file COPYING.  If not, write to
+  18:mcu.c         ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:mcu.c         ****  * Boston, MA 02111-1307, USA.
+  20:mcu.c         ****  *
+  21:mcu.c         ****  */
+  22:mcu.c         **** 
+  23:mcu.c         **** /**
+  24:mcu.c         ****  * @file mcu.c
+  25:mcu.c         ****  * @brief Arch independent mcu ( Micro Controller Unit ) utilities.
+  26:mcu.c         ****  */
+  27:mcu.c         **** 
+  28:mcu.c         **** #include "mcu.h"
+  29:mcu.c         **** #include "std.h"
+  30:mcu.c         **** 
+  31:mcu.c         **** #ifdef PERIPHERALS_AUTO_INIT
+  32:mcu.c         **** #include "mcu_periph/sys_time.h"
+  33:mcu.c         **** #ifdef USE_LED
+  34:mcu.c         **** #include "led.h"
+  35:mcu.c         **** #endif
+  36:mcu.c         **** #if defined RADIO_CONTROL
+  37:mcu.c         **** #if defined RADIO_CONTROL_LINK  || defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
+  38:mcu.c         **** #include "subsystems/radio_control.h"
+  39:mcu.c         **** #endif
+  40:mcu.c         **** #endif
+  41:mcu.c         **** #if defined USE_UART0 || defined USE_UART1 || defined USE_UART2 || defined USE_UART3 || defined USE
+  42:mcu.c         **** #include "mcu_periph/uart.h"
+  43:mcu.c         **** #endif
+  44:mcu.c         **** #if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
+  45:mcu.c         **** #include "mcu_periph/i2c.h"
+  46:mcu.c         **** #endif
+  47:mcu.c         **** #if defined USE_ADC
+  48:mcu.c         **** #include "mcu_periph/adc.h"
+  49:mcu.c         **** #endif
+  50:mcu.c         **** #ifdef USE_USB_SERIAL
+  51:mcu.c         **** #include "mcu_periph/usb_serial.h"
+  52:mcu.c         **** #endif
+  53:mcu.c         **** #if USE_SPI
+  54:mcu.c         **** #include "mcu_periph/spi.h"
+  55:mcu.c         **** #endif
+  56:mcu.c         **** #ifdef USE_DAC
+  57:mcu.c         **** #include "mcu_periph/dac.h"
+  58:mcu.c         **** #endif
+  59:mcu.c         **** #endif /* PERIPHERALS_AUTO_INIT */
+  60:mcu.c         **** 
+  61:mcu.c         **** void mcu_init(void) {
+  27              		.loc 1 61 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 38B5     		push	{r3, r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 3, -16
+  35              		.cfi_offset 4, -12
+  36              		.cfi_offset 5, -8
+  37              		.cfi_offset 14, -4
+  38              	.LBB4:
+  39              	.LBB5:
+  40              		.file 2 "led.h"
+   1:led.h         **** /*
+   2:led.h         ****  * Copyright (C) 2003-2005  Antoine Drouin
+   3:led.h         ****  *
+   4:led.h         ****  * This file is part of paparazzi.
+   5:led.h         ****  *
+   6:led.h         ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:led.h         ****  * it under the terms of the GNU General Public License as published by
+   8:led.h         ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:led.h         ****  * any later version.
+  10:led.h         ****  *
+  11:led.h         ****  * paparazzi is distributed in the hope that it will be useful,
+  12:led.h         ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:led.h         ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:led.h         ****  * GNU General Public License for more details.
+  15:led.h         ****  *
+  16:led.h         ****  * You should have received a copy of the GNU General Public License
+  17:led.h         ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:led.h         ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:led.h         ****  * Boston, MA 02111-1307, USA.
+  20:led.h         ****  *
+  21:led.h         ****  */
+  22:led.h         **** 
+  23:led.h         **** /** \file led.h
+  24:led.h         ****  *  \brief arch independent LED (Light Emitting Diodes) API
+  25:led.h         ****  *
+  26:led.h         ****  *
+  27:led.h         ****  */
+  28:led.h         **** 
+  29:led.h         **** #ifndef LED_H
+  30:led.h         **** #define LED_H
+  31:led.h         **** 
+  32:led.h         **** #if defined USE_LED
+  33:led.h         **** 
+  34:led.h         **** #include "led_hw.h"
+  35:led.h         **** 
+  36:led.h         **** static inline void led_init ( void ) {
+  37:led.h         **** #if USE_LED_1
+  38:led.h         ****   LED_INIT(1);
+  41              		.loc 2 38 0
+  42 0002 334D     		ldr	r5, .L2
+  43 0004 334C     		ldr	r4, .L2+4
+  44              	.LBE5:
+  45              	.LBE4:
+  62:mcu.c         **** 
+  63:mcu.c         ****   mcu_arch_init();
+  46              		.loc 1 63 0
+  47 0006 FFF7FEFF 		bl	mcu_arch_init
+  48              	.LVL0:
+  64:mcu.c         **** 
+  65:mcu.c         **** #ifdef PERIPHERALS_AUTO_INIT
+  66:mcu.c         ****   sys_time_init();
+  49              		.loc 1 66 0
+  50 000a FFF7FEFF 		bl	sys_time_init
+  51              	.LVL1:
+  52              	.LBB7:
+  53              	.LBB6:
+  54              		.loc 2 38 0
+  55 000e 2846     		mov	r0, r5
+  56 0010 0421     		movs	r1, #4
+  57 0012 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+  58              	.LVL2:
+  59 0016 0022     		movs	r2, #0
+  60 0018 4FF48073 		mov	r3, #256
+  61 001c 2046     		mov	r0, r4
+  62 001e 0321     		movs	r1, #3
+  63 0020 FFF7FEFF 		bl	gpio_set_mode
+  64              	.LVL3:
+  39:led.h         ****   LED_OFF(1);
+  65              		.loc 2 39 0
+  66 0024 2046     		mov	r0, r4
+  67 0026 4FF48071 		mov	r1, #256
+  68 002a FFF7FEFF 		bl	gpio_set
+  69              	.LVL4:
+  40:led.h         **** #endif /* LED_1 */
+  41:led.h         **** 
+  42:led.h         **** #if USE_LED_2
+  43:led.h         ****   LED_INIT(2);
+  70              		.loc 2 43 0
+  71 002e 04F58064 		add	r4, r4, #1024
+  72 0032 2846     		mov	r0, r5
+  73 0034 0921     		movs	r1, #9
+  74 0036 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+  75              	.LVL5:
+  76 003a 2046     		mov	r0, r4
+  77 003c 0321     		movs	r1, #3
+  78 003e 0022     		movs	r2, #0
+  79 0040 1023     		movs	r3, #16
+  80 0042 FFF7FEFF 		bl	gpio_set_mode
+  81              	.LVL6:
+  82 0046 244B     		ldr	r3, .L2+8
+  44:led.h         ****   LED_OFF(2);
+  83              		.loc 2 44 0
+  84 0048 1021     		movs	r1, #16
+  43:led.h         ****   LED_INIT(2);
+  85              		.loc 2 43 0
+  86 004a 1A68     		ldr	r2, [r3, #0]
+  87 004c 42F08070 		orr	r0, r2, #16777216
+  88 0050 1860     		str	r0, [r3, #0]
+  89              		.loc 2 44 0
+  90 0052 2046     		mov	r0, r4
+  91 0054 FFF7FEFF 		bl	gpio_set
+  92              	.LVL7:
+  45:led.h         **** #endif /* LED_2 */
+  46:led.h         **** 
+  47:led.h         **** #if USE_LED_3
+  48:led.h         ****   LED_INIT(3);
+  93              		.loc 2 48 0
+  94 0058 04F58064 		add	r4, r4, #1024
+  95 005c 2846     		mov	r0, r5
+  96 005e 1021     		movs	r1, #16
+  97 0060 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+  98              	.LVL8:
+  99 0064 0022     		movs	r2, #0
+ 100 0066 0423     		movs	r3, #4
+ 101 0068 2046     		mov	r0, r4
+ 102 006a 0321     		movs	r1, #3
+ 103 006c FFF7FEFF 		bl	gpio_set_mode
+ 104              	.LVL9:
+  49:led.h         ****   LED_OFF(3);
+ 105              		.loc 2 49 0
+ 106 0070 2046     		mov	r0, r4
+ 107 0072 0421     		movs	r1, #4
+ 108 0074 FFF7FEFF 		bl	gpio_set
+ 109              	.LVL10:
+  50:led.h         **** #endif /* LED_3 */
+  51:led.h         **** 
+  52:led.h         **** #if USE_LED_4
+  53:led.h         ****   LED_INIT(4);
+ 110              		.loc 2 53 0
+ 111 0078 2846     		mov	r0, r5
+ 112 007a 1021     		movs	r1, #16
+ 113 007c FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 114              	.LVL11:
+ 115 0080 0022     		movs	r2, #0
+ 116 0082 2023     		movs	r3, #32
+ 117 0084 2046     		mov	r0, r4
+ 118 0086 0321     		movs	r1, #3
+ 119 0088 FFF7FEFF 		bl	gpio_set_mode
+ 120              	.LVL12:
+  54:led.h         ****   LED_OFF(4);
+ 121              		.loc 2 54 0
+ 122 008c 2046     		mov	r0, r4
+ 123 008e 2021     		movs	r1, #32
+ 124 0090 FFF7FEFF 		bl	gpio_set
+ 125              	.LVL13:
+  55:led.h         **** #endif /* LED_4 */
+  56:led.h         **** 
+  57:led.h         **** #if USE_LED_5
+  58:led.h         ****   LED_INIT(5);
+ 126              		.loc 2 58 0
+ 127 0094 2846     		mov	r0, r5
+ 128 0096 1021     		movs	r1, #16
+ 129 0098 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 130              	.LVL14:
+ 131 009c 0022     		movs	r2, #0
+ 132 009e 4FF40043 		mov	r3, #32768
+ 133 00a2 2046     		mov	r0, r4
+ 134 00a4 0321     		movs	r1, #3
+ 135 00a6 FFF7FEFF 		bl	gpio_set_mode
+ 136              	.LVL15:
+  59:led.h         ****   LED_OFF(5);
+ 137              		.loc 2 59 0
+ 138 00aa 2046     		mov	r0, r4
+ 139 00ac 4FF40041 		mov	r1, #32768
+ 140 00b0 FFF7FEFF 		bl	gpio_set
+ 141              	.LVL16:
+ 142              	.LBE6:
+ 143              	.LBE7:
+  67:mcu.c         **** #ifdef USE_LED
+  68:mcu.c         ****   led_init();
+  69:mcu.c         **** #endif
+  70:mcu.c         ****   /* for now this means using spektrum */
+  71:mcu.c         **** #if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIN
+  72:mcu.c         ****   RADIO_CONTROL_BIND_IMPL_FUNC();
+  73:mcu.c         **** #endif
+  74:mcu.c         **** #ifdef USE_UART0
+  75:mcu.c         ****   uart0_init();
+  76:mcu.c         **** #endif
+  77:mcu.c         **** #ifdef USE_UART1
+  78:mcu.c         ****   uart1_init();
+  79:mcu.c         **** #endif
+  80:mcu.c         **** #ifdef USE_UART2
+  81:mcu.c         ****   uart2_init();
+ 144              		.loc 1 81 0
+ 145 00b4 FFF7FEFF 		bl	uart2_init
+ 146              	.LVL17:
+  82:mcu.c         **** #endif
+  83:mcu.c         **** #ifdef USE_UART3
+  84:mcu.c         ****   uart3_init();
+ 147              		.loc 1 84 0
+ 148 00b8 FFF7FEFF 		bl	uart3_init
+ 149              	.LVL18:
+  85:mcu.c         **** #endif
+  86:mcu.c         **** #ifdef USE_UART4
+  87:mcu.c         ****   uart4_init();
+  88:mcu.c         **** #endif
+  89:mcu.c         **** #ifdef USE_UART5
+  90:mcu.c         ****   uart5_init();
+  91:mcu.c         **** #endif
+  92:mcu.c         **** #ifdef USE_UART6
+  93:mcu.c         ****   uart6_init();
+  94:mcu.c         **** #endif
+  95:mcu.c         **** #ifdef USE_I2C0
+  96:mcu.c         ****   i2c0_init();
+  97:mcu.c         **** #endif
+  98:mcu.c         **** #ifdef USE_I2C1
+  99:mcu.c         ****   i2c1_init();
+ 100:mcu.c         **** #endif
+ 101:mcu.c         **** #ifdef USE_I2C2
+ 102:mcu.c         ****   i2c2_init();
+ 150              		.loc 1 102 0
+ 151 00bc FFF7FEFF 		bl	i2c2_init
+ 152              	.LVL19:
+ 103:mcu.c         **** #endif
+ 104:mcu.c         **** #ifdef USE_I2C3
+ 105:mcu.c         ****   i2c3_init();
+ 106:mcu.c         **** #endif
+ 107:mcu.c         **** #ifdef USE_ADC
+ 108:mcu.c         ****   adc_init();
+ 153              		.loc 1 108 0
+ 154 00c0 FFF7FEFF 		bl	adc_init
+ 155              	.LVL20:
+ 109:mcu.c         **** #endif
+ 110:mcu.c         **** #ifdef USE_USB_SERIAL
+ 111:mcu.c         ****   VCOM_init();
+ 112:mcu.c         **** #endif
+ 113:mcu.c         **** 
+ 114:mcu.c         **** #if USE_SPI
+ 115:mcu.c         **** #if SPI_MASTER
+ 116:mcu.c         **** 
+ 117:mcu.c         **** #if USE_SPI0
+ 118:mcu.c         ****   spi0_init();
+ 119:mcu.c         **** #endif
+ 120:mcu.c         **** #if USE_SPI1
+ 121:mcu.c         ****   spi1_init();
+ 122:mcu.c         **** #endif
+ 123:mcu.c         **** #if USE_SPI2
+ 124:mcu.c         ****   spi2_init();
+ 156              		.loc 1 124 0
+ 157 00c4 FFF7FEFF 		bl	spi2_init
+ 158              	.LVL21:
+ 125:mcu.c         **** #endif
+ 126:mcu.c         **** #if USE_SPI3
+ 127:mcu.c         ****   spi3_init();
+ 128:mcu.c         **** #endif
+ 129:mcu.c         ****   spi_init_slaves();
+ 130:mcu.c         **** #endif // SPI_MASTER
+ 131:mcu.c         **** 
+ 132:mcu.c         **** #if SPI_SLAVE
+ 133:mcu.c         **** #if USE_SPI0_SLAVE
+ 134:mcu.c         ****   spi0_slave_init();
+ 135:mcu.c         **** #endif
+ 136:mcu.c         **** #if USE_SPI1_SLAVE
+ 137:mcu.c         ****   spi1_slave_init();
+ 138:mcu.c         **** #endif
+ 139:mcu.c         **** #if USE_SPI2_SLAVE
+ 140:mcu.c         ****   spi2_slave_init();
+ 141:mcu.c         **** #endif
+ 142:mcu.c         **** #if USE_SPI3_SLAVE
+ 143:mcu.c         ****   spi3_slave_init();
+ 144:mcu.c         **** #endif
+ 145:mcu.c         **** #endif // SPI_SLAVE
+ 146:mcu.c         **** 
+ 147:mcu.c         **** #if SPI_SLAVE_HS
+ 148:mcu.c         ****   spi_slave_hs_init();
+ 149:mcu.c         **** #endif
+ 150:mcu.c         **** #endif // USE_SPI
+ 151:mcu.c         **** 
+ 152:mcu.c         **** #ifdef USE_DAC
+ 153:mcu.c         ****   dac_init();
+ 154:mcu.c         **** #endif
+ 155:mcu.c         **** #else
+ 156:mcu.c         **** INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initializat
+ 157:mcu.c         **** #endif /* PERIPHERALS_AUTO_INIT */
+ 158:mcu.c         **** 
+ 159:mcu.c         **** }
+ 159              		.loc 1 159 0
+ 160 00c8 BDE83840 		pop	{r3, r4, r5, lr}
+ 129:mcu.c         ****   spi_init_slaves();
+ 161              		.loc 1 129 0
+ 162 00cc FFF7FEBF 		b	spi_init_slaves
+ 163              	.LVL22:
+ 164              	.L3:
+ 165              		.align	2
+ 166              	.L2:
+ 167 00d0 18100240 		.word	1073877016
+ 168 00d4 00080140 		.word	1073809408
+ 169 00d8 04000140 		.word	1073807364
+ 170              		.cfi_endproc
+ 171              	.LFE19:
+ 173              		.text
+ 174              	.Letext0:
+ 175              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 176              		.file 4 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 177              		.file 5 "mcu_periph/sys_time.h"
+ 178              		.file 6 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+ 179              		.file 7 "../ext/libopencm3/include/libopencm3/stm32/f1/rcc.h"
+ 180              		.file 8 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
+ 181              		.file 9 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
+ 182              		.file 10 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_arch.h"
+ 183              		.file 11 "mcu_periph/uart.h"
+ 184              		.file 12 "mcu_periph/i2c.h"
+ 185              		.file 13 "mcu_periph/adc.h"
+ 186              		.file 14 "mcu_periph/spi.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mcu.c
+/var/tmp//ccvj9qpw.s:19     .text.mcu_init:0000000000000000 $t
+/var/tmp//ccvj9qpw.s:24     .text.mcu_init:0000000000000000 mcu_init
+/var/tmp//ccvj9qpw.s:167    .text.mcu_init:00000000000000d0 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+mcu_arch_init
+sys_time_init
+rcc_peripheral_enable_clock
+gpio_set_mode
+gpio_set
+uart2_init
+uart3_init
+i2c2_init
+adc_init
+spi2_init
+spi_init_slaves

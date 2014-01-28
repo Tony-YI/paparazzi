@@ -1,0 +1,338 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"mpu60x0.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.mpu60x0_set_default_config,"ax",%progbits
+  19              		.align	1
+  20              		.global	mpu60x0_set_default_config
+  21              		.thumb
+  22              		.thumb_func
+  24              	mpu60x0_set_default_config:
+  25              	.LFB0:
+  26              		.file 1 "peripherals/mpu60x0.c"
+   1:peripherals/mpu60x0.c **** /*
+   2:peripherals/mpu60x0.c ****  * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+   3:peripherals/mpu60x0.c ****  *
+   4:peripherals/mpu60x0.c ****  * This file is part of paparazzi.
+   5:peripherals/mpu60x0.c ****  *
+   6:peripherals/mpu60x0.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:peripherals/mpu60x0.c ****  * it under the terms of the GNU General Public License as published by
+   8:peripherals/mpu60x0.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:peripherals/mpu60x0.c ****  * any later version.
+  10:peripherals/mpu60x0.c ****  *
+  11:peripherals/mpu60x0.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:peripherals/mpu60x0.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:peripherals/mpu60x0.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:peripherals/mpu60x0.c ****  * GNU General Public License for more details.
+  15:peripherals/mpu60x0.c ****  *
+  16:peripherals/mpu60x0.c ****  * You should have received a copy of the GNU General Public License
+  17:peripherals/mpu60x0.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:peripherals/mpu60x0.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:peripherals/mpu60x0.c ****  * Boston, MA 02111-1307, USA.
+  20:peripherals/mpu60x0.c ****  */
+  21:peripherals/mpu60x0.c **** 
+  22:peripherals/mpu60x0.c **** /**
+  23:peripherals/mpu60x0.c ****  * @file peripherals/mpu60x0.c
+  24:peripherals/mpu60x0.c ****  *
+  25:peripherals/mpu60x0.c ****  * MPU-60X0 driver common functions (I2C and SPI).
+  26:peripherals/mpu60x0.c ****  *
+  27:peripherals/mpu60x0.c ****  * Still needs the either the I2C or SPI specific implementation.
+  28:peripherals/mpu60x0.c ****  */
+  29:peripherals/mpu60x0.c **** 
+  30:peripherals/mpu60x0.c **** #include "peripherals/mpu60x0.h"
+  31:peripherals/mpu60x0.c **** 
+  32:peripherals/mpu60x0.c **** void mpu60x0_set_default_config(struct Mpu60x0Config *c)
+  33:peripherals/mpu60x0.c **** {
+  27              		.loc 1 33 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  34:peripherals/mpu60x0.c ****   c->clk_sel = MPU60X0_DEFAULT_CLK_SEL;
+  33              		.loc 1 34 0
+  34 0000 0123     		movs	r3, #1
+  35:peripherals/mpu60x0.c ****   c->smplrt_div = MPU60X0_DEFAULT_SMPLRT_DIV;
+  35              		.loc 1 35 0
+  36 0002 0021     		movs	r1, #0
+  36:peripherals/mpu60x0.c ****   c->dlpf_cfg = MPU60X0_DEFAULT_DLPF_CFG;
+  37              		.loc 1 36 0
+  38 0004 0322     		movs	r2, #3
+  34:peripherals/mpu60x0.c ****   c->clk_sel = MPU60X0_DEFAULT_CLK_SEL;
+  39              		.loc 1 34 0
+  40 0006 4371     		strb	r3, [r0, #5]
+  37:peripherals/mpu60x0.c ****   c->gyro_range = MPU60X0_DEFAULT_FS_SEL;
+  38:peripherals/mpu60x0.c ****   c->accel_range = MPU60X0_DEFAULT_AFS_SEL;
+  39:peripherals/mpu60x0.c ****   c->drdy_int_enable = FALSE;
+  40:peripherals/mpu60x0.c **** 
+  41:peripherals/mpu60x0.c ****   /* Number of bytes to read starting with MPU60X0_REG_INT_STATUS
+  42:peripherals/mpu60x0.c ****    * By default read only gyro and accel data -> 15 bytes.
+  43:peripherals/mpu60x0.c ****    * Increase to include slave data.
+  44:peripherals/mpu60x0.c ****    */
+  45:peripherals/mpu60x0.c ****   c->nb_bytes = 15;
+  41              		.loc 1 45 0
+  42 0008 0F23     		movs	r3, #15
+  35:peripherals/mpu60x0.c ****   c->smplrt_div = MPU60X0_DEFAULT_SMPLRT_DIV;
+  43              		.loc 1 35 0
+  44 000a 0170     		strb	r1, [r0, #0]
+  36:peripherals/mpu60x0.c ****   c->dlpf_cfg = MPU60X0_DEFAULT_DLPF_CFG;
+  45              		.loc 1 36 0
+  46 000c 4270     		strb	r2, [r0, #1]
+  37:peripherals/mpu60x0.c ****   c->gyro_range = MPU60X0_DEFAULT_FS_SEL;
+  47              		.loc 1 37 0
+  48 000e 8270     		strb	r2, [r0, #2]
+  38:peripherals/mpu60x0.c ****   c->accel_range = MPU60X0_DEFAULT_AFS_SEL;
+  49              		.loc 1 38 0
+  50 0010 C270     		strb	r2, [r0, #3]
+  39:peripherals/mpu60x0.c ****   c->drdy_int_enable = FALSE;
+  51              		.loc 1 39 0
+  52 0012 0171     		strb	r1, [r0, #4]
+  53              		.loc 1 45 0
+  54 0014 8371     		strb	r3, [r0, #6]
+  46:peripherals/mpu60x0.c ****   c->nb_slaves = 0;
+  55              		.loc 1 46 0
+  56 0016 8172     		strb	r1, [r0, #10]
+  47:peripherals/mpu60x0.c **** 
+  48:peripherals/mpu60x0.c ****   c->i2c_bypass = FALSE;
+  57              		.loc 1 48 0
+  58 0018 4172     		strb	r1, [r0, #9]
+  59 001a 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE0:
+  63              		.section	.text.mpu60x0_send_config,"ax",%progbits
+  64              		.align	1
+  65              		.global	mpu60x0_send_config
+  66              		.thumb
+  67              		.thumb_func
+  69              	mpu60x0_send_config:
+  70              	.LFB1:
+  49:peripherals/mpu60x0.c **** }
+  50:peripherals/mpu60x0.c **** 
+  51:peripherals/mpu60x0.c **** void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config)
+  52:peripherals/mpu60x0.c **** {
+  71              		.loc 1 52 0
+  72              		.cfi_startproc
+  73              		@ args = 0, pretend = 0, frame = 0
+  74              		@ frame_needed = 0, uses_anonymous_args = 0
+  75              	.LVL1:
+  76 0000 10B5     		push	{r4, lr}
+  77              	.LCFI0:
+  78              		.cfi_def_cfa_offset 8
+  79              		.cfi_offset 4, -8
+  80              		.cfi_offset 14, -4
+  81              		.loc 1 52 0
+  82 0002 1446     		mov	r4, r2
+  53:peripherals/mpu60x0.c ****   switch (config->init_status) {
+  83              		.loc 1 53 0
+  84 0004 D279     		ldrb	r2, [r2, #7]	@ zero_extendqisi2
+  85              	.LVL2:
+  52:peripherals/mpu60x0.c **** {
+  86              		.loc 1 52 0
+  87 0006 0346     		mov	r3, r0
+  88              		.loc 1 53 0
+  89 0008 013A     		subs	r2, r2, #1
+  90 000a 092A     		cmp	r2, #9
+  91 000c 39D8     		bhi	.L2
+  92 000e DFE802F0 		tbb	[pc, r2]
+  93              	.LVL3:
+  94              	.L14:
+  95 0012 05       		.byte	(.L4-.L14)/2
+  96 0013 09       		.byte	(.L5-.L14)/2
+  97 0014 0D       		.byte	(.L6-.L14)/2
+  98 0015 11       		.byte	(.L7-.L14)/2
+  99 0016 15       		.byte	(.L8-.L14)/2
+ 100 0017 19       		.byte	(.L9-.L14)/2
+ 101 0018 1E       		.byte	(.L10-.L14)/2
+ 102 0019 25       		.byte	(.L11-.L14)/2
+ 103 001a 2E       		.byte	(.L12-.L14)/2
+ 104 001b 36       		.byte	(.L13-.L14)/2
+ 105              		.align	1
+ 106              	.L4:
+  54:peripherals/mpu60x0.c ****     case MPU60X0_CONF_RESET:
+  55:peripherals/mpu60x0.c ****       /* device reset, set register values to defaults */
+  56:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, (1<<6));
+ 107              		.loc 1 56 0
+ 108 001c 0846     		mov	r0, r1
+ 109 001e 4022     		movs	r2, #64
+ 110 0020 6B21     		movs	r1, #107
+ 111              	.LVL4:
+ 112 0022 27E0     		b	.L20
+ 113              	.LVL5:
+ 114              	.L5:
+  57:peripherals/mpu60x0.c ****       config->init_status++;
+  58:peripherals/mpu60x0.c ****     break;
+  59:peripherals/mpu60x0.c ****     case MPU60X0_CONF_USER_RESET:
+  60:peripherals/mpu60x0.c ****       /* trigger FIFO, I2C_MST and SIG_COND resets */
+  61:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_USER_CTRL, ((1 << MPU60X0_FIFO_RESET) |
+ 115              		.loc 1 61 0
+ 116 0024 0846     		mov	r0, r1
+ 117 0026 0722     		movs	r2, #7
+ 118 0028 6A21     		movs	r1, #106
+ 119              	.LVL6:
+ 120 002a 23E0     		b	.L20
+ 121              	.LVL7:
+ 122              	.L6:
+  62:peripherals/mpu60x0.c ****                                            (1 << MPU60X0_I2C_MST_RESET) |
+  63:peripherals/mpu60x0.c ****                                            (1 << MPU60X0_SIG_COND_RESET)));
+  64:peripherals/mpu60x0.c ****       config->init_status++;
+  65:peripherals/mpu60x0.c ****       break;
+  66:peripherals/mpu60x0.c ****     case MPU60X0_CONF_PWR:
+  67:peripherals/mpu60x0.c ****       /* switch to gyroX clock by default */
+  68:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->clk_sel)|(0<<6)));
+ 123              		.loc 1 68 0
+ 124 002c 0846     		mov	r0, r1
+ 125 002e 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+ 126 0030 6B21     		movs	r1, #107
+ 127              	.LVL8:
+ 128 0032 1FE0     		b	.L20
+ 129              	.LVL9:
+ 130              	.L7:
+  69:peripherals/mpu60x0.c ****       config->init_status++;
+  70:peripherals/mpu60x0.c ****       break;
+  71:peripherals/mpu60x0.c ****     case MPU60X0_CONF_SD:
+  72:peripherals/mpu60x0.c ****       /* configure sample rate divider */
+  73:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_SMPLRT_DIV, config->smplrt_div);
+ 131              		.loc 1 73 0
+ 132 0034 0846     		mov	r0, r1
+ 133 0036 2278     		ldrb	r2, [r4, #0]	@ zero_extendqisi2
+ 134 0038 1921     		movs	r1, #25
+ 135              	.LVL10:
+ 136 003a 1BE0     		b	.L20
+ 137              	.LVL11:
+ 138              	.L8:
+  74:peripherals/mpu60x0.c ****       config->init_status++;
+  75:peripherals/mpu60x0.c ****       break;
+  76:peripherals/mpu60x0.c ****     case MPU60X0_CONF_DLPF:
+  77:peripherals/mpu60x0.c ****       /* configure digital low pass filter */
+  78:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_CONFIG, config->dlpf_cfg);
+ 139              		.loc 1 78 0
+ 140 003c 0846     		mov	r0, r1
+ 141 003e 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+ 142 0040 1A21     		movs	r1, #26
+ 143              	.LVL12:
+ 144 0042 17E0     		b	.L20
+ 145              	.LVL13:
+ 146              	.L9:
+  79:peripherals/mpu60x0.c ****       config->init_status++;
+  80:peripherals/mpu60x0.c ****       break;
+  81:peripherals/mpu60x0.c ****     case MPU60X0_CONF_GYRO:
+  82:peripherals/mpu60x0.c ****       /* configure gyro range */
+  83:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_GYRO_CONFIG, (config->gyro_range<<3));
+ 147              		.loc 1 83 0
+ 148 0044 A078     		ldrb	r0, [r4, #2]	@ zero_extendqisi2
+ 149 0046 C200     		lsls	r2, r0, #3
+ 150 0048 0846     		mov	r0, r1
+ 151 004a 1B21     		movs	r1, #27
+ 152              	.LVL14:
+ 153 004c 03E0     		b	.L22
+ 154              	.LVL15:
+ 155              	.L10:
+  84:peripherals/mpu60x0.c ****       config->init_status++;
+  85:peripherals/mpu60x0.c ****       break;
+  86:peripherals/mpu60x0.c ****     case MPU60X0_CONF_ACCEL:
+  87:peripherals/mpu60x0.c ****       /* configure accelerometer range */
+  88:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_ACCEL_CONFIG, (config->accel_range<<3));
+ 156              		.loc 1 88 0
+ 157 004e E078     		ldrb	r0, [r4, #3]	@ zero_extendqisi2
+ 158 0050 C200     		lsls	r2, r0, #3
+ 159 0052 0846     		mov	r0, r1
+ 160 0054 1C21     		movs	r1, #28
+ 161              	.LVL16:
+ 162              	.L22:
+ 163 0056 02F0F802 		and	r2, r2, #248
+ 164 005a 0BE0     		b	.L20
+ 165              	.LVL17:
+ 166              	.L11:
+  89:peripherals/mpu60x0.c ****       config->init_status++;
+  90:peripherals/mpu60x0.c ****       break;
+  91:peripherals/mpu60x0.c ****     case MPU60X0_CONF_I2C_SLAVES:
+  92:peripherals/mpu60x0.c ****       /* if any, set MPU for I2C slaves and configure them*/
+  93:peripherals/mpu60x0.c ****       if (config->nb_slaves > 0) {
+ 167              		.loc 1 93 0
+ 168 005c A27A     		ldrb	r2, [r4, #10]	@ zero_extendqisi2
+ 169 005e 22B1     		cbz	r2, .L15
+  94:peripherals/mpu60x0.c ****         /* returns TRUE when all slaves are configured */
+  95:peripherals/mpu60x0.c ****         if (mpu60x0_configure_i2c_slaves(mpu_set, mpu))
+ 170              		.loc 1 95 0
+ 171 0060 1846     		mov	r0, r3
+ 172 0062 FFF7FEFF 		bl	mpu60x0_configure_i2c_slaves
+ 173              	.LVL18:
+ 174 0066 60B1     		cbz	r0, .L2
+ 175 0068 05E0     		b	.L21
+ 176              	.LVL19:
+ 177              	.L15:
+  96:peripherals/mpu60x0.c ****           config->init_status++;
+  97:peripherals/mpu60x0.c ****       }
+  98:peripherals/mpu60x0.c ****       else
+  99:peripherals/mpu60x0.c ****         config->init_status++;
+ 178              		.loc 1 99 0
+ 179 006a 0923     		movs	r3, #9
+ 180              	.LVL20:
+ 181 006c 05E0     		b	.L19
+ 182              	.LVL21:
+ 183              	.L12:
+ 100:peripherals/mpu60x0.c ****       break;
+ 101:peripherals/mpu60x0.c ****     case MPU60X0_CONF_INT_ENABLE:
+ 102:peripherals/mpu60x0.c ****       /* configure data ready interrupt */
+ 103:peripherals/mpu60x0.c ****       mpu_set(mpu, MPU60X0_REG_INT_ENABLE, (config->drdy_int_enable<<0));
+ 184              		.loc 1 103 0
+ 185 006e 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+ 186 0070 0846     		mov	r0, r1
+ 187 0072 3821     		movs	r1, #56
+ 188              	.LVL22:
+ 189              	.L20:
+ 190 0074 9847     		blx	r3
+ 191              	.LVL23:
+ 192              	.L21:
+ 104:peripherals/mpu60x0.c ****       config->init_status++;
+ 193              		.loc 1 104 0
+ 194 0076 E179     		ldrb	r1, [r4, #7]	@ zero_extendqisi2
+ 195 0078 4B1C     		adds	r3, r1, #1
+ 196              	.L19:
+ 197 007a E371     		strb	r3, [r4, #7]
+ 105:peripherals/mpu60x0.c ****       break;
+ 198              		.loc 1 105 0
+ 199 007c 10BD     		pop	{r4, pc}
+ 200              	.LVL24:
+ 201              	.L13:
+ 106:peripherals/mpu60x0.c ****     case MPU60X0_CONF_DONE:
+ 107:peripherals/mpu60x0.c ****       config->initialized = TRUE;
+ 202              		.loc 1 107 0
+ 203 007e 0120     		movs	r0, #1
+ 204 0080 2072     		strb	r0, [r4, #8]
+ 205              	.LVL25:
+ 206              	.L2:
+ 207 0082 10BD     		pop	{r4, pc}
+ 208              		.cfi_endproc
+ 209              	.LFE1:
+ 211              		.text
+ 212              	.Letext0:
+ 213              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 214              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 215              		.file 4 "./peripherals/mpu60x0_regs.h"
+ 216              		.file 5 "./peripherals/mpu60x0.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mpu60x0.c
+/var/tmp//cc6v0W9U.s:19     .text.mpu60x0_set_default_config:0000000000000000 $t
+/var/tmp//cc6v0W9U.s:24     .text.mpu60x0_set_default_config:0000000000000000 mpu60x0_set_default_config
+/var/tmp//cc6v0W9U.s:64     .text.mpu60x0_send_config:0000000000000000 $t
+/var/tmp//cc6v0W9U.s:69     .text.mpu60x0_send_config:0000000000000000 mpu60x0_send_config
+/var/tmp//cc6v0W9U.s:95     .text.mpu60x0_send_config:0000000000000012 $d
+/var/tmp//cc6v0W9U.s:105    .text.mpu60x0_send_config:000000000000001c $t
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+mpu60x0_configure_i2c_slaves

@@ -1,0 +1,51 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"pprz_transport.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	pprz_tp
+  19              		.global	ck_b
+  20              		.global	ck_a
+  21              		.section	.bss.pprz_tp,"aw",%nobits
+  24              	pprz_tp:
+  25 0000 00000000 		.space	264
+  25      00000000 
+  25      00000000 
+  25      00000000 
+  25      00000000 
+  26              		.section	.bss.ck_a,"aw",%nobits
+  29              	ck_a:
+  30 0000 00       		.space	1
+  31              		.section	.bss.ck_b,"aw",%nobits
+  34              	ck_b:
+  35 0000 00       		.space	1
+  36              		.text
+  37              	.Letext0:
+  38              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  39              		.file 2 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+  40              		.file 3 "./subsystems/datalink/transport.h"
+  41              		.file 4 "./subsystems/datalink/pprz_transport.h"
+  42              		.file 5 "./subsystems/datalink/datalink.h"
+  43              		.file 6 "subsystems/datalink/pprz_transport.c"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 pprz_transport.c
+/var/tmp//ccSL10Nd.s:24     .bss.pprz_tp:0000000000000000 pprz_tp
+/var/tmp//ccSL10Nd.s:34     .bss.ck_b:0000000000000000 ck_b
+/var/tmp//ccSL10Nd.s:29     .bss.ck_a:0000000000000000 ck_a
+/var/tmp//ccSL10Nd.s:25     .bss.pprz_tp:0000000000000000 $d
+/var/tmp//ccSL10Nd.s:30     .bss.ck_a:0000000000000000 $d
+/var/tmp//ccSL10Nd.s:35     .bss.ck_b:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

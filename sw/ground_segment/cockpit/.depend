@@ -1,173 +1,183 @@
-compass.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmi
-compass.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmx
-editFP.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlEdit.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapFP.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi editFP.cmi
-editFP.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlEdit.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapFP.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx editFP.cmi
-editFP.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapWaypoints.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi
-gcs.cmo : strip.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmi \
+compass.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/defivybus.cmi
+compass.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/defivybus.cmx
+editFP.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlEdit.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapFP.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi editFP.cmi
+editFP.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlEdit.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapFP.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx editFP.cmi
+editFP.cmi : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapWaypoints.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi
+gcs.cmo : strip.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmi \
     speech.cmi sectors.cmi plugin.cmi particules.cmo papgets.cmi pages.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapIGN.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapGoogle.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
-    live.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/iGN.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gm.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi editFP.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmi
-gcs.cmx : strip.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapIGN.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapGoogle.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
+    live.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/iGN.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gm.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi editFP.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/defivybus.cmi
+gcs.cmx : strip.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmx \
     speech.cmx sectors.cmx plugin.cmx particules.cmx papgets.cmx pages.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapIGN.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapGoogle.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
-    live.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/iGN.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gm.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx editFP.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmx
-horizon.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapIGN.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapGoogle.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
+    live.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/iGN.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gm.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx editFP.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/defivybus.cmx
+horizon.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
     horizon.cmi
-horizon.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
+horizon.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
     horizon.cmi
 horizon.cmi :
-live.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlEdit.cmi strip.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmi speech.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi plugin.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmi pages.cmi \
-    page_settings.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapWaypoints.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapTrack.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapFP.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/http.cmi horizon.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi live.cmi
-live.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlEdit.cmx strip.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmx speech.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx plugin.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmx pages.cmx \
-    page_settings.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapWaypoints.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapTrack.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapFP.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/http.cmx horizon.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx live.cmi
-live.cmi : strip.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+live.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlEdit.cmi \
+    strip.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmi \
+    speech.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    plugin.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmi \
     pages.cmi page_settings.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapWaypoints.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapTrack.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapFP.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi horizon.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapWaypoints.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapTrack.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapFP.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi map2d.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/http.cmi horizon.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi live.cmi
+live.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlEdit.cmx \
+    strip.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmx \
+    speech.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    plugin.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmx \
+    pages.cmx page_settings.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapWaypoints.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapTrack.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapFP.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmx map2d.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/http.cmx horizon.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx live.cmi
+live.cmi : strip.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi pages.cmi \
+    page_settings.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapWaypoints.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapTrack.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapFP.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi horizon.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi
 map2d.cmo : map2d.cmi
 map2d.cmx : map2d.cmi
-map2d.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi
+map2d.cmi : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi
 page_settings.cmo : saveSettings.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi page_settings.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi page_settings.cmi
 page_settings.cmx : saveSettings.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx page_settings.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx page_settings.cmi
 page_settings.cmi :
-pages.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi pages.cmi
-pages.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx pages.cmi
+pages.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi pages.cmi
+pages.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx pages.cmi
 pages.cmi :
-papgets.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_renderer.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget.cmi live.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_lexer.cmo papgets.cmi
-papgets.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_renderer.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget_common.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/papget.cmx live.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_lexer.cmx papgets.cmi
+papgets.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_renderer.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget.cmi live.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_lexer.cmo \
+    papgets.cmi
+papgets.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_renderer.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget_common.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/papget.cmx live.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_lexer.cmx \
+    papgets.cmi
 papgets.cmi :
-particules.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi live.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi
-particules.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmx live.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx
+particules.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi live.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi
+particules.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmx live.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx
 plugin.cmo : plugin.cmi
 plugin.cmx : plugin.cmi
 plugin.cmi :
-saveSettings.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlCom.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/editAirframe.cmi \
+saveSettings.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlCom.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/editAirframe.cmi \
     saveSettings.cmi
-saveSettings.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xmlCom.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/editAirframe.cmx \
+saveSettings.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xmlCom.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/editAirframe.cmx \
     saveSettings.cmi
 saveSettings.cmi :
-sectors.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi sectors.cmi
-sectors.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx sectors.cmi
-sectors.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/mapCanvas.cmi
-speech.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/os_calls.cmi \
+sectors.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi sectors.cmi
+sectors.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx sectors.cmi
+sectors.cmi : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/mapCanvas.cmi
+speech.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/os_calls.cmi \
     speech.cmi
-speech.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/os_calls.cmx \
+speech.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/os_calls.cmx \
     speech.cmi
 speech.cmi :
-strip.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi strip.cmi
-strip.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx strip.cmi
-strip.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi
+strip.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi strip.cmi
+strip.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx strip.cmi
+strip.cmi : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi

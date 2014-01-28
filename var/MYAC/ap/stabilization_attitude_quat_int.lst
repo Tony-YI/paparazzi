@@ -1,0 +1,3457 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"stabilization_attitude_quat_int.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.stabilization_attitude_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	stabilization_attitude_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	stabilization_attitude_init:
+  25              	.LFB120:
+  26              		.file 1 "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c"
+   1:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** /*
+   2:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  *
+   4:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  *
+   6:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * any later version.
+  10:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  *
+  11:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  *
+  16:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  */
+  21:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  22:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** /** @file stabilization_attitude_quat_int.c
+  23:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  * Rotorcraft quaternion attitude stabilization
+  24:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****  */
+  25:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  26:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "firmwares/rotorcraft/stabilization.h"
+  27:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+  28:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  29:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include <stdio.h>
+  30:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "math/pprz_algebra_float.h"
+  31:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "math/pprz_algebra_int.h"
+  32:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "state.h"
+  33:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #include "generated/airframe.h"
+  34:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  35:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** struct Int32AttitudeGains stabilization_gains = {
+  36:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   {STABILIZATION_ATTITUDE_PHI_PGAIN, STABILIZATION_ATTITUDE_THETA_PGAIN, STABILIZATION_ATTITUDE_PSI
+  37:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   {STABILIZATION_ATTITUDE_PHI_DGAIN, STABILIZATION_ATTITUDE_THETA_DGAIN, STABILIZATION_ATTITUDE_PSI
+  38:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   {STABILIZATION_ATTITUDE_PHI_DDGAIN, STABILIZATION_ATTITUDE_THETA_DDGAIN, STABILIZATION_ATTITUDE_P
+  39:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   {STABILIZATION_ATTITUDE_PHI_IGAIN, STABILIZATION_ATTITUDE_THETA_IGAIN, STABILIZATION_ATTITUDE_PSI
+  40:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** };
+  41:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  42:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** /* warn if some gains are still negative */
+  43:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #if (STABILIZATION_ATTITUDE_PHI_PGAIN < 0) ||   \
+  44:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_THETA_PGAIN < 0) ||   \
+  45:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_PSI_PGAIN < 0)   ||   \
+  46:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_PHI_DGAIN < 0)   ||   \
+  47:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_THETA_DGAIN < 0) ||   \
+  48:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_PSI_DGAIN < 0)   ||   \
+  49:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_PHI_IGAIN < 0)   ||   \
+  50:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_THETA_IGAIN < 0) ||   \
+  51:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   (STABILIZATION_ATTITUDE_PSI_IGAIN  < 0)
+  52:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #warning "ALL control gains are now positive!!!"
+  53:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #endif
+  54:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  55:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** struct Int32Quat stabilization_att_sum_err_quat;
+  56:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** struct Int32Eulers stabilization_att_sum_err;
+  57:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  58:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** int32_t stabilization_att_fb_cmd[COMMANDS_NB];
+  59:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** int32_t stabilization_att_ff_cmd[COMMANDS_NB];
+  60:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  61:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define IERROR_SCALE 1024
+  62:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define GAIN_PRESCALER_FF 48
+  63:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define GAIN_PRESCALER_P 48
+  64:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define GAIN_PRESCALER_D 48
+  65:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define GAIN_PRESCALER_I 48
+  66:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  67:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_init(void) {
+  27              		.loc 1 67 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  68:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  69:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_attitude_ref_init();
+  36              		.loc 1 69 0
+  37 0002 FFF7FEFF 		bl	stabilization_attitude_ref_init
+  38              	.LVL0:
+  70:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  71:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+  39              		.loc 1 71 0
+  40 0006 064A     		ldr	r2, .L2
+  72:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT_EULERS_ZERO( stabilization_att_sum_err );
+  41              		.loc 1 72 0
+  42 0008 0649     		ldr	r1, .L2+4
+  71:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+  43              		.loc 1 71 0
+  44 000a 0020     		movs	r0, #0
+  45 000c 4FF40043 		mov	r3, #32768
+  46 0010 1360     		str	r3, [r2, #0]
+  47 0012 5060     		str	r0, [r2, #4]
+  48 0014 9060     		str	r0, [r2, #8]
+  49 0016 D060     		str	r0, [r2, #12]
+  50              		.loc 1 72 0
+  51 0018 0860     		str	r0, [r1, #0]
+  52 001a 4860     		str	r0, [r1, #4]
+  53 001c 8860     		str	r0, [r1, #8]
+  54 001e 08BD     		pop	{r3, pc}
+  55              	.L3:
+  56              		.align	2
+  57              	.L2:
+  58 0020 00000000 		.word	.LANCHOR0
+  59 0024 00000000 		.word	.LANCHOR1
+  60              		.cfi_endproc
+  61              	.LFE120:
+  63              		.section	.text.stabilization_attitude_enter,"ax",%progbits
+  64              		.align	1
+  65              		.global	stabilization_attitude_enter
+  66              		.thumb
+  67              		.thumb_func
+  69              	stabilization_attitude_enter:
+  70              	.LFB121:
+  73:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+  74:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  75:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_enter(void) {
+  71              		.loc 1 75 0
+  72              		.cfi_startproc
+  73              		@ args = 0, pretend = 0, frame = 0
+  74              		@ frame_needed = 0, uses_anonymous_args = 0
+  75 0000 08B5     		push	{r3, lr}
+  76              	.LCFI1:
+  77              		.cfi_def_cfa_offset 8
+  78              		.cfi_offset 3, -8
+  79              		.cfi_offset 14, -4
+  76:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  77:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* reset psi setpoint to current psi angle */
+  78:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
+  80              		.loc 1 78 0
+  81 0002 FFF7FEFF 		bl	stabilization_attitude_get_heading_i
+  82              	.LVL1:
+  83 0006 084B     		ldr	r3, .L5
+  84 0008 9860     		str	r0, [r3, #8]
+  79:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  80:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_attitude_ref_enter();
+  85              		.loc 1 80 0
+  86 000a FFF7FEFF 		bl	stabilization_attitude_ref_enter
+  87              	.LVL2:
+  81:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  82:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  88              		.loc 1 82 0
+  89 000e 074A     		ldr	r2, .L5+4
+  83:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT_EULERS_ZERO(stabilization_att_sum_err);
+  90              		.loc 1 83 0
+  91 0010 074B     		ldr	r3, .L5+8
+  82:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  92              		.loc 1 82 0
+  93 0012 0021     		movs	r1, #0
+  94 0014 4FF40040 		mov	r0, #32768
+  95 0018 1060     		str	r0, [r2, #0]
+  96 001a 5160     		str	r1, [r2, #4]
+  97 001c 9160     		str	r1, [r2, #8]
+  98 001e D160     		str	r1, [r2, #12]
+  99              		.loc 1 83 0
+ 100 0020 1960     		str	r1, [r3, #0]
+ 101 0022 5960     		str	r1, [r3, #4]
+ 102 0024 9960     		str	r1, [r3, #8]
+ 103 0026 08BD     		pop	{r3, pc}
+ 104              	.L6:
+ 105              		.align	2
+ 106              	.L5:
+ 107 0028 00000000 		.word	stab_att_sp_euler
+ 108 002c 00000000 		.word	.LANCHOR0
+ 109 0030 00000000 		.word	.LANCHOR1
+ 110              		.cfi_endproc
+ 111              	.LFE121:
+ 113              		.section	.text.stabilization_attitude_set_failsafe_setpoint,"ax",%progbits
+ 114              		.align	1
+ 115              		.global	stabilization_attitude_set_failsafe_setpoint
+ 116              		.thumb
+ 117              		.thumb_func
+ 119              	stabilization_attitude_set_failsafe_setpoint:
+ 120              	.LFB122:
+  84:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+  85:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  86:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_set_failsafe_setpoint(void) {
+ 121              		.loc 1 86 0
+ 122              		.cfi_startproc
+ 123              		@ args = 0, pretend = 0, frame = 0
+ 124              		@ frame_needed = 0, uses_anonymous_args = 0
+ 125 0000 10B5     		push	{r4, lr}
+ 126              	.LCFI2:
+ 127              		.cfi_def_cfa_offset 8
+ 128              		.cfi_offset 4, -8
+ 129              		.cfi_offset 14, -4
+  87:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* set failsafe to zero roll/pitch and current heading */
+  88:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   int32_t heading2 = stabilization_attitude_get_heading_i() / 2;
+ 130              		.loc 1 88 0
+ 131 0002 FFF7FEFF 		bl	stabilization_attitude_get_heading_i
+ 132              	.LVL3:
+ 133 0006 0223     		movs	r3, #2
+ 134 0008 90FBF3F0 		sdiv	r0, r0, r3
+ 135              	.LVL4:
+ 136              	.LBB2:
+  89:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
+ 137              		.loc 1 89 0
+ 138 000c 00F5C951 		add	r1, r0, #6432
+ 139 0010 4B1C     		adds	r3, r1, #1
+ 140              	.LVL5:
+ 141              	.L8:
+ 142              		.loc 1 89 0 is_stmt 0 discriminator 1
+ 143 0012 43F24322 		movw	r2, #12867
+ 144 0016 9342     		cmp	r3, r2
+ 145 0018 03DD     		ble	.L26
+ 146              	.L9:
+ 147              		.loc 1 89 0 discriminator 2
+ 148 001a A3F5C943 		sub	r3, r3, #25728
+ 149              	.LVL6:
+ 150 001e 073B     		subs	r3, r3, #7
+ 151              	.LVL7:
+ 152 0020 F7E7     		b	.L8
+ 153              	.LVL8:
+ 154              	.L26:
+ 155              		.loc 1 89 0 discriminator 4
+ 156 0022 2C49     		ldr	r1, .L33
+ 157 0024 8B42     		cmp	r3, r1
+ 158 0026 03DA     		bge	.L31
+ 159              	.L11:
+ 160              		.loc 1 89 0 discriminator 5
+ 161 0028 03F5C941 		add	r1, r3, #25728
+ 162 002c CB1D     		adds	r3, r1, #7
+ 163              	.LVL9:
+ 164 002e F8E7     		b	.L26
+ 165              	.LVL10:
+ 166              	.L31:
+ 167              		.loc 1 89 0 discriminator 6
+ 168 0030 41F62112 		movw	r2, #6433
+ 169 0034 9342     		cmp	r3, r2
+ 170 0036 2849     		ldr	r1, .L33+4
+ 171 0038 284A     		ldr	r2, .L33+8
+ 172 003a 03DD     		ble	.L12
+ 173              		.loc 1 89 0 discriminator 7
+ 174 003c C3F54953 		rsb	r3, r3, #12864
+ 175              	.LVL11:
+ 176 0040 0333     		adds	r3, r3, #3
+ 177              	.LVL12:
+ 178 0042 0CE0     		b	.L13
+ 179              	.L12:
+ 180              		.loc 1 89 0 discriminator 8
+ 181 0044 6FF4C954 		mvn	r4, #6432
+ 182 0048 A342     		cmp	r3, r4
+ 183 004a 06DA     		bge	.L14
+ 184              		.loc 1 89 0 discriminator 9
+ 185 004c C3F17F43 		rsb	r3, r3, #-16777216
+ 186              	.LVL13:
+ 187 0050 03F57F03 		add	r3, r3, #16711680
+ 188 0054 03F54D43 		add	r3, r3, #52480
+ 189 0058 BD33     		adds	r3, r3, #189
+ 190              	.LVL14:
+ 191              	.L14:
+ 192              		.loc 1 89 0 discriminator 10
+ 193 005a 002B     		cmp	r3, #0
+ 194 005c 02DB     		blt	.L15
+ 195              	.L13:
+ 196              		.loc 1 89 0 discriminator 11
+ 197 005e 31F91330 		ldrsh	r3, [r1, r3, lsl #1]
+ 198              	.LVL15:
+ 199 0062 03E0     		b	.L28
+ 200              	.LVL16:
+ 201              	.L15:
+ 202              		.loc 1 89 0 discriminator 12
+ 203 0064 5B42     		negs	r3, r3
+ 204              	.LVL17:
+ 205 0066 31F91310 		ldrsh	r1, [r1, r3, lsl #1]
+ 206 006a 4B42     		negs	r3, r1
+ 207              	.LVL18:
+ 208              	.L28:
+ 209              	.LBE2:
+  90:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stab_att_sp_quat.qx = 0;
+ 210              		.loc 1 90 0 is_stmt 1 discriminator 12
+ 211 006c 1B49     		ldr	r1, .L33+8
+ 212              	.LBB3:
+  89:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
+ 213              		.loc 1 89 0 discriminator 12
+ 214 006e 1360     		str	r3, [r2, #0]
+ 215              	.LBE3:
+ 216              		.loc 1 90 0 discriminator 12
+ 217 0070 0022     		movs	r2, #0
+ 218 0072 4A60     		str	r2, [r1, #4]
+  91:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stab_att_sp_quat.qy = 0;
+ 219              		.loc 1 91 0 discriminator 12
+ 220 0074 8A60     		str	r2, [r1, #8]
+ 221              	.LVL19:
+ 222              	.L17:
+ 223              	.LBB4:
+  92:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
+ 224              		.loc 1 92 0 discriminator 1
+ 225 0076 43F24323 		movw	r3, #12867
+ 226 007a 9842     		cmp	r0, r3
+ 227 007c 03DD     		ble	.L27
+ 228              	.L18:
+ 229              		.loc 1 92 0 is_stmt 0 discriminator 2
+ 230 007e A0F5C942 		sub	r2, r0, #25728
+ 231 0082 D01F     		subs	r0, r2, #7
+ 232              	.LVL20:
+ 233 0084 F7E7     		b	.L17
+ 234              	.LVL21:
+ 235              	.L27:
+ 236              		.loc 1 92 0 discriminator 4
+ 237 0086 1349     		ldr	r1, .L33
+ 238 0088 8842     		cmp	r0, r1
+ 239 008a 03DA     		bge	.L32
+ 240              	.L20:
+ 241              		.loc 1 92 0 discriminator 5
+ 242 008c 00F5C943 		add	r3, r0, #25728
+ 243 0090 D81D     		adds	r0, r3, #7
+ 244              	.LVL22:
+ 245 0092 F8E7     		b	.L27
+ 246              	.LVL23:
+ 247              	.L32:
+ 248              		.loc 1 92 0 discriminator 6
+ 249 0094 41F62112 		movw	r2, #6433
+ 250 0098 9042     		cmp	r0, r2
+ 251 009a 104B     		ldr	r3, .L33+8
+ 252 009c 0E4A     		ldr	r2, .L33+4
+ 253 009e 03DD     		ble	.L21
+ 254              		.loc 1 92 0 discriminator 7
+ 255 00a0 C0F54951 		rsb	r1, r0, #12864
+ 256 00a4 C81C     		adds	r0, r1, #3
+ 257              	.LVL24:
+ 258 00a6 0CE0     		b	.L22
+ 259              	.L21:
+ 260              		.loc 1 92 0 discriminator 8
+ 261 00a8 6FF4C951 		mvn	r1, #6432
+ 262 00ac 8842     		cmp	r0, r1
+ 263 00ae 06DA     		bge	.L23
+ 264              		.loc 1 92 0 discriminator 9
+ 265 00b0 C0F17F40 		rsb	r0, r0, #-16777216
+ 266              	.LVL25:
+ 267 00b4 00F57F01 		add	r1, r0, #16711680
+ 268 00b8 01F54D40 		add	r0, r1, #52480
+ 269 00bc BD30     		adds	r0, r0, #189
+ 270              	.LVL26:
+ 271              	.L23:
+ 272              		.loc 1 92 0 discriminator 10
+ 273 00be 0028     		cmp	r0, #0
+ 274 00c0 02DB     		blt	.L24
+ 275              	.L22:
+ 276              		.loc 1 92 0 discriminator 11
+ 277 00c2 32F91000 		ldrsh	r0, [r2, r0, lsl #1]
+ 278              	.LVL27:
+ 279 00c6 03E0     		b	.L29
+ 280              	.LVL28:
+ 281              	.L24:
+ 282              		.loc 1 92 0 discriminator 12
+ 283 00c8 4142     		negs	r1, r0
+ 284 00ca 32F91120 		ldrsh	r2, [r2, r1, lsl #1]
+ 285 00ce 5042     		negs	r0, r2
+ 286              	.LVL29:
+ 287              	.L29:
+ 288 00d0 D860     		str	r0, [r3, #12]
+ 289 00d2 10BD     		pop	{r4, pc}
+ 290              	.L34:
+ 291              		.align	2
+ 292              	.L33:
+ 293 00d4 BDCDFFFF 		.word	-12867
+ 294 00d8 00000000 		.word	pprz_trig_int
+ 295 00dc 00000000 		.word	stab_att_sp_quat
+ 296              	.LBE4:
+ 297              		.cfi_endproc
+ 298              	.LFE122:
+ 300              		.section	.text.stabilization_attitude_set_from_eulers_i,"ax",%progbits
+ 301              		.align	1
+ 302              		.global	stabilization_attitude_set_from_eulers_i
+ 303              		.thumb
+ 304              		.thumb_func
+ 306              	stabilization_attitude_set_from_eulers_i:
+ 307              	.LFB123:
+  93:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+  94:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+  95:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+ 308              		.loc 1 95 0 is_stmt 1
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              	.LVL30:
+ 313 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 314              	.LCFI3:
+ 315              		.cfi_def_cfa_offset 20
+ 316              		.cfi_offset 4, -20
+ 317              		.cfi_offset 5, -16
+ 318              		.cfi_offset 6, -12
+ 319              		.cfi_offset 7, -8
+ 320              		.cfi_offset 14, -4
+ 321              		.loc 1 95 0
+ 322 0002 0446     		mov	r4, r0
+  96:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   // copy euler setpoint for debugging
+  97:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
+ 323              		.loc 1 97 0
+ 324 0004 6168     		ldr	r1, [r4, #4]	@ unaligned
+ 325 0006 0068     		ldr	r0, [r0, #0]	@ unaligned
+ 326              	.LVL31:
+ 327 0008 AB4B     		ldr	r3, .L103
+ 328              	.LBB5:
+  98:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
+ 329              		.loc 1 98 0
+ 330 000a 0225     		movs	r5, #2
+ 331              	.LBE5:
+  97:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
+ 332              		.loc 1 97 0
+ 333 000c 03C3     		stmia	r3!, {r0, r1}
+ 334 000e A068     		ldr	r0, [r4, #8]	@ unaligned
+ 335 0010 1860     		str	r0, [r3, #0]	@ unaligned
+ 336              	.LBB12:
+ 337              		.loc 1 98 0
+ 338 0012 2168     		ldr	r1, [r4, #0]
+ 339 0014 6268     		ldr	r2, [r4, #4]
+ 340 0016 A668     		ldr	r6, [r4, #8]
+ 341 0018 91FBF5F1 		sdiv	r1, r1, r5
+ 342              	.LVL32:
+ 343 001c 92FBF5F2 		sdiv	r2, r2, r5
+ 344              	.LVL33:
+ 345 0020 96FBF5F3 		sdiv	r3, r6, r5
+ 346              	.LVL34:
+ 347              	.LBB6:
+ 348 0024 0846     		mov	r0, r1
+ 349              	.LVL35:
+ 350              	.L36:
+ 351              		.loc 1 98 0 is_stmt 0 discriminator 1
+ 352 0026 43F24327 		movw	r7, #12867
+ 353 002a B842     		cmp	r0, r7
+ 354 002c 03DD     		ble	.L91
+ 355              	.L37:
+ 356              		.loc 1 98 0 discriminator 2
+ 357 002e A0F5C947 		sub	r7, r0, #25728
+ 358 0032 F81F     		subs	r0, r7, #7
+ 359              	.LVL36:
+ 360 0034 F7E7     		b	.L36
+ 361              	.LVL37:
+ 362              	.L91:
+ 363              		.loc 1 98 0 discriminator 4
+ 364 0036 A14C     		ldr	r4, .L103+4
+ 365 0038 A042     		cmp	r0, r4
+ 366 003a 03DA     		bge	.L97
+ 367              	.L39:
+ 368              		.loc 1 98 0 discriminator 5
+ 369 003c 00F5C940 		add	r0, r0, #25728
+ 370              	.LVL38:
+ 371 0040 0730     		adds	r0, r0, #7
+ 372              	.LVL39:
+ 373 0042 F8E7     		b	.L91
+ 374              	.LVL40:
+ 375              	.L97:
+ 376              		.loc 1 98 0 discriminator 6
+ 377 0044 41F62115 		movw	r5, #6433
+ 378 0048 A842     		cmp	r0, r5
+ 379 004a 9D4E     		ldr	r6, .L103+8
+ 380 004c 03DD     		ble	.L40
+ 381              		.loc 1 98 0 discriminator 7
+ 382 004e C0F54957 		rsb	r7, r0, #12864
+ 383 0052 F81C     		adds	r0, r7, #3
+ 384              	.LVL41:
+ 385 0054 0CE0     		b	.L41
+ 386              	.L40:
+ 387              		.loc 1 98 0 discriminator 8
+ 388 0056 6FF4C957 		mvn	r7, #6432
+ 389 005a B842     		cmp	r0, r7
+ 390 005c 06DA     		bge	.L42
+ 391              		.loc 1 98 0 discriminator 9
+ 392 005e C0F17F40 		rsb	r0, r0, #-16777216
+ 393              	.LVL42:
+ 394 0062 00F57F04 		add	r4, r0, #16711680
+ 395 0066 04F54D40 		add	r0, r4, #52480
+ 396 006a BD30     		adds	r0, r0, #189
+ 397              	.LVL43:
+ 398              	.L42:
+ 399              		.loc 1 98 0 discriminator 10
+ 400 006c 0028     		cmp	r0, #0
+ 401 006e 02DB     		blt	.L43
+ 402              	.L41:
+ 403              		.loc 1 98 0 discriminator 11
+ 404 0070 36F91000 		ldrsh	r0, [r6, r0, lsl #1]
+ 405              	.LVL44:
+ 406 0074 03E0     		b	.L44
+ 407              	.LVL45:
+ 408              	.L43:
+ 409              		.loc 1 98 0 discriminator 12
+ 410 0076 4542     		negs	r5, r0
+ 411 0078 36F91560 		ldrsh	r6, [r6, r5, lsl #1]
+ 412 007c 7042     		negs	r0, r6
+ 413              	.LVL46:
+ 414              	.L44:
+ 415              	.LBE6:
+ 416              	.LBB7:
+ 417              		.loc 1 98 0 discriminator 13
+ 418 007e 01F5C951 		add	r1, r1, #6432
+ 419              	.LVL47:
+ 420 0082 0131     		adds	r1, r1, #1
+ 421              	.LVL48:
+ 422              	.L45:
+ 423              		.loc 1 98 0 discriminator 14
+ 424 0084 43F24324 		movw	r4, #12867
+ 425 0088 A142     		cmp	r1, r4
+ 426 008a 03DD     		ble	.L92
+ 427              	.L46:
+ 428              		.loc 1 98 0 discriminator 15
+ 429 008c A1F5C945 		sub	r5, r1, #25728
+ 430 0090 E91F     		subs	r1, r5, #7
+ 431              	.LVL49:
+ 432 0092 F7E7     		b	.L45
+ 433              	.LVL50:
+ 434              	.L92:
+ 435              		.loc 1 98 0 discriminator 17
+ 436 0094 894D     		ldr	r5, .L103+4
+ 437 0096 A942     		cmp	r1, r5
+ 438 0098 03DA     		bge	.L98
+ 439              	.L48:
+ 440              		.loc 1 98 0 discriminator 18
+ 441 009a 01F5C944 		add	r4, r1, #25728
+ 442 009e E11D     		adds	r1, r4, #7
+ 443              	.LVL51:
+ 444 00a0 F8E7     		b	.L92
+ 445              	.LVL52:
+ 446              	.L98:
+ 447              		.loc 1 98 0 discriminator 19
+ 448 00a2 41F62116 		movw	r6, #6433
+ 449 00a6 B142     		cmp	r1, r6
+ 450 00a8 854F     		ldr	r7, .L103+8
+ 451 00aa 03DD     		ble	.L49
+ 452              		.loc 1 98 0 discriminator 20
+ 453 00ac C1F54954 		rsb	r4, r1, #12864
+ 454 00b0 E11C     		adds	r1, r4, #3
+ 455              	.LVL53:
+ 456 00b2 0CE0     		b	.L50
+ 457              	.L49:
+ 458              		.loc 1 98 0 discriminator 21
+ 459 00b4 6FF4C954 		mvn	r4, #6432
+ 460 00b8 A142     		cmp	r1, r4
+ 461 00ba 06DA     		bge	.L51
+ 462              		.loc 1 98 0 discriminator 22
+ 463 00bc C1F17F41 		rsb	r1, r1, #-16777216
+ 464              	.LVL54:
+ 465 00c0 01F57F05 		add	r5, r1, #16711680
+ 466 00c4 05F54D41 		add	r1, r5, #52480
+ 467 00c8 BD31     		adds	r1, r1, #189
+ 468              	.LVL55:
+ 469              	.L51:
+ 470              		.loc 1 98 0 discriminator 23
+ 471 00ca 0029     		cmp	r1, #0
+ 472 00cc 02DB     		blt	.L52
+ 473              	.L50:
+ 474              		.loc 1 98 0 discriminator 24
+ 475 00ce 37F91140 		ldrsh	r4, [r7, r1, lsl #1]
+ 476              	.LVL56:
+ 477 00d2 03E0     		b	.L53
+ 478              	.LVL57:
+ 479              	.L52:
+ 480              		.loc 1 98 0 discriminator 25
+ 481 00d4 4E42     		negs	r6, r1
+ 482 00d6 37F91670 		ldrsh	r7, [r7, r6, lsl #1]
+ 483 00da 7C42     		negs	r4, r7
+ 484              	.LVL58:
+ 485              	.L53:
+ 486              	.LBE7:
+ 487              	.LBB8:
+ 488              		.loc 1 98 0 discriminator 26
+ 489 00dc 1146     		mov	r1, r2
+ 490              	.LVL59:
+ 491              	.L54:
+ 492              		.loc 1 98 0 discriminator 27
+ 493 00de 43F24325 		movw	r5, #12867
+ 494 00e2 A942     		cmp	r1, r5
+ 495 00e4 03DD     		ble	.L93
+ 496              	.L55:
+ 497              		.loc 1 98 0 discriminator 28
+ 498 00e6 A1F5C946 		sub	r6, r1, #25728
+ 499 00ea F11F     		subs	r1, r6, #7
+ 500              	.LVL60:
+ 501 00ec F7E7     		b	.L54
+ 502              	.LVL61:
+ 503              	.L93:
+ 504              		.loc 1 98 0 discriminator 30
+ 505 00ee 734E     		ldr	r6, .L103+4
+ 506 00f0 B142     		cmp	r1, r6
+ 507 00f2 03DA     		bge	.L99
+ 508              	.L57:
+ 509              		.loc 1 98 0 discriminator 31
+ 510 00f4 01F5C941 		add	r1, r1, #25728
+ 511              	.LVL62:
+ 512 00f8 0731     		adds	r1, r1, #7
+ 513              	.LVL63:
+ 514 00fa F8E7     		b	.L93
+ 515              	.LVL64:
+ 516              	.L99:
+ 517              		.loc 1 98 0 discriminator 32
+ 518 00fc 41F62117 		movw	r7, #6433
+ 519 0100 B942     		cmp	r1, r7
+ 520 0102 6F4D     		ldr	r5, .L103+8
+ 521 0104 03DD     		ble	.L58
+ 522              		.loc 1 98 0 discriminator 33
+ 523 0106 C1F54957 		rsb	r7, r1, #12864
+ 524 010a F91C     		adds	r1, r7, #3
+ 525              	.LVL65:
+ 526 010c 0CE0     		b	.L59
+ 527              	.L58:
+ 528              		.loc 1 98 0 discriminator 34
+ 529 010e 6FF4C956 		mvn	r6, #6432
+ 530 0112 B142     		cmp	r1, r6
+ 531 0114 06DA     		bge	.L60
+ 532              		.loc 1 98 0 discriminator 35
+ 533 0116 C1F17F41 		rsb	r1, r1, #-16777216
+ 534              	.LVL66:
+ 535 011a 01F57F07 		add	r7, r1, #16711680
+ 536 011e 07F54D41 		add	r1, r7, #52480
+ 537 0122 BD31     		adds	r1, r1, #189
+ 538              	.LVL67:
+ 539              	.L60:
+ 540              		.loc 1 98 0 discriminator 36
+ 541 0124 0029     		cmp	r1, #0
+ 542 0126 02DB     		blt	.L61
+ 543              	.L59:
+ 544              		.loc 1 98 0 discriminator 37
+ 545 0128 35F91110 		ldrsh	r1, [r5, r1, lsl #1]
+ 546              	.LVL68:
+ 547 012c 03E0     		b	.L62
+ 548              	.LVL69:
+ 549              	.L61:
+ 550              		.loc 1 98 0 discriminator 38
+ 551 012e 4E42     		negs	r6, r1
+ 552 0130 35F91650 		ldrsh	r5, [r5, r6, lsl #1]
+ 553 0134 6942     		negs	r1, r5
+ 554              	.LVL70:
+ 555              	.L62:
+ 556              	.LBE8:
+ 557              	.LBB9:
+ 558              		.loc 1 98 0 discriminator 39
+ 559 0136 02F5C952 		add	r2, r2, #6432
+ 560              	.LVL71:
+ 561 013a 0132     		adds	r2, r2, #1
+ 562              	.LVL72:
+ 563              	.L63:
+ 564              		.loc 1 98 0 discriminator 40
+ 565 013c 43F24326 		movw	r6, #12867
+ 566 0140 B242     		cmp	r2, r6
+ 567 0142 03DD     		ble	.L94
+ 568              	.L64:
+ 569              		.loc 1 98 0 discriminator 41
+ 570 0144 A2F5C947 		sub	r7, r2, #25728
+ 571 0148 FA1F     		subs	r2, r7, #7
+ 572              	.LVL73:
+ 573 014a F7E7     		b	.L63
+ 574              	.LVL74:
+ 575              	.L94:
+ 576              		.loc 1 98 0 discriminator 43
+ 577 014c 5B4D     		ldr	r5, .L103+4
+ 578 014e AA42     		cmp	r2, r5
+ 579 0150 03DA     		bge	.L100
+ 580              	.L66:
+ 581              		.loc 1 98 0 discriminator 44
+ 582 0152 02F5C945 		add	r5, r2, #25728
+ 583 0156 EA1D     		adds	r2, r5, #7
+ 584              	.LVL75:
+ 585 0158 F8E7     		b	.L94
+ 586              	.LVL76:
+ 587              	.L100:
+ 588              		.loc 1 98 0 discriminator 45
+ 589 015a 41F62117 		movw	r7, #6433
+ 590 015e BA42     		cmp	r2, r7
+ 591 0160 574D     		ldr	r5, .L103+8
+ 592 0162 03DD     		ble	.L67
+ 593              		.loc 1 98 0 discriminator 46
+ 594 0164 C2F54957 		rsb	r7, r2, #12864
+ 595 0168 FA1C     		adds	r2, r7, #3
+ 596              	.LVL77:
+ 597 016a 0CE0     		b	.L68
+ 598              	.L67:
+ 599              		.loc 1 98 0 discriminator 47
+ 600 016c 6FF4C956 		mvn	r6, #6432
+ 601 0170 B242     		cmp	r2, r6
+ 602 0172 06DA     		bge	.L69
+ 603              		.loc 1 98 0 discriminator 48
+ 604 0174 C2F17F42 		rsb	r2, r2, #-16777216
+ 605              	.LVL78:
+ 606 0178 02F57F07 		add	r7, r2, #16711680
+ 607 017c 07F54D42 		add	r2, r7, #52480
+ 608 0180 BD32     		adds	r2, r2, #189
+ 609              	.LVL79:
+ 610              	.L69:
+ 611              		.loc 1 98 0 discriminator 49
+ 612 0182 002A     		cmp	r2, #0
+ 613 0184 02DB     		blt	.L70
+ 614              	.L68:
+ 615              		.loc 1 98 0 discriminator 50
+ 616 0186 35F91250 		ldrsh	r5, [r5, r2, lsl #1]
+ 617              	.LVL80:
+ 618 018a 03E0     		b	.L71
+ 619              	.LVL81:
+ 620              	.L70:
+ 621              		.loc 1 98 0 discriminator 51
+ 622 018c 5642     		negs	r6, r2
+ 623 018e 35F91650 		ldrsh	r5, [r5, r6, lsl #1]
+ 624 0192 6D42     		negs	r5, r5
+ 625              	.LVL82:
+ 626              	.L71:
+ 627              	.LBE9:
+ 628              	.LBB10:
+ 629              		.loc 1 98 0 discriminator 52
+ 630 0194 1A46     		mov	r2, r3
+ 631              	.LVL83:
+ 632              	.L72:
+ 633              		.loc 1 98 0 discriminator 53
+ 634 0196 43F24326 		movw	r6, #12867
+ 635 019a B242     		cmp	r2, r6
+ 636 019c 03DD     		ble	.L95
+ 637              	.L73:
+ 638              		.loc 1 98 0 discriminator 54
+ 639 019e A2F5C942 		sub	r2, r2, #25728
+ 640              	.LVL84:
+ 641 01a2 073A     		subs	r2, r2, #7
+ 642              	.LVL85:
+ 643 01a4 F7E7     		b	.L72
+ 644              	.LVL86:
+ 645              	.L95:
+ 646              		.loc 1 98 0 discriminator 56
+ 647 01a6 454F     		ldr	r7, .L103+4
+ 648 01a8 BA42     		cmp	r2, r7
+ 649 01aa 03DA     		bge	.L101
+ 650              	.L75:
+ 651              		.loc 1 98 0 discriminator 57
+ 652 01ac 02F5C946 		add	r6, r2, #25728
+ 653 01b0 F21D     		adds	r2, r6, #7
+ 654              	.LVL87:
+ 655 01b2 F8E7     		b	.L95
+ 656              	.LVL88:
+ 657              	.L101:
+ 658              		.loc 1 98 0 discriminator 58
+ 659 01b4 41F62116 		movw	r6, #6433
+ 660 01b8 B242     		cmp	r2, r6
+ 661 01ba 414E     		ldr	r6, .L103+8
+ 662 01bc 03DD     		ble	.L76
+ 663              		.loc 1 98 0 discriminator 59
+ 664 01be C2F54952 		rsb	r2, r2, #12864
+ 665              	.LVL89:
+ 666 01c2 0332     		adds	r2, r2, #3
+ 667              	.LVL90:
+ 668 01c4 0CE0     		b	.L77
+ 669              	.L76:
+ 670              		.loc 1 98 0 discriminator 60
+ 671 01c6 6FF4C957 		mvn	r7, #6432
+ 672 01ca BA42     		cmp	r2, r7
+ 673 01cc 06DA     		bge	.L78
+ 674              		.loc 1 98 0 discriminator 61
+ 675 01ce C2F17F42 		rsb	r2, r2, #-16777216
+ 676              	.LVL91:
+ 677 01d2 02F57F07 		add	r7, r2, #16711680
+ 678 01d6 07F54D42 		add	r2, r7, #52480
+ 679 01da BD32     		adds	r2, r2, #189
+ 680              	.LVL92:
+ 681              	.L78:
+ 682              		.loc 1 98 0 discriminator 62
+ 683 01dc 002A     		cmp	r2, #0
+ 684 01de 02DB     		blt	.L79
+ 685              	.L77:
+ 686              		.loc 1 98 0 discriminator 63
+ 687 01e0 36F91220 		ldrsh	r2, [r6, r2, lsl #1]
+ 688              	.LVL93:
+ 689 01e4 03E0     		b	.L80
+ 690              	.LVL94:
+ 691              	.L79:
+ 692              		.loc 1 98 0 discriminator 64
+ 693 01e6 5742     		negs	r7, r2
+ 694 01e8 36F91760 		ldrsh	r6, [r6, r7, lsl #1]
+ 695 01ec 7242     		negs	r2, r6
+ 696              	.LVL95:
+ 697              	.L80:
+ 698              	.LBE10:
+ 699              	.LBB11:
+ 700              		.loc 1 98 0 discriminator 65
+ 701 01ee 03F5C953 		add	r3, r3, #6432
+ 702              	.LVL96:
+ 703 01f2 0133     		adds	r3, r3, #1
+ 704              	.LVL97:
+ 705              	.L81:
+ 706              		.loc 1 98 0 discriminator 66
+ 707 01f4 43F24327 		movw	r7, #12867
+ 708 01f8 BB42     		cmp	r3, r7
+ 709 01fa 03DD     		ble	.L96
+ 710              	.L82:
+ 711              		.loc 1 98 0 discriminator 67
+ 712 01fc A3F5C947 		sub	r7, r3, #25728
+ 713 0200 FB1F     		subs	r3, r7, #7
+ 714              	.LVL98:
+ 715 0202 F7E7     		b	.L81
+ 716              	.LVL99:
+ 717              	.L96:
+ 718              		.loc 1 98 0 discriminator 69
+ 719 0204 2D4E     		ldr	r6, .L103+4
+ 720 0206 B342     		cmp	r3, r6
+ 721 0208 03DA     		bge	.L102
+ 722              	.L84:
+ 723              		.loc 1 98 0 discriminator 70
+ 724 020a 03F5C943 		add	r3, r3, #25728
+ 725              	.LVL100:
+ 726 020e 0733     		adds	r3, r3, #7
+ 727              	.LVL101:
+ 728 0210 F8E7     		b	.L96
+ 729              	.LVL102:
+ 730              	.L102:
+ 731              		.loc 1 98 0 discriminator 71
+ 732 0212 41F62117 		movw	r7, #6433
+ 733 0216 BB42     		cmp	r3, r7
+ 734 0218 294E     		ldr	r6, .L103+8
+ 735 021a 03DD     		ble	.L85
+ 736              		.loc 1 98 0 discriminator 72
+ 737 021c C3F54957 		rsb	r7, r3, #12864
+ 738 0220 FB1C     		adds	r3, r7, #3
+ 739              	.LVL103:
+ 740 0222 0CE0     		b	.L86
+ 741              	.L85:
+ 742              		.loc 1 98 0 discriminator 73
+ 743 0224 6FF4C957 		mvn	r7, #6432
+ 744 0228 BB42     		cmp	r3, r7
+ 745 022a 06DA     		bge	.L87
+ 746              		.loc 1 98 0 discriminator 74
+ 747 022c C3F17F43 		rsb	r3, r3, #-16777216
+ 748              	.LVL104:
+ 749 0230 03F57F07 		add	r7, r3, #16711680
+ 750 0234 07F54D43 		add	r3, r7, #52480
+ 751 0238 BD33     		adds	r3, r3, #189
+ 752              	.LVL105:
+ 753              	.L87:
+ 754              		.loc 1 98 0 discriminator 75
+ 755 023a 002B     		cmp	r3, #0
+ 756 023c 02DB     		blt	.L88
+ 757              	.L86:
+ 758              		.loc 1 98 0 discriminator 76
+ 759 023e 36F91330 		ldrsh	r3, [r6, r3, lsl #1]
+ 760              	.LVL106:
+ 761 0242 03E0     		b	.L89
+ 762              	.LVL107:
+ 763              	.L88:
+ 764              		.loc 1 98 0 discriminator 77
+ 765 0244 5F42     		negs	r7, r3
+ 766 0246 36F91760 		ldrsh	r6, [r6, r7, lsl #1]
+ 767 024a 7342     		negs	r3, r6
+ 768              	.LVL108:
+ 769              	.L89:
+ 770              	.LBE11:
+ 771              		.loc 1 98 0 discriminator 78
+ 772 024c 03FB05F6 		mul	r6, r3, r5
+ 773 0250 5543     		muls	r5, r2, r5
+ 774              	.LVL109:
+ 775 0252 4A43     		muls	r2, r1, r2
+ 776              	.LVL110:
+ 777 0254 B613     		asrs	r6, r6, #14
+ 778              	.LVL111:
+ 779 0256 9713     		asrs	r7, r2, #14
+ 780 0258 5943     		muls	r1, r3, r1
+ 781              	.LVL112:
+ 782 025a C4F1000C 		rsb	ip, r4, #0
+ 783 025e 06FB04F3 		mul	r3, r6, r4
+ 784              	.LVL113:
+ 785 0262 4643     		muls	r6, r0, r6
+ 786              	.LVL114:
+ 787 0264 07FB00F2 		mul	r2, r7, r0
+ 788 0268 07FB0CF7 		mul	r7, r7, ip
+ 789 026c AD13     		asrs	r5, r5, #14
+ 790              	.LVL115:
+ 791 026e 7613     		asrs	r6, r6, #13
+ 792 0270 8913     		asrs	r1, r1, #14
+ 793              	.LVL116:
+ 794 0272 06EB6737 		add	r7, r6, r7, asr #13
+ 795 0276 05FB00F6 		mul	r6, r5, r0
+ 796 027a 4042     		negs	r0, r0
+ 797              	.LVL117:
+ 798 027c 01FB04FC 		mul	ip, r1, r4
+ 799 0280 4143     		muls	r1, r0, r1
+ 800              	.LVL118:
+ 801 0282 6C43     		muls	r4, r5, r4
+ 802              	.LVL119:
+ 803 0284 5213     		asrs	r2, r2, #13
+ 804 0286 02EB6332 		add	r2, r2, r3, asr #13
+ 805 028a 7613     		asrs	r6, r6, #13
+ 806 028c 0D4B     		ldr	r3, .L103+12
+ 807 028e 4913     		asrs	r1, r1, #13
+ 808 0290 06EB6C36 		add	r6, r6, ip, asr #13
+ 809 0294 01EB6434 		add	r4, r1, r4, asr #13
+ 810              	.LBE12:
+  99:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+ 811              		.loc 1 99 0 is_stmt 1 discriminator 78
+ 812 0298 002A     		cmp	r2, #0
+ 813              	.LBB13:
+  98:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
+ 814              		.loc 1 98 0 discriminator 78
+ 815 029a 1A60     		str	r2, [r3, #0]
+ 816 029c 5F60     		str	r7, [r3, #4]
+ 817 029e 9E60     		str	r6, [r3, #8]
+ 818 02a0 DC60     		str	r4, [r3, #12]
+ 819              	.LBE13:
+ 820              		.loc 1 99 0 discriminator 78
+ 821 02a2 07DA     		bge	.L35
+ 822              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 823 02a4 5242     		negs	r2, r2
+ 824 02a6 7F42     		negs	r7, r7
+ 825 02a8 7642     		negs	r6, r6
+ 826 02aa 6442     		negs	r4, r4
+ 827 02ac 1A60     		str	r2, [r3, #0]
+ 828 02ae 5F60     		str	r7, [r3, #4]
+ 829 02b0 9E60     		str	r6, [r3, #8]
+ 830 02b2 DC60     		str	r4, [r3, #12]
+ 831              	.L35:
+ 832 02b4 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 833              	.L104:
+ 834 02b6 00BF     		.align	2
+ 835              	.L103:
+ 836 02b8 00000000 		.word	stab_att_sp_euler
+ 837 02bc BDCDFFFF 		.word	-12867
+ 838 02c0 00000000 		.word	pprz_trig_int
+ 839 02c4 00000000 		.word	stab_att_sp_quat
+ 840              		.cfi_endproc
+ 841              	.LFE123:
+ 843              		.global	__aeabi_i2f
+ 844              		.global	__aeabi_fmul
+ 845              		.global	__aeabi_f2iz
+ 846              		.global	__aeabi_fadd
+ 847              		.section	.text.stabilization_attitude_run,"ax",%progbits
+ 848              		.align	1
+ 849              		.global	stabilization_attitude_run
+ 850              		.thumb
+ 851              		.thumb_func
+ 853              	stabilization_attitude_run:
+ 854              	.LFB126:
+ 100:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+ 101:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 102:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
+ 103:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
+ 104:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 105:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *gains, struct Int32Ra
+ 106:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** {
+ 107:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* Compute feedforward based on reference acceleration */
+ 108:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 109:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_ROLL]  = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / 
+ 110:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_PITCH] = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / 
+ 111:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_YAW]   = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / 
+ 112:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+ 113:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 114:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Qu
+ 115:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     struct Int32Rates *rate_err, struct Int32Quat *sum_err)
+ 116:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** {
+ 117:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /*  PID feedback */
+ 118:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_ROLL] =
+ 119:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
+ 120:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
+ 121:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
+ 122:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 123:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_PITCH] =
+ 124:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
+ 125:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
+ 126:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
+ 127:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 128:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_YAW] =
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+ 130:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
+ 131:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
+ 132:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 133:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+ 134:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 135:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_run(bool_t enable_integrator) {
+ 855              		.loc 1 135 0 is_stmt 1
+ 856              		.cfi_startproc
+ 857              		@ args = 0, pretend = 0, frame = 32
+ 858              		@ frame_needed = 0, uses_anonymous_args = 0
+ 859              	.LVL120:
+ 860 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 861              	.LCFI4:
+ 862              		.cfi_def_cfa_offset 36
+ 863              		.cfi_offset 4, -36
+ 864              		.cfi_offset 5, -32
+ 865              		.cfi_offset 6, -28
+ 866              		.cfi_offset 7, -24
+ 867              		.cfi_offset 8, -20
+ 868              		.cfi_offset 9, -16
+ 869              		.cfi_offset 10, -12
+ 870              		.cfi_offset 11, -8
+ 871              		.cfi_offset 14, -4
+ 872              	.LBB32:
+ 873              	.LBB33:
+ 874              	.LBB34:
+ 875              		.file 2 "./math/pprz_orientation_conversion.h"
+   1:./math/pprz_orientation_conversion.h **** /*
+   2:./math/pprz_orientation_conversion.h ****  * Copyright (C) 2011-2012 The Paparazzi Team
+   3:./math/pprz_orientation_conversion.h ****  *
+   4:./math/pprz_orientation_conversion.h ****  * This file is part of paparazzi.
+   5:./math/pprz_orientation_conversion.h ****  *
+   6:./math/pprz_orientation_conversion.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./math/pprz_orientation_conversion.h ****  * it under the terms of the GNU General Public License as published by
+   8:./math/pprz_orientation_conversion.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./math/pprz_orientation_conversion.h ****  * any later version.
+  10:./math/pprz_orientation_conversion.h ****  *
+  11:./math/pprz_orientation_conversion.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./math/pprz_orientation_conversion.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./math/pprz_orientation_conversion.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./math/pprz_orientation_conversion.h ****  * GNU General Public License for more details.
+  15:./math/pprz_orientation_conversion.h ****  *
+  16:./math/pprz_orientation_conversion.h ****  * You should have received a copy of the GNU General Public License
+  17:./math/pprz_orientation_conversion.h ****  * along with paparazzi; see the file COPYING.  If not, see
+  18:./math/pprz_orientation_conversion.h ****  * <http://www.gnu.org/licenses/>.
+  19:./math/pprz_orientation_conversion.h ****  *
+  20:./math/pprz_orientation_conversion.h ****  */
+  21:./math/pprz_orientation_conversion.h **** 
+  22:./math/pprz_orientation_conversion.h **** /**
+  23:./math/pprz_orientation_conversion.h ****  * @file math/pprz_orientation_conversion.h
+  24:./math/pprz_orientation_conversion.h ****  * Generic orientation representation and conversions.
+  25:./math/pprz_orientation_conversion.h ****  *
+  26:./math/pprz_orientation_conversion.h ****  * This file contains the functions to automatically convert between
+  27:./math/pprz_orientation_conversion.h ****  * the different representations. They should normally not be used
+  28:./math/pprz_orientation_conversion.h ****  * directly and instead the stateGet/Set interfaces used.
+  29:./math/pprz_orientation_conversion.h ****  * Also see the @ref math_orientation_representation "Generic Orientation Representation" page.
+  30:./math/pprz_orientation_conversion.h ****  *
+  31:./math/pprz_orientation_conversion.h ****  * @author Felix Ruess <felix.ruess@gmail.com>
+  32:./math/pprz_orientation_conversion.h ****  */
+  33:./math/pprz_orientation_conversion.h **** 
+  34:./math/pprz_orientation_conversion.h **** /**
+  35:./math/pprz_orientation_conversion.h ****  * @addtogroup math
+  36:./math/pprz_orientation_conversion.h ****  * @{
+  37:./math/pprz_orientation_conversion.h ****  */
+  38:./math/pprz_orientation_conversion.h **** 
+  39:./math/pprz_orientation_conversion.h **** /**
+  40:./math/pprz_orientation_conversion.h ****  * This generic orientation representation consists of a struct, containing the 6 orientation
+  41:./math/pprz_orientation_conversion.h ****  * representations, and a status variable. The bits in the status variable indicate  which
+  42:./math/pprz_orientation_conversion.h ****  * representations of the orientation are up-to-date.
+  43:./math/pprz_orientation_conversion.h ****  *
+  44:./math/pprz_orientation_conversion.h ****  * When a getter is used to get a certain representation, the status bit is checked to see if
+  45:./math/pprz_orientation_conversion.h ****  * the current value is already available in the desired orientation representation.
+  46:./math/pprz_orientation_conversion.h ****  * If the desired representation is not available, it will be calculated.
+  47:./math/pprz_orientation_conversion.h ****  *
+  48:./math/pprz_orientation_conversion.h ****  * When a setter is used to set a representation, all status bits are cleared, and only the
+  49:./math/pprz_orientation_conversion.h ****  * status bit for the set representation is set to one.
+  50:./math/pprz_orientation_conversion.h ****  */
+  51:./math/pprz_orientation_conversion.h **** 
+  52:./math/pprz_orientation_conversion.h **** /**
+  53:./math/pprz_orientation_conversion.h ****  * @defgroup math_orientation_representation Generic Orientation Representations
+  54:./math/pprz_orientation_conversion.h ****  * @{
+  55:./math/pprz_orientation_conversion.h ****  */
+  56:./math/pprz_orientation_conversion.h **** 
+  57:./math/pprz_orientation_conversion.h **** #ifndef PPRZ_ORIENTATION_CONVERSION_H
+  58:./math/pprz_orientation_conversion.h **** #define PPRZ_ORIENTATION_CONVERSION_H
+  59:./math/pprz_orientation_conversion.h **** 
+  60:./math/pprz_orientation_conversion.h **** #include "math/pprz_algebra_int.h"
+  61:./math/pprz_orientation_conversion.h **** #include "math/pprz_algebra_float.h"
+  62:./math/pprz_orientation_conversion.h **** 
+  63:./math/pprz_orientation_conversion.h **** #include "std.h"
+  64:./math/pprz_orientation_conversion.h **** 
+  65:./math/pprz_orientation_conversion.h **** 
+  66:./math/pprz_orientation_conversion.h **** #define ORREP_QUAT_I  0  ///< Quaternion (BFP int)
+  67:./math/pprz_orientation_conversion.h **** #define ORREP_EULER_I 1  ///< zyx Euler (BFP int)
+  68:./math/pprz_orientation_conversion.h **** #define ORREP_RMAT_I  2  ///< Rotation Matrix (BFP int)
+  69:./math/pprz_orientation_conversion.h **** #define ORREP_QUAT_F  3  ///< Quaternion (float)
+  70:./math/pprz_orientation_conversion.h **** #define ORREP_EULER_F 4  ///< zyx Euler (float)
+  71:./math/pprz_orientation_conversion.h **** #define ORREP_RMAT_F  5  ///< Rotation Matrix (float)
+  72:./math/pprz_orientation_conversion.h **** 
+  73:./math/pprz_orientation_conversion.h **** /*
+  74:./math/pprz_orientation_conversion.h ****  * @brief Struct with euler/rmat/quaternion orientation representations in BFP int and float
+  75:./math/pprz_orientation_conversion.h ****  */
+  76:./math/pprz_orientation_conversion.h **** struct OrientationReps {
+  77:./math/pprz_orientation_conversion.h ****   /**
+  78:./math/pprz_orientation_conversion.h ****    * Holds the status bits for all orientation representations.
+  79:./math/pprz_orientation_conversion.h ****    * When the corresponding bit is set, the representation
+  80:./math/pprz_orientation_conversion.h ****    * is already computed.
+  81:./math/pprz_orientation_conversion.h ****    */
+  82:./math/pprz_orientation_conversion.h ****   uint8_t status;
+  83:./math/pprz_orientation_conversion.h **** 
+  84:./math/pprz_orientation_conversion.h ****   /**
+  85:./math/pprz_orientation_conversion.h ****    * Orientation quaternion.
+  86:./math/pprz_orientation_conversion.h ****    * Units: #INT32_QUAT_FRAC
+  87:./math/pprz_orientation_conversion.h ****    */
+  88:./math/pprz_orientation_conversion.h ****   struct Int32Quat quat_i;
+  89:./math/pprz_orientation_conversion.h **** 
+  90:./math/pprz_orientation_conversion.h ****   /**
+  91:./math/pprz_orientation_conversion.h ****    * Orientation in zyx euler angles.
+  92:./math/pprz_orientation_conversion.h ****    * Units: rad in BFP with #INT32_ANGLE_FRAC
+  93:./math/pprz_orientation_conversion.h ****    */
+  94:./math/pprz_orientation_conversion.h ****   struct Int32Eulers eulers_i;
+  95:./math/pprz_orientation_conversion.h **** 
+  96:./math/pprz_orientation_conversion.h ****   /**
+  97:./math/pprz_orientation_conversion.h ****    * Orientation rotation matrix.
+  98:./math/pprz_orientation_conversion.h ****    * Units: rad in BFP with #INT32_TRIG_FRAC
+  99:./math/pprz_orientation_conversion.h ****    */
+ 100:./math/pprz_orientation_conversion.h ****   struct Int32RMat rmat_i;
+ 101:./math/pprz_orientation_conversion.h **** 
+ 102:./math/pprz_orientation_conversion.h ****   /**
+ 103:./math/pprz_orientation_conversion.h ****    * Orientation as quaternion.
+ 104:./math/pprz_orientation_conversion.h ****    * Units: unit length quaternion
+ 105:./math/pprz_orientation_conversion.h ****    */
+ 106:./math/pprz_orientation_conversion.h ****   struct FloatQuat quat_f;
+ 107:./math/pprz_orientation_conversion.h **** 
+ 108:./math/pprz_orientation_conversion.h ****   /**
+ 109:./math/pprz_orientation_conversion.h ****    * Orienation in zyx euler angles.
+ 110:./math/pprz_orientation_conversion.h ****    * Units: rad
+ 111:./math/pprz_orientation_conversion.h ****    */
+ 112:./math/pprz_orientation_conversion.h ****   struct FloatEulers eulers_f;
+ 113:./math/pprz_orientation_conversion.h **** 
+ 114:./math/pprz_orientation_conversion.h ****   /**
+ 115:./math/pprz_orientation_conversion.h ****    * Orientation rotation matrix.
+ 116:./math/pprz_orientation_conversion.h ****    * Units: rad
+ 117:./math/pprz_orientation_conversion.h ****    */
+ 118:./math/pprz_orientation_conversion.h ****   struct FloatRMat   rmat_f;
+ 119:./math/pprz_orientation_conversion.h **** };
+ 120:./math/pprz_orientation_conversion.h **** 
+ 121:./math/pprz_orientation_conversion.h **** /************* declaration of transformation functions ************/
+ 122:./math/pprz_orientation_conversion.h **** extern void orientationCalcQuat_i(struct OrientationReps* orientation);
+ 123:./math/pprz_orientation_conversion.h **** extern void orientationCalcRMat_i(struct OrientationReps* orientation);
+ 124:./math/pprz_orientation_conversion.h **** extern void orientationCalcEulers_i(struct OrientationReps* orientation);
+ 125:./math/pprz_orientation_conversion.h **** extern void orientationCalcQuat_f(struct OrientationReps* orientation);
+ 126:./math/pprz_orientation_conversion.h **** extern void orientationCalcRMat_f(struct OrientationReps* orientation);
+ 127:./math/pprz_orientation_conversion.h **** extern void orientationCalcEulers_f(struct OrientationReps* orientation);
+ 128:./math/pprz_orientation_conversion.h **** 
+ 129:./math/pprz_orientation_conversion.h **** 
+ 130:./math/pprz_orientation_conversion.h **** /*********************** validity test functions ******************/
+ 131:./math/pprz_orientation_conversion.h **** /// Test if orientations are valid.
+ 132:./math/pprz_orientation_conversion.h **** static inline bool_t orienationCheckValid(struct OrientationReps* orientation) {
+ 133:./math/pprz_orientation_conversion.h ****   return (orientation->status);
+ 134:./math/pprz_orientation_conversion.h **** }
+ 135:./math/pprz_orientation_conversion.h **** 
+ 136:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from quaternion (int).
+ 137:./math/pprz_orientation_conversion.h **** static inline void orientationSetQuat_i(struct OrientationReps* orientation, struct Int32Quat* quat
+ 138:./math/pprz_orientation_conversion.h ****   QUAT_COPY(orientation->quat_i, *quat);
+ 139:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 140:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_QUAT_I);
+ 141:./math/pprz_orientation_conversion.h **** }
+ 142:./math/pprz_orientation_conversion.h **** 
+ 143:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from rotation matrix (int).
+ 144:./math/pprz_orientation_conversion.h **** static inline void orientationSetRMat_i(struct OrientationReps* orientation, struct Int32RMat* rmat
+ 145:./math/pprz_orientation_conversion.h ****   RMAT_COPY(orientation->rmat_i, *rmat);
+ 146:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 147:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_RMAT_I);
+ 148:./math/pprz_orientation_conversion.h **** }
+ 149:./math/pprz_orientation_conversion.h **** 
+ 150:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from euler angles (int).
+ 151:./math/pprz_orientation_conversion.h **** static inline void orientationSetEulers_i(struct OrientationReps* orientation, struct Int32Eulers* 
+ 152:./math/pprz_orientation_conversion.h ****   EULERS_COPY(orientation->eulers_i, *eulers);
+ 153:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 154:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_EULER_I);
+ 155:./math/pprz_orientation_conversion.h **** }
+ 156:./math/pprz_orientation_conversion.h **** 
+ 157:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from quaternion (float).
+ 158:./math/pprz_orientation_conversion.h **** static inline void orientationSetQuat_f(struct OrientationReps* orientation, struct FloatQuat* quat
+ 159:./math/pprz_orientation_conversion.h ****   QUAT_COPY(orientation->quat_f, *quat);
+ 160:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 161:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_QUAT_F);
+ 162:./math/pprz_orientation_conversion.h **** }
+ 163:./math/pprz_orientation_conversion.h **** 
+ 164:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from rotation matrix (float).
+ 165:./math/pprz_orientation_conversion.h **** static inline void orientationSetRMat_f(struct OrientationReps* orientation, struct FloatRMat* rmat
+ 166:./math/pprz_orientation_conversion.h ****   RMAT_COPY(orientation->rmat_f, *rmat);
+ 167:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 168:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_RMAT_F);
+ 169:./math/pprz_orientation_conversion.h **** }
+ 170:./math/pprz_orientation_conversion.h **** 
+ 171:./math/pprz_orientation_conversion.h **** /// Set vehicle body attitude from euler angles (float).
+ 172:./math/pprz_orientation_conversion.h **** static inline void orientationSetEulers_f(struct OrientationReps* orientation, struct FloatEulers* 
+ 173:./math/pprz_orientation_conversion.h ****   EULERS_COPY(orientation->eulers_f, *eulers);
+ 174:./math/pprz_orientation_conversion.h ****   /* clear bits for all attitude representations and only set the new one */
+ 175:./math/pprz_orientation_conversion.h ****   orientation->status = (1 << ORREP_EULER_F);
+ 176:./math/pprz_orientation_conversion.h **** }
+ 177:./math/pprz_orientation_conversion.h **** 
+ 178:./math/pprz_orientation_conversion.h **** 
+ 179:./math/pprz_orientation_conversion.h **** /// Get vehicle body attitude quaternion (int).
+ 180:./math/pprz_orientation_conversion.h **** static inline struct Int32Quat* orientationGetQuat_i(struct OrientationReps* orientation) {
+ 181:./math/pprz_orientation_conversion.h ****   if (!bit_is_set(orientation->status, ORREP_QUAT_I))
+ 876              		.loc 2 181 0
+ 877 0004 B54D     		ldr	r5, .L132
+ 878              	.LBE34:
+ 879              	.LBE33:
+ 880              	.LBE32:
+ 881              		.loc 1 135 0
+ 882 0006 89B0     		sub	sp, sp, #36
+ 883              	.LCFI5:
+ 884              		.cfi_def_cfa_offset 72
+ 885              		.loc 1 135 0
+ 886 0008 0446     		mov	r4, r0
+ 136:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 137:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /*
+ 138:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****    * Update reference
+ 139:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****    */
+ 140:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_attitude_ref_update();
+ 887              		.loc 1 140 0
+ 888 000a FFF7FEFF 		bl	stabilization_attitude_ref_update
+ 889              	.LVL121:
+ 890              	.LBB37:
+ 891              	.LBB36:
+ 892              		.loc 2 181 0
+ 893 000e 95F8A431 		ldrb	r3, [r5, #420]	@ zero_extendqisi2
+ 894              	.LBB35:
+ 895 0012 DE07     		lsls	r6, r3, #31
+ 896 0014 03D4     		bmi	.L106
+ 182:./math/pprz_orientation_conversion.h ****     orientationCalcQuat_i(orientation);
+ 897              		.loc 2 182 0
+ 898 0016 05F5D270 		add	r0, r5, #420
+ 899 001a FFF7FEFF 		bl	orientationCalcQuat_i
+ 900              	.LVL122:
+ 901              	.L106:
+ 902              	.LBE35:
+ 903              	.LBE36:
+ 904              	.LBE37:
+ 141:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 142:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /*
+ 143:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****    * Compute errors for feedback
+ 144:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****    */
+ 145:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 146:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* attitude error                          */
+ 147:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   struct Int32Quat att_err;
+ 148:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   struct Int32Quat* att_quat = stateGetNedToBodyQuat_i();
+ 149:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+ 905              		.loc 1 149 0
+ 906 001e B04F     		ldr	r7, .L132+4
+ 907 0020 D5F8AC21 		ldr	r2, [r5, #428]
+ 908 0024 7E68     		ldr	r6, [r7, #4]
+ 909 0026 D5F8A8C1 		ldr	ip, [r5, #424]
+ 910 002a 06FB02F9 		mul	r9, r6, r2
+ 911 002e 3968     		ldr	r1, [r7, #0]
+ 912 0030 D5F8B001 		ldr	r0, [r5, #432]
+ 913 0034 D7F808E0 		ldr	lr, [r7, #8]
+ 914 0038 D5F8B431 		ldr	r3, [r5, #436]
+ 915 003c FD68     		ldr	r5, [r7, #12]
+ 916 003e 01FB0C97 		mla	r7, r1, ip, r9
+ 917 0042 0EFB0078 		mla	r8, lr, r0, r7
+ 918 0046 06FB0CF7 		mul	r7, r6, ip
+ 919 004a 01FB127B 		mls	fp, r1, r2, r7
+ 920 004e 05FB02F7 		mul	r7, r5, r2
+ 921 0052 0EFB0C77 		mla	r7, lr, ip, r7
+ 922 0056 05FB0CFC 		mul	ip, r5, ip
+ 923 005a 01FB1077 		mls	r7, r1, r0, r7
+ 924 005e 0EFB12C2 		mls	r2, lr, r2, ip
+ 925 0062 06FB1377 		mls	r7, r6, r3, r7
+ 926 0066 06FB0026 		mla	r6, r6, r0, r2
+ 927 006a 05FB10B9 		mls	r9, r5, r0, fp
+ 928 006e 05FB038A 		mla	sl, r5, r3, r8
+ 929              	.LVL123:
+ 930 0072 01FB1361 		mls	r1, r1, r3, r6
+ 931 0076 0EFB0398 		mla	r8, lr, r3, r9
+ 932 007a FF13     		asrs	r7, r7, #15
+ 933 007c C813     		asrs	r0, r1, #15
+ 150:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* wrap it in the shortest direction       */
+ 151:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_WRAP_SHORTEST(att_err);
+ 934              		.loc 1 151 0
+ 935 007e 5FEAEA3B 		asrs	fp, sl, #15
+ 936              	.LVL124:
+ 149:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+ 937              		.loc 1 149 0
+ 938 0082 4FEAE839 		asr	r9, r8, #15
+ 939              	.LVL125:
+ 940              		.loc 1 151 0
+ 941 0086 05D5     		bpl	.L107
+ 942              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 943 0088 CBF1000B 		rsb	fp, fp, #0
+ 944              	.LVL126:
+ 945 008c C9F10009 		rsb	r9, r9, #0
+ 946              	.LVL127:
+ 947 0090 7F42     		negs	r7, r7
+ 948              	.LVL128:
+ 949 0092 4042     		negs	r0, r0
+ 950              	.LVL129:
+ 951              	.L107:
+ 952              	.LBB38:
+ 953              	.LBB39:
+ 152:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_NORMALIZE(att_err);
+ 954              		.loc 1 152 0 is_stmt 1
+ 955 0094 09FB09F3 		mul	r3, r9, r9
+ 956 0098 0BFB0B35 		mla	r5, fp, fp, r3
+ 957 009c 07FB0752 		mla	r2, r7, r7, r5
+ 958 00a0 00FB0026 		mla	r6, r0, r0, r2
+ 959              	.LVL130:
+ 960 00a4 76B1     		cbz	r6, .L125
+ 961              	.LVL131:
+ 962              	.LBB40:
+ 963              		.loc 1 152 0 is_stmt 0 discriminator 2
+ 964 00a6 3146     		mov	r1, r6
+ 965 00a8 2822     		movs	r2, #40
+ 966              	.LVL132:
+ 967              	.L110:
+ 968              		.loc 1 152 0 discriminator 3
+ 969 00aa B6FBF1F3 		udiv	r3, r6, r1
+ 970              	.LVL133:
+ 971 00ae 5D18     		adds	r5, r3, r1
+ 972              	.LVL134:
+ 973 00b0 6D08     		lsrs	r5, r5, #1
+ 974              	.LVL135:
+ 975 00b2 491B     		subs	r1, r1, r5
+ 976              	.LVL136:
+ 977 00b4 0129     		cmp	r1, #1
+ 978 00b6 06D9     		bls	.L108
+ 979 00b8 013A     		subs	r2, r2, #1
+ 980              		.loc 1 152 0 discriminator 4
+ 981 00ba 12F0FF02 		ands	r2, r2, #255
+ 982 00be 2946     		mov	r1, r5
+ 983 00c0 F3D1     		bne	.L110
+ 984 00c2 00E0     		b	.L108
+ 985              	.LVL137:
+ 986              	.L125:
+ 987              	.LBE40:
+ 988              		.loc 1 152 0
+ 989 00c4 3546     		mov	r5, r6
+ 990              	.L108:
+ 991              	.LVL138:
+ 992              	.LBE39:
+ 993              	.LBE38:
+ 994              	.LBB41:
+ 995              	.LBB42:
+ 996              		.file 3 "./state.h"
+   1:./state.h     **** /*
+   2:./state.h     ****  * Copyright (C) 2011-2012 Felix Ruess <felix.ruess@gmail.com>
+   3:./state.h     ****  *
+   4:./state.h     ****  * This file is part of paparazzi.
+   5:./state.h     ****  *
+   6:./state.h     ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./state.h     ****  * it under the terms of the GNU General Public License as published by
+   8:./state.h     ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./state.h     ****  * any later version.
+  10:./state.h     ****  *
+  11:./state.h     ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./state.h     ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./state.h     ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./state.h     ****  * GNU General Public License for more details.
+  15:./state.h     ****  *
+  16:./state.h     ****  * You should have received a copy of the GNU General Public License
+  17:./state.h     ****  * along with paparazzi; see the file COPYING.  If not, see
+  18:./state.h     ****  * <http://www.gnu.org/licenses/>.
+  19:./state.h     ****  */
+  20:./state.h     **** 
+  21:./state.h     **** /**
+  22:./state.h     ****  * @file state.h
+  23:./state.h     ****  *
+  24:./state.h     ****  * API to get/set the generic vehicle states.
+  25:./state.h     ****  *
+  26:./state.h     ****  * Also see the @ref state_interface "State Interface" page.
+  27:./state.h     ****  *
+  28:./state.h     ****  * @author Felix Ruess <felix.ruess@gmail.com>
+  29:./state.h     ****  */
+  30:./state.h     **** 
+  31:./state.h     **** #ifndef STATE_H
+  32:./state.h     **** #define STATE_H
+  33:./state.h     **** 
+  34:./state.h     **** #include "math/pprz_algebra_int.h"
+  35:./state.h     **** #include "math/pprz_algebra_float.h"
+  36:./state.h     **** #include "math/pprz_geodetic_int.h"
+  37:./state.h     **** #include "math/pprz_geodetic_float.h"
+  38:./state.h     **** #include "math/pprz_orientation_conversion.h"
+  39:./state.h     **** 
+  40:./state.h     **** #include "std.h"
+  41:./state.h     **** #include <string.h>
+  42:./state.h     **** 
+  43:./state.h     **** /**
+  44:./state.h     ****  * This general state interface holds all the most important vehicle states like
+  45:./state.h     ****  * position, velocity, attitude, etc. It handles coordinate system and
+  46:./state.h     ****  * fixed-/floating-point conversion on the fly when needed.
+  47:./state.h     ****  *
+  48:./state.h     ****  * You can set e.g. the position in any coordinate system you wish:
+  49:./state.h     ****  * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
+  50:./state.h     ****  * If you need to read the position somewhere else in a different representation,
+  51:./state.h     ****  * call: stateGetPositionLla_f() and only then the LLA float position representation
+  52:./state.h     ****  * is calculated on the fly and returned. It's also only calculated once,
+  53:./state.h     ****  * until a new position is set which invalidates all the other representations again.
+  54:./state.h     ****  */
+  55:./state.h     **** 
+  56:./state.h     **** /**
+  57:./state.h     ****  * @defgroup state_interface State interface
+  58:./state.h     ****  * @{
+  59:./state.h     ****  */
+  60:./state.h     **** 
+  61:./state.h     **** /**
+  62:./state.h     ****  * @defgroup state_position Position representations
+  63:./state.h     ****  * @{
+  64:./state.h     ****  */
+  65:./state.h     **** #define POS_ECEF_I 0
+  66:./state.h     **** #define POS_NED_I  1
+  67:./state.h     **** #define POS_ENU_I  2
+  68:./state.h     **** #define POS_LLA_I  3
+  69:./state.h     **** #define POS_UTM_I  4
+  70:./state.h     **** #define POS_ECEF_F 5
+  71:./state.h     **** #define POS_NED_F  6
+  72:./state.h     **** #define POS_ENU_F  7
+  73:./state.h     **** #define POS_LLA_F  8
+  74:./state.h     **** #define POS_UTM_F  9
+  75:./state.h     **** #define POS_LOCAL_COORD ((1<<POS_NED_I)|(1<<POS_NED_F)|(1<<POS_ENU_I)|(1<<POS_ENU_F))
+  76:./state.h     **** #define POS_GLOBAL_COORD ((1<<POS_ECEF_I)|(1<<POS_ECEF_F)|(1<<POS_LLA_I)|(1<<POS_LLA_F)|(1<<POS_UTM
+  77:./state.h     **** /**@}*/
+  78:./state.h     **** 
+  79:./state.h     **** /**
+  80:./state.h     ****  * @defgroup state_velocity Speed representations
+  81:./state.h     ****  * @{
+  82:./state.h     ****  */
+  83:./state.h     **** #define SPEED_ECEF_I  0
+  84:./state.h     **** #define SPEED_NED_I   1
+  85:./state.h     **** #define SPEED_ENU_I   2
+  86:./state.h     **** #define SPEED_HNORM_I 3
+  87:./state.h     **** #define SPEED_HDIR_I  4
+  88:./state.h     **** #define SPEED_ECEF_F  5
+  89:./state.h     **** #define SPEED_NED_F   6
+  90:./state.h     **** #define SPEED_ENU_F   7
+  91:./state.h     **** #define SPEED_HNORM_F 8
+  92:./state.h     **** #define SPEED_HDIR_F  9
+  93:./state.h     **** #define SPEED_LOCAL_COORD ((1<<SPEED_NED_I)|(1<<SPEED_ENU_I)|(1<<SPEED_NED_F)|(1<<SPEED_ENU_F))
+  94:./state.h     **** /**@}*/
+  95:./state.h     **** 
+  96:./state.h     **** /**
+  97:./state.h     ****  * @defgroup state_acceleration Acceleration representations
+  98:./state.h     ****  * @{
+  99:./state.h     ****  */
+ 100:./state.h     **** #define ACCEL_ECEF_I 0
+ 101:./state.h     **** #define ACCEL_NED_I  1
+ 102:./state.h     **** #define ACCEL_ECEF_F 2
+ 103:./state.h     **** #define ACCEL_NED_F  3
+ 104:./state.h     **** /**@}*/
+ 105:./state.h     **** 
+ 106:./state.h     **** /**
+ 107:./state.h     ****  * @defgroup state_rate Angular rate representations
+ 108:./state.h     ****  * @{
+ 109:./state.h     ****  */
+ 110:./state.h     **** #define RATE_I 0
+ 111:./state.h     **** #define RATE_F 1
+ 112:./state.h     **** /**@}*/
+ 113:./state.h     **** 
+ 114:./state.h     **** /**
+ 115:./state.h     ****  * @defgroup state_wind_airspeed Wind- and airspeed representations
+ 116:./state.h     ****  * @{
+ 117:./state.h     ****  */
+ 118:./state.h     **** #define WINDSPEED_I 0
+ 119:./state.h     **** #define AIRSPEED_I  1
+ 120:./state.h     **** #define WINDSPEED_F 2
+ 121:./state.h     **** #define AIRSPEED_F  3
+ 122:./state.h     **** #define AOA_F       4
+ 123:./state.h     **** #define SIDESLIP_F  5
+ 124:./state.h     **** /**@}*/
+ 125:./state.h     **** 
+ 126:./state.h     **** 
+ 127:./state.h     **** /**
+ 128:./state.h     ****  * Structure holding vehicle state data.
+ 129:./state.h     ****  */
+ 130:./state.h     **** struct State {
+ 131:./state.h     **** 
+ 132:./state.h     ****   /** @addtogroup state_position
+ 133:./state.h     ****    *  @{ */
+ 134:./state.h     **** 
+ 135:./state.h     ****   /**
+ 136:./state.h     ****    * Holds the status bits for all position representations.
+ 137:./state.h     ****    * When the corresponding bit is set the representation
+ 138:./state.h     ****    * is already computed.
+ 139:./state.h     ****    */
+ 140:./state.h     ****   uint16_t pos_status;
+ 141:./state.h     **** 
+ 142:./state.h     ****   /**
+ 143:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 144:./state.h     ****    * Units: centimeters
+ 145:./state.h     ****    */
+ 146:./state.h     ****   struct EcefCoor_i ecef_pos_i;
+ 147:./state.h     **** 
+ 148:./state.h     ****   /**
+ 149:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 150:./state.h     ****    * Units lat,lon: radians*1e7
+ 151:./state.h     ****    * Units alt: milimeters above reference ellipsoid
+ 152:./state.h     ****    */
+ 153:./state.h     ****   struct LlaCoor_i lla_pos_i;
+ 154:./state.h     **** 
+ 155:./state.h     ****   /**
+ 156:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 157:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 158:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 159:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 160:./state.h     ****    * (int version)
+ 161:./state.h     ****    */
+ 162:./state.h     ****   struct LtpDef_i ned_origin_i;
+ 163:./state.h     **** 
+ 164:./state.h     ****   /**
+ 165:./state.h     ****    * true if local int coordinate frame is initialsed
+ 166:./state.h     ****    */
+ 167:./state.h     ****   bool_t ned_initialized_i;
+ 168:./state.h     **** 
+ 169:./state.h     ****   /**
+ 170:./state.h     ****    * Position in North East Down coordinates.
+ 171:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 172:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 173:./state.h     ****    */
+ 174:./state.h     ****   struct NedCoor_i ned_pos_i;
+ 175:./state.h     **** 
+ 176:./state.h     ****   /**
+ 177:./state.h     ****    * Position in East North Up coordinates.
+ 178:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 179:./state.h     ****    * Units: m in BFP with INT32_POS_FRAC
+ 180:./state.h     ****    */
+ 181:./state.h     ****   struct EnuCoor_i enu_pos_i;
+ 182:./state.h     **** 
+ 183:./state.h     ****   /**
+ 184:./state.h     ****    * Position in UTM coordinates.
+ 185:./state.h     ****    * Units x,y: meters.
+ 186:./state.h     ****    * Units z: meters above MSL
+ 187:./state.h     ****    */
+ 188:./state.h     ****   struct UtmCoor_f utm_pos_f;
+ 189:./state.h     **** 
+ 190:./state.h     ****   /**
+ 191:./state.h     ****    * Altitude above ground level.
+ 192:./state.h     ****    * Unit: meters
+ 193:./state.h     ****    */
+ 194:./state.h     ****   float alt_agl_f;
+ 195:./state.h     **** 
+ 196:./state.h     ****   /**
+ 197:./state.h     ****    * Position in Latitude, Longitude and Altitude.
+ 198:./state.h     ****    * Units lat,lon: radians
+ 199:./state.h     ****    * Units alt: meters above reference ellipsoid
+ 200:./state.h     ****    */
+ 201:./state.h     ****   struct LlaCoor_f lla_pos_f;
+ 202:./state.h     **** 
+ 203:./state.h     ****   /**
+ 204:./state.h     ****    * Position in EarthCenteredEarthFixed coordinates.
+ 205:./state.h     ****    * Units: meters
+ 206:./state.h     ****    */
+ 207:./state.h     ****   struct EcefCoor_f ecef_pos_f;
+ 208:./state.h     **** 
+ 209:./state.h     ****   /**
+ 210:./state.h     ****    * Definition of the local (flat earth) coordinate system.
+ 211:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 212:./state.h     ****    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+ 213:./state.h     ****    * coordinates and the roation matrix from ECEF to local frame.
+ 214:./state.h     ****    * (float version)
+ 215:./state.h     ****    */
+ 216:./state.h     ****   struct LtpDef_f ned_origin_f;
+ 217:./state.h     **** 
+ 218:./state.h     ****   /// True if local float coordinate frame is initialsed
+ 219:./state.h     ****   bool_t ned_initialized_f;
+ 220:./state.h     **** 
+ 221:./state.h     ****   /**
+ 222:./state.h     ****    * Definition of the origin of Utm coordinate system.
+ 223:./state.h     ****    * Defines the origin of the local NorthEastDown coordinate system
+ 224:./state.h     ****    * in UTM coordinates, used as a reference when ned_origin is not
+ 225:./state.h     ****    * initialized.
+ 226:./state.h     ****    * (float version)
+ 227:./state.h     ****    */
+ 228:./state.h     ****   struct UtmCoor_f utm_origin_f;
+ 229:./state.h     **** 
+ 230:./state.h     ****   /// True if utm origin (float) coordinate frame is initialsed
+ 231:./state.h     ****   bool_t utm_initialized_f;
+ 232:./state.h     **** 
+ 233:./state.h     ****   /**
+ 234:./state.h     ****    * Position in North East Down coordinates.
+ 235:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 236:./state.h     ****    * Units: meters
+ 237:./state.h     ****    */
+ 238:./state.h     ****   struct NedCoor_f ned_pos_f;
+ 239:./state.h     **** 
+ 240:./state.h     ****   /**
+ 241:./state.h     ****    * Position in East North Up coordinates.
+ 242:./state.h     ****    * with respect to ned_origin_i (flat earth)
+ 243:./state.h     ****    * Units: meters
+ 244:./state.h     ****    */
+ 245:./state.h     ****   struct EnuCoor_f enu_pos_f;
+ 246:./state.h     ****   /** @}*/
+ 247:./state.h     **** 
+ 248:./state.h     **** 
+ 249:./state.h     ****   /** @addtogroup state_velocity
+ 250:./state.h     ****    *  @{ */
+ 251:./state.h     ****   /**
+ 252:./state.h     ****    * Holds the status bits for all ground speed representations.
+ 253:./state.h     ****    * When the corresponding bit is one the representation
+ 254:./state.h     ****    * is already computed.
+ 255:./state.h     ****    */
+ 256:./state.h     ****   uint16_t speed_status;
+ 257:./state.h     **** 
+ 258:./state.h     ****   /**
+ 259:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 260:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 261:./state.h     ****    */
+ 262:./state.h     ****   struct EcefCoor_i ecef_speed_i;
+ 263:./state.h     **** 
+ 264:./state.h     ****   /**
+ 265:./state.h     ****    * Velocity in North East Down coordinates.
+ 266:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 267:./state.h     ****    */
+ 268:./state.h     ****   struct NedCoor_i ned_speed_i;
+ 269:./state.h     **** 
+ 270:./state.h     ****   /**
+ 271:./state.h     ****    * Velocity in East North Up coordinates.
+ 272:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 273:./state.h     ****    */
+ 274:./state.h     ****   struct EnuCoor_i enu_speed_i;
+ 275:./state.h     **** 
+ 276:./state.h     ****   /**
+ 277:./state.h     ****    * Norm of horizontal ground speed.
+ 278:./state.h     ****    * Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 279:./state.h     ****    */
+ 280:./state.h     ****   int32_t h_speed_norm_i;
+ 281:./state.h     **** 
+ 282:./state.h     ****   /**
+ 283:./state.h     ****    * Direction of horizontal ground speed.
+ 284:./state.h     ****    * Unit: rad in BFP with #INT32_ANGLE_FRAC
+ 285:./state.h     ****    * (clockwise, zero=north)
+ 286:./state.h     ****    */
+ 287:./state.h     ****   int32_t h_speed_dir_i;
+ 288:./state.h     **** 
+ 289:./state.h     ****   /**
+ 290:./state.h     ****    * Velocity in EarthCenteredEarthFixed coordinates.
+ 291:./state.h     ****    * Units: m/s
+ 292:./state.h     ****    */
+ 293:./state.h     ****   struct EcefCoor_f ecef_speed_f;
+ 294:./state.h     **** 
+ 295:./state.h     ****   /**
+ 296:./state.h     ****    * @brief speed in North East Down coordinates
+ 297:./state.h     ****    * @details Units: m/s */
+ 298:./state.h     ****   struct NedCoor_f ned_speed_f;
+ 299:./state.h     **** 
+ 300:./state.h     ****   /**
+ 301:./state.h     ****    * Velocity in East North Up coordinates.
+ 302:./state.h     ****    * Units: m/s
+ 303:./state.h     ****    */
+ 304:./state.h     ****   struct EnuCoor_f enu_speed_f;
+ 305:./state.h     **** 
+ 306:./state.h     ****   /**
+ 307:./state.h     ****    * Norm of horizontal ground speed.
+ 308:./state.h     ****    * Unit: m/s
+ 309:./state.h     ****    */
+ 310:./state.h     ****   float h_speed_norm_f;
+ 311:./state.h     **** 
+ 312:./state.h     ****   /**
+ 313:./state.h     ****    * Direction of horizontal ground speed.
+ 314:./state.h     ****    * Unit: rad (clockwise, zero=north)
+ 315:./state.h     ****    */
+ 316:./state.h     ****   float h_speed_dir_f;
+ 317:./state.h     ****   /** @}*/
+ 318:./state.h     **** 
+ 319:./state.h     **** 
+ 320:./state.h     ****   /** @addtogroup state_acceleration
+ 321:./state.h     ****    *  @{ */
+ 322:./state.h     ****   /**
+ 323:./state.h     ****    * Holds the status bits for all acceleration representations.
+ 324:./state.h     ****    * When the corresponding bit is one the representation
+ 325:./state.h     ****    * is already computed.
+ 326:./state.h     ****    */
+ 327:./state.h     ****   uint8_t accel_status;
+ 328:./state.h     **** 
+ 329:./state.h     ****   /**
+ 330:./state.h     ****    * Acceleration in North East Down coordinates.
+ 331:./state.h     ****    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
+ 332:./state.h     ****    */
+ 333:./state.h     ****   struct NedCoor_i ned_accel_i;
+ 334:./state.h     **** 
+ 335:./state.h     ****   /**
+ 336:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 337:./state.h     ****    * Units: m/s^2 in BFP with INT32_ACCEL_FRAC
+ 338:./state.h     ****    */
+ 339:./state.h     ****   struct EcefCoor_i ecef_accel_i;
+ 340:./state.h     **** 
+ 341:./state.h     ****   /**
+ 342:./state.h     ****    * Acceleration in North East Down coordinates.
+ 343:./state.h     ****    * Units: m/s^2
+ 344:./state.h     ****    */
+ 345:./state.h     ****   struct NedCoor_f ned_accel_f;
+ 346:./state.h     **** 
+ 347:./state.h     ****   /**
+ 348:./state.h     ****    * Acceleration in EarthCenteredEarthFixed coordinates.
+ 349:./state.h     ****    * Units: m/s^2
+ 350:./state.h     ****    */
+ 351:./state.h     ****   struct EcefCoor_f ecef_accel_f;
+ 352:./state.h     ****   /** @}*/
+ 353:./state.h     **** 
+ 354:./state.h     **** 
+ 355:./state.h     ****   /** @defgroup state_attitude Attitude representations
+ 356:./state.h     ****    */
+ 357:./state.h     ****   struct OrientationReps ned_to_body_orientation;
+ 358:./state.h     **** 
+ 359:./state.h     **** 
+ 360:./state.h     ****   /** @addtogroup state_rate
+ 361:./state.h     ****    *  @{ */
+ 362:./state.h     ****   /**
+ 363:./state.h     ****    * Holds the status bits for all angular rate representations.
+ 364:./state.h     ****    * When the corresponding bit is one the representation
+ 365:./state.h     ****    * is already computed.
+ 366:./state.h     ****    */
+ 367:./state.h     ****   uint8_t rate_status;
+ 368:./state.h     **** 
+ 369:./state.h     ****   /**
+ 370:./state.h     ****    * Angular rates in body frame.
+ 371:./state.h     ****    * Units: rad/s in BFP with #INT32_RATE_FRAC
+ 372:./state.h     ****    */
+ 373:./state.h     ****   struct Int32Rates  body_rates_i;
+ 374:./state.h     **** 
+ 375:./state.h     ****   /**
+ 376:./state.h     ****    * Angular rates in body frame.
+ 377:./state.h     ****    * Units: rad/s
+ 378:./state.h     ****    */
+ 379:./state.h     ****   struct FloatRates  body_rates_f;
+ 380:./state.h     ****   /** @}*/
+ 381:./state.h     **** 
+ 382:./state.h     **** 
+ 383:./state.h     ****   /** @addtogroup state_wind_airspeed
+ 384:./state.h     ****    *  @{ */
+ 385:./state.h     ****   /**
+ 386:./state.h     ****    * Holds the status bits for all wind- and airspeed representations.
+ 387:./state.h     ****    * When the corresponding bit is one the representation
+ 388:./state.h     ****    * is already computed.
+ 389:./state.h     ****    */
+ 390:./state.h     ****   uint8_t wind_air_status;
+ 391:./state.h     **** 
+ 392:./state.h     ****   /**
+ 393:./state.h     ****    * Horizontal windspeed in north/east.
+ 394:./state.h     ****    * Units: m/s in BFP with #INT32_SPEED_FRAC
+ 395:./state.h     ****    */
+ 396:./state.h     ****   struct Int32Vect2 h_windspeed_i;
+ 397:./state.h     **** 
+ 398:./state.h     ****   /**
+ 399:./state.h     ****    * Norm of horizontal ground speed.
+ 400:./state.h     ****    * @details Unit: m/s in BFP with #INT32_SPEED_FRAC
+ 401:./state.h     ****    */
+ 402:./state.h     ****   int32_t airspeed_i;
+ 403:./state.h     **** 
+ 404:./state.h     ****   /**
+ 405:./state.h     ****    * Horizontal windspeed.
+ 406:./state.h     ****    * Units: m/s with x=north, y=east
+ 407:./state.h     ****    */
+ 408:./state.h     ****   struct FloatVect2 h_windspeed_f;
+ 409:./state.h     **** 
+ 410:./state.h     ****   /**
+ 411:./state.h     ****    * Norm of relative air speed.
+ 412:./state.h     ****    * Unit: m/s
+ 413:./state.h     ****    */
+ 414:./state.h     ****   float airspeed_f;
+ 415:./state.h     **** 
+ 416:./state.h     ****   /**
+ 417:./state.h     ****    * Angle of attack
+ 418:./state.h     ****    * Unit: rad
+ 419:./state.h     ****    */
+ 420:./state.h     ****   float angle_of_attack_f;
+ 421:./state.h     **** 
+ 422:./state.h     ****   /**
+ 423:./state.h     ****    * Sideslip angle
+ 424:./state.h     ****    * Unit: rad
+ 425:./state.h     ****    */
+ 426:./state.h     ****   float sideslip_f;
+ 427:./state.h     **** 
+ 428:./state.h     ****   /** @}*/
+ 429:./state.h     **** 
+ 430:./state.h     **** };
+ 431:./state.h     **** 
+ 432:./state.h     **** extern struct State state;
+ 433:./state.h     **** 
+ 434:./state.h     **** extern void stateInit(void);
+ 435:./state.h     **** 
+ 436:./state.h     **** /** @addtogroup state_position
+ 437:./state.h     ****  *  @{ */
+ 438:./state.h     **** 
+ 439:./state.h     **** /// Set the local (flat earth) coordinate frame origin (int).
+ 440:./state.h     **** static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
+ 441:./state.h     ****   memcpy(&state.ned_origin_i, ltp_def, sizeof(struct LtpDef_i));
+ 442:./state.h     ****   /* convert to float */
+ 443:./state.h     ****   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
+ 444:./state.h     ****   LLA_FLOAT_OF_BFP(state.ned_origin_f.lla, state.ned_origin_i.lla);
+ 445:./state.h     ****   RMAT_FLOAT_OF_BFP(state.ned_origin_f.ltp_of_ecef, state.ned_origin_i.ltp_of_ecef);
+ 446:./state.h     ****   state.ned_origin_f.hmsl = M_OF_MM(state.ned_origin_i.hmsl);
+ 447:./state.h     **** 
+ 448:./state.h     ****   /* clear bits for all local frame representations */
+ 449:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 450:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 451:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 452:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 453:./state.h     **** 
+ 454:./state.h     ****   state.ned_initialized_i = TRUE;
+ 455:./state.h     ****   state.ned_initialized_f = TRUE;
+ 456:./state.h     **** }
+ 457:./state.h     **** 
+ 458:./state.h     **** /// Set the local (flat earth) coordinate frame origin from UTM (float).
+ 459:./state.h     **** static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
+ 460:./state.h     ****   memcpy(&state.utm_origin_f, utm_def, sizeof(struct UtmCoor_f));
+ 461:./state.h     ****   state.utm_initialized_f = TRUE;
+ 462:./state.h     **** 
+ 463:./state.h     ****   /* clear bits for all local frame representations */
+ 464:./state.h     ****   state.pos_status &= ~(POS_LOCAL_COORD);
+ 465:./state.h     ****   state.speed_status &= ~(SPEED_LOCAL_COORD);
+ 466:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_I);
+ 467:./state.h     ****   ClearBit(state.accel_status, ACCEL_NED_F);
+ 468:./state.h     **** }
+ 469:./state.h     **** /*******************************************************************************
+ 470:./state.h     ****  *                                                                             *
+ 471:./state.h     ****  * Set and Get functions for the POSITION representations                      *
+ 472:./state.h     ****  *                                                                             *
+ 473:./state.h     ****  ******************************************************************************/
+ 474:./state.h     **** 
+ 475:./state.h     **** /************* declaration of transformation functions ************/
+ 476:./state.h     **** extern void stateCalcPositionEcef_i(void);
+ 477:./state.h     **** extern void stateCalcPositionNed_i(void);
+ 478:./state.h     **** extern void stateCalcPositionEnu_i(void);
+ 479:./state.h     **** extern void stateCalcPositionLla_i(void);
+ 480:./state.h     **** extern void stateCalcPositionUtm_f(void);
+ 481:./state.h     **** extern void stateCalcPositionEcef_f(void);
+ 482:./state.h     **** extern void stateCalcPositionNed_f(void);
+ 483:./state.h     **** extern void stateCalcPositionEnu_f(void);
+ 484:./state.h     **** extern void stateCalcPositionLla_f(void);
+ 485:./state.h     **** 
+ 486:./state.h     **** /*********************** validity test functions ******************/
+ 487:./state.h     **** 
+ 488:./state.h     **** /// Test if local coordinates are valid.
+ 489:./state.h     **** static inline bool_t stateIsLocalCoordinateValid(void) {
+ 490:./state.h     ****   return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & (POS_LOCAL_CO
+ 491:./state.h     **** }
+ 492:./state.h     **** 
+ 493:./state.h     **** /// Test if global coordinates are valid.
+ 494:./state.h     **** static inline bool_t stateIsGlobalCoordinateValid(void) {
+ 495:./state.h     ****   return ((state.pos_status & (POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+ 496:./state.h     **** }
+ 497:./state.h     **** 
+ 498:./state.h     **** /************************ Set functions ****************************/
+ 499:./state.h     **** 
+ 500:./state.h     **** /// Set position from ECEF coordinates (int).
+ 501:./state.h     **** static inline void stateSetPositionEcef_i(struct EcefCoor_i* ecef_pos) {
+ 502:./state.h     ****   INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 503:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 504:./state.h     ****   state.pos_status = (1 << POS_ECEF_I);
+ 505:./state.h     **** }
+ 506:./state.h     **** 
+ 507:./state.h     **** /// Set position from local NED coordinates (int).
+ 508:./state.h     **** static inline void stateSetPositionNed_i(struct NedCoor_i* ned_pos) {
+ 509:./state.h     ****   INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 510:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 511:./state.h     ****   state.pos_status = (1 << POS_NED_I);
+ 512:./state.h     **** }
+ 513:./state.h     **** 
+ 514:./state.h     **** /// Set position from local ENU coordinates (int).
+ 515:./state.h     **** static inline void stateSetPositionEnu_i(struct EnuCoor_i* enu_pos) {
+ 516:./state.h     ****   INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 517:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 518:./state.h     ****   state.pos_status = (1 << POS_ENU_I);
+ 519:./state.h     **** }
+ 520:./state.h     **** 
+ 521:./state.h     **** /// Set position from LLA coordinates (int).
+ 522:./state.h     **** static inline void stateSetPositionLla_i(struct LlaCoor_i* lla_pos) {
+ 523:./state.h     ****   LLA_COPY(state.lla_pos_i, *lla_pos);
+ 524:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 525:./state.h     ****   state.pos_status = (1 << POS_LLA_I);
+ 526:./state.h     **** }
+ 527:./state.h     **** 
+ 528:./state.h     **** /// Set multiple position coordinates (int).
+ 529:./state.h     **** static inline void stateSetPosition_i(
+ 530:./state.h     ****     struct EcefCoor_i* ecef_pos,
+ 531:./state.h     ****     struct NedCoor_i* ned_pos,
+ 532:./state.h     ****     struct EnuCoor_i* enu_pos,
+ 533:./state.h     ****     struct LlaCoor_i* lla_pos) {
+ 534:./state.h     ****   /* clear all status bit */
+ 535:./state.h     ****   state.pos_status = 0;
+ 536:./state.h     ****   if (ecef_pos != NULL) {
+ 537:./state.h     ****     INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+ 538:./state.h     ****     state.pos_status |= (1 << POS_ECEF_I);
+ 539:./state.h     ****   }
+ 540:./state.h     ****   if (ned_pos != NULL) {
+ 541:./state.h     ****     INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+ 542:./state.h     ****     state.pos_status |= (1 << POS_NED_I);
+ 543:./state.h     ****   }
+ 544:./state.h     ****   if (enu_pos != NULL) {
+ 545:./state.h     ****     INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+ 546:./state.h     ****     state.pos_status |= (1 << POS_ENU_I);
+ 547:./state.h     ****   }
+ 548:./state.h     ****   if (lla_pos != NULL) {
+ 549:./state.h     ****     LLA_COPY(state.lla_pos_i, *lla_pos);
+ 550:./state.h     ****     state.pos_status |= (1 << POS_LLA_I);
+ 551:./state.h     ****   }
+ 552:./state.h     **** }
+ 553:./state.h     **** 
+ 554:./state.h     **** /// Set position from UTM coordinates (float).
+ 555:./state.h     **** static inline void stateSetPositionUtm_f(struct UtmCoor_f* utm_pos) {
+ 556:./state.h     ****   memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 557:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 558:./state.h     ****   state.pos_status = (1 << POS_UTM_F);
+ 559:./state.h     **** }
+ 560:./state.h     **** 
+ 561:./state.h     **** /// Set position from ECEF coordinates (float).
+ 562:./state.h     **** static inline void stateSetPositionEcef_f(struct EcefCoor_f* ecef_pos) {
+ 563:./state.h     ****   VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 564:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 565:./state.h     ****   state.pos_status = (1 << POS_ECEF_F);
+ 566:./state.h     **** }
+ 567:./state.h     **** 
+ 568:./state.h     **** /// Set position from local NED coordinates (float).
+ 569:./state.h     **** static inline void stateSetPositionNed_f(struct NedCoor_f* ned_pos) {
+ 570:./state.h     ****   VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 571:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 572:./state.h     ****   state.pos_status = (1 << POS_NED_F);
+ 573:./state.h     **** }
+ 574:./state.h     **** 
+ 575:./state.h     **** /// Set position from local ENU coordinates (float).
+ 576:./state.h     **** static inline void stateSetPositionEnu_f(struct EnuCoor_f* enu_pos) {
+ 577:./state.h     ****   VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 578:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 579:./state.h     ****   state.pos_status = (1 << POS_ENU_F);
+ 580:./state.h     **** }
+ 581:./state.h     **** 
+ 582:./state.h     **** /// Set position from LLA coordinates (float).
+ 583:./state.h     **** static inline void stateSetPositionLla_f(struct LlaCoor_f* lla_pos) {
+ 584:./state.h     ****   LLA_COPY(state.lla_pos_f, *lla_pos);
+ 585:./state.h     ****   /* clear bits for all position representations and only set the new one */
+ 586:./state.h     ****   state.pos_status = (1 << POS_LLA_F);
+ 587:./state.h     **** }
+ 588:./state.h     **** 
+ 589:./state.h     **** /// Set multiple position coordinates (float).
+ 590:./state.h     **** static inline void stateSetPosition_f(
+ 591:./state.h     ****     struct EcefCoor_f* ecef_pos,
+ 592:./state.h     ****     struct NedCoor_f* ned_pos,
+ 593:./state.h     ****     struct EnuCoor_f* enu_pos,
+ 594:./state.h     ****     struct LlaCoor_f* lla_pos,
+ 595:./state.h     ****     struct UtmCoor_f* utm_pos) {
+ 596:./state.h     ****   /* clear all status bit */
+ 597:./state.h     ****   state.pos_status = 0;
+ 598:./state.h     ****   if (ecef_pos != NULL) {
+ 599:./state.h     ****     VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+ 600:./state.h     ****     state.pos_status |= (1 << POS_ECEF_F);
+ 601:./state.h     ****   }
+ 602:./state.h     ****   if (ned_pos != NULL) {
+ 603:./state.h     ****     VECT3_COPY(state.ned_pos_f, *ned_pos);
+ 604:./state.h     ****     state.pos_status |= (1 << POS_NED_F);
+ 605:./state.h     ****   }
+ 606:./state.h     ****   if (enu_pos != NULL) {
+ 607:./state.h     ****     VECT3_COPY(state.enu_pos_f, *enu_pos);
+ 608:./state.h     ****     state.pos_status |= (1 << POS_ENU_F);
+ 609:./state.h     ****   }
+ 610:./state.h     ****   if (lla_pos != NULL) {
+ 611:./state.h     ****     LLA_COPY(state.lla_pos_f, *lla_pos);
+ 612:./state.h     ****     state.pos_status |= (1 << POS_LLA_F);
+ 613:./state.h     ****   }
+ 614:./state.h     ****   if (utm_pos != NULL) {
+ 615:./state.h     ****     memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+ 616:./state.h     ****     state.pos_status |= (1 << POS_UTM_F);
+ 617:./state.h     ****   }
+ 618:./state.h     **** }
+ 619:./state.h     **** 
+ 620:./state.h     **** /************************ Get functions ****************************/
+ 621:./state.h     **** 
+ 622:./state.h     **** /// Get position in ECEF coordinates (int).
+ 623:./state.h     **** static inline struct EcefCoor_i* stateGetPositionEcef_i(void) {
+ 624:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_I))
+ 625:./state.h     ****     stateCalcPositionEcef_i();
+ 626:./state.h     ****   return &state.ecef_pos_i;
+ 627:./state.h     **** }
+ 628:./state.h     **** 
+ 629:./state.h     **** /// Get position in local NED coordinates (int).
+ 630:./state.h     **** static inline struct NedCoor_i* stateGetPositionNed_i(void) {
+ 631:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_I))
+ 632:./state.h     ****     stateCalcPositionNed_i();
+ 633:./state.h     ****   return &state.ned_pos_i;
+ 634:./state.h     **** }
+ 635:./state.h     **** 
+ 636:./state.h     **** /// Get position in local ENU coordinates (int).
+ 637:./state.h     **** static inline struct EnuCoor_i* stateGetPositionEnu_i(void) {
+ 638:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_I))
+ 639:./state.h     ****     stateCalcPositionEnu_i();
+ 640:./state.h     ****   return &state.enu_pos_i;
+ 641:./state.h     **** }
+ 642:./state.h     **** 
+ 643:./state.h     **** /// Get position in LLA coordinates (int).
+ 644:./state.h     **** static inline struct LlaCoor_i* stateGetPositionLla_i(void) {
+ 645:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_I))
+ 646:./state.h     ****     stateCalcPositionLla_i();
+ 647:./state.h     ****   return &state.lla_pos_i;
+ 648:./state.h     **** }
+ 649:./state.h     **** 
+ 650:./state.h     **** /// Get position in UTM coordinates (float).
+ 651:./state.h     **** static inline struct UtmCoor_f* stateGetPositionUtm_f(void) {
+ 652:./state.h     ****   if (!bit_is_set(state.pos_status, POS_UTM_F))
+ 653:./state.h     ****     stateCalcPositionUtm_f();
+ 654:./state.h     ****   return &state.utm_pos_f;
+ 655:./state.h     **** }
+ 656:./state.h     **** 
+ 657:./state.h     **** /// Get position in ECEF coordinates (float).
+ 658:./state.h     **** static inline struct EcefCoor_f* stateGetPositionEcef_f(void) {
+ 659:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ECEF_F))
+ 660:./state.h     ****     stateCalcPositionEcef_f();
+ 661:./state.h     ****   return &state.ecef_pos_f;
+ 662:./state.h     **** }
+ 663:./state.h     **** 
+ 664:./state.h     **** /// Get position in local NED coordinates (float).
+ 665:./state.h     **** static inline struct NedCoor_f* stateGetPositionNed_f(void) {
+ 666:./state.h     ****   if (!bit_is_set(state.pos_status, POS_NED_F))
+ 667:./state.h     ****     stateCalcPositionNed_f();
+ 668:./state.h     ****   return &state.ned_pos_f;
+ 669:./state.h     **** }
+ 670:./state.h     **** 
+ 671:./state.h     **** /// Get position in local ENU coordinates (float).
+ 672:./state.h     **** static inline struct EnuCoor_f* stateGetPositionEnu_f(void) {
+ 673:./state.h     ****   if (!bit_is_set(state.pos_status, POS_ENU_F))
+ 674:./state.h     ****     stateCalcPositionEnu_f();
+ 675:./state.h     ****   return &state.enu_pos_f;
+ 676:./state.h     **** }
+ 677:./state.h     **** 
+ 678:./state.h     **** /// Get position in LLA coordinates (float).
+ 679:./state.h     **** static inline struct LlaCoor_f* stateGetPositionLla_f(void) {
+ 680:./state.h     ****   if (!bit_is_set(state.pos_status, POS_LLA_F))
+ 681:./state.h     ****     stateCalcPositionLla_f();
+ 682:./state.h     ****   return &state.lla_pos_f;
+ 683:./state.h     **** }
+ 684:./state.h     **** 
+ 685:./state.h     **** /** @}*/
+ 686:./state.h     **** 
+ 687:./state.h     **** 
+ 688:./state.h     **** 
+ 689:./state.h     **** /******************************************************************************
+ 690:./state.h     ****  *                                                                            *
+ 691:./state.h     ****  * Set and Get functions for the SPEED representations                        *
+ 692:./state.h     ****  *                                                                            *
+ 693:./state.h     ****  *****************************************************************************/
+ 694:./state.h     **** /** @addtogroup state_velocity
+ 695:./state.h     ****  *  @{ */
+ 696:./state.h     **** 
+ 697:./state.h     **** /************* declaration of transformation functions ************/
+ 698:./state.h     **** extern void stateCalcSpeedNed_i(void);
+ 699:./state.h     **** extern void stateCalcSpeedEnu_i(void);
+ 700:./state.h     **** extern void stateCalcSpeedEcef_i(void);
+ 701:./state.h     **** extern void stateCalcHorizontalSpeedNorm_i(void);
+ 702:./state.h     **** extern void stateCalcHorizontalSpeedDir_i(void);
+ 703:./state.h     **** extern void stateCalcSpeedNed_f(void);
+ 704:./state.h     **** extern void stateCalcSpeedEnu_f(void);
+ 705:./state.h     **** extern void stateCalcSpeedEcef_f(void);
+ 706:./state.h     **** extern void stateCalcHorizontalSpeedNorm_f(void);
+ 707:./state.h     **** extern void stateCalcHorizontalSpeedDir_f(void);
+ 708:./state.h     **** 
+ 709:./state.h     **** /************************ Set functions ****************************/
+ 710:./state.h     **** 
+ 711:./state.h     **** /// Set ground speed in local NED coordinates (int).
+ 712:./state.h     **** static inline void stateSetSpeedNed_i(struct NedCoor_i* ned_speed) {
+ 713:./state.h     ****   INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 714:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 715:./state.h     ****   state.speed_status = (1 << SPEED_NED_I);
+ 716:./state.h     **** }
+ 717:./state.h     **** 
+ 718:./state.h     **** /// Set ground speed in local ENU coordinates (int).
+ 719:./state.h     **** static inline void stateSetSpeedEnu_i(struct EnuCoor_i* enu_speed) {
+ 720:./state.h     ****   INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 721:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 722:./state.h     ****   state.speed_status = (1 << SPEED_ENU_I);
+ 723:./state.h     **** }
+ 724:./state.h     **** 
+ 725:./state.h     **** /// Set ground speed in ECEF coordinates (int).
+ 726:./state.h     **** static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
+ 727:./state.h     ****   INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 728:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 729:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_I);
+ 730:./state.h     **** }
+ 731:./state.h     **** 
+ 732:./state.h     **** /// Set multiple speed coordinates (int).
+ 733:./state.h     **** static inline void stateSetSpeed_i(
+ 734:./state.h     ****     struct EcefCoor_i* ecef_speed,
+ 735:./state.h     ****     struct NedCoor_i* ned_speed,
+ 736:./state.h     ****     struct EnuCoor_i* enu_speed) {
+ 737:./state.h     ****   /* clear all status bit */
+ 738:./state.h     ****   state.speed_status = 0;
+ 739:./state.h     ****   if (ecef_speed != NULL) {
+ 740:./state.h     ****     INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+ 741:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_I);
+ 742:./state.h     ****   }
+ 743:./state.h     ****   if (ned_speed != NULL) {
+ 744:./state.h     ****     INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+ 745:./state.h     ****     state.speed_status |= (1 << SPEED_NED_I);
+ 746:./state.h     ****   }
+ 747:./state.h     ****   if (enu_speed != NULL) {
+ 748:./state.h     ****     INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+ 749:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_I);
+ 750:./state.h     ****   }
+ 751:./state.h     **** }
+ 752:./state.h     **** 
+ 753:./state.h     **** /// Set ground speed in local NED coordinates (float).
+ 754:./state.h     **** static inline void stateSetSpeedNed_f(struct NedCoor_f* ned_speed) {
+ 755:./state.h     ****   VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 756:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 757:./state.h     ****   state.speed_status = (1 << SPEED_NED_F);
+ 758:./state.h     **** }
+ 759:./state.h     **** 
+ 760:./state.h     **** /// Set ground speed in local ENU coordinates (float).
+ 761:./state.h     **** static inline void stateSetSpeedEnu_f(struct EnuCoor_f* enu_speed) {
+ 762:./state.h     ****   VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 763:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 764:./state.h     ****   state.speed_status = (1 << SPEED_ENU_F);
+ 765:./state.h     **** }
+ 766:./state.h     **** 
+ 767:./state.h     **** /// Set ground speed in ECEF coordinates (float).
+ 768:./state.h     **** static inline void stateSetSpeedEcef_f(struct EcefCoor_f* ecef_speed) {
+ 769:./state.h     ****   VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 770:./state.h     ****   /* clear bits for all speed representations and only set the new one */
+ 771:./state.h     ****   state.speed_status = (1 << SPEED_ECEF_F);
+ 772:./state.h     **** }
+ 773:./state.h     **** 
+ 774:./state.h     **** /// Set multiple speed coordinates (float).
+ 775:./state.h     **** static inline void stateSetSpeed_f(
+ 776:./state.h     ****     struct EcefCoor_f* ecef_speed,
+ 777:./state.h     ****     struct NedCoor_f* ned_speed,
+ 778:./state.h     ****     struct EnuCoor_f* enu_speed) {
+ 779:./state.h     ****   /* clear all status bit */
+ 780:./state.h     ****   state.speed_status = 0;
+ 781:./state.h     ****   if (ecef_speed != NULL) {
+ 782:./state.h     ****     VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+ 783:./state.h     ****     state.speed_status |= (1 << SPEED_ECEF_F);
+ 784:./state.h     ****   }
+ 785:./state.h     ****   if (ned_speed != NULL) {
+ 786:./state.h     ****     VECT3_COPY(state.ned_speed_f, *ned_speed);
+ 787:./state.h     ****     state.speed_status |= (1 << SPEED_NED_F);
+ 788:./state.h     ****   }
+ 789:./state.h     ****   if (enu_speed != NULL) {
+ 790:./state.h     ****     VECT3_COPY(state.enu_speed_f, *enu_speed);
+ 791:./state.h     ****     state.speed_status |= (1 << SPEED_ENU_F);
+ 792:./state.h     ****   }
+ 793:./state.h     **** }
+ 794:./state.h     **** 
+ 795:./state.h     **** /************************ Get functions ****************************/
+ 796:./state.h     **** 
+ 797:./state.h     **** /// Get ground speed in local NED coordinates (int).
+ 798:./state.h     **** static inline struct NedCoor_i* stateGetSpeedNed_i(void) {
+ 799:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_I))
+ 800:./state.h     ****     stateCalcSpeedNed_i();
+ 801:./state.h     ****   return &state.ned_speed_i;
+ 802:./state.h     **** }
+ 803:./state.h     **** 
+ 804:./state.h     **** /// Get ground speed in local ENU coordinates (int).
+ 805:./state.h     **** static inline struct EnuCoor_i* stateGetSpeedEnu_i(void) {
+ 806:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_I))
+ 807:./state.h     ****     stateCalcSpeedEnu_i();
+ 808:./state.h     ****   return &state.enu_speed_i;
+ 809:./state.h     **** }
+ 810:./state.h     **** 
+ 811:./state.h     **** /// Get ground speed in ECEF coordinates (int).
+ 812:./state.h     **** static inline struct EcefCoor_i* stateGetSpeedEcef_i(void) {
+ 813:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_I))
+ 814:./state.h     ****     stateCalcSpeedEcef_i();
+ 815:./state.h     ****   return &state.ecef_speed_i;
+ 816:./state.h     **** }
+ 817:./state.h     **** 
+ 818:./state.h     **** /// Get norm of horizontal ground speed (int).
+ 819:./state.h     **** static inline int32_t* stateGetHorizontalSpeedNorm_i(void) {
+ 820:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_I))
+ 821:./state.h     ****     stateCalcHorizontalSpeedNorm_i();
+ 822:./state.h     ****   return &state.h_speed_norm_i;
+ 823:./state.h     **** }
+ 824:./state.h     **** 
+ 825:./state.h     **** /// Get dir of horizontal ground speed (int).
+ 826:./state.h     **** static inline int32_t* stateGetHorizontalSpeedDir_i(void) {
+ 827:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_I))
+ 828:./state.h     ****     stateCalcHorizontalSpeedDir_i();
+ 829:./state.h     ****   return &state.h_speed_dir_i;
+ 830:./state.h     **** }
+ 831:./state.h     **** 
+ 832:./state.h     **** /// Get ground speed in local NED coordinates (float).
+ 833:./state.h     **** static inline struct NedCoor_f* stateGetSpeedNed_f(void) {
+ 834:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_NED_F))
+ 835:./state.h     ****     stateCalcSpeedNed_f();
+ 836:./state.h     ****   return &state.ned_speed_f;
+ 837:./state.h     **** }
+ 838:./state.h     **** 
+ 839:./state.h     **** /// Get ground speed in local ENU coordinates (float).
+ 840:./state.h     **** static inline struct EnuCoor_f* stateGetSpeedEnu_f(void) {
+ 841:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ENU_F))
+ 842:./state.h     ****     stateCalcSpeedEnu_f();
+ 843:./state.h     ****   return &state.enu_speed_f;
+ 844:./state.h     **** }
+ 845:./state.h     **** 
+ 846:./state.h     **** /// Get ground speed in ECEF coordinates (float).
+ 847:./state.h     **** static inline struct EcefCoor_f* stateGetSpeedEcef_f(void) {
+ 848:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_ECEF_F))
+ 849:./state.h     ****     stateCalcSpeedEcef_f();
+ 850:./state.h     ****   return &state.ecef_speed_f;
+ 851:./state.h     **** }
+ 852:./state.h     **** 
+ 853:./state.h     **** /// Get norm of horizontal ground speed (float).
+ 854:./state.h     **** static inline float* stateGetHorizontalSpeedNorm_f(void) {
+ 855:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HNORM_F))
+ 856:./state.h     ****     stateCalcHorizontalSpeedNorm_f();
+ 857:./state.h     ****   return &state.h_speed_norm_f;
+ 858:./state.h     **** }
+ 859:./state.h     **** 
+ 860:./state.h     **** /// Get dir of horizontal ground speed (float).
+ 861:./state.h     **** static inline float* stateGetHorizontalSpeedDir_f(void) {
+ 862:./state.h     ****   if (!bit_is_set(state.speed_status, SPEED_HDIR_F))
+ 863:./state.h     ****     stateCalcHorizontalSpeedDir_f();
+ 864:./state.h     ****   return &state.h_speed_dir_f;
+ 865:./state.h     **** }
+ 866:./state.h     **** /** @}*/
+ 867:./state.h     **** 
+ 868:./state.h     **** 
+ 869:./state.h     **** 
+ 870:./state.h     **** /******************************************************************************
+ 871:./state.h     ****  *                                                                            *
+ 872:./state.h     ****  * Set and Get functions for the ACCELERATION representations                 *
+ 873:./state.h     ****  *                                                                            *
+ 874:./state.h     ****  *****************************************************************************/
+ 875:./state.h     **** /** @addtogroup state_acceleration
+ 876:./state.h     ****  *  @{ */
+ 877:./state.h     **** 
+ 878:./state.h     **** /************* declaration of transformation functions ************/
+ 879:./state.h     **** extern void stateCalcAccelNed_i(void);
+ 880:./state.h     **** extern void stateCalcAccelEcef_i(void);
+ 881:./state.h     **** extern void stateCalcAccelNed_f(void);
+ 882:./state.h     **** extern void stateCalcAccelEcef_f(void);
+ 883:./state.h     **** 
+ 884:./state.h     **** /*********************** validity test functions ******************/
+ 885:./state.h     **** 
+ 886:./state.h     **** /// Test if accelerations are valid.
+ 887:./state.h     **** static inline bool_t stateIsAccelValid(void) {
+ 888:./state.h     ****   return (state.accel_status);
+ 889:./state.h     **** }
+ 890:./state.h     **** 
+ 891:./state.h     **** /************************ Set functions ****************************/
+ 892:./state.h     **** 
+ 893:./state.h     **** /// Set acceleration in NED coordinates (int).
+ 894:./state.h     **** static inline void stateSetAccelNed_i(struct NedCoor_i* ned_accel) {
+ 895:./state.h     ****   INT32_VECT3_COPY(state.ned_accel_i, *ned_accel);
+ 896:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 897:./state.h     ****   state.accel_status = (1 << ACCEL_NED_I);
+ 898:./state.h     **** }
+ 899:./state.h     **** 
+ 900:./state.h     **** /// Set acceleration in ECEF coordinates (int).
+ 901:./state.h     **** static inline void stateSetAccelEcef_i(struct EcefCoor_i* ecef_accel) {
+ 902:./state.h     ****   INT32_VECT3_COPY(state.ecef_accel_i, *ecef_accel);
+ 903:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 904:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_I);
+ 905:./state.h     **** }
+ 906:./state.h     **** 
+ 907:./state.h     **** /// Set acceleration in NED coordinates (float).
+ 908:./state.h     **** static inline void stateSetAccelNed_f(struct NedCoor_f* ned_accel) {
+ 909:./state.h     ****   VECT3_COPY(state.ned_accel_f, *ned_accel);
+ 910:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 911:./state.h     ****   state.accel_status = (1 << ACCEL_NED_F);
+ 912:./state.h     **** }
+ 913:./state.h     **** 
+ 914:./state.h     **** /// Set acceleration in ECEF coordinates (float).
+ 915:./state.h     **** static inline void stateSetAccelEcef_f(struct EcefCoor_f* ecef_accel) {
+ 916:./state.h     ****   VECT3_COPY(state.ecef_accel_f, *ecef_accel);
+ 917:./state.h     ****   /* clear bits for all accel representations and only set the new one */
+ 918:./state.h     ****   state.accel_status = (1 << ACCEL_ECEF_F);
+ 919:./state.h     **** }
+ 920:./state.h     **** 
+ 921:./state.h     **** /************************ Get functions ****************************/
+ 922:./state.h     **** 
+ 923:./state.h     **** /// Get acceleration in NED coordinates (int).
+ 924:./state.h     **** static inline struct NedCoor_i* stateGetAccelNed_i(void) {
+ 925:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_I))
+ 926:./state.h     ****     stateCalcAccelNed_i();
+ 927:./state.h     ****   return &state.ned_accel_i;
+ 928:./state.h     **** }
+ 929:./state.h     **** 
+ 930:./state.h     **** /// Get acceleration in ECEF coordinates (int).
+ 931:./state.h     **** static inline struct EcefCoor_i* stateGetAccelEcef_i(void) {
+ 932:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_I))
+ 933:./state.h     ****     stateCalcAccelEcef_i();
+ 934:./state.h     ****   return &state.ecef_accel_i;
+ 935:./state.h     **** }
+ 936:./state.h     **** 
+ 937:./state.h     **** /// Get acceleration in NED coordinates (float).
+ 938:./state.h     **** static inline struct NedCoor_f* stateGetAccelNed_f(void) {
+ 939:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_NED_F))
+ 940:./state.h     ****     stateCalcAccelNed_f();
+ 941:./state.h     ****   return &state.ned_accel_f;
+ 942:./state.h     **** }
+ 943:./state.h     **** 
+ 944:./state.h     **** /// Get acceleration in ECEF coordinates (float).
+ 945:./state.h     **** static inline struct EcefCoor_f* stateGetAccelEcef_f(void) {
+ 946:./state.h     ****   if (!bit_is_set(state.accel_status, ACCEL_ECEF_F))
+ 947:./state.h     ****     stateCalcAccelEcef_f();
+ 948:./state.h     ****   return &state.ecef_accel_f;
+ 949:./state.h     **** }
+ 950:./state.h     **** /** @}*/
+ 951:./state.h     **** 
+ 952:./state.h     **** /******************************************************************************
+ 953:./state.h     **** *                                                                             *
+ 954:./state.h     **** * Set and Get functions for the ATTITUDE representations                      *
+ 955:./state.h     **** * (Calls the functions in math/pprz_orientation_conversion)                   *
+ 956:./state.h     **** *                                                                             *
+ 957:./state.h     **** *****************************************************************************/
+ 958:./state.h     **** /** @addtogroup state_attitude
+ 959:./state.h     **** * @{ */
+ 960:./state.h     **** /*********************** validity test functions ******************/
+ 961:./state.h     **** 
+ 962:./state.h     **** /// Test if attitudes are valid.
+ 963:./state.h     **** static inline bool_t stateIsAttitudeValid(void) {
+ 964:./state.h     ****   return (orienationCheckValid(&state.ned_to_body_orientation));
+ 965:./state.h     **** }
+ 966:./state.h     **** 
+ 967:./state.h     **** /************************ Set functions ****************************/
+ 968:./state.h     **** 
+ 969:./state.h     **** /// Set vehicle body attitude from quaternion (int).
+ 970:./state.h     **** static inline void stateSetNedToBodyQuat_i(struct Int32Quat* ned_to_body_quat) {
+ 971:./state.h     ****   orientationSetQuat_i(&state.ned_to_body_orientation,ned_to_body_quat);
+ 972:./state.h     **** }
+ 973:./state.h     **** 
+ 974:./state.h     **** /// Set vehicle body attitude from rotation matrix (int).
+ 975:./state.h     **** static inline void stateSetNedToBodyRMat_i(struct Int32RMat* ned_to_body_rmat) {
+ 976:./state.h     ****   orientationSetRMat_i(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 977:./state.h     **** }
+ 978:./state.h     **** 
+ 979:./state.h     **** /// Set vehicle body attitude from euler angles (int).
+ 980:./state.h     **** static inline void stateSetNedToBodyEulers_i(struct Int32Eulers* ned_to_body_eulers) {
+ 981:./state.h     ****   orientationSetEulers_i(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 982:./state.h     **** }
+ 983:./state.h     **** 
+ 984:./state.h     **** /// Set vehicle body attitude from quaternion (float).
+ 985:./state.h     **** static inline void stateSetNedToBodyQuat_f(struct FloatQuat* ned_to_body_quat) {
+ 986:./state.h     ****   orientationSetQuat_f(&state.ned_to_body_orientation,ned_to_body_quat);
+ 987:./state.h     **** }
+ 988:./state.h     **** 
+ 989:./state.h     **** /// Set vehicle body attitude from rotation matrix (float).
+ 990:./state.h     **** static inline void stateSetNedToBodyRMat_f(struct FloatRMat* ned_to_body_rmat) {
+ 991:./state.h     ****   orientationSetRMat_f(&state.ned_to_body_orientation,ned_to_body_rmat);
+ 992:./state.h     **** }
+ 993:./state.h     **** 
+ 994:./state.h     **** /// Set vehicle body attitude from euler angles (float).
+ 995:./state.h     **** static inline void stateSetNedToBodyEulers_f(struct FloatEulers* ned_to_body_eulers) {
+ 996:./state.h     ****   orientationSetEulers_f(&state.ned_to_body_orientation,ned_to_body_eulers);
+ 997:./state.h     **** }
+ 998:./state.h     **** 
+ 999:./state.h     **** /************************ Get functions ****************************/
+1000:./state.h     **** 
+1001:./state.h     **** /// Get vehicle body attitude quaternion (int).
+1002:./state.h     **** static inline struct Int32Quat* stateGetNedToBodyQuat_i(void) {
+1003:./state.h     ****   return orientationGetQuat_i(&state.ned_to_body_orientation);
+1004:./state.h     **** }
+1005:./state.h     **** 
+1006:./state.h     **** /// Get vehicle body attitude rotation matrix (int).
+1007:./state.h     **** static inline struct Int32RMat* stateGetNedToBodyRMat_i(void) {
+1008:./state.h     ****   return orientationGetRMat_i(&state.ned_to_body_orientation);
+1009:./state.h     **** }
+1010:./state.h     **** 
+1011:./state.h     **** /// Get vehicle body attitude euler angles (int).
+1012:./state.h     **** static inline struct Int32Eulers* stateGetNedToBodyEulers_i(void) {
+1013:./state.h     ****   return orientationGetEulers_i(&state.ned_to_body_orientation);
+1014:./state.h     **** }
+1015:./state.h     **** 
+1016:./state.h     **** /// Get vehicle body attitude quaternion (float).
+1017:./state.h     **** static inline struct FloatQuat* stateGetNedToBodyQuat_f(void) {
+1018:./state.h     ****   return orientationGetQuat_f(&state.ned_to_body_orientation);
+1019:./state.h     **** }
+1020:./state.h     **** 
+1021:./state.h     **** /// Get vehicle body attitude rotation matrix (float).
+1022:./state.h     **** static inline struct FloatRMat* stateGetNedToBodyRMat_f(void) {
+1023:./state.h     ****   return orientationGetRMat_f(&state.ned_to_body_orientation);
+1024:./state.h     **** }
+1025:./state.h     **** 
+1026:./state.h     **** /// Get vehicle body attitude euler angles (float).
+1027:./state.h     **** static inline struct FloatEulers* stateGetNedToBodyEulers_f(void) {
+1028:./state.h     ****   return orientationGetEulers_f(&state.ned_to_body_orientation);
+1029:./state.h     **** }
+1030:./state.h     **** /** @}*/
+1031:./state.h     **** 
+1032:./state.h     **** 
+1033:./state.h     **** /******************************************************************************
+1034:./state.h     ****  *                                                                            *
+1035:./state.h     ****  * Set and Get functions for the ANGULAR RATE representations                 *
+1036:./state.h     ****  *                                                                            *
+1037:./state.h     ****  *****************************************************************************/
+1038:./state.h     **** /** @addtogroup state_rate
+1039:./state.h     ****  *  @{ */
+1040:./state.h     **** 
+1041:./state.h     **** /************* declaration of transformation functions ************/
+1042:./state.h     **** extern void stateCalcBodyRates_i(void);
+1043:./state.h     **** extern void stateCalcBodyRates_f(void);
+1044:./state.h     **** 
+1045:./state.h     **** /*********************** validity test functions ******************/
+1046:./state.h     **** 
+1047:./state.h     **** /// Test if rates are valid.
+1048:./state.h     **** static inline bool_t stateIsRateValid(void) {
+1049:./state.h     ****   return (state.rate_status);
+1050:./state.h     **** }
+1051:./state.h     **** 
+1052:./state.h     **** /************************ Set functions ****************************/
+1053:./state.h     **** 
+1054:./state.h     **** /// Set vehicle body angular rate (int).
+1055:./state.h     **** static inline void stateSetBodyRates_i(struct Int32Rates* body_rate) {
+1056:./state.h     ****   RATES_COPY(state.body_rates_i, *body_rate);
+1057:./state.h     ****   /* clear bits for all attitude representations and only set the new one */
+1058:./state.h     ****   state.rate_status = (1 << RATE_I);
+1059:./state.h     **** }
+1060:./state.h     **** 
+1061:./state.h     **** /// Set vehicle body angular rate (float).
+1062:./state.h     **** static inline void stateSetBodyRates_f(struct FloatRates* body_rate) {
+1063:./state.h     ****   RATES_COPY(state.body_rates_f, *body_rate);
+1064:./state.h     ****   /* clear bits for all attitude representations and only set the new one */
+1065:./state.h     ****   state.rate_status = (1 << RATE_F);
+1066:./state.h     **** }
+1067:./state.h     **** 
+1068:./state.h     **** /************************ Get functions ****************************/
+1069:./state.h     **** 
+1070:./state.h     **** /// Get vehicle body angular rate (int).
+1071:./state.h     **** static inline struct Int32Rates* stateGetBodyRates_i(void) {
+1072:./state.h     ****   if (!bit_is_set(state.rate_status, RATE_I))
+ 997              		.loc 3 1072 0 is_stmt 1 discriminator 6
+ 998 00c6 854B     		ldr	r3, .L132
+ 999              	.LBE42:
+ 1000              	.LBE41:
+ 1001              	.LBB45:
+ 1002              		.loc 1 152 0 discriminator 6
+ 1003 00c8 FF03     		lsls	r7, r7, #15
+ 1004              	.LVL139:
+ 1005              	.LBE45:
+ 1006              	.LBB46:
+ 1007              		.loc 3 1072 0 discriminator 6
+ 1008 00ca 93F82812 		ldrb	r1, [r3, #552]	@ zero_extendqisi2
+ 1009              	.LBE46:
+ 1010              	.LBB47:
+ 1011              		.loc 1 152 0 discriminator 6
+ 1012 00ce C003     		lsls	r0, r0, #15
+ 1013              	.LVL140:
+ 1014 00d0 4FEAC93E 		lsl	lr, r9, #15
+ 1015              	.LBE47:
+ 1016              	.LBB48:
+ 1017              	.LBB43:
+ 1018              		.loc 3 1072 0 discriminator 6
+ 1019 00d4 11F0010F 		tst	r1, #1
+ 1020              	.LBE43:
+ 1021              	.LBE48:
+ 1022              	.LBB49:
+ 1023              		.loc 1 152 0 discriminator 6
+ 1024 00d8 9EFBF5F8 		sdiv	r8, lr, r5
+ 1025              	.LVL141:
+ 1026 00dc 97FBF5F7 		sdiv	r7, r7, r5
+ 1027              	.LVL142:
+ 1028 00e0 90FBF5F6 		sdiv	r6, r0, r5
+ 1029              	.LVL143:
+ 1030 00e4 9A46     		mov	sl, r3
+ 1031              	.LBE49:
+ 1032              	.LBB50:
+ 1033              	.LBB44:
+ 1034              		.loc 3 1072 0 discriminator 6
+ 1035 00e6 01D1     		bne	.L112
+1073:./state.h     ****     stateCalcBodyRates_i();
+ 1036              		.loc 3 1073 0
+ 1037 00e8 FFF7FEFF 		bl	stateCalcBodyRates_i
+ 1038              	.LVL144:
+ 1039              	.L112:
+ 1040              	.LBE44:
+ 1041              	.LBE50:
+ 153:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 154:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /*  rate error                */
+ 155:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   struct Int32Rates rate_err;
+ 156:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   struct Int32Rates* body_rate = stateGetBodyRates_i();
+ 157:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+ 1042              		.loc 1 157 0
+ 1043 00ec 7D4B     		ldr	r3, .L132+8
+ 1044 00ee DAF82C02 		ldr	r0, [sl, #556]
+ 1045 00f2 1A68     		ldr	r2, [r3, #0]
+ 1046 00f4 111A     		subs	r1, r2, r0
+ 1047 00f6 5A68     		ldr	r2, [r3, #4]
+ 1048 00f8 DAF83002 		ldr	r0, [sl, #560]
+ 1049 00fc 0491     		str	r1, [sp, #16]
+ 1050              	.LVL145:
+ 1051 00fe 111A     		subs	r1, r2, r0
+ 1052              	.LVL146:
+ 1053 0100 9A68     		ldr	r2, [r3, #8]
+ 1054 0102 DAF83432 		ldr	r3, [sl, #564]
+ 1055 0106 0591     		str	r1, [sp, #20]
+ 1056              	.LVL147:
+ 1057 0108 D01A     		subs	r0, r2, r3
+ 1058 010a 0690     		str	r0, [sp, #24]
+ 1059              	.LVL148:
+ 1060 010c 764B     		ldr	r3, .L132+12
+ 158:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 159:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* integrated error */
+ 160:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   if (enable_integrator) {
+ 1061              		.loc 1 160 0
+ 1062 010e 002C     		cmp	r4, #0
+ 1063 0110 00F0EE80 		beq	.L113
+ 1064              	.LBB51:
+ 152:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   INT32_QUAT_NORMALIZE(att_err);
+ 1065              		.loc 1 152 0
+ 1066 0114 4FEACB34 		lsl	r4, fp, #15
+ 1067 0118 94FBF5F2 		sdiv	r2, r4, r5
+ 1068              	.LVL149:
+ 1069              	.LBE51:
+ 1070              	.LBB52:
+ 161:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     struct Int32Quat new_sum_err, scaled_att_err;
+ 162:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     /* update accumulator */
+ 163:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qi = att_err.qi;
+ 164:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
+ 165:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
+ 166:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+ 1071              		.loc 1 167 0
+ 1072 011c 93E82040 		ldmia	r3, {r5, lr}
+ 1073              	.LVL150:
+ 1074 0120 02FB05FB 		mul	fp, r2, r5
+ 1075              	.LVL151:
+ 164:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
+ 1076              		.loc 1 164 0
+ 1077 0124 4FF48061 		mov	r1, #1024
+ 1078              	.LVL152:
+ 1079 0128 98FBF1F4 		sdiv	r4, r8, r1
+ 1080              	.LVL153:
+ 1081              		.loc 1 167 0
+ 1082 012c 04FB1EB9 		mls	r9, r4, lr, fp
+ 166:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
+ 1083              		.loc 1 166 0
+ 1084 0130 96FBF1F0 		sdiv	r0, r6, r1
+ 1085              	.LVL154:
+ 165:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
+ 1086              		.loc 1 165 0
+ 1087 0134 97FBF1FC 		sdiv	ip, r7, r1
+ 1088              	.LVL155:
+ 1089              		.loc 1 167 0
+ 1090 0138 9968     		ldr	r1, [r3, #8]
+ 1091 013a DB68     		ldr	r3, [r3, #12]
+ 1092 013c 0CFB119A 		mls	sl, ip, r1, r9
+ 1093 0140 02FB0EF9 		mul	r9, r2, lr
+ 1094 0144 00FB13AB 		mls	fp, r0, r3, sl
+ 1095 0148 04FB059A 		mla	sl, r4, r5, r9
+ 1096 014c 00FB01A9 		mla	r9, r0, r1, sl
+ 1097 0150 0CFB139A 		mls	sl, ip, r3, r9
+ 1098 0154 0CFB05F9 		mul	r9, ip, r5
+ 1099 0158 00FB1E99 		mls	r9, r0, lr, r9
+ 1100 015c 0CFB0EFE 		mul	lr, ip, lr
+ 1101 0160 02FB0199 		mla	r9, r2, r1, r9
+ 1102 0164 00FB05E5 		mla	r5, r0, r5, lr
+ 1103 0168 4FEAEA3A 		asr	sl, sl, #15
+ 1104              	.LBB53:
+ 1105              	.LBB54:
+ 168:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_NORMALIZE(new_sum_err);
+ 1106              		.loc 1 168 0
+ 1107 016c 0AFB0AF0 		mul	r0, sl, sl
+ 1108              	.LVL156:
+ 1109              	.LBE54:
+ 1110              	.LBE53:
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+ 1111              		.loc 1 167 0
+ 1112 0170 04FB0399 		mla	r9, r4, r3, r9
+ 1113 0174 4FEAEB3B 		asr	fp, fp, #15
+ 1114              	.LVL157:
+ 1115 0178 04FB1154 		mls	r4, r4, r1, r5
+ 1116              	.LVL158:
+ 1117              	.LBB59:
+ 1118              	.LBB56:
+ 1119              		.loc 1 168 0
+ 1120 017c 0BFB0B01 		mla	r1, fp, fp, r0
+ 1121              	.LBE56:
+ 1122              	.LBE59:
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+ 1123              		.loc 1 167 0
+ 1124 0180 02FB0342 		mla	r2, r2, r3, r4
+ 1125 0184 4FEAE939 		asr	r9, r9, #15
+ 1126              	.LVL159:
+ 1127              	.LBB60:
+ 1128              	.LBB57:
+ 1129              		.loc 1 168 0
+ 1130 0188 09FB0915 		mla	r5, r9, r9, r1
+ 1131              	.LBE57:
+ 1132              	.LBE60:
+ 167:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+ 1133              		.loc 1 167 0
+ 1134 018c D313     		asrs	r3, r2, #15
+ 1135              	.LVL160:
+ 1136              	.LBB61:
+ 1137              	.LBB58:
+ 1138              		.loc 1 168 0
+ 1139 018e 03FB0352 		mla	r2, r3, r3, r5
+ 1140              	.LVL161:
+ 1141 0192 72B1     		cbz	r2, .L126
+ 1142              	.LVL162:
+ 1143              	.LBB55:
+ 1144              		.loc 1 168 0 is_stmt 0 discriminator 2
+ 1145 0194 1146     		mov	r1, r2
+ 1146 0196 2820     		movs	r0, #40
+ 1147              	.LVL163:
+ 1148              	.L116:
+ 1149              		.loc 1 168 0 discriminator 3
+ 1150 0198 B2FBF1F4 		udiv	r4, r2, r1
+ 1151              	.LVL164:
+ 1152 019c 6518     		adds	r5, r4, r1
+ 1153              	.LVL165:
+ 1154 019e 6C08     		lsrs	r4, r5, #1
+ 1155              	.LVL166:
+ 1156 01a0 091B     		subs	r1, r1, r4
+ 1157              	.LVL167:
+ 1158 01a2 0129     		cmp	r1, #1
+ 1159 01a4 06D9     		bls	.L114
+ 1160 01a6 0138     		subs	r0, r0, #1
+ 1161              		.loc 1 168 0 discriminator 4
+ 1162 01a8 10F0FF00 		ands	r0, r0, #255
+ 1163 01ac 2146     		mov	r1, r4
+ 1164 01ae F3D1     		bne	.L116
+ 1165 01b0 00E0     		b	.L114
+ 1166              	.LVL168:
+ 1167              	.L126:
+ 1168              	.LBE55:
+ 1169              		.loc 1 168 0
+ 1170 01b2 1446     		mov	r4, r2
+ 1171              	.L114:
+ 1172              	.LVL169:
+ 1173              	.LBE58:
+ 1174              		.loc 1 168 0 discriminator 6
+ 1175 01b4 4FEACB3C 		lsl	ip, fp, #15
+ 1176              	.LVL170:
+ 1177 01b8 4FEACA3A 		lsl	sl, sl, #15
+ 1178              	.LVL171:
+ 1179 01bc 9CFBF4FB 		sdiv	fp, ip, r4
+ 1180              	.LVL172:
+ 1181 01c0 9AFBF4F5 		sdiv	r5, sl, r4
+ 1182              	.LVL173:
+ 1183 01c4 DB03     		lsls	r3, r3, #15
+ 1184              	.LVL174:
+ 1185 01c6 4FEAC939 		lsl	r9, r9, #15
+ 1186              	.LVL175:
+ 1187 01ca 99FBF4F9 		sdiv	r9, r9, r4
+ 1188              	.LVL176:
+ 1189              	.LBE61:
+ 1190              	.LBB62:
+ 169:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
+ 170:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
+ 1191              		.loc 1 170 0 is_stmt 1 discriminator 6
+ 1192 01ce 05FB0BF0 		mul	r0, r5, fp
+ 1193              	.LBE62:
+ 1194              	.LBB63:
+ 168:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_NORMALIZE(new_sum_err);
+ 1195              		.loc 1 168 0 discriminator 6
+ 1196 01d2 93FBF4F4 		sdiv	r4, r3, r4
+ 1197              	.LVL177:
+ 1198              	.LBE63:
+ 1199              	.LBB64:
+ 1200              		.loc 1 170 0 discriminator 6
+ 1201 01d6 04FB09F3 		mul	r3, r4, r9
+ 1202 01da 09FB09F1 		mul	r1, r9, r9
+ 1203              	.LBE64:
+ 169:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
+ 1204              		.loc 1 169 0 discriminator 6
+ 1205 01de 424A     		ldr	r2, .L132+12
+ 1206              	.LVL178:
+ 1207              	.LBB65:
+ 1208              		.loc 1 170 0 discriminator 6
+ 1209 01e0 4FEAE13A 		asr	sl, r1, #15
+ 1210              	.LBE65:
+ 169:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
+ 1211              		.loc 1 169 0 discriminator 6
+ 1212 01e4 C2F800B0 		str	fp, [r2, #0]
+ 1213 01e8 5560     		str	r5, [r2, #4]
+ 1214 01ea C2F80890 		str	r9, [r2, #8]
+ 1215 01ee D460     		str	r4, [r2, #12]
+ 1216              	.LVL179:
+ 1217              	.LBB66:
+ 1218              		.loc 1 170 0 discriminator 6
+ 1219 01f0 C213     		asrs	r2, r0, #15
+ 1220              	.LVL180:
+ 1221 01f2 02EBE331 		add	r1, r2, r3, asr #15
+ 1222 01f6 41F31000 		sbfx	r0, r1, #0, #17
+ 1223 01fa FFF7FEFF 		bl	__aeabi_i2f
+ 1224              	.LVL181:
+ 1225 01fe 4FF06251 		mov	r1, #947912704
+ 1226 0202 FFF7FEFF 		bl	__aeabi_fmul
+ 1227              	.LVL182:
+ 1228 0206 0346     		mov	r3, r0
+ 1229 0208 05FB05F0 		mul	r0, r5, r5
+ 1230 020c 0AEBE032 		add	r2, sl, r0, asr #15
+ 1231 0210 42F31001 		sbfx	r1, r2, #0, #17
+ 1232 0214 C1F58040 		rsb	r0, r1, #16384
+ 1233 0218 0193     		str	r3, [sp, #4]
+ 1234 021a FFF7FEFF 		bl	__aeabi_i2f
+ 1235              	.LVL183:
+ 1236 021e 4FF06251 		mov	r1, #947912704
+ 1237 0222 FFF7FEFF 		bl	__aeabi_fmul
+ 1238              	.LVL184:
+ 1239 0226 019B     		ldr	r3, [sp, #4]
+ 1240 0228 0146     		mov	r1, r0
+ 1241 022a 1846     		mov	r0, r3
+ 1242 022c FFF7FEFF 		bl	atan2f
+ 1243              	.LVL185:
+ 1244 0230 0790     		str	r0, [sp, #28]	@ float
+ 1245              	.LVL186:
+ 1246 0232 09FB0BF0 		mul	r0, r9, fp
+ 1247              	.LVL187:
+ 1248 0236 04FB05F2 		mul	r2, r4, r5
+ 1249 023a C113     		asrs	r1, r0, #15
+ 1250              	.LVL188:
+ 1251 023c C1EBE233 		rsb	r3, r1, r2, asr #15
+ 1252 0240 43F31000 		sbfx	r0, r3, #0, #17
+ 1253 0244 FFF7FEFF 		bl	__aeabi_i2f
+ 1254              	.LVL189:
+ 1255 0248 4FF06251 		mov	r1, #947912704
+ 1256 024c FFF7FEFF 		bl	__aeabi_fmul
+ 1257              	.LVL190:
+ 1258 0250 FFF7FEFF 		bl	asinf
+ 1259              	.LVL191:
+ 1260 0254 04FB0BFB 		mul	fp, r4, fp
+ 1261              	.LVL192:
+ 1262 0258 09FB05F5 		mul	r5, r9, r5
+ 1263              	.LVL193:
+ 1264 025c 4FEAEB32 		asr	r2, fp, #15
+ 1265              	.LVL194:
+ 1266 0260 8446     		mov	ip, r0
+ 1267              	.LVL195:
+ 1268 0262 02EBE530 		add	r0, r2, r5, asr #15
+ 1269              	.LVL196:
+ 1270 0266 40F31000 		sbfx	r0, r0, #0, #17
+ 1271 026a CDF80CC0 		str	ip, [sp, #12]
+ 1272 026e FFF7FEFF 		bl	__aeabi_i2f
+ 1273              	.LVL197:
+ 1274 0272 4FF06251 		mov	r1, #947912704
+ 1275 0276 FFF7FEFF 		bl	__aeabi_fmul
+ 1276              	.LVL198:
+ 1277 027a 6443     		muls	r4, r4, r4
+ 1278              	.LVL199:
+ 1279 027c 0AEBE434 		add	r4, sl, r4, asr #15
+ 1280 0280 44F31001 		sbfx	r1, r4, #0, #17
+ 1281 0284 0546     		mov	r5, r0
+ 1282 0286 C1F58040 		rsb	r0, r1, #16384
+ 1283 028a FFF7FEFF 		bl	__aeabi_i2f
+ 1284              	.LVL200:
+ 1285 028e 4FF06251 		mov	r1, #947912704
+ 1286 0292 FFF7FEFF 		bl	__aeabi_fmul
+ 1287              	.LVL201:
+ 1288 0296 0146     		mov	r1, r0
+ 1289 0298 2846     		mov	r0, r5
+ 1290 029a FFF7FEFF 		bl	atan2f
+ 1291              	.LVL202:
+ 1292 029e 4FF08B41 		mov	r1, #1166016512
+ 1293 02a2 0546     		mov	r5, r0
+ 1294              	.LVL203:
+ 1295 02a4 0798     		ldr	r0, [sp, #28]	@ float
+ 1296              	.LVL204:
+ 1297 02a6 FFF7FEFF 		bl	__aeabi_fmul
+ 1298              	.LVL205:
+ 1299 02aa FFF7FEFF 		bl	__aeabi_f2iz
+ 1300              	.LVL206:
+ 1301 02ae 0F4C     		ldr	r4, .L132+16
+ 1302 02b0 DDF80C90 		ldr	r9, [sp, #12]
+ 1303              	.LVL207:
+ 1304 02b4 4FF08B41 		mov	r1, #1166016512
+ 1305 02b8 2060     		str	r0, [r4, #0]
+ 1306 02ba 09F10040 		add	r0, r9, #-2147483648
+ 1307 02be FFF7FEFF 		bl	__aeabi_fmul
+ 1308              	.LVL208:
+ 1309 02c2 FFF7FEFF 		bl	__aeabi_f2iz
+ 1310              	.LVL209:
+ 1311 02c6 4FF08B41 		mov	r1, #1166016512
+ 1312 02ca 6060     		str	r0, [r4, #4]
+ 1313 02cc 2846     		mov	r0, r5
+ 1314 02ce FFF7FEFF 		bl	__aeabi_fmul
+ 1315              	.LVL210:
+ 1316 02d2 FFF7FEFF 		bl	__aeabi_f2iz
+ 1317              	.LVL211:
+ 1318 02d6 A060     		str	r0, [r4, #8]
+ 1319 02d8 14E0     		b	.L118
+ 1320              	.L133:
+ 1321 02da 00BF     		.align	2
+ 1322              	.L132:
+ 1323 02dc 00000000 		.word	state
+ 1324 02e0 00000000 		.word	stab_att_ref_quat
+ 1325 02e4 00000000 		.word	stab_att_ref_rate
+ 1326 02e8 00000000 		.word	.LANCHOR0
+ 1327 02ec 00000000 		.word	.LANCHOR1
+ 1328              	.LVL212:
+ 1329              	.L113:
+ 1330              	.LBE66:
+ 1331              	.LBE52:
+ 171:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   } else {
+ 172:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     /* reset accumulator */
+ 173:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+ 1332              		.loc 1 173 0
+ 1333 02f0 4FF40042 		mov	r2, #32768
+ 174:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT_EULERS_ZERO( stabilization_att_sum_err );
+ 1334              		.loc 1 174 0
+ 1335 02f4 C04D     		ldr	r5, .L134
+ 1336              	.LVL213:
+ 173:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+ 1337              		.loc 1 173 0
+ 1338 02f6 83E81400 		stmia	r3, {r2, r4}
+ 1339 02fa 9C60     		str	r4, [r3, #8]
+ 1340 02fc DC60     		str	r4, [r3, #12]
+ 1341              		.loc 1 174 0
+ 1342 02fe 2C60     		str	r4, [r5, #0]
+ 1343 0300 6C60     		str	r4, [r5, #4]
+ 1344 0302 AC60     		str	r4, [r5, #8]
+ 1345              	.LVL214:
+ 1346              	.L118:
+ 1347              	.LBB67:
+ 1348              	.LBB68:
+ 109:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_ROLL]  = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / 
+ 1349              		.loc 1 109 0
+ 1350 0304 BD4D     		ldr	r5, .L134+4
+ 1351 0306 3024     		movs	r4, #48
+ 1352 0308 A869     		ldr	r0, [r5, #24]
+ 1353 030a DFF8FCA2 		ldr	sl, .L134+16
+ 1354 030e 6043     		muls	r0, r4, r0
+ 1355 0310 FFF7FEFF 		bl	__aeabi_i2f
+ 1356              	.LVL215:
+ 1357 0314 8346     		mov	fp, r0
+ 1358 0316 DAF80000 		ldr	r0, [sl, #0]
+ 1359 031a FFF7FEFF 		bl	__aeabi_i2f
+ 1360              	.LVL216:
+ 1361 031e 4FF06651 		mov	r1, #964689920
+ 1362 0322 FFF7FEFF 		bl	__aeabi_fmul
+ 1363              	.LVL217:
+ 1364 0326 0146     		mov	r1, r0
+ 1365 0328 5846     		mov	r0, fp
+ 1366 032a FFF7FEFF 		bl	__aeabi_fmul
+ 1367              	.LVL218:
+ 1368 032e 4FF07051 		mov	r1, #1006632960
+ 1369 0332 FFF7FEFF 		bl	__aeabi_fmul
+ 1370              	.LVL219:
+ 1371 0336 FFF7FEFF 		bl	__aeabi_f2iz
+ 1372              	.LVL220:
+ 175:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   }
+ 176:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 177:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* compute the feed forward command */
+ 178:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
+ 1373              		.loc 1 178 0
+ 1374 033a DFF8D092 		ldr	r9, .L134+20
+ 109:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_ROLL]  = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / 
+ 1375              		.loc 1 109 0
+ 1376 033e 0346     		mov	r3, r0
+ 1377 0340 C9F80000 		str	r0, [r9, #0]
+ 110:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_PITCH] = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / 
+ 1378              		.loc 1 110 0
+ 1379 0344 E869     		ldr	r0, [r5, #28]
+ 1380 0346 0193     		str	r3, [sp, #4]
+ 1381 0348 6043     		muls	r0, r4, r0
+ 1382 034a FFF7FEFF 		bl	__aeabi_i2f
+ 1383              	.LVL221:
+ 1384 034e 8346     		mov	fp, r0
+ 1385 0350 DAF80400 		ldr	r0, [sl, #4]
+ 1386 0354 FFF7FEFF 		bl	__aeabi_i2f
+ 1387              	.LVL222:
+ 1388 0358 4FF06651 		mov	r1, #964689920
+ 1389 035c FFF7FEFF 		bl	__aeabi_fmul
+ 1390              	.LVL223:
+ 1391 0360 0146     		mov	r1, r0
+ 1392 0362 5846     		mov	r0, fp
+ 1393 0364 FFF7FEFF 		bl	__aeabi_fmul
+ 1394              	.LVL224:
+ 1395 0368 4FF07051 		mov	r1, #1006632960
+ 1396 036c FFF7FEFF 		bl	__aeabi_fmul
+ 1397              	.LVL225:
+ 1398 0370 FFF7FEFF 		bl	__aeabi_f2iz
+ 1399              	.LVL226:
+ 1400 0374 C9F80400 		str	r0, [r9, #4]
+ 1401 0378 8346     		mov	fp, r0
+ 111:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   ff_commands[COMMAND_YAW]   = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / 
+ 1402              		.loc 1 111 0
+ 1403 037a 286A     		ldr	r0, [r5, #32]
+ 1404 037c 6043     		muls	r0, r4, r0
+ 1405 037e FFF7FEFF 		bl	__aeabi_i2f
+ 1406              	.LVL227:
+ 1407 0382 0246     		mov	r2, r0
+ 1408 0384 DAF80800 		ldr	r0, [sl, #8]
+ 1409 0388 0292     		str	r2, [sp, #8]
+ 1410 038a FFF7FEFF 		bl	__aeabi_i2f
+ 1411              	.LVL228:
+ 1412 038e 4FF06651 		mov	r1, #964689920
+ 1413 0392 FFF7FEFF 		bl	__aeabi_fmul
+ 1414              	.LVL229:
+ 1415 0396 0146     		mov	r1, r0
+ 1416 0398 0298     		ldr	r0, [sp, #8]
+ 1417 039a FFF7FEFF 		bl	__aeabi_fmul
+ 1418              	.LVL230:
+ 1419 039e 4FF07051 		mov	r1, #1006632960
+ 1420 03a2 FFF7FEFF 		bl	__aeabi_fmul
+ 1421              	.LVL231:
+ 1422 03a6 FFF7FEFF 		bl	__aeabi_f2iz
+ 1423              	.LVL232:
+ 1424 03aa C9F80800 		str	r0, [r9, #8]
+ 1425              	.LVL233:
+ 1426 03ae 8246     		mov	sl, r0
+ 1427              	.LBE68:
+ 1428              	.LBE67:
+ 1429              	.LBB69:
+ 1430              	.LBB70:
+ 119:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
+ 1431              		.loc 1 119 0
+ 1432 03b0 2868     		ldr	r0, [r5, #0]
+ 1433 03b2 6043     		muls	r0, r4, r0
+ 1434 03b4 FFF7FEFF 		bl	__aeabi_i2f
+ 1435              	.LVL234:
+ 1436 03b8 8146     		mov	r9, r0
+ 1437 03ba 4046     		mov	r0, r8
+ 1438 03bc FFF7FEFF 		bl	__aeabi_i2f
+ 1439              	.LVL235:
+ 1440 03c0 4FF06051 		mov	r1, #939524096
+ 1441 03c4 FFF7FEFF 		bl	__aeabi_fmul
+ 1442              	.LVL236:
+ 1443 03c8 0146     		mov	r1, r0
+ 1444 03ca 4846     		mov	r0, r9
+ 1445 03cc FFF7FEFF 		bl	__aeabi_fmul
+ 1446              	.LVL237:
+ 1447 03d0 4FF07A51 		mov	r1, #1048576000
+ 1448 03d4 FFF7FEFF 		bl	__aeabi_fmul
+ 1449              	.LVL238:
+ 1450 03d8 8046     		mov	r8, r0
+ 1451              	.LVL239:
+ 120:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
+ 1452              		.loc 1 120 0
+ 1453 03da E868     		ldr	r0, [r5, #12]
+ 1454 03dc 6043     		muls	r0, r4, r0
+ 1455 03de FFF7FEFF 		bl	__aeabi_i2f
+ 1456              	.LVL240:
+ 1457 03e2 8146     		mov	r9, r0
+ 1458 03e4 0498     		ldr	r0, [sp, #16]
+ 1459 03e6 FFF7FEFF 		bl	__aeabi_i2f
+ 1460              	.LVL241:
+ 1461 03ea 4FF06651 		mov	r1, #964689920
+ 1462 03ee FFF7FEFF 		bl	__aeabi_fmul
+ 1463              	.LVL242:
+ 1464 03f2 0146     		mov	r1, r0
+ 1465 03f4 4846     		mov	r0, r9
+ 1466 03f6 FFF7FEFF 		bl	__aeabi_fmul
+ 1467              	.LVL243:
+ 1468 03fa 4FF07651 		mov	r1, #1031798784
+ 1469 03fe FFF7FEFF 		bl	__aeabi_fmul
+ 1470              	.LVL244:
+ 1471 0402 0146     		mov	r1, r0
+ 119:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
+ 1472              		.loc 1 119 0
+ 1473 0404 4046     		mov	r0, r8
+ 1474 0406 FFF7FEFF 		bl	__aeabi_fadd
+ 1475              	.LVL245:
+ 1476 040a 8046     		mov	r8, r0
+ 121:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
+ 1477              		.loc 1 121 0
+ 1478 040c 686A     		ldr	r0, [r5, #36]
+ 1479 040e DFF80092 		ldr	r9, .L134+24
+ 1480 0412 6043     		muls	r0, r4, r0
+ 1481 0414 FFF7FEFF 		bl	__aeabi_i2f
+ 1482              	.LVL246:
+ 1483 0418 0146     		mov	r1, r0
+ 1484 041a D9F80400 		ldr	r0, [r9, #4]
+ 1485 041e 0291     		str	r1, [sp, #8]
+ 1486 0420 FFF7FEFF 		bl	__aeabi_i2f
+ 1487              	.LVL247:
+ 1488 0424 4FF06051 		mov	r1, #939524096
+ 1489 0428 FFF7FEFF 		bl	__aeabi_fmul
+ 1490              	.LVL248:
+ 1491 042c 029B     		ldr	r3, [sp, #8]
+ 1492 042e 0146     		mov	r1, r0
+ 1493 0430 1846     		mov	r0, r3
+ 1494 0432 FFF7FEFF 		bl	__aeabi_fmul
+ 1495              	.LVL249:
+ 1496 0436 4FF07C51 		mov	r1, #1056964608
+ 1497 043a FFF7FEFF 		bl	__aeabi_fmul
+ 1498              	.LVL250:
+ 1499 043e 0146     		mov	r1, r0
+ 120:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
+ 1500              		.loc 1 120 0
+ 1501 0440 4046     		mov	r0, r8
+ 1502 0442 FFF7FEFF 		bl	__aeabi_fadd
+ 1503              	.LVL251:
+ 118:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_ROLL] =
+ 1504              		.loc 1 118 0
+ 1505 0446 FFF7FEFF 		bl	__aeabi_f2iz
+ 1506              	.LVL252:
+ 179:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 180:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* compute the feed back command */
+ 181:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilizati
+ 1507              		.loc 1 181 0
+ 1508 044a DFF8C881 		ldr	r8, .L134+28
+ 118:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_ROLL] =
+ 1509              		.loc 1 118 0
+ 1510 044e 0246     		mov	r2, r0
+ 1511 0450 C8F80000 		str	r0, [r8, #0]
+ 124:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
+ 1512              		.loc 1 124 0
+ 1513 0454 6868     		ldr	r0, [r5, #4]
+ 1514 0456 0292     		str	r2, [sp, #8]
+ 1515 0458 6043     		muls	r0, r4, r0
+ 1516 045a FFF7FEFF 		bl	__aeabi_i2f
+ 1517              	.LVL253:
+ 1518 045e 8446     		mov	ip, r0
+ 1519 0460 3846     		mov	r0, r7
+ 1520 0462 CDF80CC0 		str	ip, [sp, #12]
+ 1521 0466 FFF7FEFF 		bl	__aeabi_i2f
+ 1522              	.LVL254:
+ 1523 046a 4FF06051 		mov	r1, #939524096
+ 1524 046e FFF7FEFF 		bl	__aeabi_fmul
+ 1525              	.LVL255:
+ 1526 0472 DDF80CC0 		ldr	ip, [sp, #12]
+ 1527 0476 0146     		mov	r1, r0
+ 1528 0478 6046     		mov	r0, ip
+ 1529 047a FFF7FEFF 		bl	__aeabi_fmul
+ 1530              	.LVL256:
+ 1531 047e 4FF07A51 		mov	r1, #1048576000
+ 1532 0482 FFF7FEFF 		bl	__aeabi_fmul
+ 1533              	.LVL257:
+ 1534 0486 0746     		mov	r7, r0
+ 1535              	.LVL258:
+ 125:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
+ 1536              		.loc 1 125 0
+ 1537 0488 2869     		ldr	r0, [r5, #16]
+ 1538 048a 6043     		muls	r0, r4, r0
+ 1539 048c FFF7FEFF 		bl	__aeabi_i2f
+ 1540              	.LVL259:
+ 1541 0490 8446     		mov	ip, r0
+ 1542 0492 0598     		ldr	r0, [sp, #20]
+ 1543 0494 CDF80CC0 		str	ip, [sp, #12]
+ 1544 0498 FFF7FEFF 		bl	__aeabi_i2f
+ 1545              	.LVL260:
+ 1546 049c 4FF06651 		mov	r1, #964689920
+ 1547 04a0 FFF7FEFF 		bl	__aeabi_fmul
+ 1548              	.LVL261:
+ 1549 04a4 DDF80CC0 		ldr	ip, [sp, #12]
+ 1550 04a8 0146     		mov	r1, r0
+ 1551 04aa 6046     		mov	r0, ip
+ 1552 04ac FFF7FEFF 		bl	__aeabi_fmul
+ 1553              	.LVL262:
+ 1554 04b0 4FF07651 		mov	r1, #1031798784
+ 1555 04b4 FFF7FEFF 		bl	__aeabi_fmul
+ 1556              	.LVL263:
+ 1557 04b8 0146     		mov	r1, r0
+ 124:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
+ 1558              		.loc 1 124 0
+ 1559 04ba 3846     		mov	r0, r7
+ 1560 04bc FFF7FEFF 		bl	__aeabi_fadd
+ 1561              	.LVL264:
+ 1562 04c0 0746     		mov	r7, r0
+ 126:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
+ 1563              		.loc 1 126 0
+ 1564 04c2 A86A     		ldr	r0, [r5, #40]
+ 1565 04c4 6043     		muls	r0, r4, r0
+ 1566 04c6 FFF7FEFF 		bl	__aeabi_i2f
+ 1567              	.LVL265:
+ 1568 04ca 8446     		mov	ip, r0
+ 1569 04cc D9F80800 		ldr	r0, [r9, #8]
+ 1570 04d0 CDF80CC0 		str	ip, [sp, #12]
+ 1571 04d4 FFF7FEFF 		bl	__aeabi_i2f
+ 1572              	.LVL266:
+ 1573 04d8 4FF06051 		mov	r1, #939524096
+ 1574 04dc FFF7FEFF 		bl	__aeabi_fmul
+ 1575              	.LVL267:
+ 1576 04e0 DDF80CC0 		ldr	ip, [sp, #12]
+ 1577 04e4 0146     		mov	r1, r0
+ 1578 04e6 6046     		mov	r0, ip
+ 1579 04e8 FFF7FEFF 		bl	__aeabi_fmul
+ 1580              	.LVL268:
+ 1581 04ec 4FF07C51 		mov	r1, #1056964608
+ 1582 04f0 FFF7FEFF 		bl	__aeabi_fmul
+ 1583              	.LVL269:
+ 1584 04f4 0146     		mov	r1, r0
+ 125:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
+ 1585              		.loc 1 125 0
+ 1586 04f6 3846     		mov	r0, r7
+ 1587 04f8 FFF7FEFF 		bl	__aeabi_fadd
+ 1588              	.LVL270:
+ 123:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_PITCH] =
+ 1589              		.loc 1 123 0
+ 1590 04fc FFF7FEFF 		bl	__aeabi_f2iz
+ 1591              	.LVL271:
+ 1592 0500 0746     		mov	r7, r0
+ 1593 0502 C8F80400 		str	r0, [r8, #4]
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+ 1594              		.loc 1 129 0
+ 1595 0506 A868     		ldr	r0, [r5, #8]
+ 1596              	.LBE70:
+ 1597              	.LBE69:
+ 182:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 183:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* sum feedforward and feedback */
+ 184:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_c
+ 185:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff
+ 1598              		.loc 1 185 0
+ 1599 0508 5F44     		add	r7, r7, fp
+ 1600              	.LBB73:
+ 1601              	.LBB71:
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+ 1602              		.loc 1 129 0
+ 1603 050a 6043     		muls	r0, r4, r0
+ 1604 050c FFF7FEFF 		bl	__aeabi_i2f
+ 1605              	.LVL272:
+ 1606 0510 8446     		mov	ip, r0
+ 1607 0512 3046     		mov	r0, r6
+ 1608 0514 CDF80CC0 		str	ip, [sp, #12]
+ 1609 0518 FFF7FEFF 		bl	__aeabi_i2f
+ 1610              	.LVL273:
+ 1611 051c 4FF06051 		mov	r1, #939524096
+ 1612 0520 FFF7FEFF 		bl	__aeabi_fmul
+ 1613              	.LVL274:
+ 1614 0524 DDF80CC0 		ldr	ip, [sp, #12]
+ 1615 0528 0146     		mov	r1, r0
+ 1616 052a 6046     		mov	r0, ip
+ 1617 052c FFF7FEFF 		bl	__aeabi_fmul
+ 1618              	.LVL275:
+ 1619 0530 4FF07A51 		mov	r1, #1048576000
+ 1620 0534 FFF7FEFF 		bl	__aeabi_fmul
+ 1621              	.LVL276:
+ 1622 0538 0646     		mov	r6, r0
+ 1623              	.LVL277:
+ 130:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
+ 1624              		.loc 1 130 0
+ 1625 053a 6869     		ldr	r0, [r5, #20]
+ 1626 053c 6043     		muls	r0, r4, r0
+ 1627 053e FFF7FEFF 		bl	__aeabi_i2f
+ 1628              	.LVL278:
+ 1629 0542 8446     		mov	ip, r0
+ 1630 0544 0698     		ldr	r0, [sp, #24]
+ 1631 0546 CDF80CC0 		str	ip, [sp, #12]
+ 1632 054a FFF7FEFF 		bl	__aeabi_i2f
+ 1633              	.LVL279:
+ 1634 054e 4FF06651 		mov	r1, #964689920
+ 1635 0552 FFF7FEFF 		bl	__aeabi_fmul
+ 1636              	.LVL280:
+ 1637 0556 DDF80CC0 		ldr	ip, [sp, #12]
+ 1638 055a 0146     		mov	r1, r0
+ 1639 055c 6046     		mov	r0, ip
+ 1640 055e FFF7FEFF 		bl	__aeabi_fmul
+ 1641              	.LVL281:
+ 1642 0562 4FF07651 		mov	r1, #1031798784
+ 1643 0566 FFF7FEFF 		bl	__aeabi_fmul
+ 1644              	.LVL282:
+ 1645 056a 0146     		mov	r1, r0
+ 129:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+ 1646              		.loc 1 129 0
+ 1647 056c 3046     		mov	r0, r6
+ 1648 056e FFF7FEFF 		bl	__aeabi_fadd
+ 1649              	.LVL283:
+ 1650 0572 0646     		mov	r6, r0
+ 131:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
+ 1651              		.loc 1 131 0
+ 1652 0574 E86A     		ldr	r0, [r5, #44]
+ 1653 0576 6043     		muls	r0, r4, r0
+ 1654 0578 FFF7FEFF 		bl	__aeabi_i2f
+ 1655              	.LVL284:
+ 1656 057c 0446     		mov	r4, r0
+ 1657 057e D9F80C00 		ldr	r0, [r9, #12]
+ 1658 0582 FFF7FEFF 		bl	__aeabi_i2f
+ 1659              	.LVL285:
+ 1660 0586 4FF06051 		mov	r1, #939524096
+ 1661 058a FFF7FEFF 		bl	__aeabi_fmul
+ 1662              	.LVL286:
+ 1663 058e 0146     		mov	r1, r0
+ 1664 0590 2046     		mov	r0, r4
+ 1665 0592 FFF7FEFF 		bl	__aeabi_fmul
+ 1666              	.LVL287:
+ 1667 0596 4FF07C51 		mov	r1, #1056964608
+ 1668 059a FFF7FEFF 		bl	__aeabi_fmul
+ 1669              	.LVL288:
+ 1670 059e 0146     		mov	r1, r0
+ 130:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
+ 1671              		.loc 1 130 0
+ 1672 05a0 3046     		mov	r0, r6
+ 1673 05a2 FFF7FEFF 		bl	__aeabi_fadd
+ 1674              	.LVL289:
+ 128:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_YAW] =
+ 1675              		.loc 1 128 0
+ 1676 05a6 FFF7FEFF 		bl	__aeabi_f2iz
+ 1677              	.LVL290:
+ 1678              	.LBE71:
+ 1679              	.LBE73:
+ 184:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_c
+ 1680              		.loc 1 184 0
+ 1681 05aa 0299     		ldr	r1, [sp, #8]
+ 1682 05ac 019B     		ldr	r3, [sp, #4]
+ 1683              	.LBB74:
+ 1684              	.LBB72:
+ 128:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   fb_commands[COMMAND_YAW] =
+ 1685              		.loc 1 128 0
+ 1686 05ae C8F80800 		str	r0, [r8, #8]
+ 1687              	.LBE72:
+ 1688              	.LBE74:
+ 184:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_c
+ 1689              		.loc 1 184 0
+ 1690 05b2 CA18     		adds	r2, r1, r3
+ 1691 05b4 1249     		ldr	r1, .L134+8
+ 186:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd
+ 1692              		.loc 1 186 0
+ 1693 05b6 5044     		add	r0, r0, sl
+ 187:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 188:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   /* bound the result */
+ 189:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+ 1694              		.loc 1 189 0
+ 1695 05b8 B2F5165F 		cmp	r2, #9600
+ 184:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_c
+ 1696              		.loc 1 184 0
+ 1697 05bc 0A60     		str	r2, [r1, #0]
+ 185:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff
+ 1698              		.loc 1 185 0
+ 1699 05be 4F60     		str	r7, [r1, #4]
+ 186:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd
+ 1700              		.loc 1 186 0
+ 1701 05c0 8860     		str	r0, [r1, #8]
+ 1702              		.loc 1 189 0
+ 1703 05c2 02DD     		ble	.L119
+ 1704              		.loc 1 189 0 is_stmt 0 discriminator 1
+ 1705 05c4 4FF41653 		mov	r3, #9600
+ 1706 05c8 03E0     		b	.L129
+ 1707              	.L119:
+ 1708              		.loc 1 189 0 discriminator 2
+ 1709 05ca 12F5165F 		cmn	r2, #9600
+ 1710 05ce 01DA     		bge	.L120
+ 1711              		.loc 1 189 0 discriminator 3
+ 1712 05d0 0C4B     		ldr	r3, .L134+12
+ 1713              	.L129:
+ 1714 05d2 0B60     		str	r3, [r1, #0]
+ 1715              	.L120:
+ 190:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+ 1716              		.loc 1 190 0 is_stmt 1
+ 1717 05d4 B7F5165F 		cmp	r7, #9600
+ 1718 05d8 02DD     		ble	.L121
+ 1719              		.loc 1 190 0 is_stmt 0 discriminator 1
+ 1720 05da 4FF41652 		mov	r2, #9600
+ 1721 05de 03E0     		b	.L130
+ 1722              	.L121:
+ 1723              		.loc 1 190 0 discriminator 2
+ 1724 05e0 17F5165F 		cmn	r7, #9600
+ 1725 05e4 01DA     		bge	.L122
+ 1726              		.loc 1 190 0 discriminator 3
+ 1727 05e6 074A     		ldr	r2, .L134+12
+ 1728              	.L130:
+ 1729 05e8 4A60     		str	r2, [r1, #4]
+ 1730              	.L122:
+ 191:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+ 1731              		.loc 1 191 0 is_stmt 1
+ 1732 05ea B0F5165F 		cmp	r0, #9600
+ 1733 05ee 13DD     		ble	.L123
+ 1734              		.loc 1 191 0 is_stmt 0 discriminator 1
+ 1735 05f0 4FF41651 		mov	r1, #9600
+ 1736 05f4 14E0     		b	.L131
+ 1737              	.L135:
+ 1738 05f6 00BF     		.align	2
+ 1739              	.L134:
+ 1740 05f8 00000000 		.word	.LANCHOR1
+ 1741 05fc 00000000 		.word	.LANCHOR2
+ 1742 0600 00000000 		.word	stabilization_cmd
+ 1743 0604 80DAFFFF 		.word	-9600
+ 1744 0608 00000000 		.word	stab_att_ref_accel
+ 1745 060c 00000000 		.word	.LANCHOR3
+ 1746 0610 00000000 		.word	.LANCHOR0
+ 1747 0614 00000000 		.word	.LANCHOR4
+ 1748              	.L123:
+ 1749              		.loc 1 191 0 discriminator 2
+ 1750 0618 10F5165F 		cmn	r0, #9600
+ 1751 061c 02DA     		bge	.L105
+ 1752              		.loc 1 191 0 discriminator 3
+ 1753 061e 0349     		ldr	r1, .L136
+ 1754              	.L131:
+ 1755 0620 0348     		ldr	r0, .L136+4
+ 1756 0622 8160     		str	r1, [r0, #8]
+ 1757              	.L105:
+ 192:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+ 1758              		.loc 1 192 0 is_stmt 1
+ 1759 0624 09B0     		add	sp, sp, #36
+ 1760 0626 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 1761              	.L137:
+ 1762 062a 00BF     		.align	2
+ 1763              	.L136:
+ 1764 062c 80DAFFFF 		.word	-9600
+ 1765 0630 00000000 		.word	stabilization_cmd
+ 1766              		.cfi_endproc
+ 1767              	.LFE126:
+ 1769              		.section	.text.stabilization_attitude_read_rc,"ax",%progbits
+ 1770              		.align	1
+ 1771              		.global	stabilization_attitude_read_rc
+ 1772              		.thumb
+ 1773              		.thumb_func
+ 1775              	stabilization_attitude_read_rc:
+ 1776              	.LFB127:
+ 193:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** 
+ 194:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** void stabilization_attitude_read_rc(bool_t in_flight) {
+ 1777              		.loc 1 194 0
+ 1778              		.cfi_startproc
+ 1779              		@ args = 0, pretend = 0, frame = 16
+ 1780              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1781              	.LVL291:
+ 1782 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 1783              	.LCFI6:
+ 1784              		.cfi_def_cfa_offset 24
+ 1785              		.cfi_offset 0, -24
+ 1786              		.cfi_offset 1, -20
+ 1787              		.cfi_offset 2, -16
+ 1788              		.cfi_offset 3, -12
+ 1789              		.cfi_offset 4, -8
+ 1790              		.cfi_offset 14, -4
+ 1791              		.loc 1 194 0
+ 1792 0002 0146     		mov	r1, r0
+ 195:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   struct FloatQuat q_sp;
+ 196:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #if USE_EARTH_BOUND_RC_SETPOINT
+ 197:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight);
+ 198:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #else
+ 199:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
+ 1793              		.loc 1 199 0
+ 1794 0004 6846     		mov	r0, sp
+ 1795              	.LVL292:
+ 1796 0006 FFF7FEFF 		bl	stabilization_attitude_read_rc_setpoint_quat_f
+ 1797              	.LVL293:
+ 200:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** #endif
+ 201:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c ****   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
+ 1798              		.loc 1 201 0
+ 1799 000a 4FF08E41 		mov	r1, #1191182336
+ 1800 000e 0098     		ldr	r0, [sp, #0]	@ float
+ 1801 0010 FFF7FEFF 		bl	__aeabi_fmul
+ 1802              	.LVL294:
+ 1803 0014 FFF7FEFF 		bl	__aeabi_f2iz
+ 1804              	.LVL295:
+ 1805 0018 0D4C     		ldr	r4, .L139
+ 1806 001a 4FF08E41 		mov	r1, #1191182336
+ 1807 001e 2060     		str	r0, [r4, #0]
+ 1808 0020 0198     		ldr	r0, [sp, #4]	@ float
+ 1809 0022 FFF7FEFF 		bl	__aeabi_fmul
+ 1810              	.LVL296:
+ 1811 0026 FFF7FEFF 		bl	__aeabi_f2iz
+ 1812              	.LVL297:
+ 1813 002a 4FF08E41 		mov	r1, #1191182336
+ 1814 002e 6060     		str	r0, [r4, #4]
+ 1815 0030 0298     		ldr	r0, [sp, #8]	@ float
+ 1816 0032 FFF7FEFF 		bl	__aeabi_fmul
+ 1817              	.LVL298:
+ 1818 0036 FFF7FEFF 		bl	__aeabi_f2iz
+ 1819              	.LVL299:
+ 1820 003a 4FF08E41 		mov	r1, #1191182336
+ 1821 003e A060     		str	r0, [r4, #8]
+ 1822 0040 0398     		ldr	r0, [sp, #12]	@ float
+ 1823 0042 FFF7FEFF 		bl	__aeabi_fmul
+ 1824              	.LVL300:
+ 1825 0046 FFF7FEFF 		bl	__aeabi_f2iz
+ 1826              	.LVL301:
+ 1827 004a E060     		str	r0, [r4, #12]
+ 202:firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.c **** }
+ 1828              		.loc 1 202 0
+ 1829 004c 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
+ 1830              	.L140:
+ 1831 004e 00BF     		.align	2
+ 1832              	.L139:
+ 1833 0050 00000000 		.word	stab_att_sp_quat
+ 1834              		.cfi_endproc
+ 1835              	.LFE127:
+ 1837              		.global	stabilization_att_ff_cmd
+ 1838              		.global	stabilization_att_fb_cmd
+ 1839              		.global	stabilization_att_sum_err
+ 1840              		.global	stabilization_att_sum_err_quat
+ 1841              		.global	stabilization_gains
+ 1842              		.section	.bss.stabilization_att_sum_err_quat,"aw",%nobits
+ 1843              		.align	2
+ 1844              		.set	.LANCHOR0,. + 0
+ 1847              	stabilization_att_sum_err_quat:
+ 1848 0000 00000000 		.space	16
+ 1848      00000000 
+ 1848      00000000 
+ 1848      00000000 
+ 1849              		.section	.bss.stabilization_att_fb_cmd,"aw",%nobits
+ 1850              		.align	2
+ 1851              		.set	.LANCHOR4,. + 0
+ 1854              	stabilization_att_fb_cmd:
+ 1855 0000 00000000 		.space	16
+ 1855      00000000 
+ 1855      00000000 
+ 1855      00000000 
+ 1856              		.section	.bss.stabilization_att_sum_err,"aw",%nobits
+ 1857              		.align	2
+ 1858              		.set	.LANCHOR1,. + 0
+ 1861              	stabilization_att_sum_err:
+ 1862 0000 00000000 		.space	12
+ 1862      00000000 
+ 1862      00000000 
+ 1863              		.section	.data.stabilization_gains,"aw",%progbits
+ 1864              		.align	2
+ 1865              		.set	.LANCHOR2,. + 0
+ 1868              	stabilization_gains:
+ 1869 0000 5E010000 		.word	350
+ 1870 0004 5E010000 		.word	350
+ 1871 0008 8A020000 		.word	650
+ 1872 000c A0000000 		.word	160
+ 1873 0010 A0000000 		.word	160
+ 1874 0014 64000000 		.word	100
+ 1875 0018 14000000 		.word	20
+ 1876 001c 14000000 		.word	20
+ 1877 0020 19000000 		.word	25
+ 1878 0024 46000000 		.word	70
+ 1879 0028 46000000 		.word	70
+ 1880 002c 4A010000 		.word	330
+ 1881              		.section	.bss.stabilization_att_ff_cmd,"aw",%nobits
+ 1882              		.align	2
+ 1883              		.set	.LANCHOR3,. + 0
+ 1886              	stabilization_att_ff_cmd:
+ 1887 0000 00000000 		.space	16
+ 1887      00000000 
+ 1887      00000000 
+ 1887      00000000 
+ 1888              		.text
+ 1889              	.Letext0:
+ 1890              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1891              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1892              		.file 6 "./math/pprz_algebra_int.h"
+ 1893              		.file 7 "./firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
+ 1894              		.file 8 "./math/pprz_algebra_float.h"
+ 1895              		.file 9 "./math/pprz_geodetic_int.h"
+ 1896              		.file 10 "./math/pprz_geodetic_float.h"
+ 1897              		.file 11 "./paparazzi.h"
+ 1898              		.file 12 "./mcu_periph/sys_time.h"
+ 1899              		.file 13 "./subsystems/radio_control.h"
+ 1900              		.file 14 "./math/pprz_trig_int.h"
+ 1901              		.file 15 "./firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h"
+ 1902              		.file 16 "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.h"
+ 1903              		.file 17 "./firmwares/rotorcraft/stabilization.h"
+ 1904              		.file 18 "./firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
+ 1905              		.file 19 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
+ 1906              		.file 20 "./firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stabilization_attitude_quat_int.c
+/var/tmp//ccpBLN4e.s:19     .text.stabilization_attitude_init:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:24     .text.stabilization_attitude_init:0000000000000000 stabilization_attitude_init
+/var/tmp//ccpBLN4e.s:58     .text.stabilization_attitude_init:0000000000000020 $d
+/var/tmp//ccpBLN4e.s:64     .text.stabilization_attitude_enter:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:69     .text.stabilization_attitude_enter:0000000000000000 stabilization_attitude_enter
+/var/tmp//ccpBLN4e.s:107    .text.stabilization_attitude_enter:0000000000000028 $d
+/var/tmp//ccpBLN4e.s:114    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:119    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 stabilization_attitude_set_failsafe_setpoint
+/var/tmp//ccpBLN4e.s:293    .text.stabilization_attitude_set_failsafe_setpoint:00000000000000d4 $d
+/var/tmp//ccpBLN4e.s:301    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:306    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 stabilization_attitude_set_from_eulers_i
+/var/tmp//ccpBLN4e.s:836    .text.stabilization_attitude_set_from_eulers_i:00000000000002b8 $d
+/var/tmp//ccpBLN4e.s:848    .text.stabilization_attitude_run:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:853    .text.stabilization_attitude_run:0000000000000000 stabilization_attitude_run
+/var/tmp//ccpBLN4e.s:1323   .text.stabilization_attitude_run:00000000000002dc $d
+/var/tmp//ccpBLN4e.s:1333   .text.stabilization_attitude_run:00000000000002f0 $t
+/var/tmp//ccpBLN4e.s:1740   .text.stabilization_attitude_run:00000000000005f8 $d
+/var/tmp//ccpBLN4e.s:1750   .text.stabilization_attitude_run:0000000000000618 $t
+/var/tmp//ccpBLN4e.s:1764   .text.stabilization_attitude_run:000000000000062c $d
+/var/tmp//ccpBLN4e.s:1770   .text.stabilization_attitude_read_rc:0000000000000000 $t
+/var/tmp//ccpBLN4e.s:1775   .text.stabilization_attitude_read_rc:0000000000000000 stabilization_attitude_read_rc
+/var/tmp//ccpBLN4e.s:1833   .text.stabilization_attitude_read_rc:0000000000000050 $d
+/var/tmp//ccpBLN4e.s:1886   .bss.stabilization_att_ff_cmd:0000000000000000 stabilization_att_ff_cmd
+/var/tmp//ccpBLN4e.s:1854   .bss.stabilization_att_fb_cmd:0000000000000000 stabilization_att_fb_cmd
+/var/tmp//ccpBLN4e.s:1861   .bss.stabilization_att_sum_err:0000000000000000 stabilization_att_sum_err
+/var/tmp//ccpBLN4e.s:1847   .bss.stabilization_att_sum_err_quat:0000000000000000 stabilization_att_sum_err_quat
+/var/tmp//ccpBLN4e.s:1868   .data.stabilization_gains:0000000000000000 stabilization_gains
+/var/tmp//ccpBLN4e.s:1843   .bss.stabilization_att_sum_err_quat:0000000000000000 $d
+/var/tmp//ccpBLN4e.s:1850   .bss.stabilization_att_fb_cmd:0000000000000000 $d
+/var/tmp//ccpBLN4e.s:1857   .bss.stabilization_att_sum_err:0000000000000000 $d
+/var/tmp//ccpBLN4e.s:1864   .data.stabilization_gains:0000000000000000 $d
+/var/tmp//ccpBLN4e.s:1882   .bss.stabilization_att_ff_cmd:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+stabilization_attitude_ref_init
+stabilization_attitude_get_heading_i
+stabilization_attitude_ref_enter
+stab_att_sp_euler
+pprz_trig_int
+stab_att_sp_quat
+__aeabi_i2f
+__aeabi_fmul
+__aeabi_f2iz
+__aeabi_fadd
+stabilization_attitude_ref_update
+orientationCalcQuat_i
+stateCalcBodyRates_i
+atan2f
+asinf
+state
+stab_att_ref_quat
+stab_att_ref_rate
+stabilization_cmd
+stab_att_ref_accel
+stabilization_attitude_read_rc_setpoint_quat_f

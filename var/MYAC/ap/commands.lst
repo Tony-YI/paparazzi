@@ -1,0 +1,42 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"commands.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	commands_failsafe
+  19              		.global	commands
+  20              		.section	.bss.commands,"aw",%nobits
+  21              		.align	1
+  24              	commands:
+  25 0000 00000000 		.space	8
+  25      00000000 
+  26              		.section	.rodata.commands_failsafe,"a",%progbits
+  27              		.align	1
+  30              	commands_failsafe:
+  31 0000 00000000 		.space	8
+  31      00000000 
+  32              		.text
+  33              	.Letext0:
+  34              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  35              		.file 2 "./paparazzi.h"
+  36              		.file 3 "subsystems/commands.c"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 commands.c
+/var/tmp//ccYXVCOw.s:30     .rodata.commands_failsafe:0000000000000000 commands_failsafe
+/var/tmp//ccYXVCOw.s:24     .bss.commands:0000000000000000 commands
+/var/tmp//ccYXVCOw.s:21     .bss.commands:0000000000000000 $d
+/var/tmp//ccYXVCOw.s:27     .rodata.commands_failsafe:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,133 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"mcu_arch.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.mcu_arch_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	mcu_arch_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	mcu_arch_init:
+  25              	.LFB0:
+  26              		.file 1 "arch/stm32/mcu_arch.c"
+   1:arch/stm32/mcu_arch.c **** /*
+   2:arch/stm32/mcu_arch.c ****  * Copyright (C) 2010-2012 The Paparazzi team
+   3:arch/stm32/mcu_arch.c ****  *
+   4:arch/stm32/mcu_arch.c ****  * This file is part of Paparazzi.
+   5:arch/stm32/mcu_arch.c ****  *
+   6:arch/stm32/mcu_arch.c ****  * Paparazzi is free software; you can redistribute it and/or modify
+   7:arch/stm32/mcu_arch.c ****  * it under the terms of the GNU General Public License as published by
+   8:arch/stm32/mcu_arch.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:arch/stm32/mcu_arch.c ****  * any later version.
+  10:arch/stm32/mcu_arch.c ****  *
+  11:arch/stm32/mcu_arch.c ****  * Paparazzi is distributed in the hope that it will be useful,
+  12:arch/stm32/mcu_arch.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:arch/stm32/mcu_arch.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:arch/stm32/mcu_arch.c ****  * GNU General Public License for more details.
+  15:arch/stm32/mcu_arch.c ****  *
+  16:arch/stm32/mcu_arch.c ****  * You should have received a copy of the GNU General Public License
+  17:arch/stm32/mcu_arch.c ****  * along with Paparazzi; see the file COPYING.  If not, write to
+  18:arch/stm32/mcu_arch.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:arch/stm32/mcu_arch.c ****  * Boston, MA 02111-1307, USA.
+  20:arch/stm32/mcu_arch.c ****  *
+  21:arch/stm32/mcu_arch.c ****  */
+  22:arch/stm32/mcu_arch.c **** 
+  23:arch/stm32/mcu_arch.c **** /**
+  24:arch/stm32/mcu_arch.c ****  * @file arch/stm32/mcu_arch.c
+  25:arch/stm32/mcu_arch.c ****  * @brief stm32 arch dependant microcontroller initialisation functions.
+  26:arch/stm32/mcu_arch.c ****  * @ingroup stm32_arch
+  27:arch/stm32/mcu_arch.c ****  */
+  28:arch/stm32/mcu_arch.c **** 
+  29:arch/stm32/mcu_arch.c **** #include "mcu.h"
+  30:arch/stm32/mcu_arch.c **** 
+  31:arch/stm32/mcu_arch.c **** #include BOARD_CONFIG
+  32:arch/stm32/mcu_arch.c **** 
+  33:arch/stm32/mcu_arch.c **** #include <inttypes.h>
+  34:arch/stm32/mcu_arch.c **** #include <libopencm3/stm32/gpio.h>
+  35:arch/stm32/mcu_arch.c **** #include <libopencm3/stm32/rcc.h>
+  36:arch/stm32/mcu_arch.c **** #if defined(STM32F1)
+  37:arch/stm32/mcu_arch.c **** #include <libopencm3/stm32/f1/flash.h>
+  38:arch/stm32/mcu_arch.c **** #elif defined(STM32F4)
+  39:arch/stm32/mcu_arch.c **** #include <libopencm3/stm32/f4/flash.h>
+  40:arch/stm32/mcu_arch.c **** #endif
+  41:arch/stm32/mcu_arch.c **** #include <libopencm3/cm3/scb.h>
+  42:arch/stm32/mcu_arch.c **** 
+  43:arch/stm32/mcu_arch.c **** #include "std.h"
+  44:arch/stm32/mcu_arch.c **** 
+  45:arch/stm32/mcu_arch.c **** void mcu_arch_init(void) {
+  27              		.loc 1 45 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  46:arch/stm32/mcu_arch.c **** #if LUFTBOOT
+  47:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
+  48:arch/stm32/mcu_arch.c ****   SCB_VTOR = 0x00002000;
+  32              		.loc 1 48 0
+  33 0000 024B     		ldr	r3, .L2
+  34 0002 4FF40052 		mov	r2, #8192
+  35 0006 1A60     		str	r2, [r3, #0]
+  49:arch/stm32/mcu_arch.c **** #endif
+  50:arch/stm32/mcu_arch.c **** #if EXT_CLK == 8000000
+  51:arch/stm32/mcu_arch.c **** #if defined(STM32F1)
+  52:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 72MHz.")
+  53:arch/stm32/mcu_arch.c ****   rcc_clock_setup_in_hse_8mhz_out_72mhz();
+  54:arch/stm32/mcu_arch.c **** #elif defined(STM32F4)
+  55:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 168MHz.")
+  56:arch/stm32/mcu_arch.c ****   rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+  57:arch/stm32/mcu_arch.c **** #endif
+  58:arch/stm32/mcu_arch.c **** #elif EXT_CLK == 12000000
+  59:arch/stm32/mcu_arch.c **** #if defined(STM32F1)
+  60:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 72MHz.")
+  61:arch/stm32/mcu_arch.c ****   rcc_clock_setup_in_hse_12mhz_out_72mhz();
+  62:arch/stm32/mcu_arch.c **** #elif defined(STM32F4)
+  63:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 168MHz.")
+  64:arch/stm32/mcu_arch.c ****   rcc_clock_setup_hse_3v3(&hse_12mhz_3v3[CLOCK_3V3_168MHZ]);
+  65:arch/stm32/mcu_arch.c **** #endif
+  66:arch/stm32/mcu_arch.c **** #elif EXT_CLK == 16000000
+  67:arch/stm32/mcu_arch.c **** #if defined(STM32F4)
+  68:arch/stm32/mcu_arch.c **** PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
+  69:arch/stm32/mcu_arch.c ****   rcc_clock_setup_hse_3v3(&hse_16mhz_3v3[CLOCK_3V3_168MHZ]);
+  70:arch/stm32/mcu_arch.c **** #endif
+  71:arch/stm32/mcu_arch.c **** #else
+  72:arch/stm32/mcu_arch.c **** #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!
+  73:arch/stm32/mcu_arch.c **** #endif
+  74:arch/stm32/mcu_arch.c **** }
+  36              		.loc 1 74 0
+  61:arch/stm32/mcu_arch.c ****   rcc_clock_setup_in_hse_12mhz_out_72mhz();
+  37              		.loc 1 61 0
+  38 0008 FFF7FEBF 		b	rcc_clock_setup_in_hse_12mhz_out_72mhz
+  39              	.LVL0:
+  40              	.L3:
+  41              		.align	2
+  42              	.L2:
+  43 000c 08ED00E0 		.word	-536810232
+  44              		.cfi_endproc
+  45              	.LFE0:
+  47              		.text
+  48              	.Letext0:
+  49              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  50              		.file 3 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+  51              		.file 4 "../ext/libopencm3/include/libopencm3/stm32/f1/rcc.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mcu_arch.c
+/var/tmp//ccui10FH.s:19     .text.mcu_arch_init:0000000000000000 $t
+/var/tmp//ccui10FH.s:24     .text.mcu_arch_init:0000000000000000 mcu_arch_init
+/var/tmp//ccui10FH.s:43     .text.mcu_arch_init:000000000000000c $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+rcc_clock_setup_in_hse_12mhz_out_72mhz

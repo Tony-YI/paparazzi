@@ -1,0 +1,1581 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"vf_float.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	__aeabi_fsub
+  19              		.global	__aeabi_fadd
+  20              		.global	__aeabi_fdiv
+  21              		.global	__aeabi_fmul
+  22              		.global	__aeabi_f2d
+  23              		.global	__aeabi_dsub
+  24              		.global	__aeabi_dmul
+  25              		.global	__aeabi_d2f
+  26              		.section	.text.update_z_conf,"ax",%progbits
+  27              		.align	1
+  28              		.thumb
+  29              		.thumb_func
+  31              	update_z_conf:
+  32              	.LFB2:
+  33              		.file 1 "subsystems/ins/vf_float.c"
+   1:subsystems/ins/vf_float.c **** /*
+   2:subsystems/ins/vf_float.c ****  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+   3:subsystems/ins/vf_float.c ****  *
+   4:subsystems/ins/vf_float.c ****  * This file is part of paparazzi.
+   5:subsystems/ins/vf_float.c ****  *
+   6:subsystems/ins/vf_float.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:subsystems/ins/vf_float.c ****  * it under the terms of the GNU General Public License as published by
+   8:subsystems/ins/vf_float.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:subsystems/ins/vf_float.c ****  * any later version.
+  10:subsystems/ins/vf_float.c ****  *
+  11:subsystems/ins/vf_float.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:subsystems/ins/vf_float.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:subsystems/ins/vf_float.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:subsystems/ins/vf_float.c ****  * GNU General Public License for more details.
+  15:subsystems/ins/vf_float.c ****  *
+  16:subsystems/ins/vf_float.c ****  * You should have received a copy of the GNU General Public License
+  17:subsystems/ins/vf_float.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:subsystems/ins/vf_float.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:subsystems/ins/vf_float.c ****  * Boston, MA 02111-1307, USA.
+  20:subsystems/ins/vf_float.c ****  */
+  21:subsystems/ins/vf_float.c **** 
+  22:subsystems/ins/vf_float.c **** /**
+  23:subsystems/ins/vf_float.c ****  * @file subsystems/ins/vf_float.c
+  24:subsystems/ins/vf_float.c ****  *
+  25:subsystems/ins/vf_float.c ****  * Vertical filter (in float) estimating altitude, velocity and accel bias.
+  26:subsystems/ins/vf_float.c ****  *
+  27:subsystems/ins/vf_float.c ****  */
+  28:subsystems/ins/vf_float.c **** 
+  29:subsystems/ins/vf_float.c **** #include "subsystems/ins/vf_float.h"
+  30:subsystems/ins/vf_float.c **** 
+  31:subsystems/ins/vf_float.c **** /*
+  32:subsystems/ins/vf_float.c **** 
+  33:subsystems/ins/vf_float.c **** X = [ z zdot bias ]
+  34:subsystems/ins/vf_float.c **** 
+  35:subsystems/ins/vf_float.c **** temps :
+  36:subsystems/ins/vf_float.c ****   propagate 86us
+  37:subsystems/ins/vf_float.c ****   update    46us
+  38:subsystems/ins/vf_float.c **** 
+  39:subsystems/ins/vf_float.c **** */
+  40:subsystems/ins/vf_float.c **** /* initial error covariance diagonal */
+  41:subsystems/ins/vf_float.c **** #ifndef VF_FLOAT_INIT_PXX
+  42:subsystems/ins/vf_float.c **** #define VF_FLOAT_INIT_PXX 1.0
+  43:subsystems/ins/vf_float.c **** #endif
+  44:subsystems/ins/vf_float.c **** 
+  45:subsystems/ins/vf_float.c **** /* process noise covariance Q */
+  46:subsystems/ins/vf_float.c **** #ifndef VF_FLOAT_ACCEL_NOISE
+  47:subsystems/ins/vf_float.c **** #define VF_FLOAT_ACCEL_NOISE 0.5
+  48:subsystems/ins/vf_float.c **** #endif
+  49:subsystems/ins/vf_float.c **** 
+  50:subsystems/ins/vf_float.c **** /* measurement noise covariance R */
+  51:subsystems/ins/vf_float.c **** #ifndef VF_FLOAT_MEAS_NOISE
+  52:subsystems/ins/vf_float.c **** #define VF_FLOAT_MEAS_NOISE 1.0
+  53:subsystems/ins/vf_float.c **** #endif
+  54:subsystems/ins/vf_float.c **** 
+  55:subsystems/ins/vf_float.c **** /* default parameters */
+  56:subsystems/ins/vf_float.c **** #define Qzz       VF_FLOAT_ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
+  57:subsystems/ins/vf_float.c **** #define Qzdotzdot VF_FLOAT_ACCEL_NOISE * DT_VFILTER
+  58:subsystems/ins/vf_float.c **** #define Qbiasbias 1e-7
+  59:subsystems/ins/vf_float.c **** 
+  60:subsystems/ins/vf_float.c **** float vff_z;
+  61:subsystems/ins/vf_float.c **** float vff_bias;
+  62:subsystems/ins/vf_float.c **** float vff_zdot;
+  63:subsystems/ins/vf_float.c **** float vff_zdotdot;
+  64:subsystems/ins/vf_float.c **** 
+  65:subsystems/ins/vf_float.c **** float vff_P[VFF_STATE_SIZE][VFF_STATE_SIZE];
+  66:subsystems/ins/vf_float.c **** 
+  67:subsystems/ins/vf_float.c **** float vff_z_meas;
+  68:subsystems/ins/vf_float.c **** 
+  69:subsystems/ins/vf_float.c **** void vff_init(float init_z, float init_zdot, float init_bias) {
+  70:subsystems/ins/vf_float.c ****   vff_z    = init_z;
+  71:subsystems/ins/vf_float.c ****   vff_zdot = init_zdot;
+  72:subsystems/ins/vf_float.c ****   vff_bias = init_bias;
+  73:subsystems/ins/vf_float.c ****   int i, j;
+  74:subsystems/ins/vf_float.c ****   for (i=0; i<VFF_STATE_SIZE; i++) {
+  75:subsystems/ins/vf_float.c ****     for (j=0; j<VFF_STATE_SIZE; j++)
+  76:subsystems/ins/vf_float.c ****       vff_P[i][j] = 0.;
+  77:subsystems/ins/vf_float.c ****     vff_P[i][i] = VF_FLOAT_INIT_PXX;
+  78:subsystems/ins/vf_float.c ****   }
+  79:subsystems/ins/vf_float.c **** 
+  80:subsystems/ins/vf_float.c **** }
+  81:subsystems/ins/vf_float.c **** 
+  82:subsystems/ins/vf_float.c **** 
+  83:subsystems/ins/vf_float.c **** /*
+  84:subsystems/ins/vf_float.c **** 
+  85:subsystems/ins/vf_float.c ****  F = [ 1 dt -dt^2/2
+  86:subsystems/ins/vf_float.c ****        0  1 -dt
+  87:subsystems/ins/vf_float.c ****        0  0   1     ];
+  88:subsystems/ins/vf_float.c **** 
+  89:subsystems/ins/vf_float.c ****  B = [ dt^2/2 dt 0]';
+  90:subsystems/ins/vf_float.c **** 
+  91:subsystems/ins/vf_float.c ****  Q = [ 0.01  0     0
+  92:subsystems/ins/vf_float.c ****        0     0.01  0
+  93:subsystems/ins/vf_float.c ****        0     0     0.001 ];
+  94:subsystems/ins/vf_float.c **** 
+  95:subsystems/ins/vf_float.c ****  Xk1 = F * Xk0 + B * accel;
+  96:subsystems/ins/vf_float.c **** 
+  97:subsystems/ins/vf_float.c ****  Pk1 = F * Pk0 * F' + Q;
+  98:subsystems/ins/vf_float.c **** 
+  99:subsystems/ins/vf_float.c **** */
+ 100:subsystems/ins/vf_float.c **** void vff_propagate(float accel) {
+ 101:subsystems/ins/vf_float.c ****   /* update state (Xk1) */
+ 102:subsystems/ins/vf_float.c ****   vff_zdotdot = accel + 9.81 - vff_bias;
+ 103:subsystems/ins/vf_float.c ****   vff_z = vff_z + DT_VFILTER * vff_zdot;
+ 104:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + DT_VFILTER * vff_zdotdot;
+ 105:subsystems/ins/vf_float.c ****   /* update covariance (Pk1) */
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 108:subsystems/ins/vf_float.c ****   const float FPF02 = vff_P[0][2] + DT_VFILTER * ( vff_P[1][2] );
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 110:subsystems/ins/vf_float.c ****   const float FPF11 = vff_P[1][1] + DT_VFILTER * (-vff_P[2][1] - vff_P[1][2] + DT_VFILTER * vff_P[2
+ 111:subsystems/ins/vf_float.c ****   const float FPF12 = vff_P[1][2] + DT_VFILTER * (-vff_P[2][2] );
+ 112:subsystems/ins/vf_float.c ****   const float FPF20 = vff_P[2][0] + DT_VFILTER * ( vff_P[2][1] );
+ 113:subsystems/ins/vf_float.c ****   const float FPF21 = vff_P[2][1] + DT_VFILTER * (-vff_P[2][2] );
+ 114:subsystems/ins/vf_float.c ****   const float FPF22 = vff_P[2][2];
+ 115:subsystems/ins/vf_float.c **** 
+ 116:subsystems/ins/vf_float.c ****   vff_P[0][0] = FPF00 + Qzz;
+ 117:subsystems/ins/vf_float.c ****   vff_P[0][1] = FPF01;
+ 118:subsystems/ins/vf_float.c ****   vff_P[0][2] = FPF02;
+ 119:subsystems/ins/vf_float.c ****   vff_P[1][0] = FPF10;
+ 120:subsystems/ins/vf_float.c ****   vff_P[1][1] = FPF11 + Qzdotzdot;
+ 121:subsystems/ins/vf_float.c ****   vff_P[1][2] = FPF12;
+ 122:subsystems/ins/vf_float.c ****   vff_P[2][0] = FPF20;
+ 123:subsystems/ins/vf_float.c ****   vff_P[2][1] = FPF21;
+ 124:subsystems/ins/vf_float.c ****   vff_P[2][2] = FPF22 + Qbiasbias;
+ 125:subsystems/ins/vf_float.c **** 
+ 126:subsystems/ins/vf_float.c **** }
+ 127:subsystems/ins/vf_float.c **** /*
+ 128:subsystems/ins/vf_float.c ****   H = [1 0 0];
+ 129:subsystems/ins/vf_float.c ****   R = 0.1;
+ 130:subsystems/ins/vf_float.c ****   // state residual
+ 131:subsystems/ins/vf_float.c ****   y = rangemeter - H * Xm;
+ 132:subsystems/ins/vf_float.c ****   // covariance residual
+ 133:subsystems/ins/vf_float.c ****   S = H*Pm*H' + R;
+ 134:subsystems/ins/vf_float.c ****   // kalman gain
+ 135:subsystems/ins/vf_float.c ****   K = Pm*H'*inv(S);
+ 136:subsystems/ins/vf_float.c ****   // update state
+ 137:subsystems/ins/vf_float.c ****   Xp = Xm + K*y;
+ 138:subsystems/ins/vf_float.c ****   // update covariance
+ 139:subsystems/ins/vf_float.c ****   Pp = Pm - K*H*Pm;
+ 140:subsystems/ins/vf_float.c **** */
+ 141:subsystems/ins/vf_float.c **** static inline void update_z_conf(float z_meas, float conf) {
+  34              		.loc 1 141 0
+  35              		.cfi_startproc
+  36              		@ args = 0, pretend = 0, frame = 32
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38              	.LVL0:
+  39 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  40              	.LCFI0:
+  41              		.cfi_def_cfa_offset 36
+  42              		.cfi_offset 4, -36
+  43              		.cfi_offset 5, -32
+  44              		.cfi_offset 6, -28
+  45              		.cfi_offset 7, -24
+  46              		.cfi_offset 8, -20
+  47              		.cfi_offset 9, -16
+  48              		.cfi_offset 10, -12
+  49              		.cfi_offset 11, -8
+  50              		.cfi_offset 14, -4
+ 142:subsystems/ins/vf_float.c ****   vff_z_meas = z_meas;
+ 143:subsystems/ins/vf_float.c **** 
+ 144:subsystems/ins/vf_float.c ****   const float y = z_meas - vff_z;
+  51              		.loc 1 144 0
+  52 0004 DFF888A1 		ldr	sl, .L2+12
+ 142:subsystems/ins/vf_float.c ****   vff_z_meas = z_meas;
+  53              		.loc 1 142 0
+  54 0008 5E4B     		ldr	r3, .L2
+  55              		.loc 1 144 0
+  56 000a DAF80020 		ldr	r2, [sl, #0]	@ float
+ 141:subsystems/ins/vf_float.c **** static inline void update_z_conf(float z_meas, float conf) {
+  57              		.loc 1 141 0
+  58 000e 89B0     		sub	sp, sp, #36
+  59              	.LCFI1:
+  60              		.cfi_def_cfa_offset 72
+ 142:subsystems/ins/vf_float.c ****   vff_z_meas = z_meas;
+  61              		.loc 1 142 0
+  62 0010 1860     		str	r0, [r3, #0]	@ float
+ 141:subsystems/ins/vf_float.c **** static inline void update_z_conf(float z_meas, float conf) {
+  63              		.loc 1 141 0
+  64 0012 0F46     		mov	r7, r1
+  65              		.loc 1 144 0
+  66 0014 1146     		mov	r1, r2
+  67              	.LVL1:
+  68 0016 0192     		str	r2, [sp, #4]
+  69 0018 FFF7FEFF 		bl	__aeabi_fsub
+  70              	.LVL2:
+ 145:subsystems/ins/vf_float.c ****   const float S = vff_P[0][0] + conf;
+  71              		.loc 1 145 0
+  72 001c 5A4C     		ldr	r4, .L2+4
+ 144:subsystems/ins/vf_float.c ****   const float y = z_meas - vff_z;
+  73              		.loc 1 144 0
+  74 001e 0646     		mov	r6, r0
+  75              	.LVL3:
+  76              		.loc 1 145 0
+  77 0020 2568     		ldr	r5, [r4, #0]	@ float
+  78 0022 3946     		mov	r1, r7
+  79 0024 2846     		mov	r0, r5
+  80              	.LVL4:
+  81 0026 FFF7FEFF 		bl	__aeabi_fadd
+  82              	.LVL5:
+  83 002a 0746     		mov	r7, r0
+  84              	.LVL6:
+ 146:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][0] * 1/S;
+  85              		.loc 1 146 0
+  86 002c 3946     		mov	r1, r7
+  87 002e 2846     		mov	r0, r5
+  88              	.LVL7:
+  89 0030 FFF7FEFF 		bl	__aeabi_fdiv
+  90              	.LVL8:
+ 147:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][0] * 1/S;
+  91              		.loc 1 147 0
+  92 0034 D4F80CB0 		ldr	fp, [r4, #12]	@ float
+ 146:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][0] * 1/S;
+  93              		.loc 1 146 0
+  94 0038 8146     		mov	r9, r0
+  95              	.LVL9:
+  96              		.loc 1 147 0
+  97 003a 3946     		mov	r1, r7
+  98 003c 5846     		mov	r0, fp
+  99              	.LVL10:
+ 100 003e FFF7FEFF 		bl	__aeabi_fdiv
+ 101              	.LVL11:
+ 148:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][0] * 1/S;
+ 102              		.loc 1 148 0
+ 103 0042 D4F818C0 		ldr	ip, [r4, #24]	@ float
+ 147:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][0] * 1/S;
+ 104              		.loc 1 147 0
+ 105 0046 8046     		mov	r8, r0
+ 106              	.LVL12:
+ 107              		.loc 1 148 0
+ 108 0048 3946     		mov	r1, r7
+ 109 004a 6046     		mov	r0, ip
+ 110              	.LVL13:
+ 111 004c CDF800C0 		str	ip, [sp, #0]
+ 112 0050 FFF7FEFF 		bl	__aeabi_fdiv
+ 113              	.LVL14:
+ 149:subsystems/ins/vf_float.c **** 
+ 150:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * y;
+ 114              		.loc 1 150 0
+ 115 0054 3146     		mov	r1, r6
+ 148:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][0] * 1/S;
+ 116              		.loc 1 148 0
+ 117 0056 0746     		mov	r7, r0
+ 118              	.LVL15:
+ 119              		.loc 1 150 0
+ 120 0058 4846     		mov	r0, r9
+ 121              	.LVL16:
+ 122 005a FFF7FEFF 		bl	__aeabi_fmul
+ 123              	.LVL17:
+ 124 005e 0146     		mov	r1, r0
+ 125 0060 0198     		ldr	r0, [sp, #4]
+ 126 0062 FFF7FEFF 		bl	__aeabi_fadd
+ 127              	.LVL18:
+ 151:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * y;
+ 128              		.loc 1 151 0
+ 129 0066 3146     		mov	r1, r6
+ 150:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * y;
+ 130              		.loc 1 150 0
+ 131 0068 CAF80000 		str	r0, [sl, #0]	@ float
+ 132              		.loc 1 151 0
+ 133 006c 4046     		mov	r0, r8
+ 134 006e FFF7FEFF 		bl	__aeabi_fmul
+ 135              	.LVL19:
+ 136 0072 DFF820A1 		ldr	sl, .L2+16
+ 137 0076 0146     		mov	r1, r0
+ 138 0078 DAF80000 		ldr	r0, [sl, #0]	@ float
+ 139 007c FFF7FEFF 		bl	__aeabi_fadd
+ 140              	.LVL20:
+ 152:subsystems/ins/vf_float.c ****   vff_bias = vff_bias + K3 * y;
+ 141              		.loc 1 152 0
+ 142 0080 3146     		mov	r1, r6
+ 151:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * y;
+ 143              		.loc 1 151 0
+ 144 0082 CAF80000 		str	r0, [sl, #0]	@ float
+ 145              		.loc 1 152 0
+ 146 0086 3846     		mov	r0, r7
+ 147 0088 FFF7FEFF 		bl	__aeabi_fmul
+ 148              	.LVL21:
+ 149 008c DFF808A1 		ldr	sl, .L2+20
+ 150 0090 0146     		mov	r1, r0
+ 151 0092 DAF80000 		ldr	r0, [sl, #0]	@ float
+ 152 0096 FFF7FEFF 		bl	__aeabi_fadd
+ 153              	.LVL22:
+ 154 009a CAF80000 		str	r0, [sl, #0]	@ float
+ 153:subsystems/ins/vf_float.c **** 
+ 154:subsystems/ins/vf_float.c ****   const float P11 = (1. - K1) * vff_P[0][0];
+ 155              		.loc 1 154 0
+ 156 009e 4846     		mov	r0, r9
+ 157 00a0 FFF7FEFF 		bl	__aeabi_f2d
+ 158              	.LVL23:
+ 159 00a4 0246     		mov	r2, r0
+ 160 00a6 0B46     		mov	r3, r1
+ 161 00a8 0020     		movs	r0, #0
+ 162 00aa 3849     		ldr	r1, .L2+8
+ 163 00ac FFF7FEFF 		bl	__aeabi_dsub
+ 164              	.LVL24:
+ 155:subsystems/ins/vf_float.c ****   const float P12 = (1. - K1) * vff_P[0][1];
+ 165              		.loc 1 155 0
+ 166 00b0 D4F80490 		ldr	r9, [r4, #4]	@ float
+ 167              	.LVL25:
+ 156:subsystems/ins/vf_float.c ****   const float P13 = (1. - K1) * vff_P[0][2];
+ 157:subsystems/ins/vf_float.c ****   const float P21 = -K2 * vff_P[0][0] + vff_P[1][0];
+ 168              		.loc 1 157 0
+ 169 00b4 08F10048 		add	r8, r8, #-2147483648
+ 170              	.LVL26:
+ 154:subsystems/ins/vf_float.c ****   const float P11 = (1. - K1) * vff_P[0][0];
+ 171              		.loc 1 154 0
+ 172 00b8 CDE90201 		strd	r0, [sp, #8]
+ 173              	.LVL27:
+ 158:subsystems/ins/vf_float.c ****   const float P22 = -K2 * vff_P[0][1] + vff_P[1][1];
+ 174              		.loc 1 158 0
+ 175 00bc 4946     		mov	r1, r9
+ 176 00be 4046     		mov	r0, r8
+ 177              	.LVL28:
+ 178 00c0 FFF7FEFF 		bl	__aeabi_fmul
+ 179              	.LVL29:
+ 180 00c4 2169     		ldr	r1, [r4, #16]	@ float
+ 181 00c6 FFF7FEFF 		bl	__aeabi_fadd
+ 182              	.LVL30:
+ 156:subsystems/ins/vf_float.c ****   const float P13 = (1. - K1) * vff_P[0][2];
+ 183              		.loc 1 156 0
+ 184 00ca A668     		ldr	r6, [r4, #8]	@ float
+ 185              	.LVL31:
+ 186              		.loc 1 158 0
+ 187 00cc 0590     		str	r0, [sp, #20]	@ float
+ 188              	.LVL32:
+ 159:subsystems/ins/vf_float.c ****   const float P23 = -K2 * vff_P[0][2] + vff_P[1][2];
+ 189              		.loc 1 159 0
+ 190 00ce 3146     		mov	r1, r6
+ 191 00d0 4046     		mov	r0, r8
+ 192              	.LVL33:
+ 193 00d2 FFF7FEFF 		bl	__aeabi_fmul
+ 194              	.LVL34:
+ 195 00d6 6169     		ldr	r1, [r4, #20]	@ float
+ 196 00d8 FFF7FEFF 		bl	__aeabi_fadd
+ 197              	.LVL35:
+ 160:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[0][0] + vff_P[2][0];
+ 198              		.loc 1 160 0
+ 199 00dc 07F10047 		add	r7, r7, #-2147483648
+ 200              	.LVL36:
+ 159:subsystems/ins/vf_float.c ****   const float P23 = -K2 * vff_P[0][2] + vff_P[1][2];
+ 201              		.loc 1 159 0
+ 202 00e0 0690     		str	r0, [sp, #24]	@ float
+ 203              	.LVL37:
+ 161:subsystems/ins/vf_float.c ****   const float P32 = -K3 * vff_P[0][1] + vff_P[2][1];
+ 204              		.loc 1 161 0
+ 205 00e2 4946     		mov	r1, r9
+ 206 00e4 3846     		mov	r0, r7
+ 207              	.LVL38:
+ 208 00e6 FFF7FEFF 		bl	__aeabi_fmul
+ 209              	.LVL39:
+ 210 00ea E169     		ldr	r1, [r4, #28]	@ float
+ 211 00ec FFF7FEFF 		bl	__aeabi_fadd
+ 212              	.LVL40:
+ 162:subsystems/ins/vf_float.c ****   const float P33 = -K3 * vff_P[0][2] + vff_P[2][2];
+ 213              		.loc 1 162 0
+ 214 00f0 3146     		mov	r1, r6
+ 161:subsystems/ins/vf_float.c ****   const float P32 = -K3 * vff_P[0][1] + vff_P[2][1];
+ 215              		.loc 1 161 0
+ 216 00f2 0790     		str	r0, [sp, #28]	@ float
+ 217              	.LVL41:
+ 218              		.loc 1 162 0
+ 219 00f4 3846     		mov	r0, r7
+ 220              	.LVL42:
+ 221 00f6 FFF7FEFF 		bl	__aeabi_fmul
+ 222              	.LVL43:
+ 223 00fa 216A     		ldr	r1, [r4, #32]	@ float
+ 224 00fc FFF7FEFF 		bl	__aeabi_fadd
+ 225              	.LVL44:
+ 226 0100 8246     		mov	sl, r0
+ 227              	.LVL45:
+ 154:subsystems/ins/vf_float.c ****   const float P11 = (1. - K1) * vff_P[0][0];
+ 228              		.loc 1 154 0
+ 229 0102 2846     		mov	r0, r5
+ 230              	.LVL46:
+ 231 0104 FFF7FEFF 		bl	__aeabi_f2d
+ 232              	.LVL47:
+ 233 0108 0246     		mov	r2, r0
+ 234 010a 0B46     		mov	r3, r1
+ 235 010c DDE90201 		ldrd	r0, [sp, #8]
+ 236 0110 FFF7FEFF 		bl	__aeabi_dmul
+ 237              	.LVL48:
+ 238 0114 FFF7FEFF 		bl	__aeabi_d2f
+ 239              	.LVL49:
+ 240 0118 2060     		str	r0, [r4, #0]	@ float
+ 155:subsystems/ins/vf_float.c ****   const float P12 = (1. - K1) * vff_P[0][1];
+ 241              		.loc 1 155 0
+ 242 011a 4846     		mov	r0, r9
+ 243 011c FFF7FEFF 		bl	__aeabi_f2d
+ 244              	.LVL50:
+ 245 0120 0246     		mov	r2, r0
+ 246 0122 0B46     		mov	r3, r1
+ 247 0124 DDE90201 		ldrd	r0, [sp, #8]
+ 248 0128 FFF7FEFF 		bl	__aeabi_dmul
+ 249              	.LVL51:
+ 250 012c FFF7FEFF 		bl	__aeabi_d2f
+ 251              	.LVL52:
+ 252 0130 6060     		str	r0, [r4, #4]	@ float
+ 156:subsystems/ins/vf_float.c ****   const float P13 = (1. - K1) * vff_P[0][2];
+ 253              		.loc 1 156 0
+ 254 0132 3046     		mov	r0, r6
+ 255 0134 FFF7FEFF 		bl	__aeabi_f2d
+ 256              	.LVL53:
+ 257 0138 0246     		mov	r2, r0
+ 258 013a 0B46     		mov	r3, r1
+ 259 013c DDE90201 		ldrd	r0, [sp, #8]
+ 260 0140 FFF7FEFF 		bl	__aeabi_dmul
+ 261              	.LVL54:
+ 262 0144 FFF7FEFF 		bl	__aeabi_d2f
+ 263              	.LVL55:
+ 157:subsystems/ins/vf_float.c ****   const float P21 = -K2 * vff_P[0][0] + vff_P[1][0];
+ 264              		.loc 1 157 0
+ 265 0148 2946     		mov	r1, r5
+ 156:subsystems/ins/vf_float.c ****   const float P13 = (1. - K1) * vff_P[0][2];
+ 266              		.loc 1 156 0
+ 267 014a A060     		str	r0, [r4, #8]	@ float
+ 157:subsystems/ins/vf_float.c ****   const float P21 = -K2 * vff_P[0][0] + vff_P[1][0];
+ 268              		.loc 1 157 0
+ 269 014c 4046     		mov	r0, r8
+ 270 014e FFF7FEFF 		bl	__aeabi_fmul
+ 271              	.LVL56:
+ 272 0152 5946     		mov	r1, fp
+ 273 0154 FFF7FEFF 		bl	__aeabi_fadd
+ 274              	.LVL57:
+ 163:subsystems/ins/vf_float.c **** 
+ 164:subsystems/ins/vf_float.c ****   vff_P[0][0] = P11;
+ 165:subsystems/ins/vf_float.c ****   vff_P[0][1] = P12;
+ 166:subsystems/ins/vf_float.c ****   vff_P[0][2] = P13;
+ 167:subsystems/ins/vf_float.c ****   vff_P[1][0] = P21;
+ 168:subsystems/ins/vf_float.c ****   vff_P[1][1] = P22;
+ 275              		.loc 1 168 0
+ 276 0158 0599     		ldr	r1, [sp, #20]	@ float
+ 169:subsystems/ins/vf_float.c ****   vff_P[1][2] = P23;
+ 277              		.loc 1 169 0
+ 278 015a 069B     		ldr	r3, [sp, #24]	@ float
+ 167:subsystems/ins/vf_float.c ****   vff_P[1][0] = P21;
+ 279              		.loc 1 167 0
+ 280 015c E060     		str	r0, [r4, #12]	@ float
+ 168:subsystems/ins/vf_float.c ****   vff_P[1][1] = P22;
+ 281              		.loc 1 168 0
+ 282 015e 2161     		str	r1, [r4, #16]	@ float
+ 160:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[0][0] + vff_P[2][0];
+ 283              		.loc 1 160 0
+ 284 0160 3846     		mov	r0, r7
+ 285 0162 2946     		mov	r1, r5
+ 286              		.loc 1 169 0
+ 287 0164 6361     		str	r3, [r4, #20]	@ float
+ 160:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[0][0] + vff_P[2][0];
+ 288              		.loc 1 160 0
+ 289 0166 FFF7FEFF 		bl	__aeabi_fmul
+ 290              	.LVL58:
+ 291 016a DDF800C0 		ldr	ip, [sp, #0]
+ 292 016e 6146     		mov	r1, ip
+ 293 0170 FFF7FEFF 		bl	__aeabi_fadd
+ 294              	.LVL59:
+ 170:subsystems/ins/vf_float.c ****   vff_P[2][0] = P31;
+ 171:subsystems/ins/vf_float.c ****   vff_P[2][1] = P32;
+ 295              		.loc 1 171 0
+ 296 0174 079A     		ldr	r2, [sp, #28]	@ float
+ 170:subsystems/ins/vf_float.c ****   vff_P[2][0] = P31;
+ 297              		.loc 1 170 0
+ 298 0176 A061     		str	r0, [r4, #24]	@ float
+ 299              		.loc 1 171 0
+ 300 0178 E261     		str	r2, [r4, #28]	@ float
+ 172:subsystems/ins/vf_float.c ****   vff_P[2][2] = P33;
+ 301              		.loc 1 172 0
+ 302 017a C4F820A0 		str	sl, [r4, #32]	@ float
+ 173:subsystems/ins/vf_float.c **** 
+ 174:subsystems/ins/vf_float.c **** }
+ 303              		.loc 1 174 0
+ 304 017e 09B0     		add	sp, sp, #36
+ 305 0180 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 306              	.L3:
+ 307              		.align	2
+ 308              	.L2:
+ 309 0184 00000000 		.word	.LANCHOR0
+ 310 0188 00000000 		.word	.LANCHOR2
+ 311 018c 0000F03F 		.word	1072693248
+ 312 0190 00000000 		.word	.LANCHOR1
+ 313 0194 00000000 		.word	.LANCHOR3
+ 314 0198 00000000 		.word	.LANCHOR4
+ 315              		.cfi_endproc
+ 316              	.LFE2:
+ 318              		.section	.text.vff_init,"ax",%progbits
+ 319              		.align	1
+ 320              		.global	vff_init
+ 321              		.thumb
+ 322              		.thumb_func
+ 324              	vff_init:
+ 325              	.LFB0:
+  69:subsystems/ins/vf_float.c **** void vff_init(float init_z, float init_zdot, float init_bias) {
+ 326              		.loc 1 69 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 0
+ 329              		@ frame_needed = 0, uses_anonymous_args = 0
+ 330              		@ link register save eliminated.
+ 331              	.LVL60:
+  70:subsystems/ins/vf_float.c ****   vff_z    = init_z;
+ 332              		.loc 1 70 0
+ 333 0000 094B     		ldr	r3, .L5
+ 334 0002 1860     		str	r0, [r3, #0]	@ float
+  71:subsystems/ins/vf_float.c ****   vff_zdot = init_zdot;
+ 335              		.loc 1 71 0
+ 336 0004 0948     		ldr	r0, .L5+4
+ 337              	.LVL61:
+  76:subsystems/ins/vf_float.c ****       vff_P[i][j] = 0.;
+ 338              		.loc 1 76 0
+ 339 0006 0A4B     		ldr	r3, .L5+8
+  71:subsystems/ins/vf_float.c ****   vff_zdot = init_zdot;
+ 340              		.loc 1 71 0
+ 341 0008 0160     		str	r1, [r0, #0]	@ float
+  72:subsystems/ins/vf_float.c ****   vff_bias = init_bias;
+ 342              		.loc 1 72 0
+ 343 000a 0A49     		ldr	r1, .L5+12
+ 344              	.LVL62:
+  77:subsystems/ins/vf_float.c ****     vff_P[i][i] = VF_FLOAT_INIT_PXX;
+ 345              		.loc 1 77 0
+ 346 000c 4FF07E50 		mov	r0, #1065353216
+  72:subsystems/ins/vf_float.c ****   vff_bias = init_bias;
+ 347              		.loc 1 72 0
+ 348 0010 0A60     		str	r2, [r1, #0]	@ float
+ 349              	.LVL63:
+  76:subsystems/ins/vf_float.c ****       vff_P[i][j] = 0.;
+ 350              		.loc 1 76 0
+ 351 0012 0022     		movs	r2, #0
+ 352              	.LVL64:
+ 353 0014 5A60     		str	r2, [r3, #4]	@ float
+ 354              	.LVL65:
+ 355 0016 9A60     		str	r2, [r3, #8]	@ float
+ 356              	.LVL66:
+  77:subsystems/ins/vf_float.c ****     vff_P[i][i] = VF_FLOAT_INIT_PXX;
+ 357              		.loc 1 77 0
+ 358 0018 1860     		str	r0, [r3, #0]	@ float
+ 359              	.LVL67:
+  76:subsystems/ins/vf_float.c ****       vff_P[i][j] = 0.;
+ 360              		.loc 1 76 0
+ 361 001a DA60     		str	r2, [r3, #12]	@ float
+ 362              	.LVL68:
+ 363 001c 5A61     		str	r2, [r3, #20]	@ float
+ 364              	.LVL69:
+  77:subsystems/ins/vf_float.c ****     vff_P[i][i] = VF_FLOAT_INIT_PXX;
+ 365              		.loc 1 77 0
+ 366 001e 1861     		str	r0, [r3, #16]	@ float
+ 367              	.LVL70:
+  76:subsystems/ins/vf_float.c ****       vff_P[i][j] = 0.;
+ 368              		.loc 1 76 0
+ 369 0020 9A61     		str	r2, [r3, #24]	@ float
+ 370              	.LVL71:
+ 371 0022 DA61     		str	r2, [r3, #28]	@ float
+ 372              	.LVL72:
+  77:subsystems/ins/vf_float.c ****     vff_P[i][i] = VF_FLOAT_INIT_PXX;
+ 373              		.loc 1 77 0
+ 374 0024 1862     		str	r0, [r3, #32]	@ float
+ 375              	.LVL73:
+ 376 0026 7047     		bx	lr
+ 377              	.L6:
+ 378              		.align	2
+ 379              	.L5:
+ 380 0028 00000000 		.word	.LANCHOR1
+ 381 002c 00000000 		.word	.LANCHOR3
+ 382 0030 00000000 		.word	.LANCHOR2
+ 383 0034 00000000 		.word	.LANCHOR4
+ 384              		.cfi_endproc
+ 385              	.LFE0:
+ 387              		.global	__aeabi_dadd
+ 388              		.section	.text.vff_propagate,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	vff_propagate
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	vff_propagate:
+ 395              	.LFB1:
+ 100:subsystems/ins/vf_float.c **** void vff_propagate(float accel) {
+ 396              		.loc 1 100 0
+ 397              		.cfi_startproc
+ 398              		@ args = 0, pretend = 0, frame = 80
+ 399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400              	.LVL74:
+ 401 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 402              	.LCFI2:
+ 403              		.cfi_def_cfa_offset 36
+ 404              		.cfi_offset 4, -36
+ 405              		.cfi_offset 5, -32
+ 406              		.cfi_offset 6, -28
+ 407              		.cfi_offset 7, -24
+ 408              		.cfi_offset 8, -20
+ 409              		.cfi_offset 9, -16
+ 410              		.cfi_offset 10, -12
+ 411              		.cfi_offset 11, -8
+ 412              		.cfi_offset 14, -4
+ 413 0004 95B0     		sub	sp, sp, #84
+ 414              	.LCFI3:
+ 415              		.cfi_def_cfa_offset 120
+ 102:subsystems/ins/vf_float.c ****   vff_zdotdot = accel + 9.81 - vff_bias;
+ 416              		.loc 1 102 0
+ 417 0006 FFF7FEFF 		bl	__aeabi_f2d
+ 418              	.LVL75:
+ 419 000a 9FA3     		adr	r3, .L8
+ 420 000c D3E90023 		ldrd	r2, [r3]
+ 421 0010 FFF7FEFF 		bl	__aeabi_dadd
+ 422              	.LVL76:
+ 423 0014 A04B     		ldr	r3, .L8+16
+ 424 0016 0446     		mov	r4, r0
+ 425 0018 1868     		ldr	r0, [r3, #0]	@ float
+ 426 001a 0D46     		mov	r5, r1
+ 427 001c FFF7FEFF 		bl	__aeabi_f2d
+ 428              	.LVL77:
+ 429 0020 0246     		mov	r2, r0
+ 430 0022 0B46     		mov	r3, r1
+ 431 0024 2046     		mov	r0, r4
+ 432 0026 2946     		mov	r1, r5
+ 433 0028 FFF7FEFF 		bl	__aeabi_dsub
+ 434              	.LVL78:
+ 435 002c FFF7FEFF 		bl	__aeabi_d2f
+ 436              	.LVL79:
+ 103:subsystems/ins/vf_float.c ****   vff_z = vff_z + DT_VFILTER * vff_zdot;
+ 437              		.loc 1 103 0
+ 438 0030 DFF87482 		ldr	r8, .L8+32
+ 102:subsystems/ins/vf_float.c ****   vff_zdotdot = accel + 9.81 - vff_bias;
+ 439              		.loc 1 102 0
+ 440 0034 994B     		ldr	r3, .L8+20
+ 441 0036 8146     		mov	r9, r0
+ 442 0038 1860     		str	r0, [r3, #0]	@ float
+ 103:subsystems/ins/vf_float.c ****   vff_z = vff_z + DT_VFILTER * vff_zdot;
+ 443              		.loc 1 103 0
+ 444 003a D8F80000 		ldr	r0, [r8, #0]	@ float
+ 445 003e FFF7FEFF 		bl	__aeabi_f2d
+ 446              	.LVL80:
+ 447 0042 DFF868A2 		ldr	sl, .L8+36
+ 448 0046 0446     		mov	r4, r0
+ 449 0048 DAF80000 		ldr	r0, [sl, #0]	@ float
+ 450 004c 0D46     		mov	r5, r1
+ 451 004e FFF7FEFF 		bl	__aeabi_f2d
+ 452              	.LVL81:
+ 453 0052 0022     		movs	r2, #0
+ 454 0054 0646     		mov	r6, r0
+ 455 0056 0F46     		mov	r7, r1
+ 456 0058 2046     		mov	r0, r4
+ 457 005a 2946     		mov	r1, r5
+ 458 005c 904B     		ldr	r3, .L8+24
+ 459 005e FFF7FEFF 		bl	__aeabi_dmul
+ 460              	.LVL82:
+ 461 0062 0246     		mov	r2, r0
+ 462 0064 0B46     		mov	r3, r1
+ 463 0066 3046     		mov	r0, r6
+ 464 0068 3946     		mov	r1, r7
+ 465 006a FFF7FEFF 		bl	__aeabi_dadd
+ 466              	.LVL83:
+ 467 006e FFF7FEFF 		bl	__aeabi_d2f
+ 468              	.LVL84:
+ 469 0072 CAF80000 		str	r0, [sl, #0]	@ float
+ 104:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + DT_VFILTER * vff_zdotdot;
+ 470              		.loc 1 104 0
+ 471 0076 4846     		mov	r0, r9
+ 472 0078 FFF7FEFF 		bl	__aeabi_f2d
+ 473              	.LVL85:
+ 474 007c 0022     		movs	r2, #0
+ 475 007e 884B     		ldr	r3, .L8+24
+ 476 0080 FFF7FEFF 		bl	__aeabi_dmul
+ 477              	.LVL86:
+ 478 0084 0246     		mov	r2, r0
+ 479 0086 0B46     		mov	r3, r1
+ 480 0088 2046     		mov	r0, r4
+ 481 008a 2946     		mov	r1, r5
+ 482 008c FFF7FEFF 		bl	__aeabi_dadd
+ 483              	.LVL87:
+ 484 0090 FFF7FEFF 		bl	__aeabi_d2f
+ 485              	.LVL88:
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 486              		.loc 1 106 0
+ 487 0094 834E     		ldr	r6, .L8+28
+ 104:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + DT_VFILTER * vff_zdotdot;
+ 488              		.loc 1 104 0
+ 489 0096 C8F80000 		str	r0, [r8, #0]	@ float
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 490              		.loc 1 106 0
+ 491 009a 3769     		ldr	r7, [r6, #16]	@ float
+ 492 009c D6F80C80 		ldr	r8, [r6, #12]	@ float
+ 493 00a0 3846     		mov	r0, r7
+ 494 00a2 FFF7FEFF 		bl	__aeabi_f2d
+ 495              	.LVL89:
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 496              		.loc 1 107 0
+ 497 00a6 D6F814B0 		ldr	fp, [r6, #20]	@ float
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 498              		.loc 1 106 0
+ 499 00aa CDE90201 		strd	r0, [sp, #8]
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 500              		.loc 1 107 0
+ 501 00ae 5846     		mov	r0, fp
+ 502 00b0 FFF7FEFF 		bl	__aeabi_f2d
+ 503              	.LVL90:
+ 504 00b4 0022     		movs	r2, #0
+ 505 00b6 7A4B     		ldr	r3, .L8+24
+ 506 00b8 CDE90E01 		strd	r0, [sp, #56]
+ 507 00bc FFF7FEFF 		bl	__aeabi_dmul
+ 508              	.LVL91:
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 509              		.loc 1 109 0
+ 510 00c0 D6F81CC0 		ldr	ip, [r6, #28]	@ float
+ 511 00c4 B369     		ldr	r3, [r6, #24]	@ float
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 512              		.loc 1 107 0
+ 513 00c6 CDE90801 		strd	r0, [sp, #32]
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 514              		.loc 1 109 0
+ 515 00ca 6046     		mov	r0, ip
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 516              		.loc 1 106 0
+ 517 00cc D6F804A0 		ldr	sl, [r6, #4]	@ float
+ 518              	.LVL92:
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 519              		.loc 1 107 0
+ 520 00d0 D6F80890 		ldr	r9, [r6, #8]	@ float
+ 521              	.LVL93:
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 522              		.loc 1 109 0
+ 523 00d4 0593     		str	r3, [sp, #20]	@ float
+ 524 00d6 CDF804C0 		str	ip, [sp, #4]
+ 525 00da FFF7FEFF 		bl	__aeabi_f2d
+ 526              	.LVL94:
+ 527 00de 0022     		movs	r2, #0
+ 528 00e0 6F4B     		ldr	r3, .L8+24
+ 529 00e2 CDE91001 		strd	r0, [sp, #64]
+ 530 00e6 FFF7FEFF 		bl	__aeabi_dmul
+ 531              	.LVL95:
+ 110:subsystems/ins/vf_float.c ****   const float FPF11 = vff_P[1][1] + DT_VFILTER * (-vff_P[2][1] - vff_P[1][2] + DT_VFILTER * vff_P[2
+ 532              		.loc 1 110 0
+ 533 00ea 346A     		ldr	r4, [r6, #32]	@ float
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 534              		.loc 1 109 0
+ 535 00ec CDE90A01 		strd	r0, [sp, #40]
+ 536              	.LVL96:
+ 110:subsystems/ins/vf_float.c ****   const float FPF11 = vff_P[1][1] + DT_VFILTER * (-vff_P[2][1] - vff_P[1][2] + DT_VFILTER * vff_P[2
+ 537              		.loc 1 110 0
+ 538 00f0 2046     		mov	r0, r4
+ 539              	.LVL97:
+ 540 00f2 FFF7FEFF 		bl	__aeabi_f2d
+ 541              	.LVL98:
+ 542 00f6 CDE90601 		strd	r0, [sp, #24]
+ 543              	.LVL99:
+ 111:subsystems/ins/vf_float.c ****   const float FPF12 = vff_P[1][2] + DT_VFILTER * (-vff_P[2][2] );
+ 544              		.loc 1 111 0
+ 545 00fa 04F10040 		add	r0, r4, #-2147483648
+ 546              	.LVL100:
+ 547 00fe FFF7FEFF 		bl	__aeabi_f2d
+ 548              	.LVL101:
+ 549 0102 0022     		movs	r2, #0
+ 550 0104 664B     		ldr	r3, .L8+24
+ 551 0106 FFF7FEFF 		bl	__aeabi_dmul
+ 552              	.LVL102:
+ 553 010a CDE90C01 		strd	r0, [sp, #48]
+ 554              	.LVL103:
+ 106:subsystems/ins/vf_float.c ****   const float FPF00 = vff_P[0][0] + DT_VFILTER * ( vff_P[1][0] + vff_P[0][1] + DT_VFILTER * vff_P[1
+ 555              		.loc 1 106 0
+ 556 010e 3068     		ldr	r0, [r6, #0]	@ float
+ 557              	.LVL104:
+ 558 0110 FFF7FEFF 		bl	__aeabi_f2d
+ 559              	.LVL105:
+ 560 0114 CDE91201 		strd	r0, [sp, #72]
+ 561 0118 5146     		mov	r1, sl
+ 562 011a 4046     		mov	r0, r8
+ 563 011c FFF7FEFF 		bl	__aeabi_fadd
+ 564              	.LVL106:
+ 565 0120 FFF7FEFF 		bl	__aeabi_f2d
+ 566              	.LVL107:
+ 567 0124 0022     		movs	r2, #0
+ 568 0126 0446     		mov	r4, r0
+ 569              	.LVL108:
+ 570 0128 0D46     		mov	r5, r1
+ 571 012a 5D4B     		ldr	r3, .L8+24
+ 572 012c DDE90201 		ldrd	r0, [sp, #8]
+ 573 0130 FFF7FEFF 		bl	__aeabi_dmul
+ 574              	.LVL109:
+ 575 0134 0246     		mov	r2, r0
+ 576 0136 0B46     		mov	r3, r1
+ 577 0138 2046     		mov	r0, r4
+ 578 013a 2946     		mov	r1, r5
+ 579 013c FFF7FEFF 		bl	__aeabi_dadd
+ 580              	.LVL110:
+ 581 0140 0022     		movs	r2, #0
+ 582 0142 574B     		ldr	r3, .L8+24
+ 583 0144 FFF7FEFF 		bl	__aeabi_dmul
+ 584              	.LVL111:
+ 585 0148 0246     		mov	r2, r0
+ 586 014a 0B46     		mov	r3, r1
+ 587 014c DDE91201 		ldrd	r0, [sp, #72]
+ 588 0150 FFF7FEFF 		bl	__aeabi_dadd
+ 589              	.LVL112:
+ 590 0154 FFF7FEFF 		bl	__aeabi_d2f
+ 591              	.LVL113:
+ 116:subsystems/ins/vf_float.c ****   vff_P[0][0] = FPF00 + Qzz;
+ 592              		.loc 1 116 0
+ 593 0158 4FF05651 		mov	r1, #897581056
+ 594 015c FFF7FEFF 		bl	__aeabi_fadd
+ 595              	.LVL114:
+ 596 0160 3060     		str	r0, [r6, #0]	@ float
+ 107:subsystems/ins/vf_float.c ****   const float FPF01 = vff_P[0][1] + DT_VFILTER * ( vff_P[1][1] - vff_P[0][2] - DT_VFILTER * vff_P[1
+ 597              		.loc 1 107 0
+ 598 0162 5046     		mov	r0, sl
+ 599 0164 FFF7FEFF 		bl	__aeabi_f2d
+ 600              	.LVL115:
+ 601 0168 0446     		mov	r4, r0
+ 602 016a 0D46     		mov	r5, r1
+ 603 016c 3846     		mov	r0, r7
+ 604 016e 4946     		mov	r1, r9
+ 605 0170 FFF7FEFF 		bl	__aeabi_fsub
+ 606              	.LVL116:
+ 607 0174 FFF7FEFF 		bl	__aeabi_f2d
+ 608              	.LVL117:
+ 609 0178 DDE90823 		ldrd	r2, [sp, #32]
+ 610 017c FFF7FEFF 		bl	__aeabi_dsub
+ 611              	.LVL118:
+ 612 0180 0022     		movs	r2, #0
+ 613 0182 474B     		ldr	r3, .L8+24
+ 614 0184 FFF7FEFF 		bl	__aeabi_dmul
+ 615              	.LVL119:
+ 616 0188 0246     		mov	r2, r0
+ 617 018a 0B46     		mov	r3, r1
+ 618 018c 2046     		mov	r0, r4
+ 619 018e 2946     		mov	r1, r5
+ 620 0190 FFF7FEFF 		bl	__aeabi_dadd
+ 621              	.LVL120:
+ 622 0194 FFF7FEFF 		bl	__aeabi_d2f
+ 623              	.LVL121:
+ 624 0198 7060     		str	r0, [r6, #4]	@ float
+ 108:subsystems/ins/vf_float.c ****   const float FPF02 = vff_P[0][2] + DT_VFILTER * ( vff_P[1][2] );
+ 625              		.loc 1 108 0
+ 626 019a 4846     		mov	r0, r9
+ 627 019c FFF7FEFF 		bl	__aeabi_f2d
+ 628              	.LVL122:
+ 629 01a0 DDE90823 		ldrd	r2, [sp, #32]
+ 630 01a4 FFF7FEFF 		bl	__aeabi_dadd
+ 631              	.LVL123:
+ 632 01a8 FFF7FEFF 		bl	__aeabi_d2f
+ 633              	.LVL124:
+ 634 01ac B060     		str	r0, [r6, #8]	@ float
+ 109:subsystems/ins/vf_float.c ****   const float FPF10 = vff_P[1][0] + DT_VFILTER * (-vff_P[2][0] + vff_P[1][1] - DT_VFILTER * vff_P[2
+ 635              		.loc 1 109 0
+ 636 01ae 4046     		mov	r0, r8
+ 637 01b0 FFF7FEFF 		bl	__aeabi_f2d
+ 638              	.LVL125:
+ 639 01b4 0446     		mov	r4, r0
+ 640 01b6 0D46     		mov	r5, r1
+ 641 01b8 3846     		mov	r0, r7
+ 642 01ba 0599     		ldr	r1, [sp, #20]	@ float
+ 643 01bc FFF7FEFF 		bl	__aeabi_fsub
+ 644              	.LVL126:
+ 645 01c0 FFF7FEFF 		bl	__aeabi_f2d
+ 646              	.LVL127:
+ 647 01c4 DDE90A23 		ldrd	r2, [sp, #40]
+ 648 01c8 FFF7FEFF 		bl	__aeabi_dsub
+ 649              	.LVL128:
+ 650 01cc 0022     		movs	r2, #0
+ 651 01ce 344B     		ldr	r3, .L8+24
+ 652 01d0 FFF7FEFF 		bl	__aeabi_dmul
+ 653              	.LVL129:
+ 654 01d4 0246     		mov	r2, r0
+ 655 01d6 0B46     		mov	r3, r1
+ 656 01d8 2046     		mov	r0, r4
+ 657 01da 2946     		mov	r1, r5
+ 658 01dc FFF7FEFF 		bl	__aeabi_dadd
+ 659              	.LVL130:
+ 660 01e0 FFF7FEFF 		bl	__aeabi_d2f
+ 661              	.LVL131:
+ 662 01e4 F060     		str	r0, [r6, #12]	@ float
+ 110:subsystems/ins/vf_float.c ****   const float FPF11 = vff_P[1][1] + DT_VFILTER * (-vff_P[2][1] - vff_P[1][2] + DT_VFILTER * vff_P[2
+ 663              		.loc 1 110 0
+ 664 01e6 DDF804C0 		ldr	ip, [sp, #4]
+ 665 01ea 5946     		mov	r1, fp
+ 666 01ec 0CF10040 		add	r0, ip, #-2147483648
+ 667 01f0 FFF7FEFF 		bl	__aeabi_fsub
+ 668              	.LVL132:
+ 669 01f4 FFF7FEFF 		bl	__aeabi_f2d
+ 670              	.LVL133:
+ 671 01f8 0022     		movs	r2, #0
+ 672 01fa 0446     		mov	r4, r0
+ 673 01fc 0D46     		mov	r5, r1
+ 674 01fe 284B     		ldr	r3, .L8+24
+ 675 0200 DDE90601 		ldrd	r0, [sp, #24]
+ 676 0204 FFF7FEFF 		bl	__aeabi_dmul
+ 677              	.LVL134:
+ 678 0208 0246     		mov	r2, r0
+ 679 020a 0B46     		mov	r3, r1
+ 680 020c 2046     		mov	r0, r4
+ 681 020e 2946     		mov	r1, r5
+ 682 0210 FFF7FEFF 		bl	__aeabi_dadd
+ 683              	.LVL135:
+ 684 0214 0022     		movs	r2, #0
+ 685 0216 224B     		ldr	r3, .L8+24
+ 686 0218 FFF7FEFF 		bl	__aeabi_dmul
+ 687              	.LVL136:
+ 688 021c 0246     		mov	r2, r0
+ 689 021e 0B46     		mov	r3, r1
+ 690 0220 DDE90201 		ldrd	r0, [sp, #8]
+ 691 0224 FFF7FEFF 		bl	__aeabi_dadd
+ 692              	.LVL137:
+ 693 0228 FFF7FEFF 		bl	__aeabi_d2f
+ 694              	.LVL138:
+ 120:subsystems/ins/vf_float.c ****   vff_P[1][1] = FPF11 + Qzdotzdot;
+ 695              		.loc 1 120 0
+ 696 022c 4FF06A51 		mov	r1, #981467136
+ 697 0230 FFF7FEFF 		bl	__aeabi_fadd
+ 698              	.LVL139:
+ 111:subsystems/ins/vf_float.c ****   const float FPF12 = vff_P[1][2] + DT_VFILTER * (-vff_P[2][2] );
+ 699              		.loc 1 111 0
+ 700 0234 DDE90C23 		ldrd	r2, [sp, #48]
+ 120:subsystems/ins/vf_float.c ****   vff_P[1][1] = FPF11 + Qzdotzdot;
+ 701              		.loc 1 120 0
+ 702 0238 3061     		str	r0, [r6, #16]	@ float
+ 111:subsystems/ins/vf_float.c ****   const float FPF12 = vff_P[1][2] + DT_VFILTER * (-vff_P[2][2] );
+ 703              		.loc 1 111 0
+ 704 023a DDE90E01 		ldrd	r0, [sp, #56]
+ 705 023e FFF7FEFF 		bl	__aeabi_dadd
+ 706              	.LVL140:
+ 707 0242 FFF7FEFF 		bl	__aeabi_d2f
+ 708              	.LVL141:
+ 709 0246 7061     		str	r0, [r6, #20]	@ float
+ 112:subsystems/ins/vf_float.c ****   const float FPF20 = vff_P[2][0] + DT_VFILTER * ( vff_P[2][1] );
+ 710              		.loc 1 112 0
+ 711 0248 0598     		ldr	r0, [sp, #20]	@ float
+ 712 024a FFF7FEFF 		bl	__aeabi_f2d
+ 713              	.LVL142:
+ 714 024e DDE90A23 		ldrd	r2, [sp, #40]
+ 715 0252 FFF7FEFF 		bl	__aeabi_dadd
+ 716              	.LVL143:
+ 717 0256 FFF7FEFF 		bl	__aeabi_d2f
+ 718              	.LVL144:
+ 113:subsystems/ins/vf_float.c ****   const float FPF21 = vff_P[2][1] + DT_VFILTER * (-vff_P[2][2] );
+ 719              		.loc 1 113 0
+ 720 025a DDE90C23 		ldrd	r2, [sp, #48]
+ 112:subsystems/ins/vf_float.c ****   const float FPF20 = vff_P[2][0] + DT_VFILTER * ( vff_P[2][1] );
+ 721              		.loc 1 112 0
+ 722 025e B061     		str	r0, [r6, #24]	@ float
+ 113:subsystems/ins/vf_float.c ****   const float FPF21 = vff_P[2][1] + DT_VFILTER * (-vff_P[2][2] );
+ 723              		.loc 1 113 0
+ 724 0260 DDE91001 		ldrd	r0, [sp, #64]
+ 725 0264 FFF7FEFF 		bl	__aeabi_dadd
+ 726              	.LVL145:
+ 727 0268 FFF7FEFF 		bl	__aeabi_d2f
+ 728              	.LVL146:
+ 124:subsystems/ins/vf_float.c ****   vff_P[2][2] = FPF22 + Qbiasbias;
+ 729              		.loc 1 124 0
+ 730 026c 08A3     		adr	r3, .L8+8
+ 731 026e D3E90023 		ldrd	r2, [r3]
+ 113:subsystems/ins/vf_float.c ****   const float FPF21 = vff_P[2][1] + DT_VFILTER * (-vff_P[2][2] );
+ 732              		.loc 1 113 0
+ 733 0272 F061     		str	r0, [r6, #28]	@ float
+ 124:subsystems/ins/vf_float.c ****   vff_P[2][2] = FPF22 + Qbiasbias;
+ 734              		.loc 1 124 0
+ 735 0274 DDE90601 		ldrd	r0, [sp, #24]
+ 736 0278 FFF7FEFF 		bl	__aeabi_dadd
+ 737              	.LVL147:
+ 738 027c FFF7FEFF 		bl	__aeabi_d2f
+ 739              	.LVL148:
+ 740 0280 3062     		str	r0, [r6, #32]	@ float
+ 126:subsystems/ins/vf_float.c **** }
+ 741              		.loc 1 126 0
+ 742 0282 15B0     		add	sp, sp, #84
+ 743 0284 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 744              	.L9:
+ 745              		.align	3
+ 746              	.L8:
+ 747 0288 1F85EB51 		.word	1374389535
+ 748 028c B89E2340 		.word	1076076216
+ 749 0290 48AFBC9A 		.word	2596056904
+ 750 0294 F2D77A3E 		.word	1048238066
+ 751 0298 00000000 		.word	.LANCHOR4
+ 752 029c 00000000 		.word	.LANCHOR5
+ 753 02a0 0000603F 		.word	1063256064
+ 754 02a4 00000000 		.word	.LANCHOR2
+ 755 02a8 00000000 		.word	.LANCHOR3
+ 756 02ac 00000000 		.word	.LANCHOR1
+ 757              		.cfi_endproc
+ 758              	.LFE1:
+ 760              		.section	.text.vff_update,"ax",%progbits
+ 761              		.align	1
+ 762              		.global	vff_update
+ 763              		.thumb
+ 764              		.thumb_func
+ 766              	vff_update:
+ 767              	.LFB3:
+ 175:subsystems/ins/vf_float.c **** 
+ 176:subsystems/ins/vf_float.c **** void vff_update(float z_meas) {
+ 768              		.loc 1 176 0
+ 769              		.cfi_startproc
+ 770              		@ args = 0, pretend = 0, frame = 0
+ 771              		@ frame_needed = 0, uses_anonymous_args = 0
+ 772              		@ link register save eliminated.
+ 773              	.LVL149:
+ 177:subsystems/ins/vf_float.c ****   update_z_conf(z_meas, VF_FLOAT_MEAS_NOISE);
+ 774              		.loc 1 177 0
+ 775 0000 4FF07E51 		mov	r1, #1065353216
+ 178:subsystems/ins/vf_float.c **** }
+ 776              		.loc 1 178 0
+ 177:subsystems/ins/vf_float.c ****   update_z_conf(z_meas, VF_FLOAT_MEAS_NOISE);
+ 777              		.loc 1 177 0
+ 778 0004 FFF7FEBF 		b	update_z_conf
+ 779              	.LVL150:
+ 780              		.cfi_endproc
+ 781              	.LFE3:
+ 783              		.section	.text.vff_update_z_conf,"ax",%progbits
+ 784              		.align	1
+ 785              		.global	vff_update_z_conf
+ 786              		.thumb
+ 787              		.thumb_func
+ 789              	vff_update_z_conf:
+ 790              	.LFB4:
+ 179:subsystems/ins/vf_float.c **** 
+ 180:subsystems/ins/vf_float.c **** void vff_update_z_conf(float z_meas, float conf) {
+ 791              		.loc 1 180 0
+ 792              		.cfi_startproc
+ 793              		@ args = 0, pretend = 0, frame = 0
+ 794              		@ frame_needed = 0, uses_anonymous_args = 0
+ 795              		@ link register save eliminated.
+ 796              	.LVL151:
+ 181:subsystems/ins/vf_float.c ****   update_z_conf(z_meas, conf);
+ 182:subsystems/ins/vf_float.c **** }
+ 797              		.loc 1 182 0
+ 181:subsystems/ins/vf_float.c ****   update_z_conf(z_meas, conf);
+ 798              		.loc 1 181 0
+ 799 0000 FFF7FEBF 		b	update_z_conf
+ 800              	.LVL152:
+ 801              		.cfi_endproc
+ 802              	.LFE4:
+ 804              		.section	.text.vff_update_vz_conf,"ax",%progbits
+ 805              		.align	1
+ 806              		.global	vff_update_vz_conf
+ 807              		.thumb
+ 808              		.thumb_func
+ 810              	vff_update_vz_conf:
+ 811              	.LFB6:
+ 183:subsystems/ins/vf_float.c **** 
+ 184:subsystems/ins/vf_float.c **** /*
+ 185:subsystems/ins/vf_float.c ****   H = [0 1 0];
+ 186:subsystems/ins/vf_float.c ****   R = 0.1;
+ 187:subsystems/ins/vf_float.c ****   // state residual
+ 188:subsystems/ins/vf_float.c ****   yd = vz - H * Xm;
+ 189:subsystems/ins/vf_float.c ****   // covariance residual
+ 190:subsystems/ins/vf_float.c ****   S = H*Pm*H' + R;
+ 191:subsystems/ins/vf_float.c ****   // kalman gain
+ 192:subsystems/ins/vf_float.c ****   K = Pm*H'*inv(S);
+ 193:subsystems/ins/vf_float.c ****   // update state
+ 194:subsystems/ins/vf_float.c ****   Xp = Xm + K*yd;
+ 195:subsystems/ins/vf_float.c ****   // update covariance
+ 196:subsystems/ins/vf_float.c ****   Pp = Pm - K*H*Pm;
+ 197:subsystems/ins/vf_float.c **** */
+ 198:subsystems/ins/vf_float.c **** static inline void update_vz_conf(float vz, float conf) {
+ 199:subsystems/ins/vf_float.c ****   const float yd = vz - vff_zdot;
+ 200:subsystems/ins/vf_float.c ****   const float S = vff_P[1][1] + conf;
+ 201:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][1] * 1/S;
+ 202:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][1] * 1/S;
+ 203:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][1] * 1/S;
+ 204:subsystems/ins/vf_float.c **** 
+ 205:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * yd;
+ 206:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * yd;
+ 207:subsystems/ins/vf_float.c ****   vff_bias = vff_bias + K3 * yd;
+ 208:subsystems/ins/vf_float.c **** 
+ 209:subsystems/ins/vf_float.c ****   const float P11 = -K1 * vff_P[1][0] + vff_P[0][0];
+ 210:subsystems/ins/vf_float.c ****   const float P12 = -K1 * vff_P[1][1] + vff_P[0][1];
+ 211:subsystems/ins/vf_float.c ****   const float P13 = -K1 * vff_P[1][2] + vff_P[0][2];
+ 212:subsystems/ins/vf_float.c ****   const float P21 = (1. - K2) * vff_P[1][0];
+ 213:subsystems/ins/vf_float.c ****   const float P22 = (1. - K2) * vff_P[1][1];
+ 214:subsystems/ins/vf_float.c ****   const float P23 = (1. - K2) * vff_P[1][2];
+ 215:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[1][0] + vff_P[2][0];
+ 216:subsystems/ins/vf_float.c ****   const float P32 = -K3 * vff_P[1][1] + vff_P[2][1];
+ 217:subsystems/ins/vf_float.c ****   const float P33 = -K3 * vff_P[1][2] + vff_P[2][2];
+ 218:subsystems/ins/vf_float.c **** 
+ 219:subsystems/ins/vf_float.c ****   vff_P[0][0] = P11;
+ 220:subsystems/ins/vf_float.c ****   vff_P[0][1] = P12;
+ 221:subsystems/ins/vf_float.c ****   vff_P[0][2] = P13;
+ 222:subsystems/ins/vf_float.c ****   vff_P[1][0] = P21;
+ 223:subsystems/ins/vf_float.c ****   vff_P[1][1] = P22;
+ 224:subsystems/ins/vf_float.c ****   vff_P[1][2] = P23;
+ 225:subsystems/ins/vf_float.c ****   vff_P[2][0] = P31;
+ 226:subsystems/ins/vf_float.c ****   vff_P[2][1] = P32;
+ 227:subsystems/ins/vf_float.c ****   vff_P[2][2] = P33;
+ 228:subsystems/ins/vf_float.c **** 
+ 229:subsystems/ins/vf_float.c **** }
+ 230:subsystems/ins/vf_float.c **** 
+ 231:subsystems/ins/vf_float.c **** void vff_update_vz_conf(float vz_meas, float conf) {
+ 812              		.loc 1 231 0
+ 813              		.cfi_startproc
+ 814              		@ args = 0, pretend = 0, frame = 32
+ 815              		@ frame_needed = 0, uses_anonymous_args = 0
+ 816              	.LVL153:
+ 817 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 818              	.LCFI4:
+ 819              		.cfi_def_cfa_offset 36
+ 820              		.cfi_offset 4, -36
+ 821              		.cfi_offset 5, -32
+ 822              		.cfi_offset 6, -28
+ 823              		.cfi_offset 7, -24
+ 824              		.cfi_offset 8, -20
+ 825              		.cfi_offset 9, -16
+ 826              		.cfi_offset 10, -12
+ 827              		.cfi_offset 11, -8
+ 828              		.cfi_offset 14, -4
+ 829              	.LBB4:
+ 830              	.LBB5:
+ 199:subsystems/ins/vf_float.c ****   const float yd = vz - vff_zdot;
+ 831              		.loc 1 199 0
+ 832 0004 5D4B     		ldr	r3, .L13
+ 833              	.LBE5:
+ 834              	.LBE4:
+ 835              		.loc 1 231 0
+ 836 0006 89B0     		sub	sp, sp, #36
+ 837              	.LCFI5:
+ 838              		.cfi_def_cfa_offset 72
+ 839              	.LBB8:
+ 840              	.LBB6:
+ 199:subsystems/ins/vf_float.c ****   const float yd = vz - vff_zdot;
+ 841              		.loc 1 199 0
+ 842 0008 1A68     		ldr	r2, [r3, #0]	@ float
+ 843              	.LBE6:
+ 844              	.LBE8:
+ 845              		.loc 1 231 0
+ 846 000a 0F46     		mov	r7, r1
+ 847              	.LVL154:
+ 848              	.LBB9:
+ 849              	.LBB7:
+ 199:subsystems/ins/vf_float.c ****   const float yd = vz - vff_zdot;
+ 850              		.loc 1 199 0
+ 851 000c 1146     		mov	r1, r2
+ 852              	.LVL155:
+ 853 000e 0392     		str	r2, [sp, #12]
+ 854 0010 0293     		str	r3, [sp, #8]
+ 855 0012 FFF7FEFF 		bl	__aeabi_fsub
+ 856              	.LVL156:
+ 200:subsystems/ins/vf_float.c ****   const float S = vff_P[1][1] + conf;
+ 857              		.loc 1 200 0
+ 858 0016 5A4C     		ldr	r4, .L13+4
+ 199:subsystems/ins/vf_float.c ****   const float yd = vz - vff_zdot;
+ 859              		.loc 1 199 0
+ 860 0018 0646     		mov	r6, r0
+ 861              	.LVL157:
+ 200:subsystems/ins/vf_float.c ****   const float S = vff_P[1][1] + conf;
+ 862              		.loc 1 200 0
+ 863 001a 2569     		ldr	r5, [r4, #16]	@ float
+ 864 001c 3946     		mov	r1, r7
+ 865 001e 2846     		mov	r0, r5
+ 866              	.LVL158:
+ 867 0020 FFF7FEFF 		bl	__aeabi_fadd
+ 868              	.LVL159:
+ 201:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][1] * 1/S;
+ 869              		.loc 1 201 0
+ 870 0024 D4F804B0 		ldr	fp, [r4, #4]	@ float
+ 200:subsystems/ins/vf_float.c ****   const float S = vff_P[1][1] + conf;
+ 871              		.loc 1 200 0
+ 872 0028 0746     		mov	r7, r0
+ 873              	.LVL160:
+ 201:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][1] * 1/S;
+ 874              		.loc 1 201 0
+ 875 002a 3946     		mov	r1, r7
+ 876 002c 5846     		mov	r0, fp
+ 877              	.LVL161:
+ 878 002e FFF7FEFF 		bl	__aeabi_fdiv
+ 879              	.LVL162:
+ 202:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][1] * 1/S;
+ 880              		.loc 1 202 0
+ 881 0032 3946     		mov	r1, r7
+ 201:subsystems/ins/vf_float.c ****   const float K1 = vff_P[0][1] * 1/S;
+ 882              		.loc 1 201 0
+ 883 0034 8146     		mov	r9, r0
+ 884              	.LVL163:
+ 202:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][1] * 1/S;
+ 885              		.loc 1 202 0
+ 886 0036 2846     		mov	r0, r5
+ 887              	.LVL164:
+ 888 0038 FFF7FEFF 		bl	__aeabi_fdiv
+ 889              	.LVL165:
+ 203:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][1] * 1/S;
+ 890              		.loc 1 203 0
+ 891 003c D4F81CC0 		ldr	ip, [r4, #28]	@ float
+ 202:subsystems/ins/vf_float.c ****   const float K2 = vff_P[1][1] * 1/S;
+ 892              		.loc 1 202 0
+ 893 0040 8046     		mov	r8, r0
+ 894              	.LVL166:
+ 203:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][1] * 1/S;
+ 895              		.loc 1 203 0
+ 896 0042 3946     		mov	r1, r7
+ 897 0044 6046     		mov	r0, ip
+ 898              	.LVL167:
+ 899 0046 CDF804C0 		str	ip, [sp, #4]
+ 900 004a FFF7FEFF 		bl	__aeabi_fdiv
+ 901              	.LVL168:
+ 205:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * yd;
+ 902              		.loc 1 205 0
+ 903 004e 3146     		mov	r1, r6
+ 203:subsystems/ins/vf_float.c ****   const float K3 = vff_P[2][1] * 1/S;
+ 904              		.loc 1 203 0
+ 905 0050 0746     		mov	r7, r0
+ 906              	.LVL169:
+ 205:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * yd;
+ 907              		.loc 1 205 0
+ 908 0052 4846     		mov	r0, r9
+ 909              	.LVL170:
+ 910 0054 FFF7FEFF 		bl	__aeabi_fmul
+ 911              	.LVL171:
+ 912 0058 DFF82CA1 		ldr	sl, .L13+12
+ 913 005c 0146     		mov	r1, r0
+ 914 005e DAF80000 		ldr	r0, [sl, #0]	@ float
+ 915 0062 FFF7FEFF 		bl	__aeabi_fadd
+ 916              	.LVL172:
+ 206:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * yd;
+ 917              		.loc 1 206 0
+ 918 0066 3146     		mov	r1, r6
+ 205:subsystems/ins/vf_float.c ****   vff_z    = vff_z    + K1 * yd;
+ 919              		.loc 1 205 0
+ 920 0068 CAF80000 		str	r0, [sl, #0]	@ float
+ 206:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * yd;
+ 921              		.loc 1 206 0
+ 922 006c 4046     		mov	r0, r8
+ 923 006e FFF7FEFF 		bl	__aeabi_fmul
+ 924              	.LVL173:
+ 925 0072 0146     		mov	r1, r0
+ 926 0074 0398     		ldr	r0, [sp, #12]
+ 927 0076 FFF7FEFF 		bl	__aeabi_fadd
+ 928              	.LVL174:
+ 929 007a 0299     		ldr	r1, [sp, #8]
+ 207:subsystems/ins/vf_float.c ****   vff_bias = vff_bias + K3 * yd;
+ 930              		.loc 1 207 0
+ 931 007c DFF80CA1 		ldr	sl, .L13+16
+ 206:subsystems/ins/vf_float.c ****   vff_zdot = vff_zdot + K2 * yd;
+ 932              		.loc 1 206 0
+ 933 0080 0860     		str	r0, [r1, #0]	@ float
+ 207:subsystems/ins/vf_float.c ****   vff_bias = vff_bias + K3 * yd;
+ 934              		.loc 1 207 0
+ 935 0082 3146     		mov	r1, r6
+ 936 0084 3846     		mov	r0, r7
+ 937 0086 FFF7FEFF 		bl	__aeabi_fmul
+ 938              	.LVL175:
+ 939 008a 0146     		mov	r1, r0
+ 940 008c DAF80000 		ldr	r0, [sl, #0]	@ float
+ 941 0090 FFF7FEFF 		bl	__aeabi_fadd
+ 942              	.LVL176:
+ 943 0094 CAF80000 		str	r0, [sl, #0]	@ float
+ 211:subsystems/ins/vf_float.c ****   const float P13 = -K1 * vff_P[1][2] + vff_P[0][2];
+ 944              		.loc 1 211 0
+ 945 0098 D4F814A0 		ldr	sl, [r4, #20]	@ float
+ 209:subsystems/ins/vf_float.c ****   const float P11 = -K1 * vff_P[1][0] + vff_P[0][0];
+ 946              		.loc 1 209 0
+ 947 009c 09F10049 		add	r9, r9, #-2147483648
+ 948              	.LVL177:
+ 211:subsystems/ins/vf_float.c ****   const float P13 = -K1 * vff_P[1][2] + vff_P[0][2];
+ 949              		.loc 1 211 0
+ 950 00a0 5146     		mov	r1, sl
+ 951 00a2 4846     		mov	r0, r9
+ 952 00a4 FFF7FEFF 		bl	__aeabi_fmul
+ 953              	.LVL178:
+ 954 00a8 A168     		ldr	r1, [r4, #8]	@ float
+ 955 00aa FFF7FEFF 		bl	__aeabi_fadd
+ 956              	.LVL179:
+ 957 00ae 0690     		str	r0, [sp, #24]	@ float
+ 212:subsystems/ins/vf_float.c ****   const float P21 = (1. - K2) * vff_P[1][0];
+ 958              		.loc 1 212 0
+ 959 00b0 4046     		mov	r0, r8
+ 960 00b2 FFF7FEFF 		bl	__aeabi_f2d
+ 961              	.LVL180:
+ 962 00b6 0246     		mov	r2, r0
+ 963 00b8 0B46     		mov	r3, r1
+ 964 00ba 0020     		movs	r0, #0
+ 965 00bc 3149     		ldr	r1, .L13+8
+ 966 00be FFF7FEFF 		bl	__aeabi_dsub
+ 967              	.LVL181:
+ 209:subsystems/ins/vf_float.c ****   const float P11 = -K1 * vff_P[1][0] + vff_P[0][0];
+ 968              		.loc 1 209 0
+ 969 00c2 E668     		ldr	r6, [r4, #12]	@ float
+ 970              	.LVL182:
+ 215:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[1][0] + vff_P[2][0];
+ 971              		.loc 1 215 0
+ 972 00c4 07F10047 		add	r7, r7, #-2147483648
+ 973              	.LVL183:
+ 212:subsystems/ins/vf_float.c ****   const float P21 = (1. - K2) * vff_P[1][0];
+ 974              		.loc 1 212 0
+ 975 00c8 CDE90401 		strd	r0, [sp, #16]
+ 976              	.LVL184:
+ 215:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[1][0] + vff_P[2][0];
+ 977              		.loc 1 215 0
+ 978 00cc 3146     		mov	r1, r6
+ 979 00ce 3846     		mov	r0, r7
+ 980              	.LVL185:
+ 981 00d0 FFF7FEFF 		bl	__aeabi_fmul
+ 982              	.LVL186:
+ 983 00d4 A169     		ldr	r1, [r4, #24]	@ float
+ 984 00d6 FFF7FEFF 		bl	__aeabi_fadd
+ 985              	.LVL187:
+ 217:subsystems/ins/vf_float.c ****   const float P33 = -K3 * vff_P[1][2] + vff_P[2][2];
+ 986              		.loc 1 217 0
+ 987 00da 5146     		mov	r1, sl
+ 215:subsystems/ins/vf_float.c ****   const float P31 = -K3 * vff_P[1][0] + vff_P[2][0];
+ 988              		.loc 1 215 0
+ 989 00dc 0790     		str	r0, [sp, #28]	@ float
+ 990              	.LVL188:
+ 217:subsystems/ins/vf_float.c ****   const float P33 = -K3 * vff_P[1][2] + vff_P[2][2];
+ 991              		.loc 1 217 0
+ 992 00de 3846     		mov	r0, r7
+ 993              	.LVL189:
+ 994 00e0 FFF7FEFF 		bl	__aeabi_fmul
+ 995              	.LVL190:
+ 996 00e4 216A     		ldr	r1, [r4, #32]	@ float
+ 997 00e6 FFF7FEFF 		bl	__aeabi_fadd
+ 998              	.LVL191:
+ 209:subsystems/ins/vf_float.c ****   const float P11 = -K1 * vff_P[1][0] + vff_P[0][0];
+ 999              		.loc 1 209 0
+ 1000 00ea 3146     		mov	r1, r6
+ 217:subsystems/ins/vf_float.c ****   const float P33 = -K3 * vff_P[1][2] + vff_P[2][2];
+ 1001              		.loc 1 217 0
+ 1002 00ec 8046     		mov	r8, r0
+ 1003              	.LVL192:
+ 209:subsystems/ins/vf_float.c ****   const float P11 = -K1 * vff_P[1][0] + vff_P[0][0];
+ 1004              		.loc 1 209 0
+ 1005 00ee 4846     		mov	r0, r9
+ 1006              	.LVL193:
+ 1007 00f0 FFF7FEFF 		bl	__aeabi_fmul
+ 1008              	.LVL194:
+ 1009 00f4 2168     		ldr	r1, [r4, #0]	@ float
+ 1010              	.LVL195:
+ 1011 00f6 FFF7FEFF 		bl	__aeabi_fadd
+ 1012              	.LVL196:
+ 210:subsystems/ins/vf_float.c ****   const float P12 = -K1 * vff_P[1][1] + vff_P[0][1];
+ 1013              		.loc 1 210 0
+ 1014 00fa 2946     		mov	r1, r5
+ 219:subsystems/ins/vf_float.c ****   vff_P[0][0] = P11;
+ 1015              		.loc 1 219 0
+ 1016 00fc 2060     		str	r0, [r4, #0]	@ float
+ 210:subsystems/ins/vf_float.c ****   const float P12 = -K1 * vff_P[1][1] + vff_P[0][1];
+ 1017              		.loc 1 210 0
+ 1018 00fe 4846     		mov	r0, r9
+ 1019 0100 FFF7FEFF 		bl	__aeabi_fmul
+ 1020              	.LVL197:
+ 1021 0104 5946     		mov	r1, fp
+ 1022 0106 FFF7FEFF 		bl	__aeabi_fadd
+ 1023              	.LVL198:
+ 221:subsystems/ins/vf_float.c ****   vff_P[0][2] = P13;
+ 1024              		.loc 1 221 0
+ 1025 010a 069B     		ldr	r3, [sp, #24]	@ float
+ 220:subsystems/ins/vf_float.c ****   vff_P[0][1] = P12;
+ 1026              		.loc 1 220 0
+ 1027 010c 6060     		str	r0, [r4, #4]	@ float
+ 212:subsystems/ins/vf_float.c ****   const float P21 = (1. - K2) * vff_P[1][0];
+ 1028              		.loc 1 212 0
+ 1029 010e 3046     		mov	r0, r6
+ 221:subsystems/ins/vf_float.c ****   vff_P[0][2] = P13;
+ 1030              		.loc 1 221 0
+ 1031 0110 A360     		str	r3, [r4, #8]	@ float
+ 212:subsystems/ins/vf_float.c ****   const float P21 = (1. - K2) * vff_P[1][0];
+ 1032              		.loc 1 212 0
+ 1033 0112 FFF7FEFF 		bl	__aeabi_f2d
+ 1034              	.LVL199:
+ 1035 0116 0246     		mov	r2, r0
+ 1036 0118 0B46     		mov	r3, r1
+ 1037 011a DDE90401 		ldrd	r0, [sp, #16]
+ 1038 011e FFF7FEFF 		bl	__aeabi_dmul
+ 1039              	.LVL200:
+ 1040 0122 FFF7FEFF 		bl	__aeabi_d2f
+ 1041              	.LVL201:
+ 1042 0126 E060     		str	r0, [r4, #12]	@ float
+ 213:subsystems/ins/vf_float.c ****   const float P22 = (1. - K2) * vff_P[1][1];
+ 1043              		.loc 1 213 0
+ 1044 0128 2846     		mov	r0, r5
+ 1045 012a FFF7FEFF 		bl	__aeabi_f2d
+ 1046              	.LVL202:
+ 1047 012e 0246     		mov	r2, r0
+ 1048 0130 0B46     		mov	r3, r1
+ 1049 0132 DDE90401 		ldrd	r0, [sp, #16]
+ 1050 0136 FFF7FEFF 		bl	__aeabi_dmul
+ 1051              	.LVL203:
+ 1052 013a FFF7FEFF 		bl	__aeabi_d2f
+ 1053              	.LVL204:
+ 1054 013e 2061     		str	r0, [r4, #16]	@ float
+ 214:subsystems/ins/vf_float.c ****   const float P23 = (1. - K2) * vff_P[1][2];
+ 1055              		.loc 1 214 0
+ 1056 0140 5046     		mov	r0, sl
+ 1057 0142 FFF7FEFF 		bl	__aeabi_f2d
+ 1058              	.LVL205:
+ 1059 0146 0B46     		mov	r3, r1
+ 1060 0148 0246     		mov	r2, r0
+ 1061 014a DDE90401 		ldrd	r0, [sp, #16]
+ 1062 014e FFF7FEFF 		bl	__aeabi_dmul
+ 1063              	.LVL206:
+ 1064 0152 FFF7FEFF 		bl	__aeabi_d2f
+ 1065              	.LVL207:
+ 225:subsystems/ins/vf_float.c ****   vff_P[2][0] = P31;
+ 1066              		.loc 1 225 0
+ 1067 0156 079A     		ldr	r2, [sp, #28]	@ float
+ 214:subsystems/ins/vf_float.c ****   const float P23 = (1. - K2) * vff_P[1][2];
+ 1068              		.loc 1 214 0
+ 1069 0158 6061     		str	r0, [r4, #20]	@ float
+ 216:subsystems/ins/vf_float.c ****   const float P32 = -K3 * vff_P[1][1] + vff_P[2][1];
+ 1070              		.loc 1 216 0
+ 1071 015a 2946     		mov	r1, r5
+ 1072 015c 3846     		mov	r0, r7
+ 225:subsystems/ins/vf_float.c ****   vff_P[2][0] = P31;
+ 1073              		.loc 1 225 0
+ 1074 015e A261     		str	r2, [r4, #24]	@ float
+ 216:subsystems/ins/vf_float.c ****   const float P32 = -K3 * vff_P[1][1] + vff_P[2][1];
+ 1075              		.loc 1 216 0
+ 1076 0160 FFF7FEFF 		bl	__aeabi_fmul
+ 1077              	.LVL208:
+ 1078 0164 DDF804C0 		ldr	ip, [sp, #4]
+ 1079 0168 6146     		mov	r1, ip
+ 1080 016a FFF7FEFF 		bl	__aeabi_fadd
+ 1081              	.LVL209:
+ 227:subsystems/ins/vf_float.c ****   vff_P[2][2] = P33;
+ 1082              		.loc 1 227 0
+ 1083 016e C4F82080 		str	r8, [r4, #32]	@ float
+ 226:subsystems/ins/vf_float.c ****   vff_P[2][1] = P32;
+ 1084              		.loc 1 226 0
+ 1085 0172 E061     		str	r0, [r4, #28]	@ float
+ 1086              	.LBE7:
+ 1087              	.LBE9:
+ 232:subsystems/ins/vf_float.c ****   update_vz_conf(vz_meas, conf);
+ 233:subsystems/ins/vf_float.c **** }
+ 1088              		.loc 1 233 0
+ 1089 0174 09B0     		add	sp, sp, #36
+ 1090 0176 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 1091              	.L14:
+ 1092 017a 00BF     		.align	2
+ 1093              	.L13:
+ 1094 017c 00000000 		.word	.LANCHOR3
+ 1095 0180 00000000 		.word	.LANCHOR2
+ 1096 0184 0000F03F 		.word	1072693248
+ 1097 0188 00000000 		.word	.LANCHOR1
+ 1098 018c 00000000 		.word	.LANCHOR4
+ 1099              		.cfi_endproc
+ 1100              	.LFE6:
+ 1102              		.section	.text.vff_realign,"ax",%progbits
+ 1103              		.align	1
+ 1104              		.global	vff_realign
+ 1105              		.thumb
+ 1106              		.thumb_func
+ 1108              	vff_realign:
+ 1109              	.LFB7:
+ 234:subsystems/ins/vf_float.c **** 
+ 235:subsystems/ins/vf_float.c **** void vff_realign(float z_meas) {
+ 1110              		.loc 1 235 0
+ 1111              		.cfi_startproc
+ 1112              		@ args = 0, pretend = 0, frame = 0
+ 1113              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1114              		@ link register save eliminated.
+ 1115              	.LVL210:
+ 236:subsystems/ins/vf_float.c ****   vff_z = z_meas;
+ 1116              		.loc 1 236 0
+ 1117 0000 024B     		ldr	r3, .L16
+ 237:subsystems/ins/vf_float.c ****   vff_zdot = 0;
+ 1118              		.loc 1 237 0
+ 1119 0002 0022     		movs	r2, #0
+ 236:subsystems/ins/vf_float.c ****   vff_z = z_meas;
+ 1120              		.loc 1 236 0
+ 1121 0004 1860     		str	r0, [r3, #0]	@ float
+ 1122              		.loc 1 237 0
+ 1123 0006 0248     		ldr	r0, .L16+4
+ 1124              	.LVL211:
+ 1125 0008 0260     		str	r2, [r0, #0]	@ float
+ 1126 000a 7047     		bx	lr
+ 1127              	.L17:
+ 1128              		.align	2
+ 1129              	.L16:
+ 1130 000c 00000000 		.word	.LANCHOR1
+ 1131 0010 00000000 		.word	.LANCHOR3
+ 1132              		.cfi_endproc
+ 1133              	.LFE7:
+ 1135              		.global	vff_z_meas
+ 1136              		.global	vff_P
+ 1137              		.global	vff_zdotdot
+ 1138              		.global	vff_zdot
+ 1139              		.global	vff_bias
+ 1140              		.global	vff_z
+ 1141              		.section	.bss.vff_bias,"aw",%nobits
+ 1142              		.align	2
+ 1143              		.set	.LANCHOR4,. + 0
+ 1146              	vff_bias:
+ 1147 0000 00000000 		.space	4
+ 1148              		.section	.bss.vff_P,"aw",%nobits
+ 1149              		.align	2
+ 1150              		.set	.LANCHOR2,. + 0
+ 1153              	vff_P:
+ 1154 0000 00000000 		.space	36
+ 1154      00000000 
+ 1154      00000000 
+ 1154      00000000 
+ 1154      00000000 
+ 1155              		.section	.bss.vff_zdotdot,"aw",%nobits
+ 1156              		.align	2
+ 1157              		.set	.LANCHOR5,. + 0
+ 1160              	vff_zdotdot:
+ 1161 0000 00000000 		.space	4
+ 1162              		.section	.bss.vff_z_meas,"aw",%nobits
+ 1163              		.align	2
+ 1164              		.set	.LANCHOR0,. + 0
+ 1167              	vff_z_meas:
+ 1168 0000 00000000 		.space	4
+ 1169              		.section	.bss.vff_z,"aw",%nobits
+ 1170              		.align	2
+ 1171              		.set	.LANCHOR1,. + 0
+ 1174              	vff_z:
+ 1175 0000 00000000 		.space	4
+ 1176              		.section	.bss.vff_zdot,"aw",%nobits
+ 1177              		.align	2
+ 1178              		.set	.LANCHOR3,. + 0
+ 1181              	vff_zdot:
+ 1182 0000 00000000 		.space	4
+ 1183              		.text
+ 1184              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 vf_float.c
+/var/tmp//ccJWVRrR.s:27     .text.update_z_conf:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:31     .text.update_z_conf:0000000000000000 update_z_conf
+/var/tmp//ccJWVRrR.s:309    .text.update_z_conf:0000000000000184 $d
+/var/tmp//ccJWVRrR.s:319    .text.vff_init:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:324    .text.vff_init:0000000000000000 vff_init
+/var/tmp//ccJWVRrR.s:380    .text.vff_init:0000000000000028 $d
+/var/tmp//ccJWVRrR.s:389    .text.vff_propagate:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:394    .text.vff_propagate:0000000000000000 vff_propagate
+/var/tmp//ccJWVRrR.s:747    .text.vff_propagate:0000000000000288 $d
+/var/tmp//ccJWVRrR.s:761    .text.vff_update:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:766    .text.vff_update:0000000000000000 vff_update
+/var/tmp//ccJWVRrR.s:784    .text.vff_update_z_conf:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:789    .text.vff_update_z_conf:0000000000000000 vff_update_z_conf
+/var/tmp//ccJWVRrR.s:805    .text.vff_update_vz_conf:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:810    .text.vff_update_vz_conf:0000000000000000 vff_update_vz_conf
+/var/tmp//ccJWVRrR.s:1094   .text.vff_update_vz_conf:000000000000017c $d
+/var/tmp//ccJWVRrR.s:1103   .text.vff_realign:0000000000000000 $t
+/var/tmp//ccJWVRrR.s:1108   .text.vff_realign:0000000000000000 vff_realign
+/var/tmp//ccJWVRrR.s:1130   .text.vff_realign:000000000000000c $d
+/var/tmp//ccJWVRrR.s:1167   .bss.vff_z_meas:0000000000000000 vff_z_meas
+/var/tmp//ccJWVRrR.s:1153   .bss.vff_P:0000000000000000 vff_P
+/var/tmp//ccJWVRrR.s:1160   .bss.vff_zdotdot:0000000000000000 vff_zdotdot
+/var/tmp//ccJWVRrR.s:1181   .bss.vff_zdot:0000000000000000 vff_zdot
+/var/tmp//ccJWVRrR.s:1146   .bss.vff_bias:0000000000000000 vff_bias
+/var/tmp//ccJWVRrR.s:1174   .bss.vff_z:0000000000000000 vff_z
+/var/tmp//ccJWVRrR.s:1142   .bss.vff_bias:0000000000000000 $d
+/var/tmp//ccJWVRrR.s:1149   .bss.vff_P:0000000000000000 $d
+/var/tmp//ccJWVRrR.s:1156   .bss.vff_zdotdot:0000000000000000 $d
+/var/tmp//ccJWVRrR.s:1163   .bss.vff_z_meas:0000000000000000 $d
+/var/tmp//ccJWVRrR.s:1170   .bss.vff_z:0000000000000000 $d
+/var/tmp//ccJWVRrR.s:1177   .bss.vff_zdot:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+__aeabi_fsub
+__aeabi_fadd
+__aeabi_fdiv
+__aeabi_fmul
+__aeabi_f2d
+__aeabi_dsub
+__aeabi_dmul
+__aeabi_d2f
+__aeabi_dadd

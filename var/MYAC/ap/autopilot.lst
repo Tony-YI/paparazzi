@@ -1,0 +1,1915 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"autopilot.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.autopilot_periodic,"ax",%progbits
+  19              		.align	1
+  20              		.global	autopilot_periodic
+  21              		.thumb
+  22              		.thumb_func
+  24              	autopilot_periodic:
+  25              	.LFB132:
+  26              		.file 1 "firmwares/rotorcraft/autopilot.c"
+   1:firmwares/rotorcraft/autopilot.c **** /*
+   2:firmwares/rotorcraft/autopilot.c ****  * Copyright (C) 2008-2012 The Paparazzi Team
+   3:firmwares/rotorcraft/autopilot.c ****  *
+   4:firmwares/rotorcraft/autopilot.c ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/autopilot.c ****  *
+   6:firmwares/rotorcraft/autopilot.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/autopilot.c ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/autopilot.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/autopilot.c ****  * any later version.
+  10:firmwares/rotorcraft/autopilot.c ****  *
+  11:firmwares/rotorcraft/autopilot.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/autopilot.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/autopilot.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/autopilot.c ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/autopilot.c ****  *
+  16:firmwares/rotorcraft/autopilot.c ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/autopilot.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/autopilot.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/autopilot.c ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/autopilot.c ****  */
+  21:firmwares/rotorcraft/autopilot.c **** 
+  22:firmwares/rotorcraft/autopilot.c **** /**
+  23:firmwares/rotorcraft/autopilot.c ****  * @file firmwares/rotorcraft/autopilot.c
+  24:firmwares/rotorcraft/autopilot.c ****  *
+  25:firmwares/rotorcraft/autopilot.c ****  * Autopilot.
+  26:firmwares/rotorcraft/autopilot.c ****  *
+  27:firmwares/rotorcraft/autopilot.c ****  */
+  28:firmwares/rotorcraft/autopilot.c **** 
+  29:firmwares/rotorcraft/autopilot.c **** #include "firmwares/rotorcraft/autopilot.h"
+  30:firmwares/rotorcraft/autopilot.c **** 
+  31:firmwares/rotorcraft/autopilot.c **** #include "subsystems/radio_control.h"
+  32:firmwares/rotorcraft/autopilot.c **** #include "subsystems/gps.h"
+  33:firmwares/rotorcraft/autopilot.c **** #include "subsystems/commands.h"
+  34:firmwares/rotorcraft/autopilot.c **** #include "firmwares/rotorcraft/navigation.h"
+  35:firmwares/rotorcraft/autopilot.c **** #include "firmwares/rotorcraft/guidance.h"
+  36:firmwares/rotorcraft/autopilot.c **** #include "firmwares/rotorcraft/stabilization.h"
+  37:firmwares/rotorcraft/autopilot.c **** #include "led.h"
+  38:firmwares/rotorcraft/autopilot.c **** 
+  39:firmwares/rotorcraft/autopilot.c **** uint8_t  autopilot_mode;
+  40:firmwares/rotorcraft/autopilot.c **** uint8_t  autopilot_mode_auto2;
+  41:firmwares/rotorcraft/autopilot.c **** 
+  42:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_in_flight;
+  43:firmwares/rotorcraft/autopilot.c **** uint32_t autopilot_in_flight_counter;
+  44:firmwares/rotorcraft/autopilot.c **** uint16_t autopilot_flight_time;
+  45:firmwares/rotorcraft/autopilot.c **** 
+  46:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_motors_on;
+  47:firmwares/rotorcraft/autopilot.c **** bool_t   kill_throttle;
+  48:firmwares/rotorcraft/autopilot.c **** 
+  49:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_rc;
+  50:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_power_switch;
+  51:firmwares/rotorcraft/autopilot.c **** 
+  52:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_detect_ground;
+  53:firmwares/rotorcraft/autopilot.c **** bool_t   autopilot_detect_ground_once;
+  54:firmwares/rotorcraft/autopilot.c **** 
+  55:firmwares/rotorcraft/autopilot.c **** #define AUTOPILOT_IN_FLIGHT_TIME    40
+  56:firmwares/rotorcraft/autopilot.c **** 
+  57:firmwares/rotorcraft/autopilot.c **** #ifndef AUTOPILOT_DISABLE_AHRS_KILL
+  58:firmwares/rotorcraft/autopilot.c **** #include "subsystems/ahrs.h"
+  59:firmwares/rotorcraft/autopilot.c **** static inline int ahrs_is_aligned(void) {
+  60:firmwares/rotorcraft/autopilot.c ****   return (ahrs.status == AHRS_RUNNING);
+  61:firmwares/rotorcraft/autopilot.c **** }
+  62:firmwares/rotorcraft/autopilot.c **** #else
+  63:firmwares/rotorcraft/autopilot.c **** PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
+  64:firmwares/rotorcraft/autopilot.c **** static inline int ahrs_is_aligned(void) {
+  65:firmwares/rotorcraft/autopilot.c ****   return TRUE;
+  66:firmwares/rotorcraft/autopilot.c **** }
+  67:firmwares/rotorcraft/autopilot.c **** #endif
+  68:firmwares/rotorcraft/autopilot.c **** 
+  69:firmwares/rotorcraft/autopilot.c **** #if USE_KILL_SWITCH_FOR_MOTOR_ARMING
+  70:firmwares/rotorcraft/autopilot.c **** #include "autopilot_arming_switch.h"
+  71:firmwares/rotorcraft/autopilot.c **** #elif USE_THROTTLE_FOR_MOTOR_ARMING
+  72:firmwares/rotorcraft/autopilot.c **** #include "autopilot_arming_throttle.h"
+  73:firmwares/rotorcraft/autopilot.c **** #else
+  74:firmwares/rotorcraft/autopilot.c **** #include "autopilot_arming_yaw.h"
+  75:firmwares/rotorcraft/autopilot.c **** #endif
+  76:firmwares/rotorcraft/autopilot.c **** 
+  77:firmwares/rotorcraft/autopilot.c **** #ifndef MODE_STARTUP
+  78:firmwares/rotorcraft/autopilot.c **** #define MODE_STARTUP AP_MODE_KILL
+  79:firmwares/rotorcraft/autopilot.c **** PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
+  80:firmwares/rotorcraft/autopilot.c **** #endif
+  81:firmwares/rotorcraft/autopilot.c **** 
+  82:firmwares/rotorcraft/autopilot.c **** void autopilot_init(void) {
+  83:firmwares/rotorcraft/autopilot.c ****   /* mode is finally set at end of init if MODE_STARTUP is not KILL */
+  84:firmwares/rotorcraft/autopilot.c ****   autopilot_mode = AP_MODE_KILL;
+  85:firmwares/rotorcraft/autopilot.c ****   autopilot_motors_on = FALSE;
+  86:firmwares/rotorcraft/autopilot.c ****   kill_throttle = ! autopilot_motors_on;
+  87:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight = FALSE;
+  88:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight_counter = 0;
+  89:firmwares/rotorcraft/autopilot.c ****   autopilot_mode_auto2 = MODE_AUTO2;
+  90:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground = FALSE;
+  91:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground_once = FALSE;
+  92:firmwares/rotorcraft/autopilot.c ****   autopilot_flight_time = 0;
+  93:firmwares/rotorcraft/autopilot.c ****   autopilot_rc = TRUE;
+  94:firmwares/rotorcraft/autopilot.c ****   autopilot_power_switch = FALSE;
+  95:firmwares/rotorcraft/autopilot.c **** #ifdef POWER_SWITCH_LED
+  96:firmwares/rotorcraft/autopilot.c ****   LED_ON(POWER_SWITCH_LED); // POWER OFF
+  97:firmwares/rotorcraft/autopilot.c **** #endif
+  98:firmwares/rotorcraft/autopilot.c **** 
+  99:firmwares/rotorcraft/autopilot.c ****   autopilot_arming_init();
+ 100:firmwares/rotorcraft/autopilot.c **** 
+ 101:firmwares/rotorcraft/autopilot.c ****   nav_init();
+ 102:firmwares/rotorcraft/autopilot.c ****   guidance_h_init();
+ 103:firmwares/rotorcraft/autopilot.c ****   guidance_v_init();
+ 104:firmwares/rotorcraft/autopilot.c ****   stabilization_init();
+ 105:firmwares/rotorcraft/autopilot.c **** 
+ 106:firmwares/rotorcraft/autopilot.c ****   /* set startup mode, propagats through to guidance h/v */
+ 107:firmwares/rotorcraft/autopilot.c ****   autopilot_set_mode(MODE_STARTUP);
+ 108:firmwares/rotorcraft/autopilot.c **** }
+ 109:firmwares/rotorcraft/autopilot.c **** 
+ 110:firmwares/rotorcraft/autopilot.c **** 
+ 111:firmwares/rotorcraft/autopilot.c **** static inline void autopilot_check_in_flight_no_rc( bool_t motors_on ) {
+ 112:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 113:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter > 0) {
+ 114:firmwares/rotorcraft/autopilot.c ****       if (stabilization_cmd[COMMAND_THRUST] == 0) {
+ 115:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter--;
+ 116:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == 0) {
+ 117:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = FALSE;
+ 118:firmwares/rotorcraft/autopilot.c ****         }
+ 119:firmwares/rotorcraft/autopilot.c ****       }
+ 120:firmwares/rotorcraft/autopilot.c ****       else {  /* !THROTTLE_STICK_DOWN */
+ 121:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+ 122:firmwares/rotorcraft/autopilot.c ****       }
+ 123:firmwares/rotorcraft/autopilot.c ****     }
+ 124:firmwares/rotorcraft/autopilot.c ****   }
+ 125:firmwares/rotorcraft/autopilot.c ****   else { /* not in flight */
+ 126:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+ 127:firmwares/rotorcraft/autopilot.c ****         motors_on) {
+ 128:firmwares/rotorcraft/autopilot.c ****       if (stabilization_cmd[COMMAND_THRUST] > 0) {
+ 129:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 130:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 131:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = TRUE;
+ 132:firmwares/rotorcraft/autopilot.c ****       }
+ 133:firmwares/rotorcraft/autopilot.c ****       else { /*  THROTTLE_STICK_DOWN */
+ 134:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 135:firmwares/rotorcraft/autopilot.c ****       }
+ 136:firmwares/rotorcraft/autopilot.c ****     }
+ 137:firmwares/rotorcraft/autopilot.c ****   }
+ 138:firmwares/rotorcraft/autopilot.c **** }
+ 139:firmwares/rotorcraft/autopilot.c **** 
+ 140:firmwares/rotorcraft/autopilot.c **** 
+ 141:firmwares/rotorcraft/autopilot.c **** void autopilot_periodic(void) {
+  27              		.loc 1 141 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LBB13:
+ 142:firmwares/rotorcraft/autopilot.c **** 
+ 143:firmwares/rotorcraft/autopilot.c ****   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
+  32              		.loc 1 143 0
+  33 0000 2D4B     		ldr	r3, .L21
+  34              	.LBE13:
+ 141:firmwares/rotorcraft/autopilot.c **** void autopilot_periodic(void) {
+  35              		.loc 1 141 0
+  36 0002 10B5     		push	{r4, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 4, -8
+  40              		.cfi_offset 14, -4
+  41              	.LBB14:
+  42              		.loc 1 143 0
+  43 0004 1A88     		ldrh	r2, [r3, #0]
+  44 0006 501C     		adds	r0, r2, #1
+  45 0008 81B2     		uxth	r1, r0
+  46 000a 1F29     		cmp	r1, #31
+  47 000c 01D8     		bhi	.L2
+  48 000e 1980     		strh	r1, [r3, #0]	@ movhi
+  49 0010 03E0     		b	.L3
+  50              	.L2:
+  51              		.loc 1 143 0 is_stmt 0 discriminator 1
+  52 0012 0022     		movs	r2, #0
+  53 0014 1A80     		strh	r2, [r3, #0]	@ movhi
+  54 0016 FFF7FEFF 		bl	nav_periodic_task
+  55              	.LVL0:
+  56              	.L3:
+  57              	.LBE14:
+ 144:firmwares/rotorcraft/autopilot.c **** #if FAILSAFE_GROUND_DETECT
+ 145:firmwares/rotorcraft/autopilot.c **** INFO("Using FAILSAFE_GROUND_DETECT")
+ 146:firmwares/rotorcraft/autopilot.c ****   if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
+ 147:firmwares/rotorcraft/autopilot.c ****     autopilot_set_mode(AP_MODE_KILL);
+ 148:firmwares/rotorcraft/autopilot.c ****     autopilot_detect_ground = FALSE;
+ 149:firmwares/rotorcraft/autopilot.c ****   }
+ 150:firmwares/rotorcraft/autopilot.c **** #endif
+ 151:firmwares/rotorcraft/autopilot.c **** 
+ 152:firmwares/rotorcraft/autopilot.c ****   /* set failsafe commands, if in FAILSAFE or KILL mode */
+ 153:firmwares/rotorcraft/autopilot.c **** #if !FAILSAFE_GROUND_DETECT
+ 154:firmwares/rotorcraft/autopilot.c ****   if (autopilot_mode == AP_MODE_KILL ||
+  58              		.loc 1 154 0 is_stmt 1
+  59 001a 284B     		ldr	r3, .L21+4
+  60 001c 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+  61 001e 0128     		cmp	r0, #1
+  62 0020 0AD8     		bhi	.L4
+  63              	.LVL1:
+  64              	.LBB15:
+ 155:firmwares/rotorcraft/autopilot.c ****       autopilot_mode == AP_MODE_FAILSAFE) {
+ 156:firmwares/rotorcraft/autopilot.c **** #else
+ 157:firmwares/rotorcraft/autopilot.c ****   if (autopilot_mode == AP_MODE_KILL) {
+ 158:firmwares/rotorcraft/autopilot.c **** #endif
+ 159:firmwares/rotorcraft/autopilot.c ****     SetCommands(commands_failsafe);
+  65              		.loc 1 159 0 discriminator 1
+  66 0022 274A     		ldr	r2, .L21+8
+  67 0024 2748     		ldr	r0, .L21+12
+  68 0026 1188     		ldrh	r1, [r2, #0]
+  69 0028 5388     		ldrh	r3, [r2, #2]
+  70 002a 0180     		strh	r1, [r0, #0]	@ movhi
+  71              	.LVL2:
+  72 002c 9188     		ldrh	r1, [r2, #4]
+  73 002e D288     		ldrh	r2, [r2, #6]
+  74 0030 4380     		strh	r3, [r0, #2]	@ movhi
+  75              	.LVL3:
+  76 0032 8180     		strh	r1, [r0, #4]	@ movhi
+  77              	.LVL4:
+  78 0034 C280     		strh	r2, [r0, #6]	@ movhi
+  79              	.LVL5:
+  80 0036 17E0     		b	.L5
+  81              	.LVL6:
+  82              	.L4:
+  83              	.LBE15:
+ 160:firmwares/rotorcraft/autopilot.c ****   }
+ 161:firmwares/rotorcraft/autopilot.c ****   else {
+ 162:firmwares/rotorcraft/autopilot.c ****     guidance_v_run( autopilot_in_flight );
+  84              		.loc 1 162 0
+  85 0038 234C     		ldr	r4, .L21+16
+  86 003a 2078     		ldrb	r0, [r4, #0]	@ zero_extendqisi2
+  87 003c FFF7FEFF 		bl	guidance_v_run
+  88              	.LVL7:
+ 163:firmwares/rotorcraft/autopilot.c ****     guidance_h_run( autopilot_in_flight );
+  89              		.loc 1 163 0
+  90 0040 2078     		ldrb	r0, [r4, #0]	@ zero_extendqisi2
+  91 0042 FFF7FEFF 		bl	guidance_h_run
+  92              	.LVL8:
+ 164:firmwares/rotorcraft/autopilot.c ****     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
+  93              		.loc 1 164 0
+  94 0046 2178     		ldrb	r1, [r4, #0]	@ zero_extendqisi2
+  95 0048 204B     		ldr	r3, .L21+20
+  96 004a 01B9     		cbnz	r1, .L6
+  97              		.loc 1 164 0 is_stmt 0 discriminator 1
+  98 004c 9960     		str	r1, [r3, #8]
+  99              	.L6:
+ 100              		.loc 1 164 0 discriminator 2
+ 101 004e 204A     		ldr	r2, .L21+24
+ 102 0050 1078     		ldrb	r0, [r2, #0]	@ zero_extendqisi2
+ 103 0052 00B9     		cbnz	r0, .L7
+ 104              		.loc 1 164 0 discriminator 3
+ 105 0054 D860     		str	r0, [r3, #12]
+ 106              	.L7:
+ 107              		.loc 1 164 0 discriminator 4
+ 108 0056 1B4A     		ldr	r2, .L21+12
+ 109 0058 1968     		ldr	r1, [r3, #0]
+ 110 005a 5868     		ldr	r0, [r3, #4]
+ 111 005c 1180     		strh	r1, [r2, #0]	@ movhi
+ 112 005e 9968     		ldr	r1, [r3, #8]
+ 113 0060 DB68     		ldr	r3, [r3, #12]
+ 114 0062 5080     		strh	r0, [r2, #2]	@ movhi
+ 115 0064 9180     		strh	r1, [r2, #4]	@ movhi
+ 116 0066 D380     		strh	r3, [r2, #6]	@ movhi
+ 117              	.L5:
+ 165:firmwares/rotorcraft/autopilot.c ****   }
+ 166:firmwares/rotorcraft/autopilot.c **** 
+ 167:firmwares/rotorcraft/autopilot.c ****   // when we dont have RC, check in flight by looking at throttle
+ 168:firmwares/rotorcraft/autopilot.c ****   if (radio_control.status != RC_OK) {
+ 118              		.loc 1 168 0 is_stmt 1
+ 119 0068 1A48     		ldr	r0, .L21+28
+ 120 006a 0378     		ldrb	r3, [r0, #0]	@ zero_extendqisi2
+ 121 006c 002B     		cmp	r3, #0
+ 122 006e 22D0     		beq	.L1
+ 123              	.LBB16:
+ 124              	.LBB17:
+ 112:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 125              		.loc 1 112 0
+ 126 0070 154A     		ldr	r2, .L21+16
+ 127              	.LBE17:
+ 128              	.LBE16:
+ 169:firmwares/rotorcraft/autopilot.c ****     autopilot_check_in_flight_no_rc(autopilot_motors_on);
+ 129              		.loc 1 169 0
+ 130 0072 174C     		ldr	r4, .L21+24
+ 131              	.LBB20:
+ 132              	.LBB18:
+ 112:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 133              		.loc 1 112 0
+ 134 0074 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
+ 135              	.LBE18:
+ 136              	.LBE20:
+ 137              		.loc 1 169 0
+ 138 0076 2478     		ldrb	r4, [r4, #0]	@ zero_extendqisi2
+ 139              	.LVL9:
+ 140 0078 174B     		ldr	r3, .L21+32
+ 141              	.LBB21:
+ 142              	.LBB19:
+ 112:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 143              		.loc 1 112 0
+ 144 007a 61B1     		cbz	r1, .L10
+ 113:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter > 0) {
+ 145              		.loc 1 113 0
+ 146 007c 1968     		ldr	r1, [r3, #0]
+ 147 007e D1B1     		cbz	r1, .L1
+ 114:firmwares/rotorcraft/autopilot.c ****       if (stabilization_cmd[COMMAND_THRUST] == 0) {
+ 148              		.loc 1 114 0
+ 149 0080 1248     		ldr	r0, .L21+20
+ 150 0082 C068     		ldr	r0, [r0, #12]
+ 151 0084 20B9     		cbnz	r0, .L12
+ 115:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter--;
+ 152              		.loc 1 115 0
+ 153 0086 0139     		subs	r1, r1, #1
+ 154 0088 1960     		str	r1, [r3, #0]
+ 116:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == 0) {
+ 155              		.loc 1 116 0
+ 156 008a A1B9     		cbnz	r1, .L1
+ 117:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = FALSE;
+ 157              		.loc 1 117 0
+ 158 008c 1170     		strb	r1, [r2, #0]
+ 159 008e 10BD     		pop	{r4, pc}
+ 160              	.L12:
+ 121:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+ 161              		.loc 1 121 0
+ 162 0090 2822     		movs	r2, #40
+ 163 0092 1A60     		str	r2, [r3, #0]
+ 164 0094 10BD     		pop	{r4, pc}
+ 165              	.L10:
+ 126:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+ 166              		.loc 1 126 0
+ 167 0096 1868     		ldr	r0, [r3, #0]
+ 168 0098 2728     		cmp	r0, #39
+ 169 009a 0CD8     		bhi	.L1
+ 170 009c 5CB1     		cbz	r4, .L1
+ 128:firmwares/rotorcraft/autopilot.c ****       if (stabilization_cmd[COMMAND_THRUST] > 0) {
+ 171              		.loc 1 128 0
+ 172 009e 0B4C     		ldr	r4, .L21+20
+ 173 00a0 E468     		ldr	r4, [r4, #12]
+ 174 00a2 002C     		cmp	r4, #0
+ 175 00a4 06DD     		ble	.L13
+ 129:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 176              		.loc 1 129 0
+ 177 00a6 411C     		adds	r1, r0, #1
+ 130:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 178              		.loc 1 130 0
+ 179 00a8 2829     		cmp	r1, #40
+ 129:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 180              		.loc 1 129 0
+ 181 00aa 1960     		str	r1, [r3, #0]
+ 130:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 182              		.loc 1 130 0
+ 183 00ac 03D1     		bne	.L1
+ 131:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = TRUE;
+ 184              		.loc 1 131 0
+ 185 00ae 0123     		movs	r3, #1
+ 186 00b0 1370     		strb	r3, [r2, #0]
+ 187 00b2 10BD     		pop	{r4, pc}
+ 188              	.L13:
+ 134:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 189              		.loc 1 134 0
+ 190 00b4 1960     		str	r1, [r3, #0]
+ 191              	.LVL10:
+ 192              	.L1:
+ 193 00b6 10BD     		pop	{r4, pc}
+ 194              	.L22:
+ 195              		.align	2
+ 196              	.L21:
+ 197 00b8 00000000 		.word	.LANCHOR0
+ 198 00bc 00000000 		.word	.LANCHOR1
+ 199 00c0 00000000 		.word	commands_failsafe
+ 200 00c4 00000000 		.word	commands
+ 201 00c8 00000000 		.word	.LANCHOR2
+ 202 00cc 00000000 		.word	stabilization_cmd
+ 203 00d0 00000000 		.word	.LANCHOR3
+ 204 00d4 00000000 		.word	radio_control
+ 205 00d8 00000000 		.word	.LANCHOR4
+ 206              	.LBE19:
+ 207              	.LBE21:
+ 208              		.cfi_endproc
+ 209              	.LFE132:
+ 211              		.section	.text.autopilot_set_motors_on,"ax",%progbits
+ 212              		.align	1
+ 213              		.global	autopilot_set_motors_on
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	autopilot_set_motors_on:
+ 218              	.LFB135:
+ 170:firmwares/rotorcraft/autopilot.c ****   }
+ 171:firmwares/rotorcraft/autopilot.c **** }
+ 172:firmwares/rotorcraft/autopilot.c **** 
+ 173:firmwares/rotorcraft/autopilot.c **** 
+ 174:firmwares/rotorcraft/autopilot.c **** void autopilot_set_mode(uint8_t new_autopilot_mode) {
+ 175:firmwares/rotorcraft/autopilot.c **** 
+ 176:firmwares/rotorcraft/autopilot.c ****   /* force kill mode as long as AHRS is not aligned */
+ 177:firmwares/rotorcraft/autopilot.c ****   if (!ahrs_is_aligned())
+ 178:firmwares/rotorcraft/autopilot.c ****     new_autopilot_mode = AP_MODE_KILL;
+ 179:firmwares/rotorcraft/autopilot.c **** 
+ 180:firmwares/rotorcraft/autopilot.c ****   if (new_autopilot_mode != autopilot_mode) {
+ 181:firmwares/rotorcraft/autopilot.c ****     /* horizontal mode */
+ 182:firmwares/rotorcraft/autopilot.c ****     switch (new_autopilot_mode) {
+ 183:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_FAILSAFE:
+ 184:firmwares/rotorcraft/autopilot.c **** #ifndef KILL_AS_FAILSAFE
+ 185:firmwares/rotorcraft/autopilot.c ****         stabilization_attitude_set_failsafe_setpoint();
+ 186:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+ 187:firmwares/rotorcraft/autopilot.c ****         break;
+ 188:firmwares/rotorcraft/autopilot.c **** #endif
+ 189:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_KILL:
+ 190:firmwares/rotorcraft/autopilot.c ****         autopilot_set_motors_on(FALSE);
+ 191:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight = FALSE;
+ 192:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 193:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+ 194:firmwares/rotorcraft/autopilot.c ****         break;
+ 195:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RC_DIRECT:
+ 196:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+ 197:firmwares/rotorcraft/autopilot.c ****         break;
+ 198:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RATE_DIRECT:
+ 199:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RATE_Z_HOLD:
+ 200:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+ 201:firmwares/rotorcraft/autopilot.c ****         break;
+ 202:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_RC_CLIMB:
+ 203:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_DIRECT:
+ 204:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_CLIMB:
+ 205:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_Z_HOLD:
+ 206:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+ 207:firmwares/rotorcraft/autopilot.c ****         break;
+ 208:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_FORWARD:
+ 209:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+ 210:firmwares/rotorcraft/autopilot.c ****         break;
+ 211:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_CARE_FREE_DIRECT:
+ 212:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
+ 213:firmwares/rotorcraft/autopilot.c ****         break;
+ 214:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_DIRECT:
+ 215:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_CLIMB:
+ 216:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_Z_HOLD:
+ 217:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+ 218:firmwares/rotorcraft/autopilot.c ****         break;
+ 219:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_NAV:
+ 220:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
+ 221:firmwares/rotorcraft/autopilot.c ****         break;
+ 222:firmwares/rotorcraft/autopilot.c ****       default:
+ 223:firmwares/rotorcraft/autopilot.c ****         break;
+ 224:firmwares/rotorcraft/autopilot.c ****     }
+ 225:firmwares/rotorcraft/autopilot.c ****     /* vertical mode */
+ 226:firmwares/rotorcraft/autopilot.c ****     switch (new_autopilot_mode) {
+ 227:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_FAILSAFE:
+ 228:firmwares/rotorcraft/autopilot.c **** #ifndef KILL_AS_FAILSAFE
+ 229:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+ 230:firmwares/rotorcraft/autopilot.c ****         guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
+ 231:firmwares/rotorcraft/autopilot.c ****         break;
+ 232:firmwares/rotorcraft/autopilot.c **** #endif
+ 233:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_KILL:
+ 234:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
+ 235:firmwares/rotorcraft/autopilot.c ****         break;
+ 236:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RC_DIRECT:
+ 237:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RATE_DIRECT:
+ 238:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_DIRECT:
+ 239:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_DIRECT:
+ 240:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_CARE_FREE_DIRECT:
+ 241:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_FORWARD:
+ 242:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
+ 243:firmwares/rotorcraft/autopilot.c ****         break;
+ 244:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RATE_RC_CLIMB:
+ 245:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_RC_CLIMB:
+ 246:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
+ 247:firmwares/rotorcraft/autopilot.c ****         break;
+ 248:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_CLIMB:
+ 249:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_CLIMB:
+ 250:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+ 251:firmwares/rotorcraft/autopilot.c ****         break;
+ 252:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_RATE_Z_HOLD:
+ 253:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_ATTITUDE_Z_HOLD:
+ 254:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_HOVER_Z_HOLD:
+ 255:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
+ 256:firmwares/rotorcraft/autopilot.c ****         break;
+ 257:firmwares/rotorcraft/autopilot.c ****       case AP_MODE_NAV:
+ 258:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
+ 259:firmwares/rotorcraft/autopilot.c ****         break;
+ 260:firmwares/rotorcraft/autopilot.c ****       default:
+ 261:firmwares/rotorcraft/autopilot.c ****         break;
+ 262:firmwares/rotorcraft/autopilot.c ****     }
+ 263:firmwares/rotorcraft/autopilot.c ****     autopilot_mode = new_autopilot_mode;
+ 264:firmwares/rotorcraft/autopilot.c ****   }
+ 265:firmwares/rotorcraft/autopilot.c **** 
+ 266:firmwares/rotorcraft/autopilot.c **** }
+ 267:firmwares/rotorcraft/autopilot.c **** 
+ 268:firmwares/rotorcraft/autopilot.c **** 
+ 269:firmwares/rotorcraft/autopilot.c **** static inline void autopilot_check_in_flight( bool_t motors_on ) {
+ 270:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 271:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter > 0) {
+ 272:firmwares/rotorcraft/autopilot.c ****       if (THROTTLE_STICK_DOWN()) {
+ 273:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter--;
+ 274:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == 0) {
+ 275:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = FALSE;
+ 276:firmwares/rotorcraft/autopilot.c ****         }
+ 277:firmwares/rotorcraft/autopilot.c ****       }
+ 278:firmwares/rotorcraft/autopilot.c ****       else {	/* !THROTTLE_STICK_DOWN */
+ 279:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+ 280:firmwares/rotorcraft/autopilot.c ****       }
+ 281:firmwares/rotorcraft/autopilot.c ****     }
+ 282:firmwares/rotorcraft/autopilot.c ****   }
+ 283:firmwares/rotorcraft/autopilot.c ****   else { /* not in flight */
+ 284:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+ 285:firmwares/rotorcraft/autopilot.c ****         motors_on) {
+ 286:firmwares/rotorcraft/autopilot.c ****       if (!THROTTLE_STICK_DOWN()) {
+ 287:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 288:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 289:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = TRUE;
+ 290:firmwares/rotorcraft/autopilot.c ****       }
+ 291:firmwares/rotorcraft/autopilot.c ****       else { /*  THROTTLE_STICK_DOWN */
+ 292:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 293:firmwares/rotorcraft/autopilot.c ****       }
+ 294:firmwares/rotorcraft/autopilot.c ****     }
+ 295:firmwares/rotorcraft/autopilot.c ****   }
+ 296:firmwares/rotorcraft/autopilot.c **** }
+ 297:firmwares/rotorcraft/autopilot.c **** 
+ 298:firmwares/rotorcraft/autopilot.c **** 
+ 299:firmwares/rotorcraft/autopilot.c **** void autopilot_set_motors_on(bool_t motors_on) {
+ 219              		.loc 1 299 0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 0
+ 222              		@ frame_needed = 0, uses_anonymous_args = 0
+ 223              		@ link register save eliminated.
+ 224              	.LVL11:
+ 225              	.LBB26:
+ 226              	.LBB27:
+  60:firmwares/rotorcraft/autopilot.c ****   return (ahrs.status == AHRS_RUNNING);
+ 227              		.loc 1 60 0
+ 228 0000 0F4B     		ldr	r3, .L33
+ 229 0002 1049     		ldr	r1, .L33+4
+ 230              	.LBE27:
+ 231              	.LBE26:
+ 300:firmwares/rotorcraft/autopilot.c ****   if (ahrs_is_aligned() && motors_on)
+ 232              		.loc 1 300 0
+ 233 0004 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 234 0006 012A     		cmp	r2, #1
+ 235 0008 00D1     		bne	.L24
+ 236              		.loc 1 300 0 is_stmt 0 discriminator 1
+ 237 000a 00B9     		cbnz	r0, .L32
+ 238              	.L24:
+ 301:firmwares/rotorcraft/autopilot.c ****     autopilot_motors_on = TRUE;
+ 302:firmwares/rotorcraft/autopilot.c ****   else
+ 303:firmwares/rotorcraft/autopilot.c ****     autopilot_motors_on = FALSE;
+ 239              		.loc 1 303 0 is_stmt 1
+ 240 000c 0022     		movs	r2, #0
+ 241              	.L32:
+ 242 000e 0A70     		strb	r2, [r1, #0]
+ 304:firmwares/rotorcraft/autopilot.c ****   kill_throttle = ! autopilot_motors_on;
+ 243              		.loc 1 304 0
+ 244 0010 0878     		ldrb	r0, [r1, #0]	@ zero_extendqisi2
+ 245              	.LVL12:
+ 246 0012 0D4B     		ldr	r3, .L33+8
+ 247 0014 0028     		cmp	r0, #0
+ 248 0016 14BF     		ite	ne
+ 249 0018 0021     		movne	r1, #0
+ 250 001a 0121     		moveq	r1, #1
+ 251 001c 1970     		strb	r1, [r3, #0]
+ 252              	.LVL13:
+ 253 001e 0B4B     		ldr	r3, .L33+12
+ 254              	.LBB28:
+ 255              	.LBB29:
+ 256              		.file 2 "firmwares/rotorcraft/autopilot_arming_switch.h"
+   1:firmwares/rotorcraft/autopilot_arming_switch.h **** /*
+   2:firmwares/rotorcraft/autopilot_arming_switch.h ****  * Copyright (C) 2012 The Paparazzi Team
+   3:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+   4:firmwares/rotorcraft/autopilot_arming_switch.h ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+   6:firmwares/rotorcraft/autopilot_arming_switch.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/autopilot_arming_switch.h ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/autopilot_arming_switch.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/autopilot_arming_switch.h ****  * any later version.
+  10:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+  11:firmwares/rotorcraft/autopilot_arming_switch.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/autopilot_arming_switch.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/autopilot_arming_switch.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/autopilot_arming_switch.h ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+  16:firmwares/rotorcraft/autopilot_arming_switch.h ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/autopilot_arming_switch.h ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/autopilot_arming_switch.h ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/autopilot_arming_switch.h ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/autopilot_arming_switch.h ****  */
+  21:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  22:firmwares/rotorcraft/autopilot_arming_switch.h **** /**
+  23:firmwares/rotorcraft/autopilot_arming_switch.h ****  * @file firmwares/rotorcraft/autopilot_arming_switch.h
+  24:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+  25:firmwares/rotorcraft/autopilot_arming_switch.h ****  * Arm the motors using a switch.
+  26:firmwares/rotorcraft/autopilot_arming_switch.h ****  *
+  27:firmwares/rotorcraft/autopilot_arming_switch.h ****  */
+  28:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  29:firmwares/rotorcraft/autopilot_arming_switch.h **** #ifndef AUTOPILOT_ARMING_SWITCH_H
+  30:firmwares/rotorcraft/autopilot_arming_switch.h **** #define AUTOPILOT_ARMING_SWITCH_H
+  31:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  32:firmwares/rotorcraft/autopilot_arming_switch.h **** #include "autopilot_rc_helpers.h"
+  33:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  34:firmwares/rotorcraft/autopilot_arming_switch.h **** #ifndef RADIO_KILL_SWITCH
+  35:firmwares/rotorcraft/autopilot_arming_switch.h **** #error "You need to have a RADIO_KILL_SWITCH configured to arm the motors with the switch!"
+  36:firmwares/rotorcraft/autopilot_arming_switch.h **** #endif
+  37:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  38:firmwares/rotorcraft/autopilot_arming_switch.h **** enum arming_state {
+  39:firmwares/rotorcraft/autopilot_arming_switch.h ****   STATE_UNINIT,
+  40:firmwares/rotorcraft/autopilot_arming_switch.h ****   STATE_WAITING,
+  41:firmwares/rotorcraft/autopilot_arming_switch.h ****   STATE_STARTABLE,
+  42:firmwares/rotorcraft/autopilot_arming_switch.h ****   STATE_MOTORS_ON
+  43:firmwares/rotorcraft/autopilot_arming_switch.h **** };
+  44:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  45:firmwares/rotorcraft/autopilot_arming_switch.h **** enum arming_state autopilot_arming_state;
+  46:firmwares/rotorcraft/autopilot_arming_switch.h **** bool_t autopilot_unarmed_in_auto;
+  47:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  48:firmwares/rotorcraft/autopilot_arming_switch.h **** static inline void autopilot_arming_init(void) {
+  49:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_arming_state = STATE_UNINIT;
+  50:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_unarmed_in_auto = FALSE;
+  51:firmwares/rotorcraft/autopilot_arming_switch.h **** }
+  52:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  53:firmwares/rotorcraft/autopilot_arming_switch.h **** static inline void autopilot_arming_set(bool_t motors_on) {
+  54:firmwares/rotorcraft/autopilot_arming_switch.h ****   if (motors_on) {
+ 257              		.loc 2 54 0
+ 258 0020 01D0     		beq	.L26
+  55:firmwares/rotorcraft/autopilot_arming_switch.h ****     autopilot_arming_state = STATE_MOTORS_ON;
+ 259              		.loc 2 55 0
+ 260 0022 0320     		movs	r0, #3
+ 261 0024 0AE0     		b	.L28
+ 262              	.L26:
+  56:firmwares/rotorcraft/autopilot_arming_switch.h ****   }
+  57:firmwares/rotorcraft/autopilot_arming_switch.h ****   else {
+  58:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (autopilot_arming_state == STATE_MOTORS_ON) {
+ 263              		.loc 2 58 0
+ 264 0026 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 265 0028 032A     		cmp	r2, #3
+ 266 002a 08D1     		bne	.L23
+  59:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+ 267              		.loc 2 59 0
+ 268 002c 0221     		movs	r1, #2
+ 269 002e 1970     		strb	r1, [r3, #0]
+  60:firmwares/rotorcraft/autopilot_arming_switch.h ****       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
+  61:firmwares/rotorcraft/autopilot_arming_switch.h ****       if (autopilot_mode != MODE_MANUAL) {
+ 270              		.loc 2 61 0
+ 271 0030 074B     		ldr	r3, .L33+16
+ 272 0032 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 273 0034 074B     		ldr	r3, .L33+20
+ 274 0036 032A     		cmp	r2, #3
+  62:firmwares/rotorcraft/autopilot_arming_switch.h ****         autopilot_unarmed_in_auto = TRUE;
+ 275              		.loc 2 62 0
+ 276 0038 18BF     		it	ne
+ 277 003a 0120     		movne	r0, #1
+ 278              	.L28:
+  63:firmwares/rotorcraft/autopilot_arming_switch.h ****       }
+  64:firmwares/rotorcraft/autopilot_arming_switch.h ****       else {
+  65:firmwares/rotorcraft/autopilot_arming_switch.h ****         autopilot_unarmed_in_auto = FALSE;
+ 279              		.loc 2 65 0
+ 280 003c 1870     		strb	r0, [r3, #0]
+ 281              	.L23:
+ 282 003e 7047     		bx	lr
+ 283              	.L34:
+ 284              		.align	2
+ 285              	.L33:
+ 286 0040 00000000 		.word	ahrs
+ 287 0044 00000000 		.word	.LANCHOR3
+ 288 0048 00000000 		.word	.LANCHOR5
+ 289 004c 00000000 		.word	.LANCHOR6
+ 290 0050 00000000 		.word	.LANCHOR1
+ 291 0054 00000000 		.word	.LANCHOR7
+ 292              	.LBE29:
+ 293              	.LBE28:
+ 294              		.cfi_endproc
+ 295              	.LFE135:
+ 297              		.section	.text.autopilot_set_mode,"ax",%progbits
+ 298              		.align	1
+ 299              		.global	autopilot_set_mode
+ 300              		.thumb
+ 301              		.thumb_func
+ 303              	autopilot_set_mode:
+ 304              	.LFB133:
+ 174:firmwares/rotorcraft/autopilot.c **** void autopilot_set_mode(uint8_t new_autopilot_mode) {
+ 305              		.loc 1 174 0
+ 306              		.cfi_startproc
+ 307              		@ args = 0, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309              	.LVL14:
+ 310 0000 10B5     		push	{r4, lr}
+ 311              	.LCFI1:
+ 312              		.cfi_def_cfa_offset 8
+ 313              		.cfi_offset 4, -8
+ 314              		.cfi_offset 14, -4
+ 315              	.LBB30:
+ 316              	.LBB31:
+  60:firmwares/rotorcraft/autopilot.c ****   return (ahrs.status == AHRS_RUNNING);
+ 317              		.loc 1 60 0
+ 318 0002 2F4B     		ldr	r3, .L63
+ 319              	.LBE31:
+ 320              	.LBE30:
+ 177:firmwares/rotorcraft/autopilot.c ****   if (!ahrs_is_aligned())
+ 321              		.loc 1 177 0
+ 322 0004 1C78     		ldrb	r4, [r3, #0]	@ zero_extendqisi2
+ 178:firmwares/rotorcraft/autopilot.c ****     new_autopilot_mode = AP_MODE_KILL;
+ 323              		.loc 1 178 0
+ 324 0006 012C     		cmp	r4, #1
+ 325 0008 0CBF     		ite	eq
+ 326 000a 0446     		moveq	r4, r0
+ 327 000c 0124     		movne	r4, #1
+ 180:firmwares/rotorcraft/autopilot.c ****   if (new_autopilot_mode != autopilot_mode) {
+ 328              		.loc 1 180 0
+ 329 000e 2D48     		ldr	r0, .L63+4
+ 330              	.LVL15:
+ 331 0010 0178     		ldrb	r1, [r0, #0]	@ zero_extendqisi2
+ 332 0012 A142     		cmp	r1, r4
+ 333 0014 53D0     		beq	.L35
+ 182:firmwares/rotorcraft/autopilot.c ****     switch (new_autopilot_mode) {
+ 334              		.loc 1 182 0
+ 335 0016 0F2C     		cmp	r4, #15
+ 336 0018 2ED8     		bhi	.L38
+ 337 001a DFE804F0 		tbb	[pc, r4]
+ 338              	.L48:
+ 339 001e 08       		.byte	(.L39-.L48)/2
+ 340 001f 0E       		.byte	(.L40-.L48)/2
+ 341 0020 1B       		.byte	(.L41-.L48)/2
+ 342 0021 1D       		.byte	(.L42-.L48)/2
+ 343 0022 2D       		.byte	(.L38-.L48)/2
+ 344 0023 1D       		.byte	(.L42-.L48)/2
+ 345 0024 1D       		.byte	(.L42-.L48)/2
+ 346 0025 1B       		.byte	(.L41-.L48)/2
+ 347 0026 1D       		.byte	(.L42-.L48)/2
+ 348 0027 27       		.byte	(.L43-.L48)/2
+ 349 0028 27       		.byte	(.L43-.L48)/2
+ 350 0029 27       		.byte	(.L43-.L48)/2
+ 351 002a 29       		.byte	(.L44-.L48)/2
+ 352 002b 19       		.byte	(.L45-.L48)/2
+ 353 002c 23       		.byte	(.L46-.L48)/2
+ 354 002d 21       		.byte	(.L47-.L48)/2
+ 355              		.align	1
+ 356              	.L39:
+ 185:firmwares/rotorcraft/autopilot.c ****         stabilization_attitude_set_failsafe_setpoint();
+ 357              		.loc 1 185 0
+ 358 002e FFF7FEFF 		bl	stabilization_attitude_set_failsafe_setpoint
+ 359              	.LVL16:
+ 186:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+ 360              		.loc 1 186 0
+ 361 0032 0220     		movs	r0, #2
+ 362 0034 FFF7FEFF 		bl	guidance_h_mode_changed
+ 363              	.LVL17:
+ 364 0038 2AE0     		b	.L49
+ 365              	.L40:
+ 190:firmwares/rotorcraft/autopilot.c ****         autopilot_set_motors_on(FALSE);
+ 366              		.loc 1 190 0
+ 367 003a 0020     		movs	r0, #0
+ 368 003c FFF7FEFF 		bl	autopilot_set_motors_on
+ 369              	.LVL18:
+ 191:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight = FALSE;
+ 370              		.loc 1 191 0
+ 371 0040 214A     		ldr	r2, .L63+8
+ 192:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 372              		.loc 1 192 0
+ 373 0042 224B     		ldr	r3, .L63+12
+ 191:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight = FALSE;
+ 374              		.loc 1 191 0
+ 375 0044 0020     		movs	r0, #0
+ 376 0046 1070     		strb	r0, [r2, #0]
+ 192:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 377              		.loc 1 192 0
+ 378 0048 1860     		str	r0, [r3, #0]
+ 193:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+ 379              		.loc 1 193 0
+ 380 004a FFF7FEFF 		bl	guidance_h_mode_changed
+ 381              	.LVL19:
+ 382 004e 27E0     		b	.L50
+ 383              	.L45:
+ 196:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+ 384              		.loc 1 196 0
+ 385 0050 0520     		movs	r0, #5
+ 386 0052 08E0     		b	.L61
+ 387              	.L41:
+ 200:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+ 388              		.loc 1 200 0
+ 389 0054 0120     		movs	r0, #1
+ 390 0056 00E0     		b	.L60
+ 391              	.L42:
+ 206:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+ 392              		.loc 1 206 0
+ 393 0058 0220     		movs	r0, #2
+ 394              	.L60:
+ 395 005a FFF7FEFF 		bl	guidance_h_mode_changed
+ 396              	.LVL20:
+ 207:firmwares/rotorcraft/autopilot.c ****         break;
+ 397              		.loc 1 207 0
+ 398 005e 0BE0     		b	.L38
+ 399              	.L47:
+ 209:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+ 400              		.loc 1 209 0
+ 401 0060 0720     		movs	r0, #7
+ 402 0062 00E0     		b	.L61
+ 403              	.L46:
+ 212:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
+ 404              		.loc 1 212 0
+ 405 0064 0620     		movs	r0, #6
+ 406              	.L61:
+ 407 0066 FFF7FEFF 		bl	guidance_h_mode_changed
+ 408              	.LVL21:
+ 213:firmwares/rotorcraft/autopilot.c ****         break;
+ 409              		.loc 1 213 0
+ 410 006a 1BE0     		b	.L54
+ 411              	.L43:
+ 217:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+ 412              		.loc 1 217 0
+ 413 006c 0320     		movs	r0, #3
+ 414 006e F4E7     		b	.L60
+ 415              	.L44:
+ 220:firmwares/rotorcraft/autopilot.c ****         guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
+ 416              		.loc 1 220 0
+ 417 0070 0420     		movs	r0, #4
+ 418 0072 FFF7FEFF 		bl	guidance_h_mode_changed
+ 419              	.LVL22:
+ 420 0076 1DE0     		b	.L52
+ 421              	.L38:
+ 226:firmwares/rotorcraft/autopilot.c ****     switch (new_autopilot_mode) {
+ 422              		.loc 1 226 0
+ 423 0078 0F2C     		cmp	r4, #15
+ 424 007a 1ED8     		bhi	.L53
+ 425 007c DFE804F0 		tbb	[pc, r4]
+ 426              	.L58:
+ 427 0080 08       		.byte	(.L49-.L58)/2
+ 428 0081 10       		.byte	(.L50-.L58)/2
+ 429 0082 12       		.byte	(.L54-.L58)/2
+ 430 0083 12       		.byte	(.L54-.L58)/2
+ 431 0084 14       		.byte	(.L55-.L58)/2
+ 432 0085 14       		.byte	(.L55-.L58)/2
+ 433 0086 16       		.byte	(.L56-.L58)/2
+ 434 0087 18       		.byte	(.L57-.L58)/2
+ 435 0088 18       		.byte	(.L57-.L58)/2
+ 436 0089 12       		.byte	(.L54-.L58)/2
+ 437 008a 16       		.byte	(.L56-.L58)/2
+ 438 008b 18       		.byte	(.L57-.L58)/2
+ 439 008c 1A       		.byte	(.L52-.L58)/2
+ 440 008d 12       		.byte	(.L54-.L58)/2
+ 441 008e 12       		.byte	(.L54-.L58)/2
+ 442 008f 12       		.byte	(.L54-.L58)/2
+ 443              		.align	1
+ 444              	.L49:
+ 229:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+ 445              		.loc 1 229 0
+ 446 0090 0320     		movs	r0, #3
+ 447 0092 FFF7FEFF 		bl	guidance_v_mode_changed
+ 448              	.LVL23:
+ 230:firmwares/rotorcraft/autopilot.c ****         guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
+ 449              		.loc 1 230 0
+ 450 0096 0E49     		ldr	r1, .L63+16
+ 451 0098 4FF48020 		mov	r0, #262144
+ 452 009c 0860     		str	r0, [r1, #0]
+ 231:firmwares/rotorcraft/autopilot.c ****         break;
+ 453              		.loc 1 231 0
+ 454 009e 0CE0     		b	.L53
+ 455              	.L50:
+ 234:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
+ 456              		.loc 1 234 0
+ 457 00a0 0020     		movs	r0, #0
+ 458 00a2 08E0     		b	.L62
+ 459              	.L54:
+ 242:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
+ 460              		.loc 1 242 0
+ 461 00a4 0120     		movs	r0, #1
+ 462 00a6 06E0     		b	.L62
+ 463              	.L55:
+ 246:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
+ 464              		.loc 1 246 0
+ 465 00a8 0220     		movs	r0, #2
+ 466 00aa 04E0     		b	.L62
+ 467              	.L56:
+ 250:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+ 468              		.loc 1 250 0
+ 469 00ac 0320     		movs	r0, #3
+ 470 00ae 02E0     		b	.L62
+ 471              	.L57:
+ 255:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
+ 472              		.loc 1 255 0
+ 473 00b0 0420     		movs	r0, #4
+ 474 00b2 00E0     		b	.L62
+ 475              	.L52:
+ 258:firmwares/rotorcraft/autopilot.c ****         guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
+ 476              		.loc 1 258 0
+ 477 00b4 0520     		movs	r0, #5
+ 478              	.L62:
+ 479 00b6 FFF7FEFF 		bl	guidance_v_mode_changed
+ 480              	.LVL24:
+ 481              	.L53:
+ 263:firmwares/rotorcraft/autopilot.c ****     autopilot_mode = new_autopilot_mode;
+ 482              		.loc 1 263 0
+ 483 00ba 024A     		ldr	r2, .L63+4
+ 484 00bc 1470     		strb	r4, [r2, #0]
+ 485              	.L35:
+ 486 00be 10BD     		pop	{r4, pc}
+ 487              	.L64:
+ 488              		.align	2
+ 489              	.L63:
+ 490 00c0 00000000 		.word	ahrs
+ 491 00c4 00000000 		.word	.LANCHOR1
+ 492 00c8 00000000 		.word	.LANCHOR2
+ 493 00cc 00000000 		.word	.LANCHOR4
+ 494 00d0 00000000 		.word	guidance_v_zd_sp
+ 495              		.cfi_endproc
+ 496              	.LFE133:
+ 498              		.section	.text.autopilot_init,"ax",%progbits
+ 499              		.align	1
+ 500              		.global	autopilot_init
+ 501              		.thumb
+ 502              		.thumb_func
+ 504              	autopilot_init:
+ 505              	.LFB130:
+  82:firmwares/rotorcraft/autopilot.c **** void autopilot_init(void) {
+ 506              		.loc 1 82 0
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 0
+ 509              		@ frame_needed = 0, uses_anonymous_args = 0
+  84:firmwares/rotorcraft/autopilot.c ****   autopilot_mode = AP_MODE_KILL;
+ 510              		.loc 1 84 0
+ 511 0000 154B     		ldr	r3, .L66
+  85:firmwares/rotorcraft/autopilot.c ****   autopilot_motors_on = FALSE;
+ 512              		.loc 1 85 0
+ 513 0002 164A     		ldr	r2, .L66+4
+  82:firmwares/rotorcraft/autopilot.c **** void autopilot_init(void) {
+ 514              		.loc 1 82 0
+ 515 0004 10B5     		push	{r4, lr}
+ 516              	.LCFI2:
+ 517              		.cfi_def_cfa_offset 8
+ 518              		.cfi_offset 4, -8
+ 519              		.cfi_offset 14, -4
+  85:firmwares/rotorcraft/autopilot.c ****   autopilot_motors_on = FALSE;
+ 520              		.loc 1 85 0
+ 521 0006 0020     		movs	r0, #0
+  84:firmwares/rotorcraft/autopilot.c ****   autopilot_mode = AP_MODE_KILL;
+ 522              		.loc 1 84 0
+ 523 0008 0124     		movs	r4, #1
+  85:firmwares/rotorcraft/autopilot.c ****   autopilot_motors_on = FALSE;
+ 524              		.loc 1 85 0
+ 525 000a 1070     		strb	r0, [r2, #0]
+  84:firmwares/rotorcraft/autopilot.c ****   autopilot_mode = AP_MODE_KILL;
+ 526              		.loc 1 84 0
+ 527 000c 1C70     		strb	r4, [r3, #0]
+  88:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight_counter = 0;
+ 528              		.loc 1 88 0
+ 529 000e 144A     		ldr	r2, .L66+8
+  87:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight = FALSE;
+ 530              		.loc 1 87 0
+ 531 0010 144B     		ldr	r3, .L66+12
+  86:firmwares/rotorcraft/autopilot.c ****   kill_throttle = ! autopilot_motors_on;
+ 532              		.loc 1 86 0
+ 533 0012 1549     		ldr	r1, .L66+16
+  87:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight = FALSE;
+ 534              		.loc 1 87 0
+ 535 0014 1870     		strb	r0, [r3, #0]
+  88:firmwares/rotorcraft/autopilot.c ****   autopilot_in_flight_counter = 0;
+ 536              		.loc 1 88 0
+ 537 0016 1060     		str	r0, [r2, #0]
+  89:firmwares/rotorcraft/autopilot.c ****   autopilot_mode_auto2 = MODE_AUTO2;
+ 538              		.loc 1 89 0
+ 539 0018 144B     		ldr	r3, .L66+20
+  90:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground = FALSE;
+ 540              		.loc 1 90 0
+ 541 001a 154A     		ldr	r2, .L66+24
+  86:firmwares/rotorcraft/autopilot.c ****   kill_throttle = ! autopilot_motors_on;
+ 542              		.loc 1 86 0
+ 543 001c 0C70     		strb	r4, [r1, #0]
+  89:firmwares/rotorcraft/autopilot.c ****   autopilot_mode_auto2 = MODE_AUTO2;
+ 544              		.loc 1 89 0
+ 545 001e 0C21     		movs	r1, #12
+  90:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground = FALSE;
+ 546              		.loc 1 90 0
+ 547 0020 1070     		strb	r0, [r2, #0]
+  89:firmwares/rotorcraft/autopilot.c ****   autopilot_mode_auto2 = MODE_AUTO2;
+ 548              		.loc 1 89 0
+ 549 0022 1970     		strb	r1, [r3, #0]
+  93:firmwares/rotorcraft/autopilot.c ****   autopilot_rc = TRUE;
+ 550              		.loc 1 93 0
+ 551 0024 134A     		ldr	r2, .L66+28
+  91:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground_once = FALSE;
+ 552              		.loc 1 91 0
+ 553 0026 1449     		ldr	r1, .L66+32
+  92:firmwares/rotorcraft/autopilot.c ****   autopilot_flight_time = 0;
+ 554              		.loc 1 92 0
+ 555 0028 144B     		ldr	r3, .L66+36
+  91:firmwares/rotorcraft/autopilot.c ****   autopilot_detect_ground_once = FALSE;
+ 556              		.loc 1 91 0
+ 557 002a 0870     		strb	r0, [r1, #0]
+  92:firmwares/rotorcraft/autopilot.c ****   autopilot_flight_time = 0;
+ 558              		.loc 1 92 0
+ 559 002c 1880     		strh	r0, [r3, #0]	@ movhi
+  94:firmwares/rotorcraft/autopilot.c ****   autopilot_power_switch = FALSE;
+ 560              		.loc 1 94 0
+ 561 002e 1449     		ldr	r1, .L66+40
+ 562              	.LBB34:
+ 563              	.LBB35:
+  49:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_arming_state = STATE_UNINIT;
+ 564              		.loc 2 49 0
+ 565 0030 144B     		ldr	r3, .L66+44
+ 566              	.LBE35:
+ 567              	.LBE34:
+  93:firmwares/rotorcraft/autopilot.c ****   autopilot_rc = TRUE;
+ 568              		.loc 1 93 0
+ 569 0032 1470     		strb	r4, [r2, #0]
+ 570              	.LBB38:
+ 571              	.LBB36:
+  50:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_unarmed_in_auto = FALSE;
+ 572              		.loc 2 50 0
+ 573 0034 144A     		ldr	r2, .L66+48
+ 574              	.LBE36:
+ 575              	.LBE38:
+  94:firmwares/rotorcraft/autopilot.c ****   autopilot_power_switch = FALSE;
+ 576              		.loc 1 94 0
+ 577 0036 0870     		strb	r0, [r1, #0]
+ 578              	.LBB39:
+ 579              	.LBB37:
+  49:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_arming_state = STATE_UNINIT;
+ 580              		.loc 2 49 0
+ 581 0038 1870     		strb	r0, [r3, #0]
+  50:firmwares/rotorcraft/autopilot_arming_switch.h ****   autopilot_unarmed_in_auto = FALSE;
+ 582              		.loc 2 50 0
+ 583 003a 1070     		strb	r0, [r2, #0]
+ 584              	.LBE37:
+ 585              	.LBE39:
+ 101:firmwares/rotorcraft/autopilot.c ****   nav_init();
+ 586              		.loc 1 101 0
+ 587 003c FFF7FEFF 		bl	nav_init
+ 588              	.LVL25:
+ 102:firmwares/rotorcraft/autopilot.c ****   guidance_h_init();
+ 589              		.loc 1 102 0
+ 590 0040 FFF7FEFF 		bl	guidance_h_init
+ 591              	.LVL26:
+ 103:firmwares/rotorcraft/autopilot.c ****   guidance_v_init();
+ 592              		.loc 1 103 0
+ 593 0044 FFF7FEFF 		bl	guidance_v_init
+ 594              	.LVL27:
+ 104:firmwares/rotorcraft/autopilot.c ****   stabilization_init();
+ 595              		.loc 1 104 0
+ 596 0048 FFF7FEFF 		bl	stabilization_init
+ 597              	.LVL28:
+ 107:firmwares/rotorcraft/autopilot.c ****   autopilot_set_mode(MODE_STARTUP);
+ 598              		.loc 1 107 0
+ 599 004c 2046     		mov	r0, r4
+ 108:firmwares/rotorcraft/autopilot.c **** }
+ 600              		.loc 1 108 0
+ 601 004e BDE81040 		pop	{r4, lr}
+ 107:firmwares/rotorcraft/autopilot.c ****   autopilot_set_mode(MODE_STARTUP);
+ 602              		.loc 1 107 0
+ 603 0052 FFF7FEBF 		b	autopilot_set_mode
+ 604              	.LVL29:
+ 605              	.L67:
+ 606 0056 00BF     		.align	2
+ 607              	.L66:
+ 608 0058 00000000 		.word	.LANCHOR1
+ 609 005c 00000000 		.word	.LANCHOR3
+ 610 0060 00000000 		.word	.LANCHOR4
+ 611 0064 00000000 		.word	.LANCHOR2
+ 612 0068 00000000 		.word	.LANCHOR5
+ 613 006c 00000000 		.word	.LANCHOR8
+ 614 0070 00000000 		.word	.LANCHOR9
+ 615 0074 00000000 		.word	.LANCHOR12
+ 616 0078 00000000 		.word	.LANCHOR10
+ 617 007c 00000000 		.word	.LANCHOR11
+ 618 0080 00000000 		.word	.LANCHOR13
+ 619 0084 00000000 		.word	.LANCHOR6
+ 620 0088 00000000 		.word	.LANCHOR7
+ 621              		.cfi_endproc
+ 622              	.LFE130:
+ 624              		.section	.text.autopilot_on_rc_frame,"ax",%progbits
+ 625              		.align	1
+ 626              		.global	autopilot_on_rc_frame
+ 627              		.thumb
+ 628              		.thumb_func
+ 630              	autopilot_on_rc_frame:
+ 631              	.LFB136:
+ 305:firmwares/rotorcraft/autopilot.c ****   autopilot_arming_set(autopilot_motors_on);
+ 306:firmwares/rotorcraft/autopilot.c **** }
+ 307:firmwares/rotorcraft/autopilot.c **** 
+ 308:firmwares/rotorcraft/autopilot.c **** 
+ 309:firmwares/rotorcraft/autopilot.c **** void autopilot_on_rc_frame(void) {
+ 632              		.loc 1 309 0
+ 633              		.cfi_startproc
+ 634              		@ args = 0, pretend = 0, frame = 0
+ 635              		@ frame_needed = 0, uses_anonymous_args = 0
+ 636              	.LBB59:
+ 637              	.LBB60:
+ 638              		.file 3 "firmwares/rotorcraft/autopilot_rc_helpers.h"
+   1:firmwares/rotorcraft/autopilot_rc_helpers.h **** /*
+   2:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * Copyright (C) 2012 The Paparazzi Team
+   3:firmwares/rotorcraft/autopilot_rc_helpers.h ****  *
+   4:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * This file is part of paparazzi.
+   5:firmwares/rotorcraft/autopilot_rc_helpers.h ****  *
+   6:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * it under the terms of the GNU General Public License as published by
+   8:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * any later version.
+  10:firmwares/rotorcraft/autopilot_rc_helpers.h ****  *
+  11:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * GNU General Public License for more details.
+  15:firmwares/rotorcraft/autopilot_rc_helpers.h ****  *
+  16:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * You should have received a copy of the GNU General Public License
+  17:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * Boston, MA 02111-1307, USA.
+  20:firmwares/rotorcraft/autopilot_rc_helpers.h ****  */
+  21:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  22:firmwares/rotorcraft/autopilot_rc_helpers.h **** /**
+  23:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * @file firmwares/rotorcraft/autopilot_rc_helpers.h
+  24:firmwares/rotorcraft/autopilot_rc_helpers.h ****  *
+  25:firmwares/rotorcraft/autopilot_rc_helpers.h ****  * Some helper functions to check RC sticks.
+  26:firmwares/rotorcraft/autopilot_rc_helpers.h ****  */
+  27:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  28:firmwares/rotorcraft/autopilot_rc_helpers.h **** #ifndef AUTOPILOT_RC_HELPERS_H
+  29:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define AUTOPILOT_RC_HELPERS_H
+  30:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  31:firmwares/rotorcraft/autopilot_rc_helpers.h **** #include "generated/airframe.h"
+  32:firmwares/rotorcraft/autopilot_rc_helpers.h **** #include "subsystems/radio_control.h"
+  33:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  34:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define AUTOPILOT_THROTTLE_THRESHOLD      (MAX_PPRZ / 20)
+  35:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define AUTOPILOT_YAW_THRESHOLD           (MAX_PPRZ * 19 / 20)
+  36:firmwares/rotorcraft/autopilot_rc_helpers.h **** #ifndef AUTOPILOT_STICK_CENTER_THRESHOLD
+  37:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define AUTOPILOT_STICK_CENTER_THRESHOLD  (MAX_PPRZ * 1 / 20)
+  38:firmwares/rotorcraft/autopilot_rc_helpers.h **** #endif
+  39:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  40:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define THROTTLE_STICK_DOWN()                                           \
+  41:firmwares/rotorcraft/autopilot_rc_helpers.h ****   (radio_control.values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_THRESHOLD)
+  42:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define YAW_STICK_PUSHED()                                      \
+  43:firmwares/rotorcraft/autopilot_rc_helpers.h ****   (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_THRESHOLD ||  \
+  44:firmwares/rotorcraft/autopilot_rc_helpers.h ****    radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_THRESHOLD)
+  45:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define YAW_STICK_CENTERED()                                            \
+  46:firmwares/rotorcraft/autopilot_rc_helpers.h ****   (radio_control.values[RADIO_YAW] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+  47:firmwares/rotorcraft/autopilot_rc_helpers.h ****    radio_control.values[RADIO_YAW] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
+  48:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define PITCH_STICK_CENTERED()                                          \
+  49:firmwares/rotorcraft/autopilot_rc_helpers.h ****   (radio_control.values[RADIO_PITCH] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+  50:firmwares/rotorcraft/autopilot_rc_helpers.h ****    radio_control.values[RADIO_PITCH] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
+  51:firmwares/rotorcraft/autopilot_rc_helpers.h **** #define ROLL_STICK_CENTERED()                                           \
+  52:firmwares/rotorcraft/autopilot_rc_helpers.h ****   (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+  53:firmwares/rotorcraft/autopilot_rc_helpers.h ****    radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
+  54:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  55:firmwares/rotorcraft/autopilot_rc_helpers.h **** static inline bool_t rc_attitude_sticks_centered(void) {
+  56:firmwares/rotorcraft/autopilot_rc_helpers.h ****   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();
+  57:firmwares/rotorcraft/autopilot_rc_helpers.h **** }
+  58:firmwares/rotorcraft/autopilot_rc_helpers.h **** 
+  59:firmwares/rotorcraft/autopilot_rc_helpers.h **** #ifdef RADIO_KILL_SWITCH
+  60:firmwares/rotorcraft/autopilot_rc_helpers.h **** static inline bool_t kill_switch_is_on(void) {
+  61:firmwares/rotorcraft/autopilot_rc_helpers.h ****   if (radio_control.values[RADIO_KILL_SWITCH] < 0)
+ 639              		.loc 3 61 0
+ 640 0000 5E4B     		ldr	r3, .L128
+ 641              	.LBE60:
+ 642              	.LBE59:
+ 643              		.loc 1 309 0
+ 644 0002 10B5     		push	{r4, lr}
+ 645              	.LCFI3:
+ 646              		.cfi_def_cfa_offset 8
+ 647              		.cfi_offset 4, -8
+ 648              		.cfi_offset 14, -4
+ 649              	.LBB62:
+ 650              	.LBB61:
+ 651              		.loc 3 61 0
+ 652 0004 B3F91020 		ldrsh	r2, [r3, #16]
+ 653 0008 002A     		cmp	r2, #0
+ 654 000a 7ADA     		bge	.L116
+ 655              	.LBE61:
+ 656              	.LBE62:
+ 310:firmwares/rotorcraft/autopilot.c **** 
+ 311:firmwares/rotorcraft/autopilot.c ****   if (kill_switch_is_on())
+ 312:firmwares/rotorcraft/autopilot.c ****     autopilot_set_mode(AP_MODE_KILL);
+ 657              		.loc 1 312 0
+ 658 000c 0120     		movs	r0, #1
+ 659              	.L71:
+ 660              	.LBB63:
+ 313:firmwares/rotorcraft/autopilot.c ****   else {
+ 314:firmwares/rotorcraft/autopilot.c ****     uint8_t new_autopilot_mode = 0;
+ 315:firmwares/rotorcraft/autopilot.c ****     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+ 316:firmwares/rotorcraft/autopilot.c ****     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
+ 317:firmwares/rotorcraft/autopilot.c ****     if (!(new_autopilot_mode == AP_MODE_NAV
+ 318:firmwares/rotorcraft/autopilot.c **** #if USE_GPS
+ 319:firmwares/rotorcraft/autopilot.c ****           && GpsIsLost()
+ 320:firmwares/rotorcraft/autopilot.c **** #endif
+ 321:firmwares/rotorcraft/autopilot.c ****        ))
+ 322:firmwares/rotorcraft/autopilot.c ****       autopilot_set_mode(new_autopilot_mode);
+ 661              		.loc 1 322 0
+ 662 000e FFF7FEFF 		bl	autopilot_set_mode
+ 663              	.LVL30:
+ 664              	.L75:
+ 665              	.LBE63:
+ 323:firmwares/rotorcraft/autopilot.c ****   }
+ 324:firmwares/rotorcraft/autopilot.c **** 
+ 325:firmwares/rotorcraft/autopilot.c ****   /* if not in FAILSAFE mode check motor and in_flight status, read RC */
+ 326:firmwares/rotorcraft/autopilot.c ****   if (autopilot_mode > AP_MODE_FAILSAFE) {
+ 666              		.loc 1 326 0
+ 667 0012 5B4B     		ldr	r3, .L128+4
+ 668 0014 1978     		ldrb	r1, [r3, #0]	@ zero_extendqisi2
+ 669 0016 0029     		cmp	r1, #0
+ 670 0018 00F0AF80 		beq	.L68
+ 671              	.LBB66:
+ 672              	.LBB67:
+  66:firmwares/rotorcraft/autopilot_arming_switch.h ****       }
+  67:firmwares/rotorcraft/autopilot_arming_switch.h ****     }
+  68:firmwares/rotorcraft/autopilot_arming_switch.h ****   }
+  69:firmwares/rotorcraft/autopilot_arming_switch.h **** }
+  70:firmwares/rotorcraft/autopilot_arming_switch.h **** 
+  71:firmwares/rotorcraft/autopilot_arming_switch.h **** /**
+  72:firmwares/rotorcraft/autopilot_arming_switch.h ****  * State machine to check if motors should be turned ON or OFF using the kill switch.
+  73:firmwares/rotorcraft/autopilot_arming_switch.h ****  * If kill switch is off during startup (unkilled), you need to kill again first,
+  74:firmwares/rotorcraft/autopilot_arming_switch.h ****  * then unkill to start.
+  75:firmwares/rotorcraft/autopilot_arming_switch.h ****  * Also to start the motors, throttle needs to be down, other sticks centered,
+  76:firmwares/rotorcraft/autopilot_arming_switch.h ****  * AHRS aligned and you need be in manual mode.
+  77:firmwares/rotorcraft/autopilot_arming_switch.h ****  */
+  78:firmwares/rotorcraft/autopilot_arming_switch.h **** static inline void autopilot_arming_check_motors_on( void ) {
+  79:firmwares/rotorcraft/autopilot_arming_switch.h ****   switch(autopilot_arming_state) {
+ 673              		.loc 2 79 0
+ 674 001c 594B     		ldr	r3, .L128+8
+ 675 001e 5A4A     		ldr	r2, .L128+12
+ 676 0020 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 677 0022 0328     		cmp	r0, #3
+ 678 0024 37D8     		bhi	.L77
+ 679 0026 DFE800F0 		tbb	[pc, r0]
+ 680              	.L82:
+ 681 002a 02       		.byte	(.L78-.L82)/2
+ 682 002b 0B       		.byte	(.L79-.L82)/2
+ 683 002c 13       		.byte	(.L80-.L82)/2
+ 684 002d 1B       		.byte	(.L81-.L82)/2
+ 685              		.align	1
+ 686              	.L78:
+  80:firmwares/rotorcraft/autopilot_arming_switch.h ****   case STATE_UNINIT:
+  81:firmwares/rotorcraft/autopilot_arming_switch.h ****     autopilot_motors_on = FALSE;
+ 687              		.loc 2 81 0
+ 688 002e 0024     		movs	r4, #0
+ 689 0030 1470     		strb	r4, [r2, #0]
+ 690              	.LBB68:
+ 691              	.LBB69:
+ 692              		.loc 3 61 0
+ 693 0032 524A     		ldr	r2, .L128
+ 694 0034 B2F91000 		ldrsh	r0, [r2, #16]
+ 695 0038 A042     		cmp	r0, r4
+ 696 003a 7FDB     		blt	.L85
+ 697              	.L118:
+ 698              	.LBE69:
+ 699              	.LBE68:
+  82:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (kill_switch_is_on()) {
+  83:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+  84:firmwares/rotorcraft/autopilot_arming_switch.h ****     }
+  85:firmwares/rotorcraft/autopilot_arming_switch.h ****     else {
+  86:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_WAITING;
+ 700              		.loc 2 86 0
+ 701 003c 0121     		movs	r1, #1
+ 702 003e 29E0     		b	.L122
+ 703              	.L79:
+ 704              	.LBB70:
+ 705              	.LBB71:
+ 706              		.loc 3 61 0
+ 707 0040 4E48     		ldr	r0, .L128
+ 708              	.LBE71:
+ 709              	.LBE70:
+  87:firmwares/rotorcraft/autopilot_arming_switch.h ****     }
+  88:firmwares/rotorcraft/autopilot_arming_switch.h ****     break;
+  89:firmwares/rotorcraft/autopilot_arming_switch.h ****   case STATE_WAITING:
+  90:firmwares/rotorcraft/autopilot_arming_switch.h ****     autopilot_motors_on = FALSE;
+ 710              		.loc 2 90 0
+ 711 0042 0024     		movs	r4, #0
+ 712              	.LBB74:
+ 713              	.LBB72:
+ 714              		.loc 3 61 0
+ 715 0044 B0F91010 		ldrsh	r1, [r0, #16]
+ 716              	.LBE72:
+ 717              	.LBE74:
+ 718              		.loc 2 90 0
+ 719 0048 1470     		strb	r4, [r2, #0]
+ 720              	.LBB75:
+ 721              	.LBB73:
+ 722              		.loc 3 61 0
+ 723 004a A142     		cmp	r1, r4
+ 724 004c 23DA     		bge	.L77
+ 725 004e 75E0     		b	.L85
+ 726              	.L80:
+ 727              	.LBE73:
+ 728              	.LBE75:
+ 729              	.LBB76:
+ 730              	.LBB77:
+ 731 0050 4A4B     		ldr	r3, .L128
+ 732              	.LBE77:
+ 733              	.LBE76:
+  91:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (kill_switch_is_on()) {
+  92:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+  93:firmwares/rotorcraft/autopilot_arming_switch.h ****     }
+  94:firmwares/rotorcraft/autopilot_arming_switch.h ****     break;
+  95:firmwares/rotorcraft/autopilot_arming_switch.h ****   case STATE_STARTABLE:
+  96:firmwares/rotorcraft/autopilot_arming_switch.h ****     autopilot_motors_on = FALSE;
+ 734              		.loc 2 96 0
+ 735 0052 0020     		movs	r0, #0
+ 736              	.LBB80:
+ 737              	.LBB78:
+ 738              		.loc 3 61 0
+ 739 0054 B3F91040 		ldrsh	r4, [r3, #16]
+ 740              	.LBE78:
+ 741              	.LBE80:
+ 742              		.loc 2 96 0
+ 743 0058 1070     		strb	r0, [r2, #0]
+ 744              	.LBB81:
+ 745              	.LBB79:
+ 746              		.loc 3 61 0
+ 747 005a 8442     		cmp	r4, r0
+ 748 005c 08DA     		bge	.L119
+ 749 005e 1AE0     		b	.L77
+ 750              	.L81:
+ 751              	.LBE79:
+ 752              	.LBE81:
+ 753              	.LBB82:
+ 754              	.LBB83:
+ 755 0060 4648     		ldr	r0, .L128
+ 756              	.LBE83:
+ 757              	.LBE82:
+  97:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (!kill_switch_is_on() &&
+  98:firmwares/rotorcraft/autopilot_arming_switch.h ****         THROTTLE_STICK_DOWN() &&
+  99:firmwares/rotorcraft/autopilot_arming_switch.h ****         rc_attitude_sticks_centered() &&
+ 100:firmwares/rotorcraft/autopilot_arming_switch.h ****         (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+ 101:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_MOTORS_ON;
+ 102:firmwares/rotorcraft/autopilot_arming_switch.h ****     }
+ 103:firmwares/rotorcraft/autopilot_arming_switch.h ****     break;
+ 104:firmwares/rotorcraft/autopilot_arming_switch.h ****   case STATE_MOTORS_ON:
+ 105:firmwares/rotorcraft/autopilot_arming_switch.h ****     autopilot_motors_on = TRUE;
+ 758              		.loc 2 105 0
+ 759 0062 0124     		movs	r4, #1
+ 760 0064 1470     		strb	r4, [r2, #0]
+ 761              	.LBB85:
+ 762              	.LBB84:
+ 763              		.loc 3 61 0
+ 764 0066 B0F91020 		ldrsh	r2, [r0, #16]
+ 765 006a 002A     		cmp	r2, #0
+ 766 006c 13DA     		bge	.L77
+ 767 006e 7BE0     		b	.L123
+ 768              	.L119:
+ 769              	.LBE84:
+ 770              	.LBE85:
+  97:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (!kill_switch_is_on() &&
+ 771              		.loc 2 97 0
+ 772 0070 B3F90620 		ldrsh	r2, [r3, #6]
+ 773 0074 B2F5F07F 		cmp	r2, #480
+ 774 0078 0DDA     		bge	.L77
+ 775              	.L99:
+ 776              	.LBB86:
+ 777              	.LBB87:
+  56:firmwares/rotorcraft/autopilot_rc_helpers.h ****   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();
+ 778              		.loc 3 56 0
+ 779 007a 5C89     		ldrh	r4, [r3, #10]
+ 780 007c 40F2BE32 		movw	r2, #958
+ 781 0080 04F2DF14 		addw	r4, r4, #479
+ 782 0084 A4B2     		uxth	r4, r4
+ 783 0086 9442     		cmp	r4, r2
+ 784 0088 5AD9     		bls	.L124
+ 785              	.L88:
+ 786              	.LBE87:
+ 787              	.LBE86:
+  98:firmwares/rotorcraft/autopilot_arming_switch.h ****         THROTTLE_STICK_DOWN() &&
+ 788              		.loc 2 98 0
+ 789 008a 20B1     		cbz	r0, .L77
+  99:firmwares/rotorcraft/autopilot_arming_switch.h ****         rc_attitude_sticks_centered() &&
+ 790              		.loc 2 99 0
+ 791 008c 0329     		cmp	r1, #3
+ 792 008e 66D1     		bne	.L125
+ 793              	.L89:
+ 101:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_MOTORS_ON;
+ 794              		.loc 2 101 0
+ 795 0090 3C4B     		ldr	r3, .L128+8
+ 796 0092 0321     		movs	r1, #3
+ 797              	.L122:
+ 106:firmwares/rotorcraft/autopilot_arming_switch.h ****     if (kill_switch_is_on()) {
+ 107:firmwares/rotorcraft/autopilot_arming_switch.h ****       /* if killed, go to STATE_STARTABLE where motors will be turned off */
+ 108:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+ 109:firmwares/rotorcraft/autopilot_arming_switch.h ****       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
+ 110:firmwares/rotorcraft/autopilot_arming_switch.h ****       if (autopilot_mode != MODE_MANUAL) {
+ 111:firmwares/rotorcraft/autopilot_arming_switch.h ****         autopilot_unarmed_in_auto = TRUE;
+ 112:firmwares/rotorcraft/autopilot_arming_switch.h ****       }
+ 113:firmwares/rotorcraft/autopilot_arming_switch.h ****       else {
+ 114:firmwares/rotorcraft/autopilot_arming_switch.h ****         autopilot_unarmed_in_auto = FALSE;
+ 798              		.loc 2 114 0
+ 799 0094 1970     		strb	r1, [r3, #0]
+ 800              	.L77:
+ 801              	.LBE67:
+ 802              	.LBE66:
+ 327:firmwares/rotorcraft/autopilot.c **** 
+ 328:firmwares/rotorcraft/autopilot.c ****     /* if there are some commands that should always be set from RC, do it */
+ 329:firmwares/rotorcraft/autopilot.c **** #ifdef SetAutoCommandsFromRC
+ 330:firmwares/rotorcraft/autopilot.c ****     SetAutoCommandsFromRC(commands, radio_control.values);
+ 331:firmwares/rotorcraft/autopilot.c **** #endif
+ 332:firmwares/rotorcraft/autopilot.c **** 
+ 333:firmwares/rotorcraft/autopilot.c ****     /* if not in NAV_MODE set commands from the rc */
+ 334:firmwares/rotorcraft/autopilot.c **** #ifdef SetCommandsFromRC
+ 335:firmwares/rotorcraft/autopilot.c ****     if (autopilot_mode != AP_MODE_NAV) {
+ 336:firmwares/rotorcraft/autopilot.c ****       SetCommandsFromRC(commands, radio_control.values);
+ 337:firmwares/rotorcraft/autopilot.c ****     }
+ 338:firmwares/rotorcraft/autopilot.c **** #endif
+ 339:firmwares/rotorcraft/autopilot.c **** 
+ 340:firmwares/rotorcraft/autopilot.c ****     /* an arming sequence is used to start/stop motors */
+ 341:firmwares/rotorcraft/autopilot.c ****     autopilot_arming_check_motors_on();
+ 342:firmwares/rotorcraft/autopilot.c ****     kill_throttle = ! autopilot_motors_on;
+ 803              		.loc 1 342 0
+ 804 0096 3C4B     		ldr	r3, .L128+12
+ 805 0098 3C48     		ldr	r0, .L128+16
+ 806 009a 1C78     		ldrb	r4, [r3, #0]	@ zero_extendqisi2
+ 807 009c 3C4B     		ldr	r3, .L128+20
+ 808 009e D4F10102 		rsbs	r2, r4, #1
+ 809 00a2 38BF     		it	cc
+ 810 00a4 0022     		movcc	r2, #0
+ 811 00a6 0270     		strb	r2, [r0, #0]
+ 812              	.LVL31:
+ 813              	.LBB91:
+ 814              	.LBB92:
+ 270:firmwares/rotorcraft/autopilot.c ****   if (autopilot_in_flight) {
+ 815              		.loc 1 270 0
+ 816 00a8 3A4A     		ldr	r2, .L128+24
+ 817 00aa 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
+ 818 00ac 79B1     		cbz	r1, .L91
+ 271:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter > 0) {
+ 819              		.loc 1 271 0
+ 820 00ae 1968     		ldr	r1, [r3, #0]
+ 821 00b0 F9B1     		cbz	r1, .L93
+ 272:firmwares/rotorcraft/autopilot.c ****       if (THROTTLE_STICK_DOWN()) {
+ 822              		.loc 1 272 0
+ 823 00b2 3248     		ldr	r0, .L128
+ 824 00b4 B0F90600 		ldrsh	r0, [r0, #6]
+ 825 00b8 B0F5F07F 		cmp	r0, #480
+ 826 00bc 04DA     		bge	.L94
+ 273:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter--;
+ 827              		.loc 1 273 0
+ 828 00be 0139     		subs	r1, r1, #1
+ 829 00c0 1960     		str	r1, [r3, #0]
+ 274:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == 0) {
+ 830              		.loc 1 274 0
+ 831 00c2 B1B9     		cbnz	r1, .L93
+ 275:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = FALSE;
+ 832              		.loc 1 275 0
+ 833 00c4 1170     		strb	r1, [r2, #0]
+ 834 00c6 14E0     		b	.L93
+ 835              	.L94:
+ 279:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+ 836              		.loc 1 279 0
+ 837 00c8 2822     		movs	r2, #40
+ 838 00ca 1A60     		str	r2, [r3, #0]
+ 839 00cc 11E0     		b	.L93
+ 840              	.L91:
+ 284:firmwares/rotorcraft/autopilot.c ****     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+ 841              		.loc 1 284 0
+ 842 00ce 1868     		ldr	r0, [r3, #0]
+ 843 00d0 2728     		cmp	r0, #39
+ 844 00d2 0ED8     		bhi	.L93
+ 845 00d4 6CB1     		cbz	r4, .L93
+ 286:firmwares/rotorcraft/autopilot.c ****       if (!THROTTLE_STICK_DOWN()) {
+ 846              		.loc 1 286 0
+ 847 00d6 294C     		ldr	r4, .L128
+ 848 00d8 B4F90640 		ldrsh	r4, [r4, #6]
+ 849 00dc B4F5F07F 		cmp	r4, #480
+ 850 00e0 06DB     		blt	.L96
+ 287:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 851              		.loc 1 287 0
+ 852 00e2 411C     		adds	r1, r0, #1
+ 288:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 853              		.loc 1 288 0
+ 854 00e4 2829     		cmp	r1, #40
+ 287:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter++;
+ 855              		.loc 1 287 0
+ 856 00e6 1960     		str	r1, [r3, #0]
+ 288:firmwares/rotorcraft/autopilot.c ****         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+ 857              		.loc 1 288 0
+ 858 00e8 03D1     		bne	.L93
+ 289:firmwares/rotorcraft/autopilot.c ****           autopilot_in_flight = TRUE;
+ 859              		.loc 1 289 0
+ 860 00ea 0123     		movs	r3, #1
+ 861 00ec 1370     		strb	r3, [r2, #0]
+ 862 00ee 00E0     		b	.L93
+ 863              	.L96:
+ 292:firmwares/rotorcraft/autopilot.c ****         autopilot_in_flight_counter = 0;
+ 864              		.loc 1 292 0
+ 865 00f0 1960     		str	r1, [r3, #0]
+ 866              	.L93:
+ 867              	.LBE92:
+ 868              	.LBE91:
+ 343:firmwares/rotorcraft/autopilot.c **** 
+ 344:firmwares/rotorcraft/autopilot.c ****     autopilot_check_in_flight(autopilot_motors_on);
+ 345:firmwares/rotorcraft/autopilot.c **** 
+ 346:firmwares/rotorcraft/autopilot.c ****     guidance_v_read_rc();
+ 869              		.loc 1 346 0
+ 870 00f2 FFF7FEFF 		bl	guidance_v_read_rc
+ 871              	.LVL32:
+ 347:firmwares/rotorcraft/autopilot.c ****     guidance_h_read_rc(autopilot_in_flight);
+ 872              		.loc 1 347 0
+ 873 00f6 274B     		ldr	r3, .L128+24
+ 874 00f8 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 348:firmwares/rotorcraft/autopilot.c ****   }
+ 349:firmwares/rotorcraft/autopilot.c **** 
+ 350:firmwares/rotorcraft/autopilot.c **** }
+ 875              		.loc 1 350 0
+ 876 00fa BDE81040 		pop	{r4, lr}
+ 347:firmwares/rotorcraft/autopilot.c ****     guidance_h_read_rc(autopilot_in_flight);
+ 877              		.loc 1 347 0
+ 878 00fe FFF7FEBF 		b	guidance_h_read_rc
+ 879              	.LVL33:
+ 880              	.L116:
+ 881              	.LBB93:
+ 315:firmwares/rotorcraft/autopilot.c ****     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+ 882              		.loc 1 315 0
+ 883 0102 B3F90E00 		ldrsh	r0, [r3, #14]
+ 884 0106 B0F5965F 		cmp	r0, #4800
+ 885 010a 04DD     		ble	.L126
+ 886              	.L97:
+ 315:firmwares/rotorcraft/autopilot.c ****     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+ 887              		.loc 1 315 0 is_stmt 0 discriminator 1
+ 888 010c 2249     		ldr	r1, .L128+28
+ 889 010e 0878     		ldrb	r0, [r1, #0]	@ zero_extendqisi2
+ 890              	.LVL34:
+ 317:firmwares/rotorcraft/autopilot.c ****     if (!(new_autopilot_mode == AP_MODE_NAV
+ 891              		.loc 1 317 0 is_stmt 1 discriminator 1
+ 892 0110 0C28     		cmp	r0, #12
+ 893 0112 06D0     		beq	.L117
+ 894 0114 7BE7     		b	.L71
+ 895              	.LVL35:
+ 896              	.L126:
+ 315:firmwares/rotorcraft/autopilot.c ****     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+ 897              		.loc 1 315 0 discriminator 2
+ 898 0116 10F5965F 		cmn	r0, #4800
+ 899 011a CCBF     		ite	gt
+ 900 011c 0B20     		movgt	r0, #11
+ 901 011e 0320     		movle	r0, #3
+ 902 0120 75E7     		b	.L71
+ 903              	.LVL36:
+ 904              	.L117:
+ 905              	.LBB64:
+ 906              	.LBB65:
+ 907              		.file 4 "./subsystems/gps.h"
+   1:./subsystems/gps.h **** /*
+   2:./subsystems/gps.h ****  * Copyright (C) 2003-2011 The Paparazzi Team
+   3:./subsystems/gps.h ****  *
+   4:./subsystems/gps.h ****  * This file is part of paparazzi.
+   5:./subsystems/gps.h ****  *
+   6:./subsystems/gps.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./subsystems/gps.h ****  * it under the terms of the GNU General Public License as published by
+   8:./subsystems/gps.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./subsystems/gps.h ****  * any later version.
+  10:./subsystems/gps.h ****  *
+  11:./subsystems/gps.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./subsystems/gps.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./subsystems/gps.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./subsystems/gps.h ****  * GNU General Public License for more details.
+  15:./subsystems/gps.h ****  *
+  16:./subsystems/gps.h ****  * You should have received a copy of the GNU General Public License
+  17:./subsystems/gps.h ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:./subsystems/gps.h ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:./subsystems/gps.h ****  * Boston, MA 02111-1307, USA.
+  20:./subsystems/gps.h ****  */
+  21:./subsystems/gps.h **** 
+  22:./subsystems/gps.h **** /** @file gps.h
+  23:./subsystems/gps.h ****  *  @brief Device independent GPS code (interface)
+  24:./subsystems/gps.h ****  *
+  25:./subsystems/gps.h ****  */
+  26:./subsystems/gps.h **** 
+  27:./subsystems/gps.h **** #ifndef GPS_H
+  28:./subsystems/gps.h **** #define GPS_H
+  29:./subsystems/gps.h **** 
+  30:./subsystems/gps.h **** 
+  31:./subsystems/gps.h **** #include "std.h"
+  32:./subsystems/gps.h **** #include "math/pprz_geodetic_int.h"
+  33:./subsystems/gps.h **** 
+  34:./subsystems/gps.h **** #include "mcu_periph/sys_time.h"
+  35:./subsystems/gps.h **** 
+  36:./subsystems/gps.h **** /* GPS model specific implementation or sim */
+  37:./subsystems/gps.h **** #ifdef GPS_TYPE_H
+  38:./subsystems/gps.h **** #include GPS_TYPE_H
+  39:./subsystems/gps.h **** #endif
+  40:./subsystems/gps.h **** 
+  41:./subsystems/gps.h **** #define GPS_FIX_NONE 0x00
+  42:./subsystems/gps.h **** #define GPS_FIX_2D   0x02
+  43:./subsystems/gps.h **** #define GPS_FIX_3D   0x03
+  44:./subsystems/gps.h **** 
+  45:./subsystems/gps.h **** #define GpsFixValid() (gps.fix == GPS_FIX_3D)
+  46:./subsystems/gps.h **** 
+  47:./subsystems/gps.h **** 
+  48:./subsystems/gps.h **** #ifndef GPS_NB_CHANNELS
+  49:./subsystems/gps.h **** #define GPS_NB_CHANNELS 1
+  50:./subsystems/gps.h **** #endif
+  51:./subsystems/gps.h **** 
+  52:./subsystems/gps.h **** /** data structure for Space Vehicle Information of a single satellite */
+  53:./subsystems/gps.h **** struct SVinfo {
+  54:./subsystems/gps.h ****   uint8_t svid;  ///< Satellite ID
+  55:./subsystems/gps.h ****   uint8_t flags; ///< bitfield with GPS receiver specific flags
+  56:./subsystems/gps.h ****   uint8_t qi;    ///< quality bitfield (GPS receiver specific)
+  57:./subsystems/gps.h ****   uint8_t cno;   ///< Carrier to Noise Ratio (Signal Strength) in dbHz
+  58:./subsystems/gps.h ****   int8_t elev;   ///< elevation in deg
+  59:./subsystems/gps.h ****   int16_t azim;  ///< azimuth in deg
+  60:./subsystems/gps.h **** };
+  61:./subsystems/gps.h **** 
+  62:./subsystems/gps.h **** /** data structure for GPS information */
+  63:./subsystems/gps.h **** struct GpsState {
+  64:./subsystems/gps.h ****   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
+  65:./subsystems/gps.h ****   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: rad*1e7; alt: mm over ellipsoid)
+  66:./subsystems/gps.h ****   struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)
+  67:./subsystems/gps.h ****   int32_t hmsl;                  ///< height above mean sea level in mm
+  68:./subsystems/gps.h ****   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
+  69:./subsystems/gps.h ****   struct NedCoor_i ned_vel;      ///< speed NED in cm/s
+  70:./subsystems/gps.h ****   int16_t gspeed;                ///< norm of 2d ground speed in cm/s
+  71:./subsystems/gps.h ****   int16_t speed_3d;              ///< norm of 3d speed in cm/s
+  72:./subsystems/gps.h ****   int32_t course;                ///< GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
+  73:./subsystems/gps.h ****   uint32_t pacc;                 ///< position accuracy in cm
+  74:./subsystems/gps.h ****   uint32_t sacc;                 ///< speed accuracy in cm/s
+  75:./subsystems/gps.h ****   uint32_t cacc;                 ///< course accuracy in rad*1e7
+  76:./subsystems/gps.h ****   uint16_t pdop;                 ///< position dilution of precision scaled by 100
+  77:./subsystems/gps.h ****   uint8_t num_sv;                ///< number of sat in fix
+  78:./subsystems/gps.h ****   uint8_t fix;                   ///< status of fix
+  79:./subsystems/gps.h ****   int16_t week;                  ///< GPS week
+  80:./subsystems/gps.h ****   uint32_t tow;                  ///< GPS time of week in ms
+  81:./subsystems/gps.h **** 
+  82:./subsystems/gps.h ****   uint8_t nb_channels;           ///< Number of scanned satellites
+  83:./subsystems/gps.h ****   struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellite
+  84:./subsystems/gps.h **** 
+  85:./subsystems/gps.h ****   uint32_t last_fix_ticks;       ///< cpu time ticks at last valid fix
+  86:./subsystems/gps.h ****   uint32_t last_fix_time;        ///< cpu time in sec at last valid fix
+  87:./subsystems/gps.h ****   uint16_t reset;                ///< hotstart, warmstart, coldstart
+  88:./subsystems/gps.h **** };
+  89:./subsystems/gps.h **** 
+  90:./subsystems/gps.h **** /** data structure for GPS time sync */
+  91:./subsystems/gps.h **** struct GpsTimeSync {
+  92:./subsystems/gps.h ****   uint32_t t0_tow;      ///< GPS time of week in ms from last message
+  93:./subsystems/gps.h ****   int32_t t0_tow_frac;  ///< fractional ns remainder of tow [ms], range -500000 .. 500000
+  94:./subsystems/gps.h ****   uint32_t t0_ticks;    ///< hw clock ticks when GPS message is received
+  95:./subsystems/gps.h **** };
+  96:./subsystems/gps.h **** 
+  97:./subsystems/gps.h **** /** global GPS state */
+  98:./subsystems/gps.h **** extern struct GpsState gps;
+  99:./subsystems/gps.h **** 
+ 100:./subsystems/gps.h **** /** initialize the global GPS state */
+ 101:./subsystems/gps.h **** extern void gps_init(void);
+ 102:./subsystems/gps.h **** 
+ 103:./subsystems/gps.h **** /* GPS model specific init implementation */
+ 104:./subsystems/gps.h **** extern void gps_impl_init(void);
+ 105:./subsystems/gps.h **** 
+ 106:./subsystems/gps.h **** 
+ 107:./subsystems/gps.h **** /* mark GPS as lost when no valid 3D fix was received for GPS_TIMEOUT secs */
+ 108:./subsystems/gps.h **** #ifndef GPS_TIMEOUT
+ 109:./subsystems/gps.h **** #define GPS_TIMEOUT 5
+ 110:./subsystems/gps.h **** #endif
+ 111:./subsystems/gps.h **** 
+ 112:./subsystems/gps.h **** inline bool_t GpsIsLost(void);
+ 113:./subsystems/gps.h **** 
+ 114:./subsystems/gps.h **** inline bool_t GpsIsLost(void) {
+ 115:./subsystems/gps.h ****   if (sys_time.nb_sec - gps.last_fix_time > GPS_TIMEOUT) {
+ 908              		.loc 4 115 0
+ 909 0122 1E4B     		ldr	r3, .L128+32
+ 910 0124 1968     		ldr	r1, [r3, #0]
+ 911 0126 1E4B     		ldr	r3, .L128+36
+ 912 0128 D3F8EC20 		ldr	r2, [r3, #236]
+ 913 012c 891A     		subs	r1, r1, r2
+ 914 012e 0529     		cmp	r1, #5
+ 915 0130 7FF66DAF 		bls	.L71
+ 116:./subsystems/gps.h ****     gps.fix = GPS_FIX_NONE;
+ 916              		.loc 4 116 0
+ 917 0134 0020     		movs	r0, #0
+ 918 0136 83F85B00 		strb	r0, [r3, #91]
+ 919 013a 6AE7     		b	.L75
+ 920              	.LVL37:
+ 921              	.L85:
+ 922              	.LBE65:
+ 923              	.LBE64:
+ 924              	.LBE93:
+ 925              	.LBB94:
+ 926              	.LBB90:
+  92:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+ 927              		.loc 2 92 0
+ 928 013c 0221     		movs	r1, #2
+ 929 013e A9E7     		b	.L122
+ 930              	.L124:
+ 931              	.LBB89:
+ 932              	.LBB88:
+  56:firmwares/rotorcraft/autopilot_rc_helpers.h ****   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();
+ 933              		.loc 3 56 0
+ 934 0140 1C89     		ldrh	r4, [r3, #8]
+ 935 0142 04F2DF14 		addw	r4, r4, #479
+ 936 0146 A4B2     		uxth	r4, r4
+ 937 0148 9442     		cmp	r4, r2
+ 938 014a 9ED8     		bhi	.L88
+ 939 014c 9889     		ldrh	r0, [r3, #12]
+ 940 014e 00F2DF13 		addw	r3, r0, #479
+ 941 0152 98B2     		uxth	r0, r3
+ 942 0154 9042     		cmp	r0, r2
+ 943 0156 8CBF     		ite	hi
+ 944 0158 0020     		movhi	r0, #0
+ 945 015a 0120     		movls	r0, #1
+ 946 015c 95E7     		b	.L88
+ 947              	.L125:
+ 948              	.LBE88:
+ 949              	.LBE89:
+ 100:firmwares/rotorcraft/autopilot_arming_switch.h ****         (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+ 950              		.loc 2 100 0
+ 951 015e 1149     		ldr	r1, .L128+40
+ 952 0160 0A78     		ldrb	r2, [r1, #0]	@ zero_extendqisi2
+ 953 0162 002A     		cmp	r2, #0
+ 954 0164 97D0     		beq	.L77
+ 955 0166 93E7     		b	.L89
+ 956              	.L123:
+ 108:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+ 957              		.loc 2 108 0
+ 958 0168 0220     		movs	r0, #2
+ 110:firmwares/rotorcraft/autopilot_arming_switch.h ****       if (autopilot_mode != MODE_MANUAL) {
+ 959              		.loc 2 110 0
+ 960 016a 0329     		cmp	r1, #3
+ 108:firmwares/rotorcraft/autopilot_arming_switch.h ****       autopilot_arming_state = STATE_STARTABLE;
+ 961              		.loc 2 108 0
+ 962 016c 1870     		strb	r0, [r3, #0]
+ 963 016e 0D4B     		ldr	r3, .L128+40
+ 110:firmwares/rotorcraft/autopilot_arming_switch.h ****       if (autopilot_mode != MODE_MANUAL) {
+ 964              		.loc 2 110 0
+ 965 0170 01D0     		beq	.L127
+ 966              	.L100:
+ 111:firmwares/rotorcraft/autopilot_arming_switch.h ****         autopilot_unarmed_in_auto = TRUE;
+ 967              		.loc 2 111 0
+ 968 0172 1C70     		strb	r4, [r3, #0]
+ 969 0174 8FE7     		b	.L77
+ 970              	.L127:
+ 971              		.loc 2 114 0
+ 972 0176 0021     		movs	r1, #0
+ 973 0178 8CE7     		b	.L122
+ 974              	.L68:
+ 975 017a 10BD     		pop	{r4, pc}
+ 976              	.L129:
+ 977              		.align	2
+ 978              	.L128:
+ 979 017c 00000000 		.word	radio_control
+ 980 0180 00000000 		.word	.LANCHOR1
+ 981 0184 00000000 		.word	.LANCHOR6
+ 982 0188 00000000 		.word	.LANCHOR3
+ 983 018c 00000000 		.word	.LANCHOR5
+ 984 0190 00000000 		.word	.LANCHOR4
+ 985 0194 00000000 		.word	.LANCHOR2
+ 986 0198 00000000 		.word	.LANCHOR8
+ 987 019c 00000000 		.word	sys_time
+ 988 01a0 00000000 		.word	gps
+ 989 01a4 00000000 		.word	.LANCHOR7
+ 990              	.LBE90:
+ 991              	.LBE94:
+ 992              		.cfi_endproc
+ 993              	.LFE136:
+ 995              		.global	autopilot_unarmed_in_auto
+ 996              		.global	autopilot_arming_state
+ 997              		.global	autopilot_detect_ground_once
+ 998              		.global	autopilot_detect_ground
+ 999              		.global	autopilot_power_switch
+ 1000              		.global	autopilot_rc
+ 1001              		.global	kill_throttle
+ 1002              		.global	autopilot_motors_on
+ 1003              		.global	autopilot_flight_time
+ 1004              		.global	autopilot_in_flight_counter
+ 1005              		.global	autopilot_in_flight
+ 1006              		.global	autopilot_mode_auto2
+ 1007              		.global	autopilot_mode
+ 1008              		.section	.bss.autopilot_in_flight_counter,"aw",%nobits
+ 1009              		.align	2
+ 1010              		.set	.LANCHOR4,. + 0
+ 1013              	autopilot_in_flight_counter:
+ 1014 0000 00000000 		.space	4
+ 1015              		.section	.bss.autopilot_unarmed_in_auto,"aw",%nobits
+ 1016              		.set	.LANCHOR7,. + 0
+ 1019              	autopilot_unarmed_in_auto:
+ 1020 0000 00       		.space	1
+ 1021              		.section	.bss.autopilot_mode_auto2,"aw",%nobits
+ 1022              		.set	.LANCHOR8,. + 0
+ 1025              	autopilot_mode_auto2:
+ 1026 0000 00       		.space	1
+ 1027              		.section	.bss.autopilot_detect_ground,"aw",%nobits
+ 1028              		.set	.LANCHOR9,. + 0
+ 1031              	autopilot_detect_ground:
+ 1032 0000 00       		.space	1
+ 1033              		.section	.bss.autopilot_motors_on,"aw",%nobits
+ 1034              		.set	.LANCHOR3,. + 0
+ 1037              	autopilot_motors_on:
+ 1038 0000 00       		.space	1
+ 1039              		.section	.bss.autopilot_detect_ground_once,"aw",%nobits
+ 1040              		.set	.LANCHOR10,. + 0
+ 1043              	autopilot_detect_ground_once:
+ 1044 0000 00       		.space	1
+ 1045              		.section	.bss.autopilot_power_switch,"aw",%nobits
+ 1046              		.set	.LANCHOR13,. + 0
+ 1049              	autopilot_power_switch:
+ 1050 0000 00       		.space	1
+ 1051              		.section	.bss.kill_throttle,"aw",%nobits
+ 1052              		.set	.LANCHOR5,. + 0
+ 1055              	kill_throttle:
+ 1056 0000 00       		.space	1
+ 1057              		.section	.bss.autopilot_flight_time,"aw",%nobits
+ 1058              		.align	1
+ 1059              		.set	.LANCHOR11,. + 0
+ 1062              	autopilot_flight_time:
+ 1063 0000 0000     		.space	2
+ 1064              		.section	.bss.autopilot_in_flight,"aw",%nobits
+ 1065              		.set	.LANCHOR2,. + 0
+ 1068              	autopilot_in_flight:
+ 1069 0000 00       		.space	1
+ 1070              		.section	.bss.prescaler.6827,"aw",%nobits
+ 1071              		.align	1
+ 1072              		.set	.LANCHOR0,. + 0
+ 1075              	prescaler.6827:
+ 1076 0000 0000     		.space	2
+ 1077              		.section	.bss.autopilot_mode,"aw",%nobits
+ 1078              		.set	.LANCHOR1,. + 0
+ 1081              	autopilot_mode:
+ 1082 0000 00       		.space	1
+ 1083              		.section	.bss.autopilot_rc,"aw",%nobits
+ 1084              		.set	.LANCHOR12,. + 0
+ 1087              	autopilot_rc:
+ 1088 0000 00       		.space	1
+ 1089              		.section	.bss.autopilot_arming_state,"aw",%nobits
+ 1090              		.set	.LANCHOR6,. + 0
+ 1093              	autopilot_arming_state:
+ 1094 0000 00       		.space	1
+ 1095              		.text
+ 1096              	.Letext0:
+ 1097              		.file 5 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1098              		.file 6 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1099              		.file 7 "./math/pprz_algebra_int.h"
+ 1100              		.file 8 "./math/pprz_geodetic_int.h"
+ 1101              		.file 9 "./math/pprz_algebra_float.h"
+ 1102              		.file 10 "./math/pprz_geodetic_float.h"
+ 1103              		.file 11 "./math/pprz_orientation_conversion.h"
+ 1104              		.file 12 "./state.h"
+ 1105              		.file 13 "./paparazzi.h"
+ 1106              		.file 14 "./mcu_periph/sys_time.h"
+ 1107              		.file 15 "./subsystems/radio_control.h"
+ 1108              		.file 16 "./subsystems/ahrs.h"
+ 1109              		.file 17 "./subsystems/commands.h"
+ 1110              		.file 18 "./firmwares/rotorcraft/navigation.h"
+ 1111              		.file 19 "./firmwares/rotorcraft/guidance/guidance_v.h"
+ 1112              		.file 20 "./firmwares/rotorcraft/stabilization.h"
+ 1113              		.file 21 "./firmwares/rotorcraft/guidance/guidance_h.h"
+ 1114              		.file 22 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 autopilot.c
+/var/tmp//ccpdLtwJ.s:19     .text.autopilot_periodic:0000000000000000 $t
+/var/tmp//ccpdLtwJ.s:24     .text.autopilot_periodic:0000000000000000 autopilot_periodic
+/var/tmp//ccpdLtwJ.s:197    .text.autopilot_periodic:00000000000000b8 $d
+/var/tmp//ccpdLtwJ.s:212    .text.autopilot_set_motors_on:0000000000000000 $t
+/var/tmp//ccpdLtwJ.s:217    .text.autopilot_set_motors_on:0000000000000000 autopilot_set_motors_on
+/var/tmp//ccpdLtwJ.s:286    .text.autopilot_set_motors_on:0000000000000040 $d
+/var/tmp//ccpdLtwJ.s:298    .text.autopilot_set_mode:0000000000000000 $t
+/var/tmp//ccpdLtwJ.s:303    .text.autopilot_set_mode:0000000000000000 autopilot_set_mode
+/var/tmp//ccpdLtwJ.s:339    .text.autopilot_set_mode:000000000000001e $d
+/var/tmp//ccpdLtwJ.s:355    .text.autopilot_set_mode:000000000000002e $t
+/var/tmp//ccpdLtwJ.s:427    .text.autopilot_set_mode:0000000000000080 $d
+/var/tmp//ccpdLtwJ.s:443    .text.autopilot_set_mode:0000000000000090 $t
+/var/tmp//ccpdLtwJ.s:490    .text.autopilot_set_mode:00000000000000c0 $d
+/var/tmp//ccpdLtwJ.s:499    .text.autopilot_init:0000000000000000 $t
+/var/tmp//ccpdLtwJ.s:504    .text.autopilot_init:0000000000000000 autopilot_init
+/var/tmp//ccpdLtwJ.s:608    .text.autopilot_init:0000000000000058 $d
+/var/tmp//ccpdLtwJ.s:625    .text.autopilot_on_rc_frame:0000000000000000 $t
+/var/tmp//ccpdLtwJ.s:630    .text.autopilot_on_rc_frame:0000000000000000 autopilot_on_rc_frame
+/var/tmp//ccpdLtwJ.s:681    .text.autopilot_on_rc_frame:000000000000002a $d
+/var/tmp//ccpdLtwJ.s:685    .text.autopilot_on_rc_frame:000000000000002e $t
+/var/tmp//ccpdLtwJ.s:979    .text.autopilot_on_rc_frame:000000000000017c $d
+/var/tmp//ccpdLtwJ.s:1019   .bss.autopilot_unarmed_in_auto:0000000000000000 autopilot_unarmed_in_auto
+/var/tmp//ccpdLtwJ.s:1093   .bss.autopilot_arming_state:0000000000000000 autopilot_arming_state
+/var/tmp//ccpdLtwJ.s:1043   .bss.autopilot_detect_ground_once:0000000000000000 autopilot_detect_ground_once
+/var/tmp//ccpdLtwJ.s:1031   .bss.autopilot_detect_ground:0000000000000000 autopilot_detect_ground
+/var/tmp//ccpdLtwJ.s:1049   .bss.autopilot_power_switch:0000000000000000 autopilot_power_switch
+/var/tmp//ccpdLtwJ.s:1087   .bss.autopilot_rc:0000000000000000 autopilot_rc
+/var/tmp//ccpdLtwJ.s:1055   .bss.kill_throttle:0000000000000000 kill_throttle
+/var/tmp//ccpdLtwJ.s:1037   .bss.autopilot_motors_on:0000000000000000 autopilot_motors_on
+/var/tmp//ccpdLtwJ.s:1062   .bss.autopilot_flight_time:0000000000000000 autopilot_flight_time
+/var/tmp//ccpdLtwJ.s:1013   .bss.autopilot_in_flight_counter:0000000000000000 autopilot_in_flight_counter
+/var/tmp//ccpdLtwJ.s:1068   .bss.autopilot_in_flight:0000000000000000 autopilot_in_flight
+/var/tmp//ccpdLtwJ.s:1025   .bss.autopilot_mode_auto2:0000000000000000 autopilot_mode_auto2
+/var/tmp//ccpdLtwJ.s:1081   .bss.autopilot_mode:0000000000000000 autopilot_mode
+/var/tmp//ccpdLtwJ.s:1009   .bss.autopilot_in_flight_counter:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1020   .bss.autopilot_unarmed_in_auto:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1026   .bss.autopilot_mode_auto2:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1032   .bss.autopilot_detect_ground:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1038   .bss.autopilot_motors_on:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1044   .bss.autopilot_detect_ground_once:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1050   .bss.autopilot_power_switch:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1056   .bss.kill_throttle:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1058   .bss.autopilot_flight_time:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1069   .bss.autopilot_in_flight:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1071   .bss.prescaler.6827:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1075   .bss.prescaler.6827:0000000000000000 prescaler.6827
+/var/tmp//ccpdLtwJ.s:1082   .bss.autopilot_mode:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1088   .bss.autopilot_rc:0000000000000000 $d
+/var/tmp//ccpdLtwJ.s:1094   .bss.autopilot_arming_state:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+nav_periodic_task
+guidance_v_run
+guidance_h_run
+commands_failsafe
+commands
+stabilization_cmd
+radio_control
+ahrs
+stabilization_attitude_set_failsafe_setpoint
+guidance_h_mode_changed
+guidance_v_mode_changed
+guidance_v_zd_sp
+nav_init
+guidance_h_init
+guidance_v_init
+stabilization_init
+guidance_v_read_rc
+guidance_h_read_rc
+sys_time
+gps

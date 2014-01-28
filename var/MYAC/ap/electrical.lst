@@ -1,0 +1,215 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"electrical.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.electrical_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	electrical_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	electrical_init:
+  25              	.LFB0:
+  26              		.file 1 "subsystems/electrical.c"
+   1:subsystems/electrical.c **** #include "subsystems/electrical.h"
+   2:subsystems/electrical.c **** 
+   3:subsystems/electrical.c **** #include "mcu_periph/adc.h"
+   4:subsystems/electrical.c **** #include "subsystems/commands.h"
+   5:subsystems/electrical.c **** 
+   6:subsystems/electrical.c **** #include "generated/airframe.h"
+   7:subsystems/electrical.c **** #include BOARD_CONFIG
+   8:subsystems/electrical.c **** 
+   9:subsystems/electrical.c **** #ifdef MILLIAMP_PER_PERCENT
+  10:subsystems/electrical.c **** #warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
+  11:subsystems/electrical.c **** #endif
+  12:subsystems/electrical.c **** #if defined BATTERY_SENS || defined BATTERY_OFFSET
+  13:subsystems/electrical.c **** #warning "BATTERY_SENS and BATTERY_OFFSET are deprecated, please remove them --> if you want to cha
+  14:subsystems/electrical.c **** #endif
+  15:subsystems/electrical.c **** 
+  16:subsystems/electrical.c **** #if defined COMMAND_THROTTLE
+  17:subsystems/electrical.c **** #define COMMAND_CURRENT_ESTIMATION COMMAND_THROTTLE
+  18:subsystems/electrical.c **** #elif defined COMMAND_THRUST
+  19:subsystems/electrical.c **** #define COMMAND_CURRENT_ESTIMATION COMMAND_THRUST
+  20:subsystems/electrical.c **** #endif
+  21:subsystems/electrical.c **** 
+  22:subsystems/electrical.c **** struct Electrical electrical;
+  23:subsystems/electrical.c **** 
+  24:subsystems/electrical.c **** #if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
+  25:subsystems/electrical.c **** static struct {
+  26:subsystems/electrical.c **** #ifdef ADC_CHANNEL_VSUPPLY
+  27:subsystems/electrical.c ****   struct adc_buf vsupply_adc_buf;
+  28:subsystems/electrical.c **** #endif
+  29:subsystems/electrical.c **** #ifdef ADC_CHANNEL_CURRENT
+  30:subsystems/electrical.c ****   struct adc_buf current_adc_buf;
+  31:subsystems/electrical.c **** #endif
+  32:subsystems/electrical.c **** #ifdef MILLIAMP_AT_FULL_THROTTLE
+  33:subsystems/electrical.c ****   float nonlin_factor;
+  34:subsystems/electrical.c **** #endif
+  35:subsystems/electrical.c **** } electrical_priv;
+  36:subsystems/electrical.c **** #endif
+  37:subsystems/electrical.c **** 
+  38:subsystems/electrical.c **** #ifndef VoltageOfAdc
+  39:subsystems/electrical.c **** #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
+  40:subsystems/electrical.c **** #endif
+  41:subsystems/electrical.c **** #ifndef MilliAmpereOfAdc
+  42:subsystems/electrical.c **** #define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
+  43:subsystems/electrical.c **** #endif
+  44:subsystems/electrical.c **** 
+  45:subsystems/electrical.c **** #ifndef CURRENT_ESTIMATION_NONLINEARITY
+  46:subsystems/electrical.c **** #define CURRENT_ESTIMATION_NONLINEARITY 1.2
+  47:subsystems/electrical.c **** #endif
+  48:subsystems/electrical.c **** 
+  49:subsystems/electrical.c **** void electrical_init(void) {
+  27              		.loc 1 49 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  50:subsystems/electrical.c ****   electrical.vsupply = 0;
+  32              		.loc 1 50 0
+  33 0000 044B     		ldr	r3, .L2
+  34 0002 0022     		movs	r2, #0
+  51:subsystems/electrical.c ****   electrical.current = 0;
+  52:subsystems/electrical.c **** 
+  53:subsystems/electrical.c **** #if defined ADC_CHANNEL_VSUPPLY
+  54:subsystems/electrical.c ****   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
+  35              		.loc 1 54 0
+  36 0004 0449     		ldr	r1, .L2+4
+  50:subsystems/electrical.c ****   electrical.vsupply = 0;
+  37              		.loc 1 50 0
+  38 0006 1A80     		strh	r2, [r3, #0]	@ movhi
+  51:subsystems/electrical.c ****   electrical.current = 0;
+  39              		.loc 1 51 0
+  40 0008 5A60     		str	r2, [r3, #4]
+  41              		.loc 1 54 0
+  42 000a 0320     		movs	r0, #3
+  43 000c 2022     		movs	r2, #32
+  55:subsystems/electrical.c **** #endif
+  56:subsystems/electrical.c **** 
+  57:subsystems/electrical.c ****   /* measure current if available, otherwise estimate it */
+  58:subsystems/electrical.c **** #if defined ADC_CHANNEL_CURRENT && !defined SITL
+  59:subsystems/electrical.c ****   adc_buf_channel(ADC_CHANNEL_CURRENT, &electrical_priv.current_adc_buf, DEFAULT_AV_NB_SAMPLE);
+  60:subsystems/electrical.c **** #elif defined MILLIAMP_AT_FULL_THROTTLE
+  61:subsystems/electrical.c **** PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
+  62:subsystems/electrical.c ****   electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
+  63:subsystems/electrical.c **** #endif
+  64:subsystems/electrical.c **** }
+  44              		.loc 1 64 0
+  54:subsystems/electrical.c ****   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
+  45              		.loc 1 54 0
+  46 000e FFF7FEBF 		b	adc_buf_channel
+  47              	.LVL0:
+  48              	.L3:
+  49 0012 00BF     		.align	2
+  50              	.L2:
+  51 0014 00000000 		.word	.LANCHOR0
+  52 0018 00000000 		.word	.LANCHOR1
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56              		.global	__aeabi_ui2d
+  57              		.global	__aeabi_dmul
+  58              		.global	__aeabi_d2uiz
+  59              		.section	.text.electrical_periodic,"ax",%progbits
+  60              		.align	1
+  61              		.global	electrical_periodic
+  62              		.thumb
+  63              		.thumb_func
+  65              	electrical_periodic:
+  66              	.LFB1:
+  65:subsystems/electrical.c **** 
+  66:subsystems/electrical.c **** void electrical_periodic(void) {
+  67              		.loc 1 66 0
+  68              		.cfi_startproc
+  69              		@ args = 0, pretend = 0, frame = 0
+  70              		@ frame_needed = 0, uses_anonymous_args = 0
+  71 0000 08B5     		push	{r3, lr}
+  72              	.LCFI0:
+  73              		.cfi_def_cfa_offset 8
+  74              		.cfi_offset 3, -8
+  75              		.cfi_offset 14, -4
+  67:subsystems/electrical.c **** #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
+  68:subsystems/electrical.c ****   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupp
+  76              		.loc 1 68 0
+  77 0002 0D4B     		ldr	r3, .L5+8
+  78 0004 93F84520 		ldrb	r2, [r3, #69]	@ zero_extendqisi2
+  79 0008 1868     		ldr	r0, [r3, #0]
+  80 000a B0FBF2F0 		udiv	r0, r0, r2
+  81 000e FFF7FEFF 		bl	__aeabi_ui2d
+  82              	.LVL1:
+  83 0012 07A3     		adr	r3, .L5
+  84 0014 D3E90023 		ldrd	r2, [r3]
+  85 0018 FFF7FEFF 		bl	__aeabi_dmul
+  86              	.LVL2:
+  87 001c 0022     		movs	r2, #0
+  88 001e 074B     		ldr	r3, .L5+12
+  89 0020 FFF7FEFF 		bl	__aeabi_dmul
+  90              	.LVL3:
+  91 0024 FFF7FEFF 		bl	__aeabi_d2uiz
+  92              	.LVL4:
+  93 0028 0549     		ldr	r1, .L5+16
+  94 002a 0880     		strh	r0, [r1, #0]	@ movhi
+  95 002c 08BD     		pop	{r3, pc}
+  96              	.L6:
+  97 002e 00BF     		.align	3
+  98              	.L5:
+  99 0030 3BDF4F8D 		.word	2370821947
+ 100 0034 976E723F 		.word	1064464023
+ 101 0038 00000000 		.word	.LANCHOR1
+ 102 003c 00002440 		.word	1076101120
+ 103 0040 00000000 		.word	.LANCHOR0
+ 104              		.cfi_endproc
+ 105              	.LFE1:
+ 107              		.global	electrical
+ 108 0044 AFF30080 		.section	.bss.electrical_priv,"aw",%nobits
+ 109              		.align	2
+ 110              		.set	.LANCHOR1,. + 0
+ 113              	electrical_priv:
+ 114 0000 00000000 		.space	72
+ 114      00000000 
+ 114      00000000 
+ 114      00000000 
+ 114      00000000 
+ 115              		.section	.bss.electrical,"aw",%nobits
+ 116              		.align	2
+ 117              		.set	.LANCHOR0,. + 0
+ 120              	electrical:
+ 121 0000 00000000 		.space	12
+ 121      00000000 
+ 121      00000000 
+ 122              		.text
+ 123              	.Letext0:
+ 124              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 125              		.file 3 "./subsystems/electrical.h"
+ 126              		.file 4 "./mcu_periph/adc.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 electrical.c
+/var/tmp//ccfvLOdq.s:19     .text.electrical_init:0000000000000000 $t
+/var/tmp//ccfvLOdq.s:24     .text.electrical_init:0000000000000000 electrical_init
+/var/tmp//ccfvLOdq.s:51     .text.electrical_init:0000000000000014 $d
+/var/tmp//ccfvLOdq.s:60     .text.electrical_periodic:0000000000000000 $t
+/var/tmp//ccfvLOdq.s:65     .text.electrical_periodic:0000000000000000 electrical_periodic
+/var/tmp//ccfvLOdq.s:99     .text.electrical_periodic:0000000000000030 $d
+/var/tmp//ccfvLOdq.s:120    .bss.electrical:0000000000000000 electrical
+/var/tmp//ccfvLOdq.s:109    .bss.electrical_priv:0000000000000000 $d
+/var/tmp//ccfvLOdq.s:113    .bss.electrical_priv:0000000000000000 electrical_priv
+/var/tmp//ccfvLOdq.s:116    .bss.electrical:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+/var/tmp//ccfvLOdq.s:108    .text.electrical_periodic:0000000000000044 $t
+
+UNDEFINED SYMBOLS
+adc_buf_channel
+__aeabi_ui2d
+__aeabi_dmul
+__aeabi_d2uiz

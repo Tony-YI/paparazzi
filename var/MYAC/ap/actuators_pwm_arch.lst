@@ -1,0 +1,718 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"actuators_pwm_arch.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.actuators_pwm_arch_channel_init,"ax",%progbits
+  19              		.align	1
+  20              		.thumb
+  21              		.thumb_func
+  23              	actuators_pwm_arch_channel_init:
+  24              	.LFB0:
+  25              		.file 1 "arch/stm32/subsystems/actuators/actuators_pwm_arch.c"
+   1:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /*
+   2:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * Copyright (C) 2010 The Paparazzi Team
+   3:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  *
+   4:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * This file is part of Paparazzi.
+   5:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  *
+   6:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * Paparazzi is free software; you can redistribute it and/or modify
+   7:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * it under the terms of the GNU General Public License as published by
+   8:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * any later version.
+  10:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  *
+  11:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * Paparazzi is distributed in the hope that it will be useful,
+  12:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * GNU General Public License for more details.
+  15:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  *
+  16:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * You should have received a copy of the GNU General Public License
+  17:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * along with Paparazzi; see the file COPYING.  If not, write to
+  18:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  * Boston, MA 02111-1307, USA.
+  20:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+  21:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  22:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** @file arch/stm32/subsystems/actuators/actuators_pwm_arch.c
+  23:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  *  STM32 PWM servos handling.
+  24:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+  25:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  26:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #include "subsystems/actuators/actuators_pwm_arch.h"
+  27:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #include "subsystems/actuators/actuators_pwm.h"
+  28:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  29:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #include <libopencm3/stm32/gpio.h>
+  30:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #include <libopencm3/stm32/rcc.h>
+  31:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #include <libopencm3/stm32/timer.h>
+  32:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  33:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+  34:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  35:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if defined(STM32F1)
+  36:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** //#define PCLK 72000000
+  37:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define PCLK AHB_CLK
+  38:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #elif defined(STM32F4)
+  39:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** //#define PCLK 84000000
+  40:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define PCLK AHB_CLK/2
+  41:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  42:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  43:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define ONE_MHZ_CLK 1000000
+  44:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** Default servo update rate in Hz */
+  45:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef SERVO_HZ
+  46:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define SERVO_HZ 40
+  47:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  48:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  49:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** // Update rate can be adapted for each timer
+  50:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef TIM1_SERVO_HZ
+  51:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define TIM1_SERVO_HZ SERVO_HZ
+  52:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  53:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef TIM2_SERVO_HZ
+  54:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define TIM2_SERVO_HZ SERVO_HZ
+  55:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  56:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef TIM3_SERVO_HZ
+  57:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define TIM3_SERVO_HZ SERVO_HZ
+  58:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  59:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef TIM4_SERVO_HZ
+  60:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define TIM4_SERVO_HZ SERVO_HZ
+  61:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  62:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifndef TIM5_SERVO_HZ
+  63:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #define TIM5_SERVO_HZ SERVO_HZ
+  64:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  65:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  66:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** Set PWM channel configuration
+  67:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+  68:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** static inline void actuators_pwm_arch_channel_init(u32 timer_peripheral,
+  69:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 						enum tim_oc_id oc_id) {
+  26              		.loc 1 69 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 38B5     		push	{r3, r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 3, -16
+  35              		.cfi_offset 4, -12
+  36              		.cfi_offset 5, -8
+  37              		.cfi_offset 14, -4
+  38              		.loc 1 69 0
+  39 0002 0546     		mov	r5, r0
+  40 0004 0C46     		mov	r4, r1
+  70:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  71:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_disable_oc_output(timer_peripheral, oc_id);
+  41              		.loc 1 71 0
+  42 0006 FFF7FEFF 		bl	timer_disable_oc_output
+  43              	.LVL1:
+  72:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_disable_oc_clear(timer_peripheral, oc_id);
+  44              		.loc 1 72 0
+  45 000a 2846     		mov	r0, r5
+  46 000c 2146     		mov	r1, r4
+  47 000e FFF7FEFF 		bl	timer_disable_oc_clear
+  48              	.LVL2:
+  73:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_oc_preload(timer_peripheral, oc_id);
+  49              		.loc 1 73 0
+  50 0012 2846     		mov	r0, r5
+  51 0014 2146     		mov	r1, r4
+  52 0016 FFF7FEFF 		bl	timer_enable_oc_preload
+  53              	.LVL3:
+  74:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_slow_mode(timer_peripheral, oc_id);
+  54              		.loc 1 74 0
+  55 001a 2846     		mov	r0, r5
+  56 001c 2146     		mov	r1, r4
+  57 001e FFF7FEFF 		bl	timer_set_oc_slow_mode
+  58              	.LVL4:
+  75:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_mode(timer_peripheral, oc_id, TIM_OCM_PWM1);
+  59              		.loc 1 75 0
+  60 0022 2846     		mov	r0, r5
+  61 0024 2146     		mov	r1, r4
+  62 0026 0622     		movs	r2, #6
+  63 0028 FFF7FEFF 		bl	timer_set_oc_mode
+  64              	.LVL5:
+  76:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_polarity_high(timer_peripheral, oc_id);
+  65              		.loc 1 76 0
+  66 002c 2846     		mov	r0, r5
+  67 002e 2146     		mov	r1, r4
+  68 0030 FFF7FEFF 		bl	timer_set_oc_polarity_high
+  69              	.LVL6:
+  77:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_oc_output(timer_peripheral, oc_id);
+  70              		.loc 1 77 0
+  71 0034 2846     		mov	r0, r5
+  72 0036 2146     		mov	r1, r4
+  78:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+  73              		.loc 1 78 0
+  74 0038 BDE83840 		pop	{r3, r4, r5, lr}
+  77:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_oc_output(timer_peripheral, oc_id);
+  75              		.loc 1 77 0
+  76 003c FFF7FEBF 		b	timer_enable_oc_output
+  77              	.LVL7:
+  78              		.cfi_endproc
+  79              	.LFE0:
+  81              		.section	.text.set_servo_gpio.isra.0,"ax",%progbits
+  82              		.align	1
+  83              		.thumb
+  84              		.thumb_func
+  86              	set_servo_gpio.isra.0:
+  87              	.LFB5:
+  79:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  80:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** Set GPIO configuration
+  81:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+  82:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if defined(STM32F4)
+  83:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** static inline void set_servo_gpio(u32 gpioport, u16 pin, u8 af_num, u32 en) {
+  84:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_AHB1ENR, en);
+  85:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
+  86:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   gpio_set_af(gpioport, af_num, pin);
+  87:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+  88:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #elif defined(STM32F1)
+  89:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** static inline void set_servo_gpio(u32 gpioport, u16 pin, u8 none, u32 en) {
+  88              		.loc 1 89 0
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 0
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92              	.LVL8:
+  93 0000 70B5     		push	{r4, r5, r6, lr}
+  94              	.LCFI1:
+  95              		.cfi_def_cfa_offset 16
+  96              		.cfi_offset 4, -16
+  97              		.cfi_offset 5, -12
+  98              		.cfi_offset 6, -8
+  99              		.cfi_offset 14, -4
+ 100              		.loc 1 89 0
+ 101 0002 0546     		mov	r5, r0
+ 102 0004 0C46     		mov	r4, r1
+  90:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB2ENR, en | RCC_APB2ENR_AFIOEN);
+ 103              		.loc 1 90 0
+ 104 0006 0648     		ldr	r0, .L3
+ 105              	.LVL9:
+ 106 0008 42F00101 		orr	r1, r2, #1
+ 107              	.LVL10:
+ 108 000c FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 109              	.LVL11:
+  91:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
+ 110              		.loc 1 91 0
+ 111 0010 2846     		mov	r0, r5
+ 112 0012 0321     		movs	r1, #3
+ 113 0014 0222     		movs	r2, #2
+ 114 0016 2346     		mov	r3, r4
+  92:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);
+  93:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+ 115              		.loc 1 93 0
+ 116 0018 BDE87040 		pop	{r4, r5, r6, lr}
+  91:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
+ 117              		.loc 1 91 0
+ 118 001c FFF7FEBF 		b	gpio_set_mode
+ 119              	.LVL12:
+ 120              	.L4:
+ 121              		.align	2
+ 122              	.L3:
+ 123 0020 18100240 		.word	1073877016
+ 124              		.cfi_endproc
+ 125              	.LFE5:
+ 127              		.section	.text.set_servo_timer.constprop.1,"ax",%progbits
+ 128              		.align	1
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	set_servo_timer.constprop.1:
+ 133              	.LFB6:
+  94:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+  95:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+  96:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** Set Timer configuration
+  97:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+  98:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** static inline void set_servo_timer(u32 timer, u32 period, u8 channels_mask) {
+ 134              		.loc 1 98 0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 0
+ 137              		@ frame_needed = 0, uses_anonymous_args = 0
+ 138              	.LVL13:
+ 139 0000 38B5     		push	{r3, r4, r5, lr}
+ 140              	.LCFI2:
+ 141              		.cfi_def_cfa_offset 16
+ 142              		.cfi_offset 3, -16
+ 143              		.cfi_offset 4, -12
+ 144              		.cfi_offset 5, -8
+ 145              		.cfi_offset 14, -4
+ 146              		.loc 1 98 0
+ 147 0002 0446     		mov	r4, r0
+ 148 0004 0D46     		mov	r5, r1
+  99:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_reset(timer);
+ 149              		.loc 1 99 0
+ 150 0006 FFF7FEFF 		bl	timer_reset
+ 151              	.LVL14:
+ 100:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 101:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /* Timer global mode:
+ 102:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * - No divider.
+ 103:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * - Alignement edge.
+ 104:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * - Direction up.
+ 105:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    */
+ 106:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+ 152              		.loc 1 106 0
+ 153 000a 0021     		movs	r1, #0
+ 154 000c 0A46     		mov	r2, r1
+ 155 000e 0B46     		mov	r3, r1
+ 156 0010 2046     		mov	r0, r4
+ 157 0012 FFF7FEFF 		bl	timer_set_mode
+ 158              	.LVL15:
+ 107:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 108:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_prescaler(timer, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
+ 159              		.loc 1 108 0
+ 160 0016 4721     		movs	r1, #71
+ 161 0018 2046     		mov	r0, r4
+ 162 001a FFF7FEFF 		bl	timer_set_prescaler
+ 163              	.LVL16:
+ 109:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 110:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_disable_preload(timer);
+ 164              		.loc 1 110 0
+ 165 001e 2046     		mov	r0, r4
+ 166 0020 FFF7FEFF 		bl	timer_disable_preload
+ 167              	.LVL17:
+ 111:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 112:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_continuous_mode(timer);
+ 168              		.loc 1 112 0
+ 169 0024 2046     		mov	r0, r4
+ 170 0026 FFF7FEFF 		bl	timer_continuous_mode
+ 171              	.LVL18:
+ 113:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 114:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_period(timer, (ONE_MHZ_CLK / period) - 1);
+ 172              		.loc 1 114 0
+ 173 002a 2046     		mov	r0, r4
+ 174 002c 40F6C311 		movw	r1, #2499
+ 175 0030 FFF7FEFF 		bl	timer_set_period
+ 176              	.LVL19:
+ 115:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 116:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /* Disable outputs and configure channel if needed. */
+ 117:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   if (bit_is_set(channels_mask, 0)) {
+ 177              		.loc 1 117 0
+ 178 0034 E807     		lsls	r0, r5, #31
+ 179 0036 03D5     		bpl	.L6
+ 118:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****     actuators_pwm_arch_channel_init(timer, TIM_OC1);
+ 180              		.loc 1 118 0
+ 181 0038 2046     		mov	r0, r4
+ 182 003a 0021     		movs	r1, #0
+ 183 003c FFF7FEFF 		bl	actuators_pwm_arch_channel_init
+ 184              	.LVL20:
+ 185              	.L6:
+ 119:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   }
+ 120:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   if (bit_is_set(channels_mask, 1)) {
+ 186              		.loc 1 120 0
+ 187 0040 A907     		lsls	r1, r5, #30
+ 188 0042 03D5     		bpl	.L7
+ 121:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****     actuators_pwm_arch_channel_init(timer, TIM_OC2);
+ 189              		.loc 1 121 0
+ 190 0044 2046     		mov	r0, r4
+ 191 0046 0221     		movs	r1, #2
+ 192 0048 FFF7FEFF 		bl	actuators_pwm_arch_channel_init
+ 193              	.LVL21:
+ 194              	.L7:
+ 122:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   }
+ 123:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   if (bit_is_set(channels_mask, 2)) {
+ 195              		.loc 1 123 0
+ 196 004c 6A07     		lsls	r2, r5, #29
+ 197 004e 03D5     		bpl	.L8
+ 124:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****     actuators_pwm_arch_channel_init(timer, TIM_OC3);
+ 198              		.loc 1 124 0
+ 199 0050 2046     		mov	r0, r4
+ 200 0052 0421     		movs	r1, #4
+ 201 0054 FFF7FEFF 		bl	actuators_pwm_arch_channel_init
+ 202              	.LVL22:
+ 203              	.L8:
+ 125:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   }
+ 126:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   if (bit_is_set(channels_mask, 3)) {
+ 204              		.loc 1 126 0
+ 205 0058 2B07     		lsls	r3, r5, #28
+ 206 005a 03D5     		bpl	.L9
+ 127:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****     actuators_pwm_arch_channel_init(timer, TIM_OC4);
+ 207              		.loc 1 127 0
+ 208 005c 2046     		mov	r0, r4
+ 209 005e 0621     		movs	r1, #6
+ 210 0060 FFF7FEFF 		bl	actuators_pwm_arch_channel_init
+ 211              	.LVL23:
+ 212              	.L9:
+ 128:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   }
+ 129:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 130:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /*
+ 131:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * Set initial output compare values.
+ 132:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * Note: Maybe we should preload the compare registers with some sensible
+ 133:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * values before we enable the timer?
+ 134:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    */
+ 135:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   //timer_set_oc_value(timer, TIM_OC1, 1000);
+ 136:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   //timer_set_oc_value(timer, TIM_OC2, 1000);
+ 137:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   //timer_set_oc_value(timer, TIM_OC3, 1000);
+ 138:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   //timer_set_oc_value(timer, TIM_OC4, 1000);
+ 139:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 140:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /* -- Enable timer -- */
+ 141:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /*
+ 142:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * ARR reload enable.
+ 143:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * Note: In our case it does not matter much if we do preload or not. As it
+ 144:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * is unlikely we will want to change the frequency of the timer during
+ 145:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * runtime anyways.
+ 146:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    */
+ 147:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_preload(timer);
+ 213              		.loc 1 147 0
+ 214 0064 2046     		mov	r0, r4
+ 215 0066 FFF7FEFF 		bl	timer_enable_preload
+ 216              	.LVL24:
+ 148:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 149:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /* Counter enable. */
+ 150:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_counter(timer);
+ 217              		.loc 1 150 0
+ 218 006a 2046     		mov	r0, r4
+ 151:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+ 219              		.loc 1 151 0
+ 220 006c BDE83840 		pop	{r3, r4, r5, lr}
+ 150:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_enable_counter(timer);
+ 221              		.loc 1 150 0
+ 222 0070 FFF7FEBF 		b	timer_enable_counter
+ 223              	.LVL25:
+ 224              		.cfi_endproc
+ 225              	.LFE6:
+ 227              		.section	.text.actuators_pwm_arch_init,"ax",%progbits
+ 228              		.align	1
+ 229              		.global	actuators_pwm_arch_init
+ 230              		.thumb
+ 231              		.thumb_func
+ 233              	actuators_pwm_arch_init:
+ 234              	.LFB3:
+ 152:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 153:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** PWM arch init called by generic pwm driver
+ 154:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+ 155:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** void actuators_pwm_arch_init(void) {
+ 235              		.loc 1 155 0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 0
+ 238              		@ frame_needed = 0, uses_anonymous_args = 0
+ 239 0000 10B5     		push	{r4, lr}
+ 240              	.LCFI3:
+ 241              		.cfi_def_cfa_offset 8
+ 242              		.cfi_offset 4, -8
+ 243              		.cfi_offset 14, -4
+ 156:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 157:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /*-----------------------------------
+ 158:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * Configure timer peripheral clocks
+ 159:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    *-----------------------------------*/
+ 160:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM1
+ 161:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
+ 162:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 163:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM2
+ 164:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+ 165:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 166:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM3
+ 167:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM3EN);
+ 244              		.loc 1 167 0
+ 245 0002 1D4C     		ldr	r4, .L24
+ 246 0004 0221     		movs	r1, #2
+ 247 0006 2046     		mov	r0, r4
+ 248 0008 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 249              	.LVL26:
+ 168:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 169:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM4
+ 170:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
+ 171:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 172:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM5
+ 173:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM5EN);
+ 250              		.loc 1 173 0
+ 251 000c 2046     		mov	r0, r4
+ 252 000e 0821     		movs	r1, #8
+ 253 0010 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 254              	.LVL27:
+ 174:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 175:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 176:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /*----------------
+ 177:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    * Configure GPIO
+ 178:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****    *----------------*/
+ 179:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if defined(STM32F1)
+ 180:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   /* TIM3 GPIO for PWM1..4 */
+ 181:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
+ 255              		.loc 1 181 0
+ 256 0014 194B     		ldr	r3, .L24+4
+ 182:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 183:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 184:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_0
+ 185:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC_IOP);
+ 186:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 187:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_1
+ 188:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, PWM_SERVO_1_RCC_IOP);
+ 257              		.loc 1 188 0
+ 258 0016 1A4C     		ldr	r4, .L24+8
+ 181:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
+ 259              		.loc 1 181 0
+ 260 0018 1A68     		ldr	r2, [r3, #0]
+ 261              		.loc 1 188 0
+ 262 001a 4021     		movs	r1, #64
+ 181:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
+ 263              		.loc 1 181 0
+ 264 001c 42F44060 		orr	r0, r2, #3072
+ 265 0020 1860     		str	r0, [r3, #0]
+ 266              		.loc 1 188 0
+ 267 0022 1022     		movs	r2, #16
+ 268 0024 2046     		mov	r0, r4
+ 269 0026 FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 270              	.LVL28:
+ 189:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 190:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_2
+ 191:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, PWM_SERVO_2_RCC_IOP);
+ 271              		.loc 1 191 0
+ 272 002a 2046     		mov	r0, r4
+ 273 002c 8021     		movs	r1, #128
+ 274 002e 1022     		movs	r2, #16
+ 275 0030 FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 276              	.LVL29:
+ 192:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 193:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_3
+ 194:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, PWM_SERVO_3_RCC_IOP);
+ 277              		.loc 1 194 0
+ 278 0034 2046     		mov	r0, r4
+ 279 0036 1022     		movs	r2, #16
+ 280 0038 4FF48071 		mov	r1, #256
+ 281 003c FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 282              	.LVL30:
+ 195:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 196:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_4
+ 197:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, PWM_SERVO_4_RCC_IOP);
+ 283              		.loc 1 197 0
+ 284 0040 2046     		mov	r0, r4
+ 285 0042 1022     		movs	r2, #16
+ 198:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 199:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_5
+ 200:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, PWM_SERVO_5_RCC_IOP);
+ 286              		.loc 1 200 0
+ 287 0044 A4F50064 		sub	r4, r4, #2048
+ 197:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, PWM_SERVO_4_RCC_IOP);
+ 288              		.loc 1 197 0
+ 289 0048 4FF40071 		mov	r1, #512
+ 290 004c FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 291              	.LVL31:
+ 292              		.loc 1 200 0
+ 293 0050 2046     		mov	r0, r4
+ 294 0052 0121     		movs	r1, #1
+ 295 0054 0422     		movs	r2, #4
+ 296 0056 FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 297              	.LVL32:
+ 201:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 202:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_6
+ 203:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, PWM_SERVO_6_RCC_IOP);
+ 298              		.loc 1 203 0
+ 299 005a 2046     		mov	r0, r4
+ 300 005c 0221     		movs	r1, #2
+ 301 005e 0422     		movs	r2, #4
+ 302 0060 FFF7FEFF 		bl	set_servo_gpio.isra.0
+ 303              	.LVL33:
+ 204:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 205:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_7
+ 206:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, PWM_SERVO_7_RCC_IOP);
+ 207:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 208:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_8
+ 209:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC_IOP);
+ 210:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 211:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 212:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 213:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM1
+ 214:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM1, TIM1_SERVO_HZ, PWM_TIM1_CHAN_MASK);
+ 215:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 216:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 217:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM2
+ 218:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM2, TIM2_SERVO_HZ, PWM_TIM2_CHAN_MASK);
+ 219:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 220:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 221:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM3
+ 222:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM3, TIM3_SERVO_HZ, PWM_TIM3_CHAN_MASK);
+ 304              		.loc 1 222 0
+ 305 0064 0F21     		movs	r1, #15
+ 306 0066 0748     		ldr	r0, .L24+12
+ 307 0068 FFF7FEFF 		bl	set_servo_timer.constprop.1
+ 308              	.LVL34:
+ 223:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 224:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 225:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM4
+ 226:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM4, TIM4_SERVO_HZ, PWM_TIM4_CHAN_MASK);
+ 227:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 228:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 229:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #if PWM_USE_TIM5
+ 230:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM5, TIM5_SERVO_HZ, PWM_TIM5_CHAN_MASK);
+ 309              		.loc 1 230 0
+ 310 006c 0648     		ldr	r0, .L24+16
+ 311 006e 0321     		movs	r1, #3
+ 231:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 232:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 233:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+ 312              		.loc 1 233 0
+ 313 0070 BDE81040 		pop	{r4, lr}
+ 230:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   set_servo_timer(TIM5, TIM5_SERVO_HZ, PWM_TIM5_CHAN_MASK);
+ 314              		.loc 1 230 0
+ 315 0074 FFF7FEBF 		b	set_servo_timer.constprop.1
+ 316              	.LVL35:
+ 317              	.L25:
+ 318              		.align	2
+ 319              	.L24:
+ 320 0078 1C100240 		.word	1073877020
+ 321 007c 04000140 		.word	1073807364
+ 322 0080 00100140 		.word	1073811456
+ 323 0084 00040040 		.word	1073742848
+ 324 0088 000C0040 		.word	1073744896
+ 325              		.cfi_endproc
+ 326              	.LFE3:
+ 328              		.section	.text.actuators_pwm_commit,"ax",%progbits
+ 329              		.align	1
+ 330              		.global	actuators_pwm_commit
+ 331              		.thumb
+ 332              		.thumb_func
+ 334              	actuators_pwm_commit:
+ 335              	.LFB4:
+ 234:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 235:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** /** Set pulse widths from actuator values, assumed to be in us
+ 236:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****  */
+ 237:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** void actuators_pwm_commit(void) {
+ 336              		.loc 1 237 0
+ 337              		.cfi_startproc
+ 338              		@ args = 0, pretend = 0, frame = 0
+ 339              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340 0000 38B5     		push	{r3, r4, r5, lr}
+ 341              	.LCFI4:
+ 342              		.cfi_def_cfa_offset 16
+ 343              		.cfi_offset 3, -16
+ 344              		.cfi_offset 4, -12
+ 345              		.cfi_offset 5, -8
+ 346              		.cfi_offset 14, -4
+ 238:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_0
+ 239:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC, actuators_pwm_values[PWM_SERVO_0]);
+ 240:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 241:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_1
+ 242:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_1_TIMER, PWM_SERVO_1_OC, actuators_pwm_values[PWM_SERVO_1]);
+ 347              		.loc 1 242 0
+ 348 0002 124C     		ldr	r4, .L27
+ 349 0004 124D     		ldr	r5, .L27+4
+ 350 0006 0021     		movs	r1, #0
+ 351 0008 2846     		mov	r0, r5
+ 352 000a 2268     		ldr	r2, [r4, #0]
+ 353 000c FFF7FEFF 		bl	timer_set_oc_value
+ 354              	.LVL36:
+ 243:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 244:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_2
+ 245:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_2_TIMER, PWM_SERVO_2_OC, actuators_pwm_values[PWM_SERVO_2]);
+ 355              		.loc 1 245 0
+ 356 0010 2846     		mov	r0, r5
+ 357 0012 0221     		movs	r1, #2
+ 358 0014 6268     		ldr	r2, [r4, #4]
+ 359 0016 FFF7FEFF 		bl	timer_set_oc_value
+ 360              	.LVL37:
+ 246:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 247:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_3
+ 248:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_3_TIMER, PWM_SERVO_3_OC, actuators_pwm_values[PWM_SERVO_3]);
+ 361              		.loc 1 248 0
+ 362 001a 2846     		mov	r0, r5
+ 363 001c 0421     		movs	r1, #4
+ 364 001e A268     		ldr	r2, [r4, #8]
+ 365 0020 FFF7FEFF 		bl	timer_set_oc_value
+ 366              	.LVL38:
+ 249:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 250:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_4
+ 251:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC, actuators_pwm_values[PWM_SERVO_4]);
+ 367              		.loc 1 251 0
+ 368 0024 2846     		mov	r0, r5
+ 369 0026 0621     		movs	r1, #6
+ 370 0028 E268     		ldr	r2, [r4, #12]
+ 252:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 253:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_5
+ 254:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_5_TIMER, PWM_SERVO_5_OC, actuators_pwm_values[PWM_SERVO_5]);
+ 371              		.loc 1 254 0
+ 372 002a 05F50065 		add	r5, r5, #2048
+ 251:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC, actuators_pwm_values[PWM_SERVO_4]);
+ 373              		.loc 1 251 0
+ 374 002e FFF7FEFF 		bl	timer_set_oc_value
+ 375              	.LVL39:
+ 376              		.loc 1 254 0
+ 377 0032 2846     		mov	r0, r5
+ 378 0034 0021     		movs	r1, #0
+ 379 0036 2269     		ldr	r2, [r4, #16]
+ 380 0038 FFF7FEFF 		bl	timer_set_oc_value
+ 381              	.LVL40:
+ 255:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 256:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_6
+ 257:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC, actuators_pwm_values[PWM_SERVO_6]);
+ 382              		.loc 1 257 0
+ 383 003c 6269     		ldr	r2, [r4, #20]
+ 384 003e 2846     		mov	r0, r5
+ 385 0040 0221     		movs	r1, #2
+ 258:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 259:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_7
+ 260:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC, actuators_pwm_values[PWM_SERVO_7]);
+ 261:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 262:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #ifdef PWM_SERVO_8
+ 263:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC, actuators_pwm_values[PWM_SERVO_8]);
+ 264:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** #endif
+ 265:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** 
+ 266:arch/stm32/subsystems/actuators/actuators_pwm_arch.c **** }
+ 386              		.loc 1 266 0
+ 387 0042 BDE83840 		pop	{r3, r4, r5, lr}
+ 257:arch/stm32/subsystems/actuators/actuators_pwm_arch.c ****   timer_set_oc_value(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC, actuators_pwm_values[PWM_SERVO_6]);
+ 388              		.loc 1 257 0
+ 389 0046 FFF7FEBF 		b	timer_set_oc_value
+ 390              	.LVL41:
+ 391              	.L28:
+ 392 004a 00BF     		.align	2
+ 393              	.L27:
+ 394 004c 00000000 		.word	.LANCHOR0
+ 395 0050 00040040 		.word	1073742848
+ 396              		.cfi_endproc
+ 397              	.LFE4:
+ 399              		.global	actuators_pwm_values
+ 400              		.section	.bss.actuators_pwm_values,"aw",%nobits
+ 401              		.align	2
+ 402              		.set	.LANCHOR0,. + 0
+ 405              	actuators_pwm_values:
+ 406 0000 00000000 		.space	24
+ 406      00000000 
+ 406      00000000 
+ 406      00000000 
+ 406      00000000 
+ 407              		.text
+ 408              	.Letext0:
+ 409              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 410              		.file 3 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+ 411              		.file 4 "../ext/libopencm3/include/libopencm3/stm32/common/timer_common_all.h"
+ 412              		.file 5 "../ext/libopencm3/include/libopencm3/stm32/f1/rcc.h"
+ 413              		.file 6 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 actuators_pwm_arch.c
+/var/tmp//ccnZsEYe.s:19     .text.actuators_pwm_arch_channel_init:0000000000000000 $t
+/var/tmp//ccnZsEYe.s:23     .text.actuators_pwm_arch_channel_init:0000000000000000 actuators_pwm_arch_channel_init
+/var/tmp//ccnZsEYe.s:82     .text.set_servo_gpio.isra.0:0000000000000000 $t
+/var/tmp//ccnZsEYe.s:86     .text.set_servo_gpio.isra.0:0000000000000000 set_servo_gpio.isra.0
+/var/tmp//ccnZsEYe.s:123    .text.set_servo_gpio.isra.0:0000000000000020 $d
+/var/tmp//ccnZsEYe.s:128    .text.set_servo_timer.constprop.1:0000000000000000 $t
+/var/tmp//ccnZsEYe.s:132    .text.set_servo_timer.constprop.1:0000000000000000 set_servo_timer.constprop.1
+/var/tmp//ccnZsEYe.s:228    .text.actuators_pwm_arch_init:0000000000000000 $t
+/var/tmp//ccnZsEYe.s:233    .text.actuators_pwm_arch_init:0000000000000000 actuators_pwm_arch_init
+/var/tmp//ccnZsEYe.s:320    .text.actuators_pwm_arch_init:0000000000000078 $d
+/var/tmp//ccnZsEYe.s:329    .text.actuators_pwm_commit:0000000000000000 $t
+/var/tmp//ccnZsEYe.s:334    .text.actuators_pwm_commit:0000000000000000 actuators_pwm_commit
+/var/tmp//ccnZsEYe.s:394    .text.actuators_pwm_commit:000000000000004c $d
+/var/tmp//ccnZsEYe.s:405    .bss.actuators_pwm_values:0000000000000000 actuators_pwm_values
+/var/tmp//ccnZsEYe.s:401    .bss.actuators_pwm_values:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+timer_disable_oc_output
+timer_disable_oc_clear
+timer_enable_oc_preload
+timer_set_oc_slow_mode
+timer_set_oc_mode
+timer_set_oc_polarity_high
+timer_enable_oc_output
+rcc_peripheral_enable_clock
+gpio_set_mode
+timer_reset
+timer_set_mode
+timer_set_prescaler
+timer_disable_preload
+timer_continuous_mode
+timer_set_period
+timer_enable_preload
+timer_enable_counter
+timer_set_oc_value

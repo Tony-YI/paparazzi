@@ -1,4 +1,4 @@
-/* Automatically generated from /Users/tony-yi/git/paparazzi/conf/messages.xml */
+/* Automatically generated from /Users/tony-yi/git/paparazzi_local/conf/messages.xml */
 /* Please DO NOT EDIT */
 /* Macros to send and receive messages of class datalink */
 #ifndef _VAR_MESSAGES2_datalink_H_
@@ -17,6 +17,7 @@
 #define DL_JOYSTICK_RAW 11
 #define DL_COMMANDS_RAW 12
 #define DL_DGPS_RAW 13
+#define DL_HOVER_POINT_CHANGE_ECEF 14
 #define DL_GET_SETTING 16
 #define DL_TCAS_RESOLVE 17
 #define DL_WINDTURBINE_STATUS 50
@@ -30,9 +31,9 @@
 #define DL_BOOZ_NAV_STICK 150
 #define DL_EXTERNAL_FILTER_SOLUTION 151
 #define DL_ROTORCRAFT_CAM_STICK 152
-#define DL_MSG_datalink_NB 26
+#define DL_MSG_datalink_NB 27
 
-#define MSG_datalink_LENGTHS {0,(2+0+2+4+4+4+4+2+2+1),(2+0+1+1+4+4+4),(2+0+1+1+4+4+4),(2+0+1+1+4),(2+0+1+1),(2+0+1+1+1+1+nb_ubx_payload*1),(2+0+2+2+2+1),(2+0),(2+0+1+1+4+4+4),(2+0+1+1+1),(2+0+1+1+1+1),(2+0+1+1+nb_commands*1),(2+0+1+1+1+nb_rtcm*1),0,0,(2+0+1+1),(2+0+1+1+1),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+1+1+4+4),(2+0+1+1+1),(2+0+1+1+1+1+1+1),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+2+2),(2+0+1+1+nb_command*1),0,0,(2+0+2+1+1),(2+0+2+2+2+2),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+1+1+4+4+4+4+1),(2+0+1+1+1+1+1),(2+0+1+1+4+4+4+4),(2+0+1+1+1),}
+#define MSG_datalink_LENGTHS {0,(2+0+2+4+4+4+4+2+2+1),(2+0+1+1+4+4+4),(2+0+1+1+4+4+4),(2+0+1+1+4),(2+0+1+1),(2+0+1+1+1+1+nb_ubx_payload*1),(2+0+2+2+2+1),(2+0),(2+0+1+1+4+4+4),(2+0+1+1+1),(2+0+1+1+1+1),(2+0+1+1+nb_commands*1),(2+0+1+1+1+nb_rtcm*1),(2+0+1+1+4+4+4),0,(2+0+1+1),(2+0+1+1+1),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+1+1+4+4),(2+0+1+1+1),(2+0+1+1+1+1+1+1),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+2+2),(2+0+1+1+nb_command*1),0,0,(2+0+2+1+1),(2+0+2+2+2+2),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,(2+0+1+1+4+4+4+4+1),(2+0+1+1+1+1+1),(2+0+1+1+4+4+4+4),(2+0+1+1+1),}
 
 /*
  Size for non variable messages
@@ -42,6 +43,7 @@
 14 : MOVE_WP
 14 : WIND_INFO
 14 : FORMATION_SLOT
+14 : HOVER_POINT_CHANGE_ECEF
 10 : WINDTURBINE_STATUS
  8 : CSC_SERVO_CMD
  7 : HITL_INFRARED
@@ -226,6 +228,20 @@ static inline void DOWNLINK_SEND_DGPS_RAW(struct DownlinkTransport *tp, uint8_t 
 	  tp->PutBytes(tp->impl, DL_TYPE_UINT8, 1, (void *) _length); 
 	  tp->PutBytes(tp->impl, DL_TYPE_ARRAY_LENGTH, 1, (void *) &nb_rtcm); 
 	  tp->PutBytes(tp->impl, DL_TYPE_UINT8, 1 * nb_rtcm, (void *) _rtcm); 
+	  tp->EndMessage(tp->impl); 
+	} else 
+	  tp->Overrun(tp->impl); 
+}
+
+static inline void DOWNLINK_SEND_HOVER_POINT_CHANGE_ECEF(struct DownlinkTransport *tp, uint8_t *_ac_id, uint8_t *_external_gps_fix, int32_t *_ecef_pos_x, int32_t *_ecef_pos_y, int32_t *_ecef_pos_z){ 
+	if (tp->CheckFreeSpace(tp->impl, tp->SizeOf(tp->impl, 0+1+1+4+4+4))) {
+	  tp->CountBytes(tp->impl, tp->SizeOf(tp->impl, 0+1+1+4+4+4)); 
+	  tp->StartMessage(tp->impl, "HOVER_POINT_CHANGE_ECEF", DL_HOVER_POINT_CHANGE_ECEF, 0+1+1+4+4+4); 
+	  tp->PutBytes(tp->impl, DL_TYPE_UINT8, 1, (void *) _ac_id); 
+	  tp->PutBytes(tp->impl, DL_TYPE_UINT8, 1, (void *) _external_gps_fix); 
+	  tp->PutBytes(tp->impl, DL_TYPE_INT32, 4, (void *) _ecef_pos_x); 
+	  tp->PutBytes(tp->impl, DL_TYPE_INT32, 4, (void *) _ecef_pos_y); 
+	  tp->PutBytes(tp->impl, DL_TYPE_INT32, 4, (void *) _ecef_pos_z); 
 	  tp->EndMessage(tp->impl); 
 	} else 
 	  tp->Overrun(tp->impl); 
@@ -463,6 +479,12 @@ static inline void DOWNLINK_SEND_ROTORCRAFT_CAM_STICK(struct DownlinkTransport *
 #define DL_DGPS_RAW_length(_payload) ((uint8_t)(*((uint8_t*)_payload+3)))
 #define DL_DGPS_RAW_rtcm_length(_payload) ((uint8_t)(*((uint8_t*)_payload+4)))
 #define DL_DGPS_RAW_rtcm(_payload) ((uint8_t*)(_payload+5))
+
+#define DL_HOVER_POINT_CHANGE_ECEF_ac_id(_payload) ((uint8_t)(*((uint8_t*)_payload+2)))
+#define DL_HOVER_POINT_CHANGE_ECEF_external_gps_fix(_payload) ((uint8_t)(*((uint8_t*)_payload+3)))
+#define DL_HOVER_POINT_CHANGE_ECEF_ecef_pos_x(_payload) ((int32_t)(*((uint8_t*)_payload+4)|*((uint8_t*)_payload+4+1)<<8|((uint32_t)*((uint8_t*)_payload+4+2))<<16|((uint32_t)*((uint8_t*)_payload+4+3))<<24))
+#define DL_HOVER_POINT_CHANGE_ECEF_ecef_pos_y(_payload) ((int32_t)(*((uint8_t*)_payload+8)|*((uint8_t*)_payload+8+1)<<8|((uint32_t)*((uint8_t*)_payload+8+2))<<16|((uint32_t)*((uint8_t*)_payload+8+3))<<24))
+#define DL_HOVER_POINT_CHANGE_ECEF_ecef_pos_z(_payload) ((int32_t)(*((uint8_t*)_payload+12)|*((uint8_t*)_payload+12+1)<<8|((uint32_t)*((uint8_t*)_payload+12+2))<<16|((uint32_t)*((uint8_t*)_payload+12+3))<<24))
 
 #define DL_GET_SETTING_index(_payload) ((uint8_t)(*((uint8_t*)_payload+2)))
 #define DL_GET_SETTING_ac_id(_payload) ((uint8_t)(*((uint8_t*)_payload+3)))

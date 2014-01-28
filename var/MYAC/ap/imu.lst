@@ -1,0 +1,482 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"imu.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.imu_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	imu_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	imu_init:
+  25              	.LFB4:
+  26              		.file 1 "subsystems/imu.c"
+   1:subsystems/imu.c **** /*
+   2:subsystems/imu.c ****  * Copyright (C) 2008-2010 The Paparazzi Team
+   3:subsystems/imu.c ****  *
+   4:subsystems/imu.c ****  * This file is part of paparazzi.
+   5:subsystems/imu.c ****  *
+   6:subsystems/imu.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:subsystems/imu.c ****  * it under the terms of the GNU General Public License as published by
+   8:subsystems/imu.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:subsystems/imu.c ****  * any later version.
+  10:subsystems/imu.c ****  *
+  11:subsystems/imu.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:subsystems/imu.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:subsystems/imu.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:subsystems/imu.c ****  * GNU General Public License for more details.
+  15:subsystems/imu.c ****  *
+  16:subsystems/imu.c ****  * You should have received a copy of the GNU General Public License
+  17:subsystems/imu.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:subsystems/imu.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:subsystems/imu.c ****  * Boston, MA 02111-1307, USA.
+  20:subsystems/imu.c ****  */
+  21:subsystems/imu.c **** 
+  22:subsystems/imu.c **** /**
+  23:subsystems/imu.c ****  * @file subsystems/imu.c
+  24:subsystems/imu.c ****  * Inertial Measurement Unit interface.
+  25:subsystems/imu.c ****  */
+  26:subsystems/imu.c **** 
+  27:subsystems/imu.c **** #include "subsystems/imu.h"
+  28:subsystems/imu.c **** 
+  29:subsystems/imu.c **** struct Imu imu;
+  30:subsystems/imu.c **** 
+  31:subsystems/imu.c **** void imu_init(void) {
+  27              		.loc 1 31 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 2DE9F74F 		push	{r0, r1, r2, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 48
+  34              		.cfi_offset 0, -48
+  35              		.cfi_offset 1, -44
+  36              		.cfi_offset 2, -40
+  37              		.cfi_offset 4, -36
+  38              		.cfi_offset 5, -32
+  39              		.cfi_offset 6, -28
+  40              		.cfi_offset 7, -24
+  41              		.cfi_offset 8, -20
+  42              		.cfi_offset 9, -16
+  43              		.cfi_offset 10, -12
+  44              		.cfi_offset 11, -8
+  45              		.cfi_offset 14, -4
+  32:subsystems/imu.c **** 
+  33:subsystems/imu.c ****   /* initialises neutrals */
+  34:subsystems/imu.c ****   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
+  46              		.loc 1 34 0
+  47 0004 554B     		ldr	r3, .L9
+  48              	.LBB2:
+  49              	.LBB3:
+  35:subsystems/imu.c **** 
+  36:subsystems/imu.c ****   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  37:subsystems/imu.c **** 
+  38:subsystems/imu.c **** #if defined IMU_MAG_X_NEUTRAL && defined IMU_MAG_Y_NEUTRAL && defined IMU_MAG_Z_NEUTRAL
+  39:subsystems/imu.c ****   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
+  40:subsystems/imu.c **** #else
+  41:subsystems/imu.c **** #if USE_MAGNETOMETER
+  42:subsystems/imu.c **** INFO("Magnetometer neutrals are set to zero, you should calibrate!")
+  43:subsystems/imu.c **** #endif
+  44:subsystems/imu.c ****   INT_VECT3_ZERO(imu.mag_neutral);
+  45:subsystems/imu.c **** #endif
+  46:subsystems/imu.c **** 
+  47:subsystems/imu.c ****   /*
+  48:subsystems/imu.c ****     Compute quaternion and rotation matrix
+  49:subsystems/imu.c ****     for conversions between body and imu frame
+  50:subsystems/imu.c ****   */
+  51:subsystems/imu.c ****   struct Int32Eulers body_to_imu_eulers =
+  52:subsystems/imu.c ****     { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
+  53:subsystems/imu.c ****       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA),
+  54:subsystems/imu.c ****       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
+  55:subsystems/imu.c ****   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
+  50              		.loc 1 55 0
+  51 0006 564F     		ldr	r7, .L9+4
+  52              	.LBE3:
+  53              	.LBE2:
+  34:subsystems/imu.c ****   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
+  54              		.loc 1 34 0
+  55 0008 0022     		movs	r2, #0
+  36:subsystems/imu.c ****   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  56              		.loc 1 36 0
+  57 000a 0B20     		movs	r0, #11
+  34:subsystems/imu.c ****   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
+  58              		.loc 1 34 0
+  59 000c DA63     		str	r2, [r3, #60]
+  60 000e 1A64     		str	r2, [r3, #64]
+  61 0010 5A64     		str	r2, [r3, #68]
+  36:subsystems/imu.c ****   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  62              		.loc 1 36 0
+  63 0012 6FF01801 		mvn	r1, #24
+  39:subsystems/imu.c ****   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
+  64              		.loc 1 39 0
+  65 0016 6FF07304 		mvn	r4, #115
+  66 001a 6FF01E05 		mvn	r5, #30
+  67 001e 6FF03406 		mvn	r6, #52
+  68              	.LBB7:
+  69              	.LBB4:
+  70              		.loc 1 55 0
+  71 0022 07F54952 		add	r2, r7, #12864
+  72 0026 B2F90220 		ldrsh	r2, [r2, #2]
+  73              	.LBE4:
+  74              	.LBE7:
+  36:subsystems/imu.c ****   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  75              		.loc 1 36 0
+  76 002a 9864     		str	r0, [r3, #72]
+  77 002c D864     		str	r0, [r3, #76]
+  78 002e 1965     		str	r1, [r3, #80]
+  79              	.LBB8:
+  80              	.LBB5:
+  81              		.loc 1 55 0
+  82 0030 B7F90200 		ldrsh	r0, [r7, #2]
+  83              	.LBE5:
+  84              	.LBE8:
+  39:subsystems/imu.c ****   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
+  85              		.loc 1 39 0
+  86 0034 5C65     		str	r4, [r3, #84]
+  87 0036 9D65     		str	r5, [r3, #88]
+  88 0038 DE65     		str	r6, [r3, #92]
+  89              	.LVL0:
+  90              	.LBB9:
+  91              	.LBB6:
+  92              		.loc 1 55 0
+  93 003a B7F90030 		ldrsh	r3, [r7, #0]
+  94              	.LVL1:
+  95              	.LBE6:
+  96 003e 00FB02F1 		mul	r1, r0, r2
+  97 0042 02FB03F6 		mul	r6, r2, r3
+  98 0046 8C13     		asrs	r4, r1, #14
+  99              	.LVL2:
+ 100 0048 B113     		asrs	r1, r6, #14
+ 101 004a 02FB02F5 		mul	r5, r2, r2
+ 102 004e 01FB03FA 		mul	sl, r1, r3
+ 103 0052 04FB02F8 		mul	r8, r4, r2
+ 104 0056 C2F1000C 		rsb	ip, r2, #0
+ 105 005a 5843     		muls	r0, r3, r0
+ 106              	.LVL3:
+ 107 005c 5C43     		muls	r4, r3, r4
+ 108              	.LVL4:
+ 109 005e 01FB0CF6 		mul	r6, r1, ip
+ 110 0062 AD13     		asrs	r5, r5, #14
+ 111              	.LVL5:
+ 112 0064 4FEA6A37 		asr	r7, sl, #13
+ 113              	.LVL6:
+ 114 0068 8013     		asrs	r0, r0, #14
+ 115              	.LVL7:
+ 116 006a 07EB6838 		add	r8, r7, r8, asr #13
+ 117 006e 6413     		asrs	r4, r4, #13
+ 118 0070 05FB03F7 		mul	r7, r5, r3
+ 119 0074 04EB663C 		add	ip, r4, r6, asr #13
+ 120 0078 00FB02F6 		mul	r6, r0, r2
+ 121 007c 7C13     		asrs	r4, r7, #13
+ 122 007e 04EB6637 		add	r7, r4, r6, asr #13
+ 123 0082 5C42     		negs	r4, r3
+ 124 0084 6043     		muls	r0, r4, r0
+ 125              	.LVL8:
+ 126 0086 0194     		str	r4, [sp, #4]
+ 127 0088 05FB02F6 		mul	r6, r5, r2
+ 128              	.LBE9:
+ 129              	.LBB10:
+ 130              	.LBB11:
+  56:subsystems/imu.c ****   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
+ 131              		.loc 1 56 0
+ 132 008c 0CFB0CF4 		mul	r4, ip, ip
+ 133              	.LBE11:
+ 134              	.LBE10:
+ 135              	.LBB14:
+  55:subsystems/imu.c ****   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
+ 136              		.loc 1 55 0
+ 137 0090 4013     		asrs	r0, r0, #13
+ 138 0092 00EB6636 		add	r6, r0, r6, asr #13
+ 139              	.LBE14:
+ 140              	.LBB15:
+ 141              	.LBB13:
+ 142              		.loc 1 56 0
+ 143 0096 08FB0840 		mla	r0, r8, r8, r4
+ 144 009a 07FB0704 		mla	r4, r7, r7, r0
+ 145 009e 06FB0640 		mla	r0, r6, r6, r4
+ 146              	.LVL9:
+ 147 00a2 A0B1     		cbz	r0, .L2
+ 148              	.LVL10:
+ 149              	.LBB12:
+ 150              		.loc 1 56 0 is_stmt 0 discriminator 2
+ 151 00a4 0446     		mov	r4, r0
+ 152 00a6 4FF0280B 		mov	fp, #40
+ 153              	.LVL11:
+ 154              	.L4:
+ 155              		.loc 1 56 0 discriminator 3
+ 156 00aa B0FBF4F9 		udiv	r9, r0, r4
+ 157              	.LVL12:
+ 158 00ae A144     		add	r9, r9, r4
+ 159              	.LVL13:
+ 160 00b0 4FEA5909 		lsr	r9, r9, #1
+ 161              	.LVL14:
+ 162 00b4 C9EB0404 		rsb	r4, r9, r4
+ 163              	.LVL15:
+ 164 00b8 012C     		cmp	r4, #1
+ 165 00ba 01D8     		bhi	.L3
+ 166              	.L5:
+ 167              		.loc 1 56 0
+ 168 00bc 4846     		mov	r0, r9
+ 169              	.LVL16:
+ 170 00be 06E0     		b	.L2
+ 171              	.LVL17:
+ 172              	.L3:
+ 173 00c0 0BF1FF3B 		add	fp, fp, #-1
+ 174              		.loc 1 56 0 discriminator 4
+ 175 00c4 1BF0FF0B 		ands	fp, fp, #255
+ 176 00c8 4C46     		mov	r4, r9
+ 177 00ca EED1     		bne	.L4
+ 178              	.LVL18:
+ 179 00cc F6E7     		b	.L5
+ 180              	.LVL19:
+ 181              	.L2:
+ 182              	.LBE12:
+ 183              	.LBE13:
+ 184              		.loc 1 56 0 discriminator 6
+ 185 00ce 234C     		ldr	r4, .L9
+ 186 00d0 FF03     		lsls	r7, r7, #15
+ 187              	.LVL20:
+ 188 00d2 97FBF0F7 		sdiv	r7, r7, r0
+ 189 00d6 C4F88C70 		str	r7, [r4, #140]
+ 190              	.LBE15:
+ 191              	.LBB16:
+ 192              	.LBB17:
+  57:subsystems/imu.c ****   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
+ 193              		.loc 1 57 0 is_stmt 1 discriminator 6
+ 194 00da 224F     		ldr	r7, .L9+8
+ 195              	.LBE17:
+ 196              	.LBE16:
+ 197              	.LBB20:
+  56:subsystems/imu.c ****   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
+ 198              		.loc 1 56 0 discriminator 6
+ 199 00dc F603     		lsls	r6, r6, #15
+ 200              	.LVL21:
+ 201 00de 4FEAC838 		lsl	r8, r8, #15
+ 202              	.LVL22:
+ 203 00e2 4FEACC3C 		lsl	ip, ip, #15
+ 204              	.LVL23:
+ 205 00e6 98FBF0F8 		sdiv	r8, r8, r0
+ 206 00ea 9CFBF0FC 		sdiv	ip, ip, r0
+ 207 00ee 96FBF0F0 		sdiv	r0, r6, r0
+ 208              	.LVL24:
+ 209              	.LBE20:
+ 210              	.LBB21:
+ 211              	.LBB18:
+ 212              		.loc 1 57 0 discriminator 6
+ 213 00f2 B7F90060 		ldrsh	r6, [r7, #0]
+ 214              	.LBE18:
+ 215 00f6 03FB03F7 		mul	r7, r3, r3
+ 216              	.LBE21:
+ 217              	.LBB22:
+  56:subsystems/imu.c ****   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
+ 218              		.loc 1 56 0 discriminator 6
+ 219 00fa C4F89000 		str	r0, [r4, #144]
+ 220              	.LVL25:
+ 221              	.LBE22:
+ 222              	.LBB23:
+ 223              	.LBB19:
+ 224              		.loc 1 57 0 discriminator 6
+ 225 00fe 7042     		negs	r0, r6
+ 226              	.LVL26:
+ 227              	.LBE19:
+ 228 0100 BE13     		asrs	r6, r7, #14
+ 229 0102 019F     		ldr	r7, [sp, #4]
+ 230 0104 4243     		muls	r2, r0, r2
+ 231              	.LVL27:
+ 232 0106 C4F89C70 		str	r7, [r4, #156]
+ 233 010a 00FB06F7 		mul	r7, r0, r6
+ 234 010e C1EBA737 		rsb	r7, r1, r7, asr #14
+ 235 0112 C4F8A070 		str	r7, [r4, #160]
+ 236 0116 03FB06F7 		mul	r7, r3, r6
+ 237 011a 4343     		muls	r3, r0, r3
+ 238              	.LVL28:
+ 239 011c C4F89810 		str	r1, [r4, #152]
+ 240 0120 C4F8A810 		str	r1, [r4, #168]
+ 241 0124 4143     		muls	r1, r0, r1
+ 242              	.LVL29:
+ 243 0126 9213     		asrs	r2, r2, #14
+ 244              	.LVL30:
+ 245 0128 9B13     		asrs	r3, r3, #14
+ 246 012a 06EBA136 		add	r6, r6, r1, asr #14
+ 247              	.LVL31:
+ 248 012e C4F89420 		str	r2, [r4, #148]
+ 249 0132 C3EBAA31 		rsb	r1, r3, sl, asr #14
+ 250 0136 02EBA732 		add	r2, r2, r7, asr #14
+ 251              	.LVL32:
+ 252              	.LBE23:
+ 253              	.LBB24:
+  56:subsystems/imu.c ****   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
+ 254              		.loc 1 56 0 discriminator 6
+ 255 013a C4F88480 		str	r8, [r4, #132]
+ 256 013e C4F888C0 		str	ip, [r4, #136]
+ 257              	.LBE24:
+ 258              	.LBB25:
+ 259              		.loc 1 57 0 discriminator 6
+ 260 0142 C4F8A420 		str	r2, [r4, #164]
+ 261 0146 C4F8AC60 		str	r6, [r4, #172]
+ 262 014a C4F8B010 		str	r1, [r4, #176]
+ 263 014e C4F8B450 		str	r5, [r4, #180]
+ 264              	.LBE25:
+  58:subsystems/imu.c **** 
+  59:subsystems/imu.c ****   imu_impl_init();
+  60:subsystems/imu.c **** }
+ 265              		.loc 1 60 0 discriminator 6
+ 266 0152 03B0     		add	sp, sp, #12
+ 267 0154 BDE8F04F 		pop	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  59:subsystems/imu.c ****   imu_impl_init();
+ 268              		.loc 1 59 0 discriminator 6
+ 269 0158 FFF7FEBF 		b	imu_impl_init
+ 270              	.LVL33:
+ 271              	.L10:
+ 272              		.align	2
+ 273              	.L9:
+ 274 015c 00000000 		.word	.LANCHOR0
+ 275 0160 00000000 		.word	pprz_trig_int
+ 276 0164 40320000 		.word	pprz_trig_int+12864
+ 277              		.cfi_endproc
+ 278              	.LFE4:
+ 280              		.section	.text.imu_float_init,"ax",%progbits
+ 281              		.align	1
+ 282              		.global	imu_float_init
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	imu_float_init:
+ 287              	.LFB5:
+  61:subsystems/imu.c **** 
+  62:subsystems/imu.c **** 
+  63:subsystems/imu.c **** void imu_float_init(struct ImuFloat* imuf) {
+ 288              		.loc 1 63 0
+ 289              		.cfi_startproc
+ 290              		@ args = 0, pretend = 0, frame = 0
+ 291              		@ frame_needed = 0, uses_anonymous_args = 0
+ 292              	.LVL34:
+ 293 0000 30B5     		push	{r4, r5, lr}
+ 294              	.LCFI1:
+ 295              		.cfi_def_cfa_offset 12
+ 296              		.cfi_offset 4, -12
+ 297              		.cfi_offset 5, -8
+ 298              		.cfi_offset 14, -4
+ 299              	.LBB26:
+  64:subsystems/imu.c **** 
+  65:subsystems/imu.c ****   /*
+  66:subsystems/imu.c ****     Compute quaternion and rotation matrix
+  67:subsystems/imu.c ****     for conversions between body and imu frame
+  68:subsystems/imu.c ****   */
+  69:subsystems/imu.c ****   EULERS_ASSIGN(imuf->body_to_imu_eulers,
+  70:subsystems/imu.c **** 		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
+  71:subsystems/imu.c ****   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
+  72:subsystems/imu.c ****   FLOAT_QUAT_NORMALIZE(imuf->body_to_imu_quat);
+  73:subsystems/imu.c ****   FLOAT_RMAT_OF_EULERS(imuf->body_to_imu_rmat, imuf->body_to_imu_eulers);
+ 300              		.loc 1 73 0
+ 301 0002 0D4D     		ldr	r5, .L12
+ 302              	.LBE26:
+  69:subsystems/imu.c ****   EULERS_ASSIGN(imuf->body_to_imu_eulers,
+ 303              		.loc 1 69 0
+ 304 0004 0D4A     		ldr	r2, .L12+4
+ 305              	.LBB27:
+  71:subsystems/imu.c ****   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
+ 306              		.loc 1 71 0
+ 307 0006 0E49     		ldr	r1, .L12+8
+ 308              	.LBE27:
+ 309              	.LBB28:
+ 310              		.loc 1 73 0
+ 311 0008 0E4C     		ldr	r4, .L12+12
+ 312 000a 0565     		str	r5, [r0, #80]	@ float
+ 313 000c 0E4D     		ldr	r5, .L12+16
+ 314              	.LBE28:
+  69:subsystems/imu.c ****   EULERS_ASSIGN(imuf->body_to_imu_eulers,
+ 315              		.loc 1 69 0
+ 316 000e 0023     		movs	r3, #0
+ 317 0010 8263     		str	r2, [r0, #56]	@ float
+ 318              	.LVL35:
+ 319              	.LBB29:
+  71:subsystems/imu.c ****   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
+ 320              		.loc 1 71 0
+ 321 0012 C163     		str	r1, [r0, #60]	@ float
+ 322 0014 4FF00042 		mov	r2, #-2147483648
+ 323 0018 4FF07E51 		mov	r1, #1065353216
+ 324              	.LBE29:
+  69:subsystems/imu.c ****   EULERS_ASSIGN(imuf->body_to_imu_eulers,
+ 325              		.loc 1 69 0
+ 326 001c 0363     		str	r3, [r0, #48]	@ float
+ 327 001e 4363     		str	r3, [r0, #52]	@ float
+ 328              	.LBB30:
+  71:subsystems/imu.c ****   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
+ 329              		.loc 1 71 0
+ 330 0020 0264     		str	r2, [r0, #64]	@ float
+ 331 0022 4364     		str	r3, [r0, #68]	@ float
+ 332 0024 8164     		str	r1, [r0, #72]	@ float
+ 333              	.LVL36:
+ 334              	.LBE30:
+ 335              	.LBB31:
+ 336              		.loc 1 73 0
+ 337 0026 C464     		str	r4, [r0, #76]	@ float
+ 338 0028 4265     		str	r2, [r0, #84]	@ float
+ 339 002a 8565     		str	r5, [r0, #88]	@ float
+ 340 002c C465     		str	r4, [r0, #92]	@ float
+ 341 002e 0366     		str	r3, [r0, #96]	@ float
+ 342 0030 4266     		str	r2, [r0, #100]	@ float
+ 343 0032 8366     		str	r3, [r0, #104]	@ float
+ 344 0034 C166     		str	r1, [r0, #108]	@ float
+ 345 0036 30BD     		pop	{r4, r5, pc}
+ 346              	.L13:
+ 347              		.align	2
+ 348              	.L12:
+ 349 0038 2EBDBBB3 		.word	-1279541970
+ 350 003c DB0F4940 		.word	1078530011
+ 351 0040 2EBD3BB3 		.word	-1287930578
+ 352 0044 000080BF 		.word	-1082130432
+ 353 0048 2EBDBB33 		.word	867941678
+ 354              	.LBE31:
+ 355              		.cfi_endproc
+ 356              	.LFE5:
+ 358              		.global	imu
+ 359              		.section	.bss.imu,"aw",%nobits
+ 360              		.align	2
+ 361              		.set	.LANCHOR0,. + 0
+ 364              	imu:
+ 365 0000 00000000 		.space	184
+ 365      00000000 
+ 365      00000000 
+ 365      00000000 
+ 365      00000000 
+ 366              		.text
+ 367              	.Letext0:
+ 368              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 369              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 370              		.file 4 "./math/pprz_algebra_int.h"
+ 371              		.file 5 "./math/pprz_algebra_float.h"
+ 372              		.file 6 "./subsystems/imu.h"
+ 373              		.file 7 "./mcu_periph/spi.h"
+ 374              		.file 8 "./peripherals/mpu60x0_regs.h"
+ 375              		.file 9 "./peripherals/mpu60x0.h"
+ 376              		.file 10 "./peripherals/mpu60x0_spi.h"
+ 377              		.file 11 "./subsystems/imu/imu_aspirin_2_spi.h"
+ 378              		.file 12 "./math/pprz_trig_int.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 imu.c
+/var/tmp//cclSgHpf.s:19     .text.imu_init:0000000000000000 $t
+/var/tmp//cclSgHpf.s:24     .text.imu_init:0000000000000000 imu_init
+/var/tmp//cclSgHpf.s:274    .text.imu_init:000000000000015c $d
+/var/tmp//cclSgHpf.s:281    .text.imu_float_init:0000000000000000 $t
+/var/tmp//cclSgHpf.s:286    .text.imu_float_init:0000000000000000 imu_float_init
+/var/tmp//cclSgHpf.s:349    .text.imu_float_init:0000000000000038 $d
+/var/tmp//cclSgHpf.s:364    .bss.imu:0000000000000000 imu
+/var/tmp//cclSgHpf.s:360    .bss.imu:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+imu_impl_init
+pprz_trig_int

@@ -1,0 +1,1024 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"imu_aspirin_2_spi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.mpu_set_and_wait,"ax",%progbits
+  19              		.align	1
+  20              		.thumb
+  21              		.thumb_func
+  23              	mpu_set_and_wait:
+  24              	.LFB7:
+  25              		.file 1 "subsystems/imu/imu_aspirin_2_spi.c"
+   1:subsystems/imu/imu_aspirin_2_spi.c **** /*
+   2:subsystems/imu/imu_aspirin_2_spi.c ****  * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+   3:subsystems/imu/imu_aspirin_2_spi.c ****  *
+   4:subsystems/imu/imu_aspirin_2_spi.c ****  * This file is part of paparazzi.
+   5:subsystems/imu/imu_aspirin_2_spi.c ****  *
+   6:subsystems/imu/imu_aspirin_2_spi.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:subsystems/imu/imu_aspirin_2_spi.c ****  * it under the terms of the GNU General Public License as published by
+   8:subsystems/imu/imu_aspirin_2_spi.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:subsystems/imu/imu_aspirin_2_spi.c ****  * any later version.
+  10:subsystems/imu/imu_aspirin_2_spi.c ****  *
+  11:subsystems/imu/imu_aspirin_2_spi.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:subsystems/imu/imu_aspirin_2_spi.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:subsystems/imu/imu_aspirin_2_spi.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:subsystems/imu/imu_aspirin_2_spi.c ****  * GNU General Public License for more details.
+  15:subsystems/imu/imu_aspirin_2_spi.c ****  *
+  16:subsystems/imu/imu_aspirin_2_spi.c ****  * You should have received a copy of the GNU General Public License
+  17:subsystems/imu/imu_aspirin_2_spi.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:subsystems/imu/imu_aspirin_2_spi.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:subsystems/imu/imu_aspirin_2_spi.c ****  * Boston, MA 02111-1307, USA.
+  20:subsystems/imu/imu_aspirin_2_spi.c ****  */
+  21:subsystems/imu/imu_aspirin_2_spi.c **** 
+  22:subsystems/imu/imu_aspirin_2_spi.c **** /**
+  23:subsystems/imu/imu_aspirin_2_spi.c ****  * @file subsystems/imu/imu_aspirin_2_spi.c
+  24:subsystems/imu/imu_aspirin_2_spi.c ****  * Driver for the Aspirin v2.x IMU using SPI for the MPU6000.
+  25:subsystems/imu/imu_aspirin_2_spi.c ****  */
+  26:subsystems/imu/imu_aspirin_2_spi.c **** 
+  27:subsystems/imu/imu_aspirin_2_spi.c **** #include "subsystems/imu.h"
+  28:subsystems/imu/imu_aspirin_2_spi.c **** 
+  29:subsystems/imu/imu_aspirin_2_spi.c **** #include "mcu_periph/spi.h"
+  30:subsystems/imu/imu_aspirin_2_spi.c **** #include "peripherals/hmc58xx_regs.h"
+  31:subsystems/imu/imu_aspirin_2_spi.c **** 
+  32:subsystems/imu/imu_aspirin_2_spi.c **** /* defaults suitable for Lisa */
+  33:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef ASPIRIN_2_SPI_SLAVE_IDX
+  34:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_SPI_SLAVE_IDX SPI_SLAVE2
+  35:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  36:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_SPI_SLAVE_IDX)
+  37:subsystems/imu/imu_aspirin_2_spi.c **** 
+  38:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef ASPIRIN_2_SPI_DEV
+  39:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_SPI_DEV spi2
+  40:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  41:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_SPI_DEV)
+  42:subsystems/imu/imu_aspirin_2_spi.c **** 
+  43:subsystems/imu/imu_aspirin_2_spi.c **** /* MPU60x0 gyro/accel internal lowpass frequency */
+  44:subsystems/imu/imu_aspirin_2_spi.c **** #if !defined ASPIRIN_2_LOWPASS_FILTER && !defined  ASPIRIN_2_SMPLRT_DIV
+  45:subsystems/imu/imu_aspirin_2_spi.c **** #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
+  46:subsystems/imu/imu_aspirin_2_spi.c **** /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
+  47:subsystems/imu/imu_aspirin_2_spi.c ****  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
+  48:subsystems/imu/imu_aspirin_2_spi.c ****  */
+  49:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_LOWPASS_FILTER MPU60X0_DLPF_42HZ
+  50:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_SMPLRT_DIV 9
+  51:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
+  52:subsystems/imu/imu_aspirin_2_spi.c **** #elif PERIODIC_FREQUENCY == 512
+  53:subsystems/imu/imu_aspirin_2_spi.c **** /* Accelerometer: Bandwidth 260Hz, Delay 0ms
+  54:subsystems/imu/imu_aspirin_2_spi.c ****  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
+  55:subsystems/imu/imu_aspirin_2_spi.c ****  */
+  56:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_LOWPASS_FILTER MPU60X0_DLPF_256HZ
+  57:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_SMPLRT_DIV 3
+  58:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
+  59:subsystems/imu/imu_aspirin_2_spi.c **** #else
+  60:subsystems/imu/imu_aspirin_2_spi.c **** #error Non-default PERIODIC_FREQUENCY: please define ASPIRIN_2_LOWPASS_FILTER and ASPIRIN_2_SMPLRT_
+  61:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  62:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  63:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_LOWPASS_FILTER)
+  64:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_SMPLRT_DIV)
+  65:subsystems/imu/imu_aspirin_2_spi.c **** 
+  66:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef ASPIRIN_2_GYRO_RANGE
+  67:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_GYRO_RANGE MPU60X0_GYRO_RANGE_2000
+  68:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  69:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_GYRO_RANGE)
+  70:subsystems/imu/imu_aspirin_2_spi.c **** 
+  71:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef ASPIRIN_2_ACCEL_RANGE
+  72:subsystems/imu/imu_aspirin_2_spi.c **** #define ASPIRIN_2_ACCEL_RANGE MPU60X0_ACCEL_RANGE_16G
+  73:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  74:subsystems/imu/imu_aspirin_2_spi.c **** PRINT_CONFIG_VAR(ASPIRIN_2_ACCEL_RANGE)
+  75:subsystems/imu/imu_aspirin_2_spi.c **** 
+  76:subsystems/imu/imu_aspirin_2_spi.c **** 
+  77:subsystems/imu/imu_aspirin_2_spi.c **** /* HMC58XX default conf */
+  78:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef HMC58XX_DO
+  79:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_DO 0x6 // Data Output Rate (6 -> 75Hz with HMC5883)
+  80:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  81:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef HMC58XX_MS
+  82:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_MS 0x0 // Measurement configuration
+  83:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  84:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef HMC58XX_GN
+  85:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_GN 0x1 // Gain configuration (1 -> +- 1 Gauss)
+  86:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  87:subsystems/imu/imu_aspirin_2_spi.c **** #ifndef HMC58XX_MD
+  88:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_MD 0x0 // Continious measurement mode
+  89:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+  90:subsystems/imu/imu_aspirin_2_spi.c **** 
+  91:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_CRA ((HMC58XX_DO<<2)|(HMC58XX_MS))
+  92:subsystems/imu/imu_aspirin_2_spi.c **** #define HMC58XX_CRB (HMC58XX_GN<<5)
+  93:subsystems/imu/imu_aspirin_2_spi.c **** 
+  94:subsystems/imu/imu_aspirin_2_spi.c **** 
+  95:subsystems/imu/imu_aspirin_2_spi.c **** struct ImuAspirin2Spi imu_aspirin2;
+  96:subsystems/imu/imu_aspirin_2_spi.c **** 
+  97:subsystems/imu/imu_aspirin_2_spi.c **** void mpu_wait_slave4_ready(void);
+  98:subsystems/imu/imu_aspirin_2_spi.c **** void mpu_wait_slave4_ready_cb(struct spi_transaction * t);
+  99:subsystems/imu/imu_aspirin_2_spi.c **** bool_t imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void* mpu);
+ 100:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 101:subsystems/imu/imu_aspirin_2_spi.c **** void imu_impl_init(void)
+ 102:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 103:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.accel_valid = FALSE;
+ 104:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.gyro_valid = FALSE;
+ 105:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mag_valid = FALSE;
+ 106:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 107:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_init(&imu_aspirin2.mpu, &(ASPIRIN_2_SPI_DEV), ASPIRIN_2_SPI_SLAVE_IDX);
+ 108:subsystems/imu/imu_aspirin_2_spi.c ****   // change the default configuration
+ 109:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.smplrt_div = ASPIRIN_2_SMPLRT_DIV;
+ 110:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.dlpf_cfg = ASPIRIN_2_LOWPASS_FILTER;
+ 111:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.gyro_range = ASPIRIN_2_GYRO_RANGE;
+ 112:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.accel_range = ASPIRIN_2_ACCEL_RANGE;
+ 113:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 114:subsystems/imu/imu_aspirin_2_spi.c ****   /* read 15 bytes for status, accel, gyro + 6 bytes for mag slave */
+ 115:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_bytes = 21;
+ 116:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 117:subsystems/imu/imu_aspirin_2_spi.c ****   /* HMC5883 magnetometer as I2C slave */
+ 118:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_slaves = 1;
+ 119:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 120:subsystems/imu/imu_aspirin_2_spi.c ****   /* set function to configure mag */
+ 121:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.slaves[0].configure = &imu_aspirin2_configure_mag_slave;
+ 122:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 123:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 124:subsystems/imu/imu_aspirin_2_spi.c ****   /* Set MPU I2C master clock */
+ 125:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.i2c_mst_clk = MPU60X0_MST_CLK_400KHZ;
+ 126:subsystems/imu/imu_aspirin_2_spi.c ****   /* Enable I2C slave0 delayed sample rate */
+ 127:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.i2c_mst_delay = 1;
+ 128:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 129:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 130:subsystems/imu/imu_aspirin_2_spi.c ****   /* configure spi transaction for wait_slave4 */
+ 131:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cpol = SPICpolIdleHigh;
+ 132:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cpha = SPICphaEdge2;
+ 133:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.dss = SPIDss8bit;
+ 134:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.bitorder = SPIMSBFirst;
+ 135:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cdiv = SPIDiv64;
+ 136:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 137:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.select = SPISelectUnselect;
+ 138:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.slave_idx = ASPIRIN_2_SPI_SLAVE_IDX;
+ 139:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.output_length = 1;
+ 140:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.input_length = 2;
+ 141:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.before_cb = NULL;
+ 142:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.after_cb = mpu_wait_slave4_ready_cb;
+ 143:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.input_buf = &(imu_aspirin2.wait_slave4_rx_buf[0]);
+ 144:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.output_buf = &(imu_aspirin2.wait_slave4_tx_buf[0]);
+ 145:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 146:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.status = SPITransDone;
+ 147:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.slave4_ready = FALSE;
+ 148:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 149:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 150:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 151:subsystems/imu/imu_aspirin_2_spi.c **** void imu_periodic(void)
+ 152:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 153:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_periodic(&imu_aspirin2.mpu);
+ 154:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 155:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 156:subsystems/imu/imu_aspirin_2_spi.c **** #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
+ 157:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 158:subsystems/imu/imu_aspirin_2_spi.c **** void imu_aspirin2_event(void)
+ 159:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 160:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_event(&imu_aspirin2.mpu);
+ 161:subsystems/imu/imu_aspirin_2_spi.c ****   if (imu_aspirin2.mpu.data_available) {
+ 162:subsystems/imu/imu_aspirin_2_spi.c ****     /* HMC5883 has xzy order of axes in returned data */
+ 163:subsystems/imu/imu_aspirin_2_spi.c ****     struct Int32Vect3 mag;
+ 164:subsystems/imu/imu_aspirin_2_spi.c ****     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
+ 165:subsystems/imu/imu_aspirin_2_spi.c ****     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
+ 166:subsystems/imu/imu_aspirin_2_spi.c ****     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+ 167:subsystems/imu/imu_aspirin_2_spi.c **** #ifdef LISA_M_LONGITUDINAL_X
+ 168:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_ASSIGN(imu.gyro_unscaled,
+ 169:subsystems/imu/imu_aspirin_2_spi.c ****                  imu_aspirin2.mpu.data_rates.rates.q,
+ 170:subsystems/imu/imu_aspirin_2_spi.c ****                  -imu_aspirin2.mpu.data_rates.rates.p,
+ 171:subsystems/imu/imu_aspirin_2_spi.c ****                  imu_aspirin2.mpu.data_rates.rates.r);
+ 172:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.accel_unscaled,
+ 173:subsystems/imu/imu_aspirin_2_spi.c ****                  imu_aspirin2.mpu.data_accel.vect.y,
+ 174:subsystems/imu/imu_aspirin_2_spi.c ****                  -imu_aspirin2.mpu.data_accel.vect.x,
+ 175:subsystems/imu/imu_aspirin_2_spi.c ****                  imu_aspirin2.mpu.data_accel.vect.z);
+ 176:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
+ 177:subsystems/imu/imu_aspirin_2_spi.c **** #else
+ 178:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+ 179:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+ 180:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+ 181:subsystems/imu/imu_aspirin_2_spi.c **** #endif
+ 182:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.mpu.data_available = FALSE;
+ 183:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.gyro_valid = TRUE;
+ 184:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.accel_valid = TRUE;
+ 185:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.mag_valid = TRUE;
+ 186:subsystems/imu/imu_aspirin_2_spi.c ****   }
+ 187:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 188:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 189:subsystems/imu/imu_aspirin_2_spi.c **** // hack with waiting to avoid creating another event loop to check the mag config status
+ 190:subsystems/imu/imu_aspirin_2_spi.c **** static inline void mpu_set_and_wait(Mpu60x0ConfigSet mpu_set, void* mpu, uint8_t _reg, uint8_t _val
+ 191:subsystems/imu/imu_aspirin_2_spi.c **** {
+  26              		.loc 1 191 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  36              		.loc 1 191 0
+  37 0002 0446     		mov	r4, r0
+ 192:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set(mpu, _reg, _val);
+  38              		.loc 1 192 0
+  39 0004 0846     		mov	r0, r1
+  40              	.LVL1:
+  41 0006 1146     		mov	r1, r2
+  42              	.LVL2:
+  43 0008 1A46     		mov	r2, r3
+  44              	.LVL3:
+  45 000a A047     		blx	r4
+  46              	.LVL4:
+  47              	.L2:
+ 193:subsystems/imu/imu_aspirin_2_spi.c ****   while(imu_aspirin2.mpu.spi_trans.status != SPITransSuccess);
+  48              		.loc 1 193 0 discriminator 1
+  49 000c 024B     		ldr	r3, .L5
+  50 000e 93F82400 		ldrb	r0, [r3, #36]	@ zero_extendqisi2
+  51 0012 0228     		cmp	r0, #2
+  52 0014 FAD1     		bne	.L2
+ 194:subsystems/imu/imu_aspirin_2_spi.c **** }
+  53              		.loc 1 194 0
+  54 0016 10BD     		pop	{r4, pc}
+  55              	.L6:
+  56              		.align	2
+  57              	.L5:
+  58 0018 00000000 		.word	.LANCHOR0
+  59              		.cfi_endproc
+  60              	.LFE7:
+  62              		.section	.text.mpu_wait_slave4_ready_cb,"ax",%progbits
+  63              		.align	1
+  64              		.global	mpu_wait_slave4_ready_cb
+  65              		.thumb
+  66              		.thumb_func
+  68              	mpu_wait_slave4_ready_cb:
+  69              	.LFB10:
+ 195:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 196:subsystems/imu/imu_aspirin_2_spi.c **** /** function to configure hmc5883 mag
+ 197:subsystems/imu/imu_aspirin_2_spi.c ****  * @return TRUE if mag configuration finished
+ 198:subsystems/imu/imu_aspirin_2_spi.c ****  */
+ 199:subsystems/imu/imu_aspirin_2_spi.c **** bool_t imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void* mpu)
+ 200:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 201:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 202:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_CFGA);
+ 203:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_CRA);
+ 204:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 205:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 206:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_wait_slave4_ready();
+ 207:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 208:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 209:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_CFGB);
+ 210:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_CRB);
+ 211:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 212:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 213:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_wait_slave4_ready();
+ 214:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 215:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 216:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_MODE);
+ 217:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_MD);
+ 218:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 219:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 220:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_ADDR, (HMC58XX_ADDR >> 1) | MPU60X0_SPI_READ)
+ 221:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_REG, HMC58XX_REG_DATXM);
+ 222:subsystems/imu/imu_aspirin_2_spi.c ****   // Put the enable command as last.
+ 223:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_CTRL,
+ 224:subsystems/imu/imu_aspirin_2_spi.c ****           (1 << 7) |		// Slave 0 enable
+ 225:subsystems/imu/imu_aspirin_2_spi.c ****           (6 << 0) );		// Read 6 bytes
+ 226:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 227:subsystems/imu/imu_aspirin_2_spi.c ****   return TRUE;
+ 228:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 229:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 230:subsystems/imu/imu_aspirin_2_spi.c **** void mpu_wait_slave4_ready(void)
+ 231:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 232:subsystems/imu/imu_aspirin_2_spi.c ****   while (!imu_aspirin2.slave4_ready) {
+ 233:subsystems/imu/imu_aspirin_2_spi.c ****     if (imu_aspirin2.wait_slave4_trans.status == SPITransDone) {
+ 234:subsystems/imu/imu_aspirin_2_spi.c ****       imu_aspirin2.wait_slave4_tx_buf[0] = MPU60X0_REG_I2C_MST_STATUS | MPU60X0_SPI_READ;
+ 235:subsystems/imu/imu_aspirin_2_spi.c ****       spi_submit(imu_aspirin2.mpu.spi_p, &(imu_aspirin2.wait_slave4_trans));
+ 236:subsystems/imu/imu_aspirin_2_spi.c ****     }
+ 237:subsystems/imu/imu_aspirin_2_spi.c ****   }
+ 238:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 239:subsystems/imu/imu_aspirin_2_spi.c **** 
+ 240:subsystems/imu/imu_aspirin_2_spi.c **** void mpu_wait_slave4_ready_cb(struct spi_transaction * t)
+ 241:subsystems/imu/imu_aspirin_2_spi.c **** {
+  70              		.loc 1 241 0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              		@ link register save eliminated.
+  75              	.LVL5:
+ 242:subsystems/imu/imu_aspirin_2_spi.c ****   if (bit_is_set(t->input_buf[1], MPU60X0_I2C_SLV4_DONE))
+  76              		.loc 1 242 0
+  77 0000 0368     		ldr	r3, [r0, #0]
+  78 0002 0549     		ldr	r1, .L10
+  79 0004 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+  80 0006 C2F38013 		ubfx	r3, r2, #6, #1
+  81 000a 03B1     		cbz	r3, .L8
+ 243:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.slave4_ready = TRUE;
+  82              		.loc 1 243 0
+  83 000c 0123     		movs	r3, #1
+  84              	.L8:
+ 244:subsystems/imu/imu_aspirin_2_spi.c ****   else
+ 245:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.slave4_ready = FALSE;
+ 246:subsystems/imu/imu_aspirin_2_spi.c ****   t->status = SPITransDone;
+  85              		.loc 1 246 0
+  86 000e 0422     		movs	r2, #4
+ 245:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.slave4_ready = FALSE;
+  87              		.loc 1 245 0
+  88 0010 81F8B330 		strb	r3, [r1, #179]
+  89              		.loc 1 246 0
+  90 0014 0277     		strb	r2, [r0, #28]
+  91 0016 7047     		bx	lr
+  92              	.L11:
+  93              		.align	2
+  94              	.L10:
+  95 0018 00000000 		.word	.LANCHOR0
+  96              		.cfi_endproc
+  97              	.LFE10:
+  99              		.section	.text.imu_impl_init,"ax",%progbits
+ 100              		.align	1
+ 101              		.global	imu_impl_init
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	imu_impl_init:
+ 106              	.LFB4:
+ 102:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 107              		.loc 1 102 0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 0
+ 110              		@ frame_needed = 0, uses_anonymous_args = 0
+ 111 0000 38B5     		push	{r3, r4, r5, lr}
+ 112              	.LCFI1:
+ 113              		.cfi_def_cfa_offset 16
+ 114              		.cfi_offset 3, -16
+ 115              		.cfi_offset 4, -12
+ 116              		.cfi_offset 5, -8
+ 117              		.cfi_offset 14, -4
+ 103:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.accel_valid = FALSE;
+ 118              		.loc 1 103 0
+ 119 0002 234C     		ldr	r4, .L13
+ 120 0004 0025     		movs	r5, #0
+ 107:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_init(&imu_aspirin2.mpu, &(ASPIRIN_2_SPI_DEV), ASPIRIN_2_SPI_SLAVE_IDX);
+ 121              		.loc 1 107 0
+ 122 0006 201D     		adds	r0, r4, #4
+ 123 0008 2249     		ldr	r1, .L13+4
+ 124 000a 0222     		movs	r2, #2
+ 103:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.accel_valid = FALSE;
+ 125              		.loc 1 103 0
+ 126 000c 6570     		strb	r5, [r4, #1]
+ 104:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.gyro_valid = FALSE;
+ 127              		.loc 1 104 0
+ 128 000e 2570     		strb	r5, [r4, #0]
+ 105:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mag_valid = FALSE;
+ 129              		.loc 1 105 0
+ 130 0010 A570     		strb	r5, [r4, #2]
+ 107:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_init(&imu_aspirin2.mpu, &(ASPIRIN_2_SPI_DEV), ASPIRIN_2_SPI_SLAVE_IDX);
+ 131              		.loc 1 107 0
+ 132 0012 FFF7FEFF 		bl	mpu60x0_spi_init
+ 133              	.LVL6:
+ 121:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.slaves[0].configure = &imu_aspirin2_configure_mag_slave;
+ 134              		.loc 1 121 0
+ 135 0016 204A     		ldr	r2, .L13+8
+ 118:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_slaves = 1;
+ 136              		.loc 1 118 0
+ 137 0018 0121     		movs	r1, #1
+ 109:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.smplrt_div = ASPIRIN_2_SMPLRT_DIV;
+ 138              		.loc 1 109 0
+ 139 001a 0323     		movs	r3, #3
+ 115:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_bytes = 21;
+ 140              		.loc 1 115 0
+ 141 001c 1520     		movs	r0, #21
+ 109:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.smplrt_div = ASPIRIN_2_SMPLRT_DIV;
+ 142              		.loc 1 109 0
+ 143 001e 84F86830 		strb	r3, [r4, #104]
+ 111:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.gyro_range = ASPIRIN_2_GYRO_RANGE;
+ 144              		.loc 1 111 0
+ 145 0022 84F86A30 		strb	r3, [r4, #106]
+ 112:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.accel_range = ASPIRIN_2_ACCEL_RANGE;
+ 146              		.loc 1 112 0
+ 147 0026 84F86B30 		strb	r3, [r4, #107]
+ 115:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_bytes = 21;
+ 148              		.loc 1 115 0
+ 149 002a 84F86E00 		strb	r0, [r4, #110]
+ 125:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.i2c_mst_clk = MPU60X0_MST_CLK_400KHZ;
+ 150              		.loc 1 125 0
+ 151 002e 0D23     		movs	r3, #13
+ 135:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cdiv = SPIDiv64;
+ 152              		.loc 1 135 0
+ 153 0030 0520     		movs	r0, #5
+ 118:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.nb_slaves = 1;
+ 154              		.loc 1 118 0
+ 155 0032 84F87210 		strb	r1, [r4, #114]
+ 121:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.slaves[0].configure = &imu_aspirin2_configure_mag_slave;
+ 156              		.loc 1 121 0
+ 157 0036 6267     		str	r2, [r4, #116]
+ 127:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.i2c_mst_delay = 1;
+ 158              		.loc 1 127 0
+ 159 0038 84F88910 		strb	r1, [r4, #137]
+ 138:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.slave_idx = ASPIRIN_2_SPI_SLAVE_IDX;
+ 160              		.loc 1 138 0
+ 161 003c 0222     		movs	r2, #2
+ 131:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cpol = SPICpolIdleHigh;
+ 162              		.loc 1 131 0
+ 163 003e 84F89C10 		strb	r1, [r4, #156]
+ 132:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cpha = SPICphaEdge2;
+ 164              		.loc 1 132 0
+ 165 0042 84F89D10 		strb	r1, [r4, #157]
+ 139:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.output_length = 1;
+ 166              		.loc 1 139 0
+ 167 0046 84F89910 		strb	r1, [r4, #153]
+ 142:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.after_cb = mpu_wait_slave4_ready_cb;
+ 168              		.loc 1 142 0
+ 169 004a 1449     		ldr	r1, .L13+12
+ 125:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.i2c_mst_clk = MPU60X0_MST_CLK_400KHZ;
+ 170              		.loc 1 125 0
+ 171 004c 84F88830 		strb	r3, [r4, #136]
+ 135:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.cdiv = SPIDiv64;
+ 172              		.loc 1 135 0
+ 173 0050 84F8A000 		strb	r0, [r4, #160]
+ 138:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.slave_idx = ASPIRIN_2_SPI_SLAVE_IDX;
+ 174              		.loc 1 138 0
+ 175 0054 84F89A20 		strb	r2, [r4, #154]
+ 140:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.input_length = 2;
+ 176              		.loc 1 140 0
+ 177 0058 84F89820 		strb	r2, [r4, #152]
+ 143:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.input_buf = &(imu_aspirin2.wait_slave4_rx_buf[0]);
+ 178              		.loc 1 143 0
+ 179 005c 04F1B103 		add	r3, r4, #177
+ 144:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.output_buf = &(imu_aspirin2.wait_slave4_tx_buf[0]);
+ 180              		.loc 1 144 0
+ 181 0060 04F1B000 		add	r0, r4, #176
+ 146:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.status = SPITransDone;
+ 182              		.loc 1 146 0
+ 183 0064 0422     		movs	r2, #4
+ 184 0066 84F8AC20 		strb	r2, [r4, #172]
+ 110:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.mpu.config.dlpf_cfg = ASPIRIN_2_LOWPASS_FILTER;
+ 185              		.loc 1 110 0
+ 186 006a 84F86950 		strb	r5, [r4, #105]
+ 133:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.dss = SPIDss8bit;
+ 187              		.loc 1 133 0
+ 188 006e 84F89E50 		strb	r5, [r4, #158]
+ 134:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.bitorder = SPIMSBFirst;
+ 189              		.loc 1 134 0
+ 190 0072 84F89F50 		strb	r5, [r4, #159]
+ 137:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.select = SPISelectUnselect;
+ 191              		.loc 1 137 0
+ 192 0076 84F89B50 		strb	r5, [r4, #155]
+ 141:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.before_cb = NULL;
+ 193              		.loc 1 141 0
+ 194 007a C4F8A450 		str	r5, [r4, #164]
+ 142:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.after_cb = mpu_wait_slave4_ready_cb;
+ 195              		.loc 1 142 0
+ 196 007e C4F8A810 		str	r1, [r4, #168]
+ 143:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.input_buf = &(imu_aspirin2.wait_slave4_rx_buf[0]);
+ 197              		.loc 1 143 0
+ 198 0082 C4F89030 		str	r3, [r4, #144]
+ 144:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.wait_slave4_trans.output_buf = &(imu_aspirin2.wait_slave4_tx_buf[0]);
+ 199              		.loc 1 144 0
+ 200 0086 C4F89400 		str	r0, [r4, #148]
+ 147:subsystems/imu/imu_aspirin_2_spi.c ****   imu_aspirin2.slave4_ready = FALSE;
+ 201              		.loc 1 147 0
+ 202 008a 84F8B350 		strb	r5, [r4, #179]
+ 203 008e 38BD     		pop	{r3, r4, r5, pc}
+ 204              	.L14:
+ 205              		.align	2
+ 206              	.L13:
+ 207 0090 00000000 		.word	.LANCHOR0
+ 208 0094 00000000 		.word	spi2
+ 209 0098 00000000 		.word	imu_aspirin2_configure_mag_slave
+ 210 009c 00000000 		.word	mpu_wait_slave4_ready_cb
+ 211              		.cfi_endproc
+ 212              	.LFE4:
+ 214              		.section	.text.imu_periodic,"ax",%progbits
+ 215              		.align	1
+ 216              		.global	imu_periodic
+ 217              		.thumb
+ 218              		.thumb_func
+ 220              	imu_periodic:
+ 221              	.LFB5:
+ 152:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 222              		.loc 1 152 0
+ 223              		.cfi_startproc
+ 224              		@ args = 0, pretend = 0, frame = 0
+ 225              		@ frame_needed = 0, uses_anonymous_args = 0
+ 226              		@ link register save eliminated.
+ 227              	.LVL7:
+ 228              	.LBB4:
+ 229              	.LBB5:
+ 230              		.file 2 "./peripherals/mpu60x0_spi.h"
+   1:./peripherals/mpu60x0_spi.h **** /*
+   2:./peripherals/mpu60x0_spi.h ****  * Copyright (C) 2013 Gautier Hattenberger
+   3:./peripherals/mpu60x0_spi.h ****  *
+   4:./peripherals/mpu60x0_spi.h ****  * This file is part of paparazzi.
+   5:./peripherals/mpu60x0_spi.h ****  *
+   6:./peripherals/mpu60x0_spi.h ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:./peripherals/mpu60x0_spi.h ****  * it under the terms of the GNU General Public License as published by
+   8:./peripherals/mpu60x0_spi.h ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:./peripherals/mpu60x0_spi.h ****  * any later version.
+  10:./peripherals/mpu60x0_spi.h ****  *
+  11:./peripherals/mpu60x0_spi.h ****  * paparazzi is distributed in the hope that it will be useful,
+  12:./peripherals/mpu60x0_spi.h ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:./peripherals/mpu60x0_spi.h ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:./peripherals/mpu60x0_spi.h ****  * GNU General Public License for more details.
+  15:./peripherals/mpu60x0_spi.h ****  *
+  16:./peripherals/mpu60x0_spi.h ****  * You should have received a copy of the GNU General Public License
+  17:./peripherals/mpu60x0_spi.h ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:./peripherals/mpu60x0_spi.h ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:./peripherals/mpu60x0_spi.h ****  * Boston, MA 02111-1307, USA.
+  20:./peripherals/mpu60x0_spi.h ****  */
+  21:./peripherals/mpu60x0_spi.h **** 
+  22:./peripherals/mpu60x0_spi.h **** /**
+  23:./peripherals/mpu60x0_spi.h ****  * @file peripherals/mpu60x0_spi.h
+  24:./peripherals/mpu60x0_spi.h ****  *
+  25:./peripherals/mpu60x0_spi.h ****  * Driver for the MPU-60X0 using SPI.
+  26:./peripherals/mpu60x0_spi.h ****  */
+  27:./peripherals/mpu60x0_spi.h **** 
+  28:./peripherals/mpu60x0_spi.h **** #ifndef MPU60X0_SPI_H
+  29:./peripherals/mpu60x0_spi.h **** #define MPU60X0_SPI_H
+  30:./peripherals/mpu60x0_spi.h **** 
+  31:./peripherals/mpu60x0_spi.h **** #include "std.h"
+  32:./peripherals/mpu60x0_spi.h **** #include "math/pprz_algebra_int.h"
+  33:./peripherals/mpu60x0_spi.h **** #include "mcu_periph/spi.h"
+  34:./peripherals/mpu60x0_spi.h **** 
+  35:./peripherals/mpu60x0_spi.h **** /* Include common MPU60X0 options and definitions */
+  36:./peripherals/mpu60x0_spi.h **** #include "peripherals/mpu60x0.h"
+  37:./peripherals/mpu60x0_spi.h **** 
+  38:./peripherals/mpu60x0_spi.h **** 
+  39:./peripherals/mpu60x0_spi.h **** #define MPU60X0_BUFFER_LEN 32
+  40:./peripherals/mpu60x0_spi.h **** #define MPU60X0_BUFFER_EXT_LEN 16
+  41:./peripherals/mpu60x0_spi.h **** 
+  42:./peripherals/mpu60x0_spi.h **** enum Mpu60x0SpiSlaveInitStatus {
+  43:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_UNINIT,
+  44:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_I2C_MST_CLK,
+  45:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_I2C_MST_DELAY,
+  46:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_I2C_MST_EN,
+  47:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_SLAVES_CONFIGURE,
+  48:./peripherals/mpu60x0_spi.h ****   MPU60X0_SPI_CONF_DONE
+  49:./peripherals/mpu60x0_spi.h **** };
+  50:./peripherals/mpu60x0_spi.h **** 
+  51:./peripherals/mpu60x0_spi.h **** struct Mpu60x0_Spi {
+  52:./peripherals/mpu60x0_spi.h ****   struct spi_periph *spi_p;
+  53:./peripherals/mpu60x0_spi.h ****   struct spi_transaction spi_trans;
+  54:./peripherals/mpu60x0_spi.h ****   volatile uint8_t tx_buf[2];
+  55:./peripherals/mpu60x0_spi.h ****   volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN];
+  56:./peripherals/mpu60x0_spi.h ****   volatile bool_t data_available;     ///< data ready flag
+  57:./peripherals/mpu60x0_spi.h ****   union {
+  58:./peripherals/mpu60x0_spi.h ****     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
+  59:./peripherals/mpu60x0_spi.h ****     int16_t value[3];                 ///< accel data values accessible by channel index
+  60:./peripherals/mpu60x0_spi.h ****   } data_accel;
+  61:./peripherals/mpu60x0_spi.h ****   union {
+  62:./peripherals/mpu60x0_spi.h ****     struct Int16Rates rates;          ///< rates data as angular rates in gyro coordinate system
+  63:./peripherals/mpu60x0_spi.h ****     int16_t value[3];                 ///< rates data values accessible by channel index
+  64:./peripherals/mpu60x0_spi.h ****   } data_rates;
+  65:./peripherals/mpu60x0_spi.h ****   uint8_t data_ext[MPU60X0_BUFFER_EXT_LEN];
+  66:./peripherals/mpu60x0_spi.h ****   struct Mpu60x0Config config;
+  67:./peripherals/mpu60x0_spi.h ****   enum Mpu60x0SpiSlaveInitStatus slave_init_status;
+  68:./peripherals/mpu60x0_spi.h **** };
+  69:./peripherals/mpu60x0_spi.h **** 
+  70:./peripherals/mpu60x0_spi.h **** // Functions
+  71:./peripherals/mpu60x0_spi.h **** extern void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t addr);
+  72:./peripherals/mpu60x0_spi.h **** extern void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu);
+  73:./peripherals/mpu60x0_spi.h **** extern void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu);
+  74:./peripherals/mpu60x0_spi.h **** extern void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu);
+  75:./peripherals/mpu60x0_spi.h **** 
+  76:./peripherals/mpu60x0_spi.h **** /// convenience function: read or start configuration if not already initialized
+  77:./peripherals/mpu60x0_spi.h **** static inline void mpu60x0_spi_periodic(struct Mpu60x0_Spi *mpu) {
+  78:./peripherals/mpu60x0_spi.h ****   if (mpu->config.initialized)
+ 231              		.loc 2 78 0
+ 232 0000 0448     		ldr	r0, .L17
+ 233 0002 90F87030 		ldrb	r3, [r0, #112]	@ zero_extendqisi2
+  79:./peripherals/mpu60x0_spi.h ****     mpu60x0_spi_read(mpu);
+ 234              		.loc 2 79 0
+ 235 0006 0430     		adds	r0, r0, #4
+  78:./peripherals/mpu60x0_spi.h ****   if (mpu->config.initialized)
+ 236              		.loc 2 78 0
+ 237 0008 0BB1     		cbz	r3, .L16
+ 238              	.LBE5:
+ 239              	.LBE4:
+ 154:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 240              		.loc 1 154 0
+ 241              	.LBB8:
+ 242              	.LBB6:
+ 243              		.loc 2 79 0
+ 244 000a FFF7FEBF 		b	mpu60x0_spi_read
+ 245              	.LVL8:
+ 246              	.L16:
+ 247              	.LBE6:
+ 248              	.LBE8:
+ 154:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 249              		.loc 1 154 0
+ 250              	.LBB9:
+ 251              	.LBB7:
+  80:./peripherals/mpu60x0_spi.h ****   else
+  81:./peripherals/mpu60x0_spi.h ****     mpu60x0_spi_start_configure(mpu);
+ 252              		.loc 2 81 0
+ 253 000e FFF7FEBF 		b	mpu60x0_spi_start_configure
+ 254              	.LVL9:
+ 255              	.L18:
+ 256 0012 00BF     		.align	2
+ 257              	.L17:
+ 258 0014 00000000 		.word	.LANCHOR0
+ 259              	.LBE7:
+ 260              	.LBE9:
+ 261              		.cfi_endproc
+ 262              	.LFE5:
+ 264              		.section	.text.imu_aspirin2_event,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	imu_aspirin2_event
+ 267              		.thumb
+ 268              		.thumb_func
+ 270              	imu_aspirin2_event:
+ 271              	.LFB6:
+ 159:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 272              		.loc 1 159 0
+ 273              		.cfi_startproc
+ 274              		@ args = 0, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276 0000 38B5     		push	{r3, r4, r5, lr}
+ 277              	.LCFI2:
+ 278              		.cfi_def_cfa_offset 16
+ 279              		.cfi_offset 3, -16
+ 280              		.cfi_offset 4, -12
+ 281              		.cfi_offset 5, -8
+ 282              		.cfi_offset 14, -4
+ 160:subsystems/imu/imu_aspirin_2_spi.c ****   mpu60x0_spi_event(&imu_aspirin2.mpu);
+ 283              		.loc 1 160 0
+ 284 0002 1E4C     		ldr	r4, .L24
+ 285 0004 201D     		adds	r0, r4, #4
+ 286 0006 FFF7FEFF 		bl	mpu60x0_spi_event
+ 287              	.LVL10:
+ 161:subsystems/imu/imu_aspirin_2_spi.c ****   if (imu_aspirin2.mpu.data_available) {
+ 288              		.loc 1 161 0
+ 289 000a 94F84A30 		ldrb	r3, [r4, #74]	@ zero_extendqisi2
+ 290 000e 9BB3     		cbz	r3, .L19
+ 291              	.LBB10:
+ 164:subsystems/imu/imu_aspirin_2_spi.c ****     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
+ 292              		.loc 1 164 0
+ 293 0010 94F85810 		ldrb	r1, [r4, #88]	@ zero_extendqisi2
+ 294 0014 94F85900 		ldrb	r0, [r4, #89]	@ zero_extendqisi2
+ 165:subsystems/imu/imu_aspirin_2_spi.c ****     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
+ 295              		.loc 1 165 0
+ 296 0018 94F85A50 		ldrb	r5, [r4, #90]	@ zero_extendqisi2
+ 297 001c 94F85B30 		ldrb	r3, [r4, #91]	@ zero_extendqisi2
+ 164:subsystems/imu/imu_aspirin_2_spi.c ****     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
+ 298              		.loc 1 164 0
+ 299 0020 40EA0122 		orr	r2, r0, r1, lsl #8
+ 165:subsystems/imu/imu_aspirin_2_spi.c ****     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
+ 300              		.loc 1 165 0
+ 301 0024 43EA0520 		orr	r0, r3, r5, lsl #8
+ 166:subsystems/imu/imu_aspirin_2_spi.c ****     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+ 302              		.loc 1 166 0
+ 303 0028 94F85C50 		ldrb	r5, [r4, #92]	@ zero_extendqisi2
+ 304 002c 94F85D30 		ldrb	r3, [r4, #93]	@ zero_extendqisi2
+ 164:subsystems/imu/imu_aspirin_2_spi.c ****     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
+ 305              		.loc 1 164 0
+ 306 0030 11B2     		sxth	r1, r2
+ 307              	.LVL11:
+ 165:subsystems/imu/imu_aspirin_2_spi.c ****     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
+ 308              		.loc 1 165 0
+ 309 0032 02B2     		sxth	r2, r0
+ 310              	.LVL12:
+ 166:subsystems/imu/imu_aspirin_2_spi.c ****     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+ 311              		.loc 1 166 0
+ 312 0034 43EA0520 		orr	r0, r3, r5, lsl #8
+ 178:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+ 313              		.loc 1 178 0
+ 314 0038 114B     		ldr	r3, .L24+4
+ 315 003a B4F95250 		ldrsh	r5, [r4, #82]
+ 166:subsystems/imu/imu_aspirin_2_spi.c ****     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+ 316              		.loc 1 166 0
+ 317 003e 00B2     		sxth	r0, r0
+ 318              	.LVL13:
+ 178:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+ 319              		.loc 1 178 0
+ 320 0040 1D66     		str	r5, [r3, #96]
+ 321 0042 B4F95450 		ldrsh	r5, [r4, #84]
+ 180:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+ 322              		.loc 1 180 0
+ 323 0046 9867     		str	r0, [r3, #120]
+ 178:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+ 324              		.loc 1 178 0
+ 325 0048 5D66     		str	r5, [r3, #100]
+ 326 004a B4F95650 		ldrsh	r5, [r4, #86]
+ 183:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.gyro_valid = TRUE;
+ 327              		.loc 1 183 0
+ 328 004e 0120     		movs	r0, #1
+ 329              	.LVL14:
+ 178:subsystems/imu/imu_aspirin_2_spi.c ****     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+ 330              		.loc 1 178 0
+ 331 0050 9D66     		str	r5, [r3, #104]
+ 179:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+ 332              		.loc 1 179 0
+ 333 0052 B4F94C50 		ldrsh	r5, [r4, #76]
+ 180:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+ 334              		.loc 1 180 0
+ 335 0056 4942     		negs	r1, r1
+ 336              	.LVL15:
+ 179:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+ 337              		.loc 1 179 0
+ 338 0058 DD66     		str	r5, [r3, #108]
+ 339 005a B4F94E50 		ldrsh	r5, [r4, #78]
+ 180:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+ 340              		.loc 1 180 0
+ 341 005e C3F88020 		str	r2, [r3, #128]
+ 179:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+ 342              		.loc 1 179 0
+ 343 0062 1D67     		str	r5, [r3, #112]
+ 344 0064 B4F95050 		ldrsh	r5, [r4, #80]
+ 182:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.mpu.data_available = FALSE;
+ 345              		.loc 1 182 0
+ 346 0068 0022     		movs	r2, #0
+ 347              	.LVL16:
+ 348 006a 84F84A20 		strb	r2, [r4, #74]
+ 179:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+ 349              		.loc 1 179 0
+ 350 006e 5D67     		str	r5, [r3, #116]
+ 183:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.gyro_valid = TRUE;
+ 351              		.loc 1 183 0
+ 352 0070 2070     		strb	r0, [r4, #0]
+ 180:subsystems/imu/imu_aspirin_2_spi.c ****     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+ 353              		.loc 1 180 0
+ 354 0072 D967     		str	r1, [r3, #124]
+ 184:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.accel_valid = TRUE;
+ 355              		.loc 1 184 0
+ 356 0074 6070     		strb	r0, [r4, #1]
+ 185:subsystems/imu/imu_aspirin_2_spi.c ****     imu_aspirin2.mag_valid = TRUE;
+ 357              		.loc 1 185 0
+ 358 0076 A070     		strb	r0, [r4, #2]
+ 359              	.LVL17:
+ 360              	.L19:
+ 361 0078 38BD     		pop	{r3, r4, r5, pc}
+ 362              	.L25:
+ 363 007a 00BF     		.align	2
+ 364              	.L24:
+ 365 007c 00000000 		.word	.LANCHOR0
+ 366 0080 00000000 		.word	imu
+ 367              	.LBE10:
+ 368              		.cfi_endproc
+ 369              	.LFE6:
+ 371              		.section	.text.mpu_wait_slave4_ready,"ax",%progbits
+ 372              		.align	1
+ 373              		.global	mpu_wait_slave4_ready
+ 374              		.thumb
+ 375              		.thumb_func
+ 377              	mpu_wait_slave4_ready:
+ 378              	.LFB9:
+ 231:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 379              		.loc 1 231 0
+ 380              		.cfi_startproc
+ 381              		@ args = 0, pretend = 0, frame = 0
+ 382              		@ frame_needed = 0, uses_anonymous_args = 0
+ 383 0000 08B5     		push	{r3, lr}
+ 384              	.LCFI3:
+ 385              		.cfi_def_cfa_offset 8
+ 386              		.cfi_offset 3, -8
+ 387              		.cfi_offset 14, -4
+ 388              	.L32:
+ 232:subsystems/imu/imu_aspirin_2_spi.c ****   while (!imu_aspirin2.slave4_ready) {
+ 389              		.loc 1 232 0 discriminator 1
+ 390 0002 0849     		ldr	r1, .L34
+ 391 0004 91F8B330 		ldrb	r3, [r1, #179]	@ zero_extendqisi2
+ 392 0008 5BB9     		cbnz	r3, .L33
+ 393              	.L29:
+ 233:subsystems/imu/imu_aspirin_2_spi.c ****     if (imu_aspirin2.wait_slave4_trans.status == SPITransDone) {
+ 394              		.loc 1 233 0
+ 395 000a 91F8AC00 		ldrb	r0, [r1, #172]	@ zero_extendqisi2
+ 396 000e 0428     		cmp	r0, #4
+ 397 0010 F7D1     		bne	.L32
+ 234:subsystems/imu/imu_aspirin_2_spi.c ****       imu_aspirin2.wait_slave4_tx_buf[0] = MPU60X0_REG_I2C_MST_STATUS | MPU60X0_SPI_READ;
+ 398              		.loc 1 234 0
+ 399 0012 B622     		movs	r2, #182
+ 400 0014 81F8B020 		strb	r2, [r1, #176]
+ 235:subsystems/imu/imu_aspirin_2_spi.c ****       spi_submit(imu_aspirin2.mpu.spi_p, &(imu_aspirin2.wait_slave4_trans));
+ 401              		.loc 1 235 0
+ 402 0018 4868     		ldr	r0, [r1, #4]
+ 403 001a 9031     		adds	r1, r1, #144
+ 404 001c FFF7FEFF 		bl	spi_submit
+ 405              	.LVL18:
+ 406 0020 EFE7     		b	.L32
+ 407              	.L33:
+ 238:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 408              		.loc 1 238 0
+ 409 0022 08BD     		pop	{r3, pc}
+ 410              	.L35:
+ 411              		.align	2
+ 412              	.L34:
+ 413 0024 00000000 		.word	.LANCHOR0
+ 414              		.cfi_endproc
+ 415              	.LFE9:
+ 417              		.section	.text.imu_aspirin2_configure_mag_slave,"ax",%progbits
+ 418              		.align	1
+ 419              		.global	imu_aspirin2_configure_mag_slave
+ 420              		.thumb
+ 421              		.thumb_func
+ 423              	imu_aspirin2_configure_mag_slave:
+ 424              	.LFB8:
+ 200:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 425              		.loc 1 200 0
+ 426              		.cfi_startproc
+ 427              		@ args = 0, pretend = 0, frame = 0
+ 428              		@ frame_needed = 0, uses_anonymous_args = 0
+ 429              	.LVL19:
+ 430 0000 38B5     		push	{r3, r4, r5, lr}
+ 431              	.LCFI4:
+ 432              		.cfi_def_cfa_offset 16
+ 433              		.cfi_offset 3, -16
+ 434              		.cfi_offset 4, -12
+ 435              		.cfi_offset 5, -8
+ 436              		.cfi_offset 14, -4
+ 201:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 437              		.loc 1 201 0
+ 438 0002 3122     		movs	r2, #49
+ 200:subsystems/imu/imu_aspirin_2_spi.c **** {
+ 439              		.loc 1 200 0
+ 440 0004 0546     		mov	r5, r0
+ 441 0006 0C46     		mov	r4, r1
+ 201:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 442              		.loc 1 201 0
+ 443 0008 1E23     		movs	r3, #30
+ 444 000a FFF7FEFF 		bl	mpu_set_and_wait
+ 445              	.LVL20:
+ 202:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_CFGA);
+ 446              		.loc 1 202 0
+ 447 000e 2846     		mov	r0, r5
+ 448 0010 2146     		mov	r1, r4
+ 449 0012 3222     		movs	r2, #50
+ 450 0014 0023     		movs	r3, #0
+ 451 0016 FFF7FEFF 		bl	mpu_set_and_wait
+ 452              	.LVL21:
+ 203:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_CRA);
+ 453              		.loc 1 203 0
+ 454 001a 2846     		mov	r0, r5
+ 455 001c 2146     		mov	r1, r4
+ 456 001e 3322     		movs	r2, #51
+ 457 0020 1823     		movs	r3, #24
+ 458 0022 FFF7FEFF 		bl	mpu_set_and_wait
+ 459              	.LVL22:
+ 204:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 460              		.loc 1 204 0
+ 461 0026 2846     		mov	r0, r5
+ 462 0028 2146     		mov	r1, r4
+ 463 002a 3422     		movs	r2, #52
+ 464 002c 8023     		movs	r3, #128
+ 465 002e FFF7FEFF 		bl	mpu_set_and_wait
+ 466              	.LVL23:
+ 206:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_wait_slave4_ready();
+ 467              		.loc 1 206 0
+ 468 0032 FFF7FEFF 		bl	mpu_wait_slave4_ready
+ 469              	.LVL24:
+ 208:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 470              		.loc 1 208 0
+ 471 0036 2846     		mov	r0, r5
+ 472 0038 2146     		mov	r1, r4
+ 473 003a 3122     		movs	r2, #49
+ 474 003c 1E23     		movs	r3, #30
+ 475 003e FFF7FEFF 		bl	mpu_set_and_wait
+ 476              	.LVL25:
+ 209:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_CFGB);
+ 477              		.loc 1 209 0
+ 478 0042 2846     		mov	r0, r5
+ 479 0044 2146     		mov	r1, r4
+ 480 0046 3222     		movs	r2, #50
+ 481 0048 0123     		movs	r3, #1
+ 482 004a FFF7FEFF 		bl	mpu_set_and_wait
+ 483              	.LVL26:
+ 210:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_CRB);
+ 484              		.loc 1 210 0
+ 485 004e 2846     		mov	r0, r5
+ 486 0050 2146     		mov	r1, r4
+ 487 0052 3322     		movs	r2, #51
+ 488 0054 2023     		movs	r3, #32
+ 489 0056 FFF7FEFF 		bl	mpu_set_and_wait
+ 490              	.LVL27:
+ 211:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 491              		.loc 1 211 0
+ 492 005a 2846     		mov	r0, r5
+ 493 005c 2146     		mov	r1, r4
+ 494 005e 3422     		movs	r2, #52
+ 495 0060 8023     		movs	r3, #128
+ 496 0062 FFF7FEFF 		bl	mpu_set_and_wait
+ 497              	.LVL28:
+ 213:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_wait_slave4_ready();
+ 498              		.loc 1 213 0
+ 499 0066 FFF7FEFF 		bl	mpu_wait_slave4_ready
+ 500              	.LVL29:
+ 215:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+ 501              		.loc 1 215 0
+ 502 006a 2846     		mov	r0, r5
+ 503 006c 2146     		mov	r1, r4
+ 504 006e 3122     		movs	r2, #49
+ 505 0070 1E23     		movs	r3, #30
+ 506 0072 FFF7FEFF 		bl	mpu_set_and_wait
+ 507              	.LVL30:
+ 216:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_REG, HMC58XX_REG_MODE);
+ 508              		.loc 1 216 0
+ 509 0076 2846     		mov	r0, r5
+ 510 0078 2146     		mov	r1, r4
+ 511 007a 3222     		movs	r2, #50
+ 512 007c 0223     		movs	r3, #2
+ 513 007e FFF7FEFF 		bl	mpu_set_and_wait
+ 514              	.LVL31:
+ 217:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_DO, HMC58XX_MD);
+ 515              		.loc 1 217 0
+ 516 0082 2846     		mov	r0, r5
+ 517 0084 2146     		mov	r1, r4
+ 518 0086 3322     		movs	r2, #51
+ 519 0088 0023     		movs	r3, #0
+ 520 008a FFF7FEFF 		bl	mpu_set_and_wait
+ 521              	.LVL32:
+ 218:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
+ 522              		.loc 1 218 0
+ 523 008e 2846     		mov	r0, r5
+ 524 0090 2146     		mov	r1, r4
+ 525 0092 3422     		movs	r2, #52
+ 526 0094 8023     		movs	r3, #128
+ 527 0096 FFF7FEFF 		bl	mpu_set_and_wait
+ 528              	.LVL33:
+ 220:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_ADDR, (HMC58XX_ADDR >> 1) | MPU60X0_SPI_READ)
+ 529              		.loc 1 220 0
+ 530 009a 2846     		mov	r0, r5
+ 531 009c 2146     		mov	r1, r4
+ 532 009e 2522     		movs	r2, #37
+ 533 00a0 9E23     		movs	r3, #158
+ 534 00a2 FFF7FEFF 		bl	mpu_set_and_wait
+ 535              	.LVL34:
+ 221:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_REG, HMC58XX_REG_DATXM);
+ 536              		.loc 1 221 0
+ 537 00a6 2846     		mov	r0, r5
+ 538 00a8 2146     		mov	r1, r4
+ 539 00aa 2622     		movs	r2, #38
+ 540 00ac 0323     		movs	r3, #3
+ 541 00ae FFF7FEFF 		bl	mpu_set_and_wait
+ 542              	.LVL35:
+ 223:subsystems/imu/imu_aspirin_2_spi.c ****   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV0_CTRL,
+ 543              		.loc 1 223 0
+ 544 00b2 2846     		mov	r0, r5
+ 545 00b4 2146     		mov	r1, r4
+ 546 00b6 2722     		movs	r2, #39
+ 547 00b8 8623     		movs	r3, #134
+ 548 00ba FFF7FEFF 		bl	mpu_set_and_wait
+ 549              	.LVL36:
+ 228:subsystems/imu/imu_aspirin_2_spi.c **** }
+ 550              		.loc 1 228 0
+ 551 00be 0120     		movs	r0, #1
+ 552 00c0 38BD     		pop	{r3, r4, r5, pc}
+ 553              		.cfi_endproc
+ 554              	.LFE8:
+ 556              		.global	imu_aspirin2
+ 557              		.section	.bss.imu_aspirin2,"aw",%nobits
+ 558              		.align	2
+ 559              		.set	.LANCHOR0,. + 0
+ 562              	imu_aspirin2:
+ 563 0000 00000000 		.space	180
+ 563      00000000 
+ 563      00000000 
+ 563      00000000 
+ 563      00000000 
+ 564              		.text
+ 565              	.Letext0:
+ 566              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 567              		.file 4 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 568              		.file 5 "./math/pprz_algebra_int.h"
+ 569              		.file 6 "./subsystems/imu.h"
+ 570              		.file 7 "./mcu_periph/spi.h"
+ 571              		.file 8 "./peripherals/mpu60x0_regs.h"
+ 572              		.file 9 "./peripherals/mpu60x0.h"
+ 573              		.file 10 "./subsystems/imu/imu_aspirin_2_spi.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 imu_aspirin_2_spi.c
+/var/tmp//ccq0rLUI.s:19     .text.mpu_set_and_wait:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:23     .text.mpu_set_and_wait:0000000000000000 mpu_set_and_wait
+/var/tmp//ccq0rLUI.s:58     .text.mpu_set_and_wait:0000000000000018 $d
+/var/tmp//ccq0rLUI.s:63     .text.mpu_wait_slave4_ready_cb:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:68     .text.mpu_wait_slave4_ready_cb:0000000000000000 mpu_wait_slave4_ready_cb
+/var/tmp//ccq0rLUI.s:95     .text.mpu_wait_slave4_ready_cb:0000000000000018 $d
+/var/tmp//ccq0rLUI.s:100    .text.imu_impl_init:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:105    .text.imu_impl_init:0000000000000000 imu_impl_init
+/var/tmp//ccq0rLUI.s:207    .text.imu_impl_init:0000000000000090 $d
+/var/tmp//ccq0rLUI.s:423    .text.imu_aspirin2_configure_mag_slave:0000000000000000 imu_aspirin2_configure_mag_slave
+/var/tmp//ccq0rLUI.s:215    .text.imu_periodic:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:220    .text.imu_periodic:0000000000000000 imu_periodic
+/var/tmp//ccq0rLUI.s:258    .text.imu_periodic:0000000000000014 $d
+/var/tmp//ccq0rLUI.s:265    .text.imu_aspirin2_event:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:270    .text.imu_aspirin2_event:0000000000000000 imu_aspirin2_event
+/var/tmp//ccq0rLUI.s:365    .text.imu_aspirin2_event:000000000000007c $d
+/var/tmp//ccq0rLUI.s:372    .text.mpu_wait_slave4_ready:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:377    .text.mpu_wait_slave4_ready:0000000000000000 mpu_wait_slave4_ready
+/var/tmp//ccq0rLUI.s:413    .text.mpu_wait_slave4_ready:0000000000000024 $d
+/var/tmp//ccq0rLUI.s:418    .text.imu_aspirin2_configure_mag_slave:0000000000000000 $t
+/var/tmp//ccq0rLUI.s:562    .bss.imu_aspirin2:0000000000000000 imu_aspirin2
+/var/tmp//ccq0rLUI.s:558    .bss.imu_aspirin2:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+mpu60x0_spi_init
+spi2
+mpu60x0_spi_read
+mpu60x0_spi_start_configure
+mpu60x0_spi_event
+imu
+spi_submit

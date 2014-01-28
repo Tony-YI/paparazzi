@@ -1,96 +1,105 @@
-find_free_msg_id.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
-find_free_msg_id.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
-fp_proc.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_parser.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_lexer.cmo \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi fp_proc.cmi
-fp_proc.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_parser.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_lexer.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx fp_proc.cmi
-gen_abi.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_abi.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_aircraft.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    gen_common.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
-gen_aircraft.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    gen_common.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
-gen_airframe.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_airframe.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_autopilot.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    gen_common.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
-gen_autopilot.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    gen_common.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
-gen_common.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi gen_common.cmi
-gen_common.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx gen_common.cmi
-gen_flight_plan.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmi fp_proc.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/egm96.cmi
-gen_flight_plan.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/geometry_2d.cmx fp_proc.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/egm96.cmx
-gen_messages.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_messages.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_messages2.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_messages2.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_modules.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    gen_common.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_modules.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    gen_common.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_mtk.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_mtk.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_periodic.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    gen_common.cmi /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_periodic.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    gen_common.cmx /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_radio.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_radio.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_settings.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_settings.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/xml2h.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_srtm.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/http.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
-gen_srtm.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/srtm.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/http.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
-gen_ubx.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_ubx.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-gen_xsens.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi
-gen_xsens.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx
-fp_proc.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmi
+find_free_msg_id.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
+find_free_msg_id.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
+fp_proc.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_syntax.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_parser.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_lexer.cmo \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi fp_proc.cmi
+fp_proc.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_syntax.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_parser.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_lexer.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx fp_proc.cmi
+gen_abi.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_abi.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_aircraft.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    gen_common.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
+gen_aircraft.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    gen_common.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
+gen_airframe.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_airframe.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_autopilot.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi gen_common.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
+gen_autopilot.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx gen_common.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
+gen_common.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi gen_common.cmi
+gen_common.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx gen_common.cmi
+gen_flight_plan.cmo : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmi \
+    fp_proc.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_syntax.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/egm96.cmi
+gen_flight_plan.cmx : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/geometry_2d.cmx \
+    fp_proc.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_syntax.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/egm96.cmx
+gen_messages.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_messages.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_messages2.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_messages2.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_modules.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    gen_common.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_modules.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    gen_common.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_mtk.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_mtk.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_periodic.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    gen_common.cmi /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_periodic.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    gen_common.cmx /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_radio.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_radio.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_settings.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_settings.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/xml2h.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_srtm.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/http.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
+gen_srtm.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/srtm.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/http.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
+gen_ubx.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_ubx.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+gen_xsens.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi
+gen_xsens.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx
+fp_proc.cmi : \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/expr_syntax.cmi
 gen_common.cmi :

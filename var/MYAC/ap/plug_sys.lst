@@ -1,0 +1,217 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"plug_sys.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text._lseek,"ax",%progbits
+  19              		.align	1
+  20              		.global	_lseek
+  21              		.thumb
+  22              		.thumb_func
+  24              	_lseek:
+  25              	.LFB0:
+  26              		.file 1 "lisa/plug_sys.c"
+   1:lisa/plug_sys.c **** /*
+   2:lisa/plug_sys.c ****  *
+   3:lisa/plug_sys.c ****  *  looks like some functions of the math lib (eg sqrt, atan2) insist to believe
+   4:lisa/plug_sys.c ****  *  they are running on UNIX. Let's keep them happy !
+   5:lisa/plug_sys.c ****  *
+   6:lisa/plug_sys.c ****  */
+   7:lisa/plug_sys.c **** 
+   8:lisa/plug_sys.c **** #include <unistd.h>
+   9:lisa/plug_sys.c **** extern off_t                  _lseek(int, off_t, int);
+  10:lisa/plug_sys.c **** extern void                   abort(void);
+  11:lisa/plug_sys.c **** extern int                    kill(pid_t, int);
+  12:lisa/plug_sys.c **** extern void *                 _sbrk(int);
+  13:lisa/plug_sys.c **** extern ssize_t                _write(int, const void *, size_t);
+  14:lisa/plug_sys.c **** extern int                    _close(int);
+  15:lisa/plug_sys.c **** extern ssize_t                _read(int, void *, size_t);
+  16:lisa/plug_sys.c **** 
+  17:lisa/plug_sys.c **** off_t                  _lseek(int a __attribute__((unused)), off_t b, int c __attribute__((unused))
+  27              		.loc 1 17 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  33              		.loc 1 17 0
+  34 0000 0846     		mov	r0, r1
+  35              	.LVL1:
+  36 0002 7047     		bx	lr
+  37              		.cfi_endproc
+  38              	.LFE0:
+  40              		.section	.text.abort,"ax",%progbits
+  41              		.align	1
+  42              		.global	abort
+  43              		.thumb
+  44              		.thumb_func
+  46              	abort:
+  47              	.LFB1:
+  18:lisa/plug_sys.c **** void                   abort(void) {while(1){};}
+  48              		.loc 1 18 0
+  49              		.cfi_startproc
+  50              		@ Volatile: function does not return.
+  51              		@ args = 0, pretend = 0, frame = 0
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53              		@ link register save eliminated.
+  54              	.L3:
+  55 0000 FEE7     		b	.L3
+  56              		.cfi_endproc
+  57              	.LFE1:
+  59              		.section	.text.getpid,"ax",%progbits
+  60              		.align	1
+  61              		.global	getpid
+  62              		.thumb
+  63              		.thumb_func
+  65              	getpid:
+  66              	.LFB2:
+  19:lisa/plug_sys.c **** pid_t                  getpid(void) { return 0;}
+  67              		.loc 1 19 0
+  68              		.cfi_startproc
+  69              		@ args = 0, pretend = 0, frame = 0
+  70              		@ frame_needed = 0, uses_anonymous_args = 0
+  71              		@ link register save eliminated.
+  72              		.loc 1 19 0
+  73 0000 0020     		movs	r0, #0
+  74 0002 7047     		bx	lr
+  75              		.cfi_endproc
+  76              	.LFE2:
+  78              		.section	.text.kill,"ax",%progbits
+  79              		.align	1
+  80              		.global	kill
+  81              		.thumb
+  82              		.thumb_func
+  84              	kill:
+  85              	.LFB3:
+  20:lisa/plug_sys.c **** int                    kill(pid_t a __attribute__((unused)), int b __attribute__((unused))) {return
+  86              		.loc 1 20 0
+  87              		.cfi_startproc
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 0, uses_anonymous_args = 0
+  90              		@ link register save eliminated.
+  91              	.LVL2:
+  92              		.loc 1 20 0
+  93 0000 0020     		movs	r0, #0
+  94              	.LVL3:
+  95 0002 7047     		bx	lr
+  96              		.cfi_endproc
+  97              	.LFE3:
+  99              		.section	.text._sbrk,"ax",%progbits
+ 100              		.align	1
+ 101              		.global	_sbrk
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	_sbrk:
+ 106              	.LFB4:
+  21:lisa/plug_sys.c **** void *                 _sbrk(int a __attribute__((unused))) {return 0;}
+ 107              		.loc 1 21 0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 0
+ 110              		@ frame_needed = 0, uses_anonymous_args = 0
+ 111              		@ link register save eliminated.
+ 112              	.LVL4:
+ 113              		.loc 1 21 0
+ 114 0000 0020     		movs	r0, #0
+ 115              	.LVL5:
+ 116 0002 7047     		bx	lr
+ 117              		.cfi_endproc
+ 118              	.LFE4:
+ 120              		.section	.text._write,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	_write
+ 123              		.thumb
+ 124              		.thumb_func
+ 126              	_write:
+ 127              	.LFB5:
+  22:lisa/plug_sys.c **** ssize_t                _write(int a __attribute__((unused)), const void *b __attribute__((unused)),
+ 128              		.loc 1 22 0
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 0
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+ 132              		@ link register save eliminated.
+ 133              	.LVL6:
+ 134              		.loc 1 22 0
+ 135 0000 0020     		movs	r0, #0
+ 136              	.LVL7:
+ 137 0002 7047     		bx	lr
+ 138              		.cfi_endproc
+ 139              	.LFE5:
+ 141              		.section	.text._close,"ax",%progbits
+ 142              		.align	1
+ 143              		.global	_close
+ 144              		.thumb
+ 145              		.thumb_func
+ 147              	_close:
+ 148              	.LFB6:
+  23:lisa/plug_sys.c **** int                    _close(int a __attribute__((unused))) { return 0;}
+ 149              		.loc 1 23 0
+ 150              		.cfi_startproc
+ 151              		@ args = 0, pretend = 0, frame = 0
+ 152              		@ frame_needed = 0, uses_anonymous_args = 0
+ 153              		@ link register save eliminated.
+ 154              	.LVL8:
+ 155              		.loc 1 23 0
+ 156 0000 0020     		movs	r0, #0
+ 157              	.LVL9:
+ 158 0002 7047     		bx	lr
+ 159              		.cfi_endproc
+ 160              	.LFE6:
+ 162              		.section	.text._read,"ax",%progbits
+ 163              		.align	1
+ 164              		.global	_read
+ 165              		.thumb
+ 166              		.thumb_func
+ 168              	_read:
+ 169              	.LFB7:
+  24:lisa/plug_sys.c **** ssize_t                _read(int a __attribute__((unused)), void *b __attribute__((unused)), size_t
+ 170              		.loc 1 24 0
+ 171              		.cfi_startproc
+ 172              		@ args = 0, pretend = 0, frame = 0
+ 173              		@ frame_needed = 0, uses_anonymous_args = 0
+ 174              		@ link register save eliminated.
+ 175              	.LVL10:
+ 176              		.loc 1 24 0
+ 177 0000 0020     		movs	r0, #0
+ 178              	.LVL11:
+ 179 0002 7047     		bx	lr
+ 180              		.cfi_endproc
+ 181              	.LFE7:
+ 183              		.text
+ 184              	.Letext0:
+ 185              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/sys/_type
+ 186              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/include/stddef.h"
+ 187              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/sys/types
+ 188              		.file 5 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/sys/unist
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 plug_sys.c
+/var/tmp//ccixxjHH.s:19     .text._lseek:0000000000000000 $t
+/var/tmp//ccixxjHH.s:24     .text._lseek:0000000000000000 _lseek
+/var/tmp//ccixxjHH.s:41     .text.abort:0000000000000000 $t
+/var/tmp//ccixxjHH.s:46     .text.abort:0000000000000000 abort
+/var/tmp//ccixxjHH.s:60     .text.getpid:0000000000000000 $t
+/var/tmp//ccixxjHH.s:65     .text.getpid:0000000000000000 getpid
+/var/tmp//ccixxjHH.s:79     .text.kill:0000000000000000 $t
+/var/tmp//ccixxjHH.s:84     .text.kill:0000000000000000 kill
+/var/tmp//ccixxjHH.s:100    .text._sbrk:0000000000000000 $t
+/var/tmp//ccixxjHH.s:105    .text._sbrk:0000000000000000 _sbrk
+/var/tmp//ccixxjHH.s:121    .text._write:0000000000000000 $t
+/var/tmp//ccixxjHH.s:126    .text._write:0000000000000000 _write
+/var/tmp//ccixxjHH.s:142    .text._close:0000000000000000 $t
+/var/tmp//ccixxjHH.s:147    .text._close:0000000000000000 _close
+/var/tmp//ccixxjHH.s:163    .text._read:0000000000000000 $t
+/var/tmp//ccixxjHH.s:168    .text._read:0000000000000000 _read
+                     .debug_frame:0000000000000010 $d
+
+NO UNDEFINED SYMBOLS

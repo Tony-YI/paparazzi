@@ -1,0 +1,145 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"actuators.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.actuators_init,"ax",%progbits
+  19              		.align	1
+  20              		.global	actuators_init
+  21              		.thumb
+  22              		.thumb_func
+  24              	actuators_init:
+  25              	.LFB17:
+  26              		.file 1 "subsystems/actuators.c"
+   1:subsystems/actuators.c **** /*
+   2:subsystems/actuators.c ****  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
+   3:subsystems/actuators.c ****  * Copyright (C) 2012 Gautier Hattenberger
+   4:subsystems/actuators.c ****  *
+   5:subsystems/actuators.c ****  * This file is part of paparazzi.
+   6:subsystems/actuators.c ****  *
+   7:subsystems/actuators.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   8:subsystems/actuators.c ****  * it under the terms of the GNU General Public License as published by
+   9:subsystems/actuators.c ****  * the Free Software Foundation; either version 2, or (at your option)
+  10:subsystems/actuators.c ****  * any later version.
+  11:subsystems/actuators.c ****  *
+  12:subsystems/actuators.c ****  * paparazzi is distributed in the hope that it will be useful,
+  13:subsystems/actuators.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:subsystems/actuators.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:subsystems/actuators.c ****  * GNU General Public License for more details.
+  16:subsystems/actuators.c ****  *
+  17:subsystems/actuators.c ****  * You should have received a copy of the GNU General Public License
+  18:subsystems/actuators.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  19:subsystems/actuators.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  20:subsystems/actuators.c ****  * Boston, MA 02111-1307, USA.
+  21:subsystems/actuators.c ****  */
+  22:subsystems/actuators.c **** 
+  23:subsystems/actuators.c **** /** @file actuators.c
+  24:subsystems/actuators.c ****  *  Hardware independent actuators code.
+  25:subsystems/actuators.c ****  *
+  26:subsystems/actuators.c ****  */
+  27:subsystems/actuators.c **** 
+  28:subsystems/actuators.c **** #include "subsystems/actuators.h"
+  29:subsystems/actuators.c **** #include "mcu_periph/sys_time.h"
+  30:subsystems/actuators.c **** 
+  31:subsystems/actuators.c **** #if ACTUATORS_NB
+  32:subsystems/actuators.c **** 
+  33:subsystems/actuators.c **** int16_t actuators[ACTUATORS_NB];
+  34:subsystems/actuators.c **** 
+  35:subsystems/actuators.c **** uint32_t actuators_delay_time;
+  36:subsystems/actuators.c **** bool_t   actuators_delay_done;
+  37:subsystems/actuators.c **** 
+  38:subsystems/actuators.c **** void actuators_init(void) {
+  27              		.loc 1 38 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  39:subsystems/actuators.c **** 
+  40:subsystems/actuators.c **** #if defined ACTUATORS_START_DELAY && ! defined SITL
+  41:subsystems/actuators.c ****   actuators_delay_done = FALSE;
+  42:subsystems/actuators.c ****   SysTimeTimerStart(actuators_delay_time);
+  43:subsystems/actuators.c **** #else
+  44:subsystems/actuators.c ****   actuators_delay_done = TRUE;
+  32              		.loc 1 44 0
+  33 0000 034B     		ldr	r3, .L2
+  45:subsystems/actuators.c ****   actuators_delay_time = 0;
+  34              		.loc 1 45 0
+  35 0002 0449     		ldr	r1, .L2+4
+  44:subsystems/actuators.c ****   actuators_delay_done = TRUE;
+  36              		.loc 1 44 0
+  37 0004 0122     		movs	r2, #1
+  38              		.loc 1 45 0
+  39 0006 0020     		movs	r0, #0
+  44:subsystems/actuators.c ****   actuators_delay_done = TRUE;
+  40              		.loc 1 44 0
+  41 0008 1A70     		strb	r2, [r3, #0]
+  42              		.loc 1 45 0
+  43 000a 0860     		str	r0, [r1, #0]
+  46:subsystems/actuators.c **** #endif
+  47:subsystems/actuators.c **** 
+  48:subsystems/actuators.c ****   // Init macro from generated airframe.h
+  49:subsystems/actuators.c ****   AllActuatorsInit();
+  50:subsystems/actuators.c **** 
+  51:subsystems/actuators.c **** }
+  44              		.loc 1 51 0
+  49:subsystems/actuators.c ****   AllActuatorsInit();
+  45              		.loc 1 49 0
+  46 000c FFF7FEBF 		b	actuators_pwm_arch_init
+  47              	.LVL0:
+  48              	.L3:
+  49              		.align	2
+  50              	.L2:
+  51 0010 00000000 		.word	.LANCHOR0
+  52 0014 00000000 		.word	.LANCHOR1
+  53              		.cfi_endproc
+  54              	.LFE17:
+  56              		.global	actuators_delay_done
+  57              		.global	actuators_delay_time
+  58              		.global	actuators
+  59              		.section	.bss.actuators_delay_time,"aw",%nobits
+  60              		.align	2
+  61              		.set	.LANCHOR1,. + 0
+  64              	actuators_delay_time:
+  65 0000 00000000 		.space	4
+  66              		.section	.bss.actuators_delay_done,"aw",%nobits
+  67              		.set	.LANCHOR0,. + 0
+  70              	actuators_delay_done:
+  71 0000 00       		.space	1
+  72              		.section	.bss.actuators,"aw",%nobits
+  73              		.align	1
+  76              	actuators:
+  77 0000 00000000 		.space	8
+  77      00000000 
+  78              		.text
+  79              	.Letext0:
+  80              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  81              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+  82              		.file 4 "./mcu_periph/sys_time.h"
+  83              		.file 5 "./subsystems/actuators/actuators_pwm.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 actuators.c
+/var/tmp//cc2NLiDD.s:19     .text.actuators_init:0000000000000000 $t
+/var/tmp//cc2NLiDD.s:24     .text.actuators_init:0000000000000000 actuators_init
+/var/tmp//cc2NLiDD.s:51     .text.actuators_init:0000000000000010 $d
+/var/tmp//cc2NLiDD.s:70     .bss.actuators_delay_done:0000000000000000 actuators_delay_done
+/var/tmp//cc2NLiDD.s:64     .bss.actuators_delay_time:0000000000000000 actuators_delay_time
+/var/tmp//cc2NLiDD.s:76     .bss.actuators:0000000000000000 actuators
+/var/tmp//cc2NLiDD.s:60     .bss.actuators_delay_time:0000000000000000 $d
+/var/tmp//cc2NLiDD.s:71     .bss.actuators_delay_done:0000000000000000 $d
+/var/tmp//cc2NLiDD.s:73     .bss.actuators:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+actuators_pwm_arch_init

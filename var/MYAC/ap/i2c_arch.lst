@@ -1,0 +1,3152 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"i2c_arch.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.PPRZ_I2C_SEND_START,"ax",%progbits
+  19              		.align	1
+  20              		.thumb
+  21              		.thumb_func
+  23              	PPRZ_I2C_SEND_START:
+  24              	.LFB5:
+  25              		.file 1 "arch/stm32/mcu_periph/i2c_arch.c"
+   1:arch/stm32/mcu_periph/i2c_arch.c **** /*
+   2:arch/stm32/mcu_periph/i2c_arch.c ****  * Copyright (C) 2009-2012 The Paparazzi Team
+   3:arch/stm32/mcu_periph/i2c_arch.c ****  *
+   4:arch/stm32/mcu_periph/i2c_arch.c ****  * This file is part of paparazzi.
+   5:arch/stm32/mcu_periph/i2c_arch.c ****  *
+   6:arch/stm32/mcu_periph/i2c_arch.c ****  * paparazzi is free software; you can redistribute it and/or modify
+   7:arch/stm32/mcu_periph/i2c_arch.c ****  * it under the terms of the GNU General Public License as published by
+   8:arch/stm32/mcu_periph/i2c_arch.c ****  * the Free Software Foundation; either version 2, or (at your option)
+   9:arch/stm32/mcu_periph/i2c_arch.c ****  * any later version.
+  10:arch/stm32/mcu_periph/i2c_arch.c ****  *
+  11:arch/stm32/mcu_periph/i2c_arch.c ****  * paparazzi is distributed in the hope that it will be useful,
+  12:arch/stm32/mcu_periph/i2c_arch.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13:arch/stm32/mcu_periph/i2c_arch.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14:arch/stm32/mcu_periph/i2c_arch.c ****  * GNU General Public License for more details.
+  15:arch/stm32/mcu_periph/i2c_arch.c ****  *
+  16:arch/stm32/mcu_periph/i2c_arch.c ****  * You should have received a copy of the GNU General Public License
+  17:arch/stm32/mcu_periph/i2c_arch.c ****  * along with paparazzi; see the file COPYING.  If not, write to
+  18:arch/stm32/mcu_periph/i2c_arch.c ****  * the Free Software Foundation, 59 Temple Place - Suite 330,
+  19:arch/stm32/mcu_periph/i2c_arch.c ****  * Boston, MA 02111-1307, USA.
+  20:arch/stm32/mcu_periph/i2c_arch.c ****  *
+  21:arch/stm32/mcu_periph/i2c_arch.c ****  */
+  22:arch/stm32/mcu_periph/i2c_arch.c **** 
+  23:arch/stm32/mcu_periph/i2c_arch.c **** /**
+  24:arch/stm32/mcu_periph/i2c_arch.c ****  * @file arch/stm32/mcu_periph/i2c_arch.c
+  25:arch/stm32/mcu_periph/i2c_arch.c ****  * @ingroup stm32_arch
+  26:arch/stm32/mcu_periph/i2c_arch.c ****  * Handling of I2C hardware for STM32.
+  27:arch/stm32/mcu_periph/i2c_arch.c ****  */
+  28:arch/stm32/mcu_periph/i2c_arch.c **** 
+  29:arch/stm32/mcu_periph/i2c_arch.c **** #include "mcu_periph/i2c.h"
+  30:arch/stm32/mcu_periph/i2c_arch.c **** 
+  31:arch/stm32/mcu_periph/i2c_arch.c **** #include BOARD_CONFIG
+  32:arch/stm32/mcu_periph/i2c_arch.c **** 
+  33:arch/stm32/mcu_periph/i2c_arch.c **** #include <libopencm3/stm32/rcc.h>
+  34:arch/stm32/mcu_periph/i2c_arch.c **** #include <libopencm3/stm32/gpio.h>
+  35:arch/stm32/mcu_periph/i2c_arch.c **** #include <libopencm3/cm3/nvic.h>
+  36:arch/stm32/mcu_periph/i2c_arch.c **** #include <libopencm3/cm3/scb.h>
+  37:arch/stm32/mcu_periph/i2c_arch.c **** 
+  38:arch/stm32/mcu_periph/i2c_arch.c **** #include "mcu_periph/gpio.h"
+  39:arch/stm32/mcu_periph/i2c_arch.c **** 
+  40:arch/stm32/mcu_periph/i2c_arch.c **** 
+  41:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+  42:arch/stm32/mcu_periph/i2c_arch.c **** #include "i2c_debug_led.h"
+  43:arch/stm32/mcu_periph/i2c_arch.c **** #endif // I2C_DEBUG_LED
+  44:arch/stm32/mcu_periph/i2c_arch.c **** 
+  45:arch/stm32/mcu_periph/i2c_arch.c **** //////////////////////////////////////////////////////////////////////////////////
+  46:arch/stm32/mcu_periph/i2c_arch.c **** //////////////////////////////////////////////////////////////////////////////////
+  47:arch/stm32/mcu_periph/i2c_arch.c **** 
+  48:arch/stm32/mcu_periph/i2c_arch.c **** 
+  49:arch/stm32/mcu_periph/i2c_arch.c **** // Error bit mask
+  50:arch/stm32/mcu_periph/i2c_arch.c **** // XXX: consider moving this define into libopencm3
+  51:arch/stm32/mcu_periph/i2c_arch.c **** #define I2C_SR1_ERR_MASK (I2C_SR1_SMBALERT | \
+  52:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_TIMEOUT |  \
+  53:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_PECERR |   \
+  54:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_OVR |      \
+  55:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_AF |       \
+  56:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_ARLO |     \
+  57:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C_SR1_BERR)
+  58:arch/stm32/mcu_periph/i2c_arch.c **** 
+  59:arch/stm32/mcu_periph/i2c_arch.c **** // Bit Control
+  60:arch/stm32/mcu_periph/i2c_arch.c **** 
+  61:arch/stm32/mcu_periph/i2c_arch.c **** #define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
+  62:arch/stm32/mcu_periph/i2c_arch.c **** 
+  63:arch/stm32/mcu_periph/i2c_arch.c **** // disable and enable irq functions are not implemented in libopencm3 defining them here
+  64:arch/stm32/mcu_periph/i2c_arch.c **** // XXX: consider moving this definitions into libopencm3
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+  67:arch/stm32/mcu_periph/i2c_arch.c **** 
+  68:arch/stm32/mcu_periph/i2c_arch.c **** // Critical Zones
+  69:arch/stm32/mcu_periph/i2c_arch.c **** 
+  70:arch/stm32/mcu_periph/i2c_arch.c **** #define __I2C_REG_CRITICAL_ZONE_START	__disable_irq();
+  71:arch/stm32/mcu_periph/i2c_arch.c **** #define __I2C_REG_CRITICAL_ZONE_STOP	__enable_irq();
+  72:arch/stm32/mcu_periph/i2c_arch.c **** 
+  73:arch/stm32/mcu_periph/i2c_arch.c **** 
+  74:arch/stm32/mcu_periph/i2c_arch.c **** static inline void PPRZ_I2C_SEND_STOP(u32 i2c)
+  75:arch/stm32/mcu_periph/i2c_arch.c **** {
+  76:arch/stm32/mcu_periph/i2c_arch.c ****   // Man: p722:  Stop generation after the current byte transfer or after the current Start conditi
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+  78:arch/stm32/mcu_periph/i2c_arch.c **** 
+  79:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+  80:arch/stm32/mcu_periph/i2c_arch.c ****   LED2_ON();
+  81:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_ON();
+  82:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_OFF();
+  83:arch/stm32/mcu_periph/i2c_arch.c ****   LED2_OFF();
+  84:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+  85:arch/stm32/mcu_periph/i2c_arch.c **** }
+  86:arch/stm32/mcu_periph/i2c_arch.c **** 
+  87:arch/stm32/mcu_periph/i2c_arch.c **** // (RE)START
+  88:arch/stm32/mcu_periph/i2c_arch.c **** 
+  89:arch/stm32/mcu_periph/i2c_arch.c **** static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
+  90:arch/stm32/mcu_periph/i2c_arch.c **** {
+  26              		.loc 1 90 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  91:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) periph->reg_addr;
+  32              		.loc 1 91 0
+  33 0000 436A     		ldr	r3, [r0, #36]
+  34              	.LVL1:
+  92:arch/stm32/mcu_periph/i2c_arch.c **** 
+  93:arch/stm32/mcu_periph/i2c_arch.c ****   // Reset the buffer pointer to the first byte
+  94:arch/stm32/mcu_periph/i2c_arch.c ****   periph->idx_buf = 0;
+  35              		.loc 1 94 0
+  36 0002 0022     		movs	r2, #0
+  37 0004 80F82320 		strb	r2, [r0, #35]
+  95:arch/stm32/mcu_periph/i2c_arch.c **** 
+  96:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+  97:arch/stm32/mcu_periph/i2c_arch.c ****   LED_SHOW_ACTIVE_BITS(regs);
+  98:arch/stm32/mcu_periph/i2c_arch.c **** 
+  99:arch/stm32/mcu_periph/i2c_arch.c ****   LED2_ON();
+ 100:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_ON();
+ 101:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_OFF();
+ 102:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_ON();
+ 103:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_OFF();
+ 104:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_ON();
+ 105:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_OFF();
+ 106:arch/stm32/mcu_periph/i2c_arch.c ****   LED2_OFF();
+ 107:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 108:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 109:arch/stm32/mcu_periph/i2c_arch.c ****   // Enable Error IRQ, Event IRQ but disable Buffer IRQ
+ 110:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
+  38              		.loc 1 110 0
+  39 0008 5968     		ldr	r1, [r3, #4]
+  40 000a 41F48072 		orr	r2, r1, #256
+  41 000e 5A60     		str	r2, [r3, #4]
+ 111:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
+  42              		.loc 1 111 0
+  43 0010 5968     		ldr	r1, [r3, #4]
+  44 0012 41F40072 		orr	r2, r1, #512
+  45 0016 5A60     		str	r2, [r3, #4]
+ 112:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+  46              		.loc 1 112 0
+  47 0018 5968     		ldr	r1, [r3, #4]
+  48 001a 21F48062 		bic	r2, r1, #1024
+ 113:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 114:arch/stm32/mcu_periph/i2c_arch.c ****   // Issue a new start
+ 115:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) =  (I2C_CR1_START | I2C_CR1_PE);
+  49              		.loc 1 115 0
+  50 001e 40F20111 		movw	r1, #257
+ 112:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+  51              		.loc 1 112 0
+  52 0022 5A60     		str	r2, [r3, #4]
+  53              		.loc 1 115 0
+  54 0024 1960     		str	r1, [r3, #0]
+ 116:arch/stm32/mcu_periph/i2c_arch.c ****   periph->status = I2CStartRequested;
+  55              		.loc 1 116 0
+  56 0026 0123     		movs	r3, #1
+  57              	.LVL2:
+  58 0028 80F82230 		strb	r3, [r0, #34]
+  59 002c 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE5:
+  63              		.section	.text.stmi2c_clear_pending_interrupts,"ax",%progbits
+  64              		.align	1
+  65              		.thumb
+  66              		.thumb_func
+  68              	stmi2c_clear_pending_interrupts:
+  69              	.LFB11:
+ 117:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 118:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 119:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 120:arch/stm32/mcu_periph/i2c_arch.c **** // STOP
+ 121:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 122:arch/stm32/mcu_periph/i2c_arch.c **** ///////////////////////////////////////////////////////////////////////////////////////////////////
+ 123:arch/stm32/mcu_periph/i2c_arch.c **** ///////////////////////////////////////////////////////////////////////////////////////////////////
+ 124:arch/stm32/mcu_periph/i2c_arch.c **** //
+ 125:arch/stm32/mcu_periph/i2c_arch.c **** //	SUBTRANSACTION SEQUENCES
+ 126:arch/stm32/mcu_periph/i2c_arch.c **** //	-We arrive here every time a ISR is called with no error
+ 127:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 128:arch/stm32/mcu_periph/i2c_arch.c **** enum STMI2CSubTransactionStatus {
+ 129:arch/stm32/mcu_periph/i2c_arch.c ****   STMI2C_SubTra_Busy,
+ 130:arch/stm32/mcu_periph/i2c_arch.c ****   STMI2C_SubTra_Ready_StopRequested,
+ 131:arch/stm32/mcu_periph/i2c_arch.c ****   STMI2C_SubTra_Ready,
+ 132:arch/stm32/mcu_periph/i2c_arch.c ****   STMI2C_SubTra_Error
+ 133:arch/stm32/mcu_periph/i2c_arch.c **** };
+ 134:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 135:arch/stm32/mcu_periph/i2c_arch.c **** // Doc ID 13902 Rev 11 p 710/1072
+ 136:arch/stm32/mcu_periph/i2c_arch.c **** // Transfer Sequence Diagram for Master Transmitter
+ 137:arch/stm32/mcu_periph/i2c_arch.c **** static inline enum STMI2CSubTransactionStatus stmi2c_send(u32 i2c, struct i2c_periph *periph, struc
+ 138:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 139:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 140:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 141:arch/stm32/mcu_periph/i2c_arch.c ****   // Start Condition Was Just Generated
+ 142:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 143:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 144:arch/stm32/mcu_periph/i2c_arch.c ****     // Disable buffer interrupt
+ 145:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 146:arch/stm32/mcu_periph/i2c_arch.c ****     // Send Slave address and wait for ADDR interrupt
+ 147:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr;
+ 148:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 149:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrWrSent;
+ 150:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 151:arch/stm32/mcu_periph/i2c_arch.c ****   // Address Was Sent
+ 152:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 153:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 154:arch/stm32/mcu_periph/i2c_arch.c ****     // Now read SR2 to clear the ADDR status Bit
+ 155:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2  __attribute__ ((unused)) = I2C_SR2(i2c);
+ 156:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 157:arch/stm32/mcu_periph/i2c_arch.c ****     // Maybe check we are transmitting (did not loose arbitration for instance)
+ 158:arch/stm32/mcu_periph/i2c_arch.c ****     // if (! BIT_X_IS_SET_IN_REG(I2C_SR2_TRA, SR2)) { }
+ 159:arch/stm32/mcu_periph/i2c_arch.c ****     // update: this should be caught by the ARLO error: so we will not arrive here
+ 160:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 161:arch/stm32/mcu_periph/i2c_arch.c ****     // Send First max 2 bytes
+ 162:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->buf[0];
+ 163:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->len_w > 1)
+ 164:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 165:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_DR(i2c) = trans->buf[1];
+ 166:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf = 2;
+ 167:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 168:arch/stm32/mcu_periph/i2c_arch.c ****     else
+ 169:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 170:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf = 1;
+ 171:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 172:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 173:arch/stm32/mcu_periph/i2c_arch.c ****     // Enable buffer-space available interrupt
+ 174:arch/stm32/mcu_periph/i2c_arch.c ****     // only if there is more to send: wait for TXE, no more to send: wait for BTF
+ 175:arch/stm32/mcu_periph/i2c_arch.c ****     if ( periph->idx_buf < trans->len_w)
+ 176:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 177:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 178:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 179:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CSendingByte;
+ 180:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 181:arch/stm32/mcu_periph/i2c_arch.c ****   // The buffer is not full anymore AND we were not waiting for BTF
+ 182:arch/stm32/mcu_periph/i2c_arch.c ****   else if ((BIT_X_IS_SET_IN_REG(I2C_SR1_TxE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_ITBUFEN, I2C_CR
+ 183:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 184:arch/stm32/mcu_periph/i2c_arch.c ****     // Send the next byte
+ 185:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->buf[periph->idx_buf];
+ 186:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf++;
+ 187:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 188:arch/stm32/mcu_periph/i2c_arch.c ****     // All bytes Sent? Then wait for BTF instead
+ 189:arch/stm32/mcu_periph/i2c_arch.c ****     if ( periph->idx_buf >= trans->len_w)
+ 190:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 191:arch/stm32/mcu_periph/i2c_arch.c ****       // Not interested anymore to know the buffer has space left
+ 192:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 193:arch/stm32/mcu_periph/i2c_arch.c ****       // Next interrupt will be BTF (or error)
+ 194:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 195:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 196:arch/stm32/mcu_periph/i2c_arch.c ****   // BTF: means last byte was sent
+ 197:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 198:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 199:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->type == I2CTransTx)
+ 200:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 201:arch/stm32/mcu_periph/i2c_arch.c ****       // Tell the driver we are ready
+ 202:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransSuccess;
+ 203:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 204:arch/stm32/mcu_periph/i2c_arch.c ****     // Otherwise we still need to do the receiving part
+ 205:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 206:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Ready;
+ 207:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 208:arch/stm32/mcu_periph/i2c_arch.c ****   else // Event Logic Error
+ 209:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 210:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Error;
+ 211:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 212:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 213:arch/stm32/mcu_periph/i2c_arch.c ****   return STMI2C_SubTra_Busy;
+ 214:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 215:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 216:arch/stm32/mcu_periph/i2c_arch.c **** // Doc ID 13902 Rev 11 p 714/1072
+ 217:arch/stm32/mcu_periph/i2c_arch.c **** // Transfer Sequence Diagram for Master Receiver for N=1
+ 218:arch/stm32/mcu_periph/i2c_arch.c **** static inline enum STMI2CSubTransactionStatus stmi2c_read1(u32 i2c, struct i2c_periph *periph, stru
+ 219:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 220:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 221:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 222:arch/stm32/mcu_periph/i2c_arch.c ****   // Start Condition Was Just Generated
+ 223:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 224:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 225:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 226:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr | 0x01;
+ 227:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 228:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 229:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrRdSent;
+ 230:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 231:arch/stm32/mcu_periph/i2c_arch.c ****   // Address Was Sent
+ 232:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 233:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 234:arch/stm32/mcu_periph/i2c_arch.c ****     // First Clear the ACK bit: after the next byte we do not want new bytes
+ 235:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_POS;
+ 236:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 237:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 238:arch/stm32/mcu_periph/i2c_arch.c ****     // --- next to steps MUST be executed together to avoid missing the stop
+ 239:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_START;
+ 240:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 241:arch/stm32/mcu_periph/i2c_arch.c ****     // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
+ 242:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 243:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 244:arch/stm32/mcu_periph/i2c_arch.c ****     // Schedule a Stop
+ 245:arch/stm32/mcu_periph/i2c_arch.c ****     PPRZ_I2C_SEND_STOP(i2c);
+ 246:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 247:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_STOP;
+ 248:arch/stm32/mcu_periph/i2c_arch.c ****     // --- end of critical zone -----------
+ 249:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 250:arch/stm32/mcu_periph/i2c_arch.c ****     // Enable the RXNE: it will trigger as soon as the 1 byte is received to get the result
+ 251:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 252:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 253:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 254:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingLastByte;
+ 255:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 256:arch/stm32/mcu_periph/i2c_arch.c ****   // As soon as there is 1 byte ready to read, we have our byte
+ 257:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_RxNE, SR1) )
+ 258:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 259:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 260:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 261:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 262:arch/stm32/mcu_periph/i2c_arch.c ****     // We got all the results (stop condition might still be in progress but this is the last inter
+ 263:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransSuccess;
+ 264:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 265:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status:
+ 266:arch/stm32/mcu_periph/i2c_arch.c ****     // -the stop was actually already requested in the previous step
+ 267:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 268:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 269:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Ready_StopRequested;
+ 270:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 271:arch/stm32/mcu_periph/i2c_arch.c ****   else // Event Logic Error
+ 272:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 273:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Error;
+ 274:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 275:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 276:arch/stm32/mcu_periph/i2c_arch.c ****   return STMI2C_SubTra_Busy;
+ 277:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 278:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 279:arch/stm32/mcu_periph/i2c_arch.c **** // Doc ID 13902 Rev 11 p 713/1072
+ 280:arch/stm32/mcu_periph/i2c_arch.c **** // Transfer Sequence Diagram for Master Receiver for N=2
+ 281:arch/stm32/mcu_periph/i2c_arch.c **** static inline enum STMI2CSubTransactionStatus stmi2c_read2(u32 i2c, struct i2c_periph *periph, stru
+ 282:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 283:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 284:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 285:arch/stm32/mcu_periph/i2c_arch.c ****   // Start Condition Was Just Generated
+ 286:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 287:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 288:arch/stm32/mcu_periph/i2c_arch.c ****     // according to the datasheet: instantly shedule a NAK on the second received byte:
+ 289:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 290:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_ACK;
+ 291:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_POS;
+ 292:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr | 0x01;
+ 293:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 294:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 295:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrRdSent;
+ 296:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 297:arch/stm32/mcu_periph/i2c_arch.c ****   // Address Was Sent
+ 298:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 299:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 300:arch/stm32/mcu_periph/i2c_arch.c ****     // --- make absolutely sure this command is not delayed too much after the previous:
+ 301:arch/stm32/mcu_periph/i2c_arch.c ****     // --- the NAK bits must be set before the first byte arrived: allow other interrupts here
+ 302:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_START;
+ 303:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 304:arch/stm32/mcu_periph/i2c_arch.c ****     //       if transfer of DR was finished already then we will get too many bytes
+ 305:arch/stm32/mcu_periph/i2c_arch.c ****     // BEFORE clearing ACK, read SR2 to clear the ADDR (next byte will start arriving)
+ 306:arch/stm32/mcu_periph/i2c_arch.c ****     // clearing ACK after the byte transfer has already started will NACK the next (2nd)
+ 307:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 308:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 309:arch/stm32/mcu_periph/i2c_arch.c ****     // NOT First Clear the ACK bit but only AFTER clearing ADDR
+ 310:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 311:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 312:arch/stm32/mcu_periph/i2c_arch.c ****     // Disable the RXNE and wait for BTF
+ 313:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 314:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 315:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_STOP;
+ 316:arch/stm32/mcu_periph/i2c_arch.c ****     // --- end of critical zone -----------
+ 317:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 318:arch/stm32/mcu_periph/i2c_arch.c ****     // We do not set the RxE but wait for both bytes to arrive using BTF
+ 319:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 320:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 321:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingByte;
+ 322:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 323:arch/stm32/mcu_periph/i2c_arch.c ****   // Receive buffer if full, master is halted: BTF
+ 324:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 325:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 326:arch/stm32/mcu_periph/i2c_arch.c ****     // Stop condition MUST be set BEFORE reading the DR
+ 327:arch/stm32/mcu_periph/i2c_arch.c ****     // otherwise since there is new buffer space a new byte will be read
+ 328:arch/stm32/mcu_periph/i2c_arch.c ****     PPRZ_I2C_SEND_STOP(i2c);
+ 329:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 330:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 331:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 332:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 333:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 334:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[1] = I2C_DR(i2c);
+ 335:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 336:arch/stm32/mcu_periph/i2c_arch.c ****     // We got all the results
+ 337:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransSuccess;
+ 338:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 339:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Ready_StopRequested;
+ 340:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 341:arch/stm32/mcu_periph/i2c_arch.c ****   else // Event Logic Error
+ 342:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 343:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Error;
+ 344:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 345:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 346:arch/stm32/mcu_periph/i2c_arch.c ****   return STMI2C_SubTra_Busy;
+ 347:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 348:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 349:arch/stm32/mcu_periph/i2c_arch.c **** // Doc ID 13902 Rev 11 p 712/1072
+ 350:arch/stm32/mcu_periph/i2c_arch.c **** // Transfer Sequence Diagram for Master Receiver for N>2
+ 351:arch/stm32/mcu_periph/i2c_arch.c **** static inline enum STMI2CSubTransactionStatus stmi2c_readmany(u32 i2c, struct i2c_periph *periph, s
+ 352:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 353:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 354:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 355:arch/stm32/mcu_periph/i2c_arch.c ****   // Start Condition Was Just Generated
+ 356:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 357:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 358:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 359:arch/stm32/mcu_periph/i2c_arch.c ****     // The first data byte will be acked in read many so the slave knows it should send more
+ 360:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_POS;
+ 361:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_ACK;
+ 362:arch/stm32/mcu_periph/i2c_arch.c ****     // Clear the SB flag
+ 363:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr | 0x01;
+ 364:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 365:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 366:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrRdSent;
+ 367:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 368:arch/stm32/mcu_periph/i2c_arch.c ****   // Address Was Sent
+ 369:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 370:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 371:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf = 0;
+ 372:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 373:arch/stm32/mcu_periph/i2c_arch.c ****     // Enable RXNE: receive an interrupt any time a byte is available
+ 374:arch/stm32/mcu_periph/i2c_arch.c ****     // only enable if MORE than 3 bytes need to be read
+ 375:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 376:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 377:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 378:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 379:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 380:arch/stm32/mcu_periph/i2c_arch.c ****     // ACK is still on to get more DATA
+ 381:arch/stm32/mcu_periph/i2c_arch.c ****     // Read SR2 to clear the ADDR (next byte will start arriving)
+ 382:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 383:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 384:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 385:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingByte;
+ 386:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 387:arch/stm32/mcu_periph/i2c_arch.c ****   // one or more bytes are available AND we were interested in Buffer interrupts
+ 388:arch/stm32/mcu_periph/i2c_arch.c ****   else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_RxNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_ITBUFEN, I2C_
+ 389:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 390:arch/stm32/mcu_periph/i2c_arch.c ****     // read byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 rema
+ 391:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 392:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 393:arch/stm32/mcu_periph/i2c_arch.c ****       trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 394:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf ++;
+ 395:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 396:arch/stm32/mcu_periph/i2c_arch.c ****     // from : 3bytes -> last byte: do nothing
+ 397:arch/stm32/mcu_periph/i2c_arch.c ****     //
+ 398:arch/stm32/mcu_periph/i2c_arch.c ****     // finally: this was the last byte
+ 399:arch/stm32/mcu_periph/i2c_arch.c ****     else if (periph->idx_buf >= (trans->len_r - 1))
+ 400:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 401:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 402:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 403:arch/stm32/mcu_periph/i2c_arch.c ****       // Last Value
+ 404:arch/stm32/mcu_periph/i2c_arch.c ****       trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 405:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf ++;
+ 406:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 407:arch/stm32/mcu_periph/i2c_arch.c ****       // We got all the results
+ 408:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransSuccess;
+ 409:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 410:arch/stm32/mcu_periph/i2c_arch.c ****       return STMI2C_SubTra_Ready_StopRequested;
+ 411:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 412:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 413:arch/stm32/mcu_periph/i2c_arch.c ****     // Check for end of transaction: start waiting for BTF instead of RXNE
+ 414:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 415:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 416:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 417:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 418:arch/stm32/mcu_periph/i2c_arch.c ****     else // idx >= len-3: there are 3 bytes to be read
+ 419:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 420:arch/stm32/mcu_periph/i2c_arch.c ****       // We want to halt I2C to have sufficient time to clear ACK, so:
+ 421:arch/stm32/mcu_periph/i2c_arch.c ****       // Stop listening to RXNE as it will be triggered infinitely since we did not empty the buffe
+ 422:arch/stm32/mcu_periph/i2c_arch.c ****       // on the next (second in buffer) received byte BTF will be set (buffer full and I2C halted)
+ 423:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 424:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 425:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 426:arch/stm32/mcu_periph/i2c_arch.c ****   // Buffer is full while this was not a RXNE interrupt
+ 427:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 428:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 429:arch/stm32/mcu_periph/i2c_arch.c ****     // Now the shift register and data register contain data(n-2) and data(n-1)
+ 430:arch/stm32/mcu_periph/i2c_arch.c ****     // And I2C is halted so we have time
+ 431:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 432:arch/stm32/mcu_periph/i2c_arch.c ****     // --- Make absolutely sure the next 2 I2C actions are performed with no delay
+ 433:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_START;
+ 434:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 435:arch/stm32/mcu_periph/i2c_arch.c ****     // First we clear the ACK while the SCL is held low by BTF
+ 436:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 437:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 438:arch/stm32/mcu_periph/i2c_arch.c ****     // Now that ACK is cleared we read one byte: instantly the last byte is being clocked in...
+ 439:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 440:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf ++;
+ 441:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 442:arch/stm32/mcu_periph/i2c_arch.c ****     // Now the last byte is being clocked. Stop in MUST be set BEFORE the transfer of the last byte
+ 443:arch/stm32/mcu_periph/i2c_arch.c ****     PPRZ_I2C_SEND_STOP(i2c);
+ 444:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 445:arch/stm32/mcu_periph/i2c_arch.c ****     __I2C_REG_CRITICAL_ZONE_STOP;
+ 446:arch/stm32/mcu_periph/i2c_arch.c ****     // --- end of critical zone -----------
+ 447:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 448:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 449:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 450:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 451:arch/stm32/mcu_periph/i2c_arch.c ****     // read the byte2 we had in the buffer (BTF means 2 bytes available)
+ 452:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 453:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf ++;
+ 454:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 455:arch/stm32/mcu_periph/i2c_arch.c ****     // Ask for an interrupt to read the last byte (which is normally still busy now)
+ 456:arch/stm32/mcu_periph/i2c_arch.c ****     // The last byte will be received with RXNE
+ 457:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 458:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 459:arch/stm32/mcu_periph/i2c_arch.c ****   else // Event Logic Error
+ 460:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 461:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Error;
+ 462:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 463:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 464:arch/stm32/mcu_periph/i2c_arch.c ****   return STMI2C_SubTra_Busy;
+ 465:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 466:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 467:arch/stm32/mcu_periph/i2c_arch.c **** ////////////////////////////////////////////////
+ 468:arch/stm32/mcu_periph/i2c_arch.c **** // Restore bus conditions to normal after errors
+ 469:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 470:arch/stm32/mcu_periph/i2c_arch.c **** static inline void i2c_error(struct i2c_periph *periph)
+ 471:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 472:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 473:arch/stm32/mcu_periph/i2c_arch.c ****   uint8_t err_nr = 0;
+ 474:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 475:arch/stm32/mcu_periph/i2c_arch.c ****   periph->errors->er_irq_cnt;
+ 476:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
+ 477:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->ack_fail_cnt++;
+ 478:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_AF;
+ 479:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 480:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 1;
+ 481:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 482:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 483:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_BERR) != 0) {     /* Misplaced Start or Stop condit
+ 484:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->miss_start_stop_cnt++;
+ 485:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_BERR;
+ 486:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 487:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 2;
+ 488:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 489:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 490:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_ARLO) != 0) {     /* Arbitration lost */
+ 491:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->arb_lost_cnt++;
+ 492:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_ARLO;
+ 493:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 494:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 3;
+ 495:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 496:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 497:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_OVR) != 0) {      /* Overrun/Underrun */
+ 498:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->over_under_cnt++;
+ 499:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_OVR;
+ 500:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 501:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 4;
+ 502:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 503:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 504:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_PECERR) != 0) {   /* PEC Error in reception */
+ 505:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->pec_recep_cnt++;
+ 506:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_PECERR;
+ 507:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 508:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 5;
+ 509:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 510:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 511:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_TIMEOUT) != 0) {  /* Timeout or Tlow error */
+ 512:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->timeout_tlow_cnt++;
+ 513:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_TIMEOUT;
+ 514:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 515:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 6;
+ 516:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 517:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 518:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_SMBALERT) != 0) { /* SMBus alert */
+ 519:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->smbus_alert_cnt++;
+ 520:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_SMBALERT;
+ 521:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 522:arch/stm32/mcu_periph/i2c_arch.c ****     err_nr = 7;
+ 523:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 524:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 525:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 526:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 527:arch/stm32/mcu_periph/i2c_arch.c ****   LED_ERROR(20, err_nr);
+ 528:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 529:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 530:arch/stm32/mcu_periph/i2c_arch.c ****   return;
+ 531:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 532:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 533:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 534:arch/stm32/mcu_periph/i2c_arch.c **** static inline void stmi2c_clear_pending_interrupts(u32 i2c)
+ 535:arch/stm32/mcu_periph/i2c_arch.c **** {
+  70              		.loc 1 535 0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              		@ link register save eliminated.
+  75              	.LVL3:
+ 536:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+  76              		.loc 1 536 0
+  77 0000 4369     		ldr	r3, [r0, #20]
+  78              	.LVL4:
+ 537:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 538:arch/stm32/mcu_periph/i2c_arch.c ****   // Certainly do not wait for buffer interrupts:
+ 539:arch/stm32/mcu_periph/i2c_arch.c ****   // -------------------------------------------
+ 540:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;			// Disable TXE, RXNE
+  79              		.loc 1 540 0
+  80 0002 4268     		ldr	r2, [r0, #4]
+  81 0004 22F48061 		bic	r1, r2, #1024
+  82 0008 4160     		str	r1, [r0, #4]
+ 541:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 542:arch/stm32/mcu_periph/i2c_arch.c ****   // Error interrupts are handled separately:
+ 543:arch/stm32/mcu_periph/i2c_arch.c ****   // ---------------------------------------
+ 544:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 545:arch/stm32/mcu_periph/i2c_arch.c ****   // Clear Event interrupt conditions:
+ 546:arch/stm32/mcu_periph/i2c_arch.c ****   // --------------------------------
+ 547:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 548:arch/stm32/mcu_periph/i2c_arch.c ****   // Start Condition Was Generated
+ 549:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+  83              		.loc 1 549 0
+  84 000a D907     		lsls	r1, r3, #31
+  85 000c 01D5     		bpl	.L3
+ 550:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 551:arch/stm32/mcu_periph/i2c_arch.c ****     // SB: cleared by software when reading SR1 and writing to DR
+ 552:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = 0x00;
+  86              		.loc 1 552 0
+  87 000e 0022     		movs	r2, #0
+  88 0010 0261     		str	r2, [r0, #16]
+  89              	.L3:
+ 553:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 554:arch/stm32/mcu_periph/i2c_arch.c ****   // Address Was Sent
+ 555:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+  90              		.loc 1 555 0
+  91 0012 9907     		lsls	r1, r3, #30
+  92              	.LBB42:
+ 556:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 557:arch/stm32/mcu_periph/i2c_arch.c ****     // ADDR: Cleared by software when reading SR1 and then SR2
+ 558:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+  93              		.loc 1 558 0
+  94 0014 48BF     		it	mi
+  95 0016 8169     		ldrmi	r1, [r0, #24]
+  96              	.LBE42:
+ 559:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 560:arch/stm32/mcu_periph/i2c_arch.c ****   // Byte Transfer Finished
+ 561:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+  97              		.loc 1 561 0
+  98 0018 5B07     		lsls	r3, r3, #29
+  99              	.LVL5:
+ 100 001a 02D5     		bpl	.L2
+ 101              	.LBB43:
+ 562:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 563:arch/stm32/mcu_periph/i2c_arch.c ****     // SB: cleared by software when reading SR1 and reading/writing to DR
+ 564:arch/stm32/mcu_periph/i2c_arch.c ****     uint8_t dummy __attribute__ ((unused)) = I2C_DR(i2c);
+ 102              		.loc 1 564 0
+ 103 001c 0369     		ldr	r3, [r0, #16]
+ 565:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = 0x00;
+ 104              		.loc 1 565 0
+ 105 001e 0023     		movs	r3, #0
+ 106 0020 0361     		str	r3, [r0, #16]
+ 107              	.L2:
+ 108 0022 7047     		bx	lr
+ 109              	.LBE43:
+ 110              		.cfi_endproc
+ 111              	.LFE11:
+ 113              		.section	.text.i2c_error.constprop.2,"ax",%progbits
+ 114              		.align	1
+ 115              		.thumb
+ 116              		.thumb_func
+ 118              	i2c_error.constprop.2:
+ 119              	.LFB26:
+ 470:arch/stm32/mcu_periph/i2c_arch.c **** static inline void i2c_error(struct i2c_periph *periph)
+ 120              		.loc 1 470 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 125              	.LVL6:
+ 475:arch/stm32/mcu_periph/i2c_arch.c ****   periph->errors->er_irq_cnt;
+ 126              		.loc 1 475 0
+ 127 0000 284B     		ldr	r3, .L45
+ 128 0002 DA6A     		ldr	r2, [r3, #44]
+ 476:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
+ 129              		.loc 1 476 0
+ 130 0004 5B6A     		ldr	r3, [r3, #36]
+ 475:arch/stm32/mcu_periph/i2c_arch.c ****   periph->errors->er_irq_cnt;
+ 131              		.loc 1 475 0
+ 132 0006 5169     		ldr	r1, [r2, #20]
+ 476:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
+ 133              		.loc 1 476 0
+ 134 0008 5969     		ldr	r1, [r3, #20]
+ 135 000a 4805     		lsls	r0, r1, #21
+ 136 000c 07D5     		bpl	.L17
+ 477:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->ack_fail_cnt++;
+ 137              		.loc 1 477 0
+ 138 000e 1088     		ldrh	r0, [r2, #0]
+ 139 0010 411C     		adds	r1, r0, #1
+ 140 0012 88B2     		uxth	r0, r1
+ 141 0014 1080     		strh	r0, [r2, #0]	@ movhi
+ 478:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_AF;
+ 142              		.loc 1 478 0
+ 143 0016 5969     		ldr	r1, [r3, #20]
+ 144 0018 21F48060 		bic	r0, r1, #1024
+ 145 001c 5861     		str	r0, [r3, #20]
+ 146              	.L17:
+ 483:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_BERR) != 0) {     /* Misplaced Start or Stop condit
+ 147              		.loc 1 483 0
+ 148 001e 5969     		ldr	r1, [r3, #20]
+ 149 0020 C905     		lsls	r1, r1, #23
+ 150 0022 07D5     		bpl	.L18
+ 484:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->miss_start_stop_cnt++;
+ 151              		.loc 1 484 0
+ 152 0024 5088     		ldrh	r0, [r2, #2]
+ 153 0026 411C     		adds	r1, r0, #1
+ 154 0028 88B2     		uxth	r0, r1
+ 155 002a 5080     		strh	r0, [r2, #2]	@ movhi
+ 485:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_BERR;
+ 156              		.loc 1 485 0
+ 157 002c 5969     		ldr	r1, [r3, #20]
+ 158 002e 21F48070 		bic	r0, r1, #256
+ 159 0032 5861     		str	r0, [r3, #20]
+ 160              	.L18:
+ 490:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_ARLO) != 0) {     /* Arbitration lost */
+ 161              		.loc 1 490 0
+ 162 0034 5969     		ldr	r1, [r3, #20]
+ 163 0036 8805     		lsls	r0, r1, #22
+ 164 0038 07D5     		bpl	.L19
+ 491:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->arb_lost_cnt++;
+ 165              		.loc 1 491 0
+ 166 003a 9088     		ldrh	r0, [r2, #4]
+ 167 003c 411C     		adds	r1, r0, #1
+ 168 003e 88B2     		uxth	r0, r1
+ 169 0040 9080     		strh	r0, [r2, #4]	@ movhi
+ 492:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_ARLO;
+ 170              		.loc 1 492 0
+ 171 0042 5969     		ldr	r1, [r3, #20]
+ 172 0044 21F40070 		bic	r0, r1, #512
+ 173 0048 5861     		str	r0, [r3, #20]
+ 174              	.L19:
+ 497:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_OVR) != 0) {      /* Overrun/Underrun */
+ 175              		.loc 1 497 0
+ 176 004a 5969     		ldr	r1, [r3, #20]
+ 177 004c 0905     		lsls	r1, r1, #20
+ 178 004e 07D5     		bpl	.L20
+ 498:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->over_under_cnt++;
+ 179              		.loc 1 498 0
+ 180 0050 D088     		ldrh	r0, [r2, #6]
+ 181 0052 411C     		adds	r1, r0, #1
+ 182 0054 88B2     		uxth	r0, r1
+ 183 0056 D080     		strh	r0, [r2, #6]	@ movhi
+ 499:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_OVR;
+ 184              		.loc 1 499 0
+ 185 0058 5969     		ldr	r1, [r3, #20]
+ 186 005a 21F40060 		bic	r0, r1, #2048
+ 187 005e 5861     		str	r0, [r3, #20]
+ 188              	.L20:
+ 504:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_PECERR) != 0) {   /* PEC Error in reception */
+ 189              		.loc 1 504 0
+ 190 0060 5969     		ldr	r1, [r3, #20]
+ 191 0062 C804     		lsls	r0, r1, #19
+ 192 0064 07D5     		bpl	.L21
+ 505:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->pec_recep_cnt++;
+ 193              		.loc 1 505 0
+ 194 0066 1089     		ldrh	r0, [r2, #8]
+ 195 0068 411C     		adds	r1, r0, #1
+ 196 006a 88B2     		uxth	r0, r1
+ 197 006c 1081     		strh	r0, [r2, #8]	@ movhi
+ 506:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_PECERR;
+ 198              		.loc 1 506 0
+ 199 006e 5969     		ldr	r1, [r3, #20]
+ 200 0070 21F48050 		bic	r0, r1, #4096
+ 201 0074 5861     		str	r0, [r3, #20]
+ 202              	.L21:
+ 511:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_TIMEOUT) != 0) {  /* Timeout or Tlow error */
+ 203              		.loc 1 511 0
+ 204 0076 5969     		ldr	r1, [r3, #20]
+ 205 0078 4904     		lsls	r1, r1, #17
+ 206 007a 07D5     		bpl	.L22
+ 512:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->timeout_tlow_cnt++;
+ 207              		.loc 1 512 0
+ 208 007c 5089     		ldrh	r0, [r2, #10]
+ 209 007e 411C     		adds	r1, r0, #1
+ 210 0080 88B2     		uxth	r0, r1
+ 211 0082 5081     		strh	r0, [r2, #10]	@ movhi
+ 513:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_TIMEOUT;
+ 212              		.loc 1 513 0
+ 213 0084 5969     		ldr	r1, [r3, #20]
+ 214 0086 21F48040 		bic	r0, r1, #16384
+ 215 008a 5861     		str	r0, [r3, #20]
+ 216              	.L22:
+ 518:arch/stm32/mcu_periph/i2c_arch.c ****   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_SMBALERT) != 0) { /* SMBus alert */
+ 217              		.loc 1 518 0
+ 218 008c 5969     		ldr	r1, [r3, #20]
+ 219 008e 0804     		lsls	r0, r1, #16
+ 220 0090 07D5     		bpl	.L16
+ 519:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->smbus_alert_cnt++;
+ 221              		.loc 1 519 0
+ 222 0092 9089     		ldrh	r0, [r2, #12]
+ 223 0094 411C     		adds	r1, r0, #1
+ 224 0096 88B2     		uxth	r0, r1
+ 225 0098 9081     		strh	r0, [r2, #12]	@ movhi
+ 520:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_SMBALERT;
+ 226              		.loc 1 520 0
+ 227 009a 5A69     		ldr	r2, [r3, #20]
+ 228 009c 22F40041 		bic	r1, r2, #32768
+ 229 00a0 5961     		str	r1, [r3, #20]
+ 230              	.L16:
+ 231 00a2 7047     		bx	lr
+ 232              	.L46:
+ 233              		.align	2
+ 234              	.L45:
+ 235 00a4 00000000 		.word	i2c2
+ 236              		.cfi_endproc
+ 237              	.LFE26:
+ 239              		.section	.text.i2c_irq.constprop.1,"ax",%progbits
+ 240              		.align	1
+ 241              		.thumb
+ 242              		.thumb_func
+ 244              	i2c_irq.constprop.1:
+ 245              	.LFB27:
+ 566:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 567:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 568:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 569:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 570:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 571:arch/stm32/mcu_periph/i2c_arch.c **** ////////////////////////////////////////////////
+ 572:arch/stm32/mcu_periph/i2c_arch.c **** // Restore bus conditions to normal after errors
+ 573:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 574:arch/stm32/mcu_periph/i2c_arch.c **** static inline void i2c_irq(struct i2c_periph *periph)
+ 246              		.loc 1 574 0
+ 247              		.cfi_startproc
+ 248              		@ args = 0, pretend = 0, frame = 0
+ 249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 250              	.LVL7:
+ 251 0000 70B5     		push	{r4, r5, r6, lr}
+ 252              	.LCFI0:
+ 253              		.cfi_def_cfa_offset 16
+ 254              		.cfi_offset 4, -16
+ 255              		.cfi_offset 5, -12
+ 256              		.cfi_offset 6, -8
+ 257              		.cfi_offset 14, -4
+ 575:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 576:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 577:arch/stm32/mcu_periph/i2c_arch.c ****   /*
+ 578:arch/stm32/mcu_periph/i2c_arch.c ****     There are 7 possible event reasons to get here + all errors
+ 579:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 580:arch/stm32/mcu_periph/i2c_arch.c ****     If IT_EV_FEN
+ 581:arch/stm32/mcu_periph/i2c_arch.c ****     -------------------------
+ 582:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 583:arch/stm32/mcu_periph/i2c_arch.c ****     We are always interested in all IT_EV_FEV: all are required.
+ 584:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 585:arch/stm32/mcu_periph/i2c_arch.c ****     1) SB		// Start Condition Success in Master mode
+ 586:arch/stm32/mcu_periph/i2c_arch.c ****     2) ADDR		// Address sent received Acknoledge
+ 587:arch/stm32/mcu_periph/i2c_arch.c ****     [ADDR10]	// -- 10bit address stuff: not used
+ 588:arch/stm32/mcu_periph/i2c_arch.c ****     [STOPF]		// -- only for slaves: master has no stop interrupt: not used
+ 589:arch/stm32/mcu_periph/i2c_arch.c ****     3) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_ful
+ 590:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 591:arch/stm32/mcu_periph/i2c_arch.c ****     // Beware: using the buffered I2C has some interesting properties:
+ 592:arch/stm32/mcu_periph/i2c_arch.c ****     - in master receive mode: BTF only occurs after the 2nd received byte: after the first byte is 
+ 593:arch/stm32/mcu_periph/i2c_arch.c ****       in RD but the I2C can still receive a second byte. Only when the 2nd byte is received while t
+ 594:arch/stm32/mcu_periph/i2c_arch.c ****       then a BTF occurs (I2C can not continue receiving bytes or they will get lost). During BTF I2
+ 595:arch/stm32/mcu_periph/i2c_arch.c ****     - in master transmit mode: when writing a byte to WD, you instantly get a new TxE interrupt whi
+ 596:arch/stm32/mcu_periph/i2c_arch.c ****       transmitted yet. The byte was pushed to the I2C shift register and the buffer is ready for mo
+ 597:arch/stm32/mcu_periph/i2c_arch.c ****       fill new data in the buffer while the first is still being transmitted for max performance tr
+ 598:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 599:arch/stm32/mcu_periph/i2c_arch.c ****     // Beware: besides data buffering you can/must plan several consecutive actions. You can send 2
+ 600:arch/stm32/mcu_periph/i2c_arch.c ****     a new start in one go.
+ 601:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 602:arch/stm32/mcu_periph/i2c_arch.c ****     - thanks to / because of this buffering and event sheduling there is not 1 interrupt per start 
+ 603:arch/stm32/mcu_periph/i2c_arch.c ****       This also means you must think more in advance and a transaction could be popped from the tra
+ 604:arch/stm32/mcu_periph/i2c_arch.c ****       stop condition is actually generated.
+ 605:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 606:arch/stm32/mcu_periph/i2c_arch.c ****     // Beware: the order in which Status (and other register) is read determines how flags are clea
+ 607:arch/stm32/mcu_periph/i2c_arch.c ****     You should NOT simply read SR1 & SR2 every time
+ 608:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 609:arch/stm32/mcu_periph/i2c_arch.c ****     If IT_EV_FEN AND IT_EV_BUF
+ 610:arch/stm32/mcu_periph/i2c_arch.c ****     --------------------------
+ 611:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 612:arch/stm32/mcu_periph/i2c_arch.c ****     Buffer event are not always wanted and are typically switched on during longer data transfers. 
+ 613:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 614:arch/stm32/mcu_periph/i2c_arch.c ****     4) RxNE
+ 615:arch/stm32/mcu_periph/i2c_arch.c ****     5) TxE
+ 616:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 617:arch/stm32/mcu_periph/i2c_arch.c ****     -----------------------------------------------------------------------------------------------
+ 618:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 619:arch/stm32/mcu_periph/i2c_arch.c ****     The STM waits indefinately (holding SCL low) for user interaction:
+ 620:arch/stm32/mcu_periph/i2c_arch.c ****     a) after a master-start (waiting for address)
+ 621:arch/stm32/mcu_periph/i2c_arch.c ****     b) after an address (waiting for data)
+ 622:arch/stm32/mcu_periph/i2c_arch.c ****        not during data sending when using buffered
+ 623:arch/stm32/mcu_periph/i2c_arch.c ****     c) after the last byte is transmitted (waiting for either stop or restart)
+ 624:arch/stm32/mcu_periph/i2c_arch.c ****        not during data receiving when using buffered
+ 625:arch/stm32/mcu_periph/i2c_arch.c ****        not after the last byte is received
+ 626:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 627:arch/stm32/mcu_periph/i2c_arch.c ****     - The STM I2C stalls indefinately when a stop condition was attempted that
+ 628:arch/stm32/mcu_periph/i2c_arch.c ****       did not succeed. The BUSY flag remains on.
+ 629:arch/stm32/mcu_periph/i2c_arch.c ****     - There is no STOP interrupt.
+ 630:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 631:arch/stm32/mcu_periph/i2c_arch.c ****     Caution Reading the status:
+ 632:arch/stm32/mcu_periph/i2c_arch.c ****     - Caution: this clears several flags and can start transmissions etc...
+ 633:arch/stm32/mcu_periph/i2c_arch.c ****     - Certain flags like STOP / (N)ACK need to be guaranteed to be set before
+ 634:arch/stm32/mcu_periph/i2c_arch.c ****       the transmission of the byte is finished. At higher clock rates that can be
+ 635:arch/stm32/mcu_periph/i2c_arch.c ****       quite fast: so we allow no other interrupt to be triggered in between
+ 636:arch/stm32/mcu_periph/i2c_arch.c ****       reading the status and setting all needed flags
+ 637:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 638:arch/stm32/mcu_periph/i2c_arch.c ****   */
+ 639:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 640:arch/stm32/mcu_periph/i2c_arch.c ****   // Here we go ...
+ 641:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 642:arch/stm32/mcu_periph/i2c_arch.c ****   // Apparently we got an I2C interrupt: EVT BUF or ERR
+ 643:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 644:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 645:arch/stm32/mcu_periph/i2c_arch.c ****   // Notify ISR is triggered
+ 646:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_ON();
+ 647:arch/stm32/mcu_periph/i2c_arch.c ****   LED1_OFF();
+ 648:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 649:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 650:arch/stm32/mcu_periph/i2c_arch.c ****   // Save Some Direct Access to the I2C Registers ...
+ 651:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) periph->reg_addr;
+ 258              		.loc 1 651 0
+ 259 0002 A54E     		ldr	r6, .L115
+ 652:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 653:arch/stm32/mcu_periph/i2c_arch.c ****   /////////////////////////////
+ 654:arch/stm32/mcu_periph/i2c_arch.c ****   // Check if we were ready ...
+ 655:arch/stm32/mcu_periph/i2c_arch.c ****   if (periph->trans_extract_idx == periph->trans_insert_idx)
+ 260              		.loc 1 655 0
+ 261 0004 96F82130 		ldrb	r3, [r6, #33]	@ zero_extendqisi2
+ 262 0008 96F82020 		ldrb	r2, [r6, #32]	@ zero_extendqisi2
+ 651:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) periph->reg_addr;
+ 263              		.loc 1 651 0
+ 264 000c 746A     		ldr	r4, [r6, #36]
+ 265              	.LVL8:
+ 266              		.loc 1 655 0
+ 267 000e 9A42     		cmp	r2, r3
+ 268 0010 0AD1     		bne	.L48
+ 656:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 657:arch/stm32/mcu_periph/i2c_arch.c ****     // Nothing Left To Do
+ 658:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 659:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 660:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_ON();
+ 661:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+ 662:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_OFF();
+ 663:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+ 664:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 665:arch/stm32/mcu_periph/i2c_arch.c ****     // no transaction and also an error?
+ 666:arch/stm32/mcu_periph/i2c_arch.c ****     LED_SHOW_ACTIVE_BITS(regs);
+ 667:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 668:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 669:arch/stm32/mcu_periph/i2c_arch.c ****     // If we still get an interrupt but there are no more things to do
+ 670:arch/stm32/mcu_periph/i2c_arch.c ****     // (which can happen if an event was sheduled just before a bus error occurs)
+ 671:arch/stm32/mcu_periph/i2c_arch.c ****     // (or can happen if both error and event interrupts were called together [the 2nd will then ge
+ 672:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 673:arch/stm32/mcu_periph/i2c_arch.c ****     // since there is nothing more to do: its easy: just stop: clear all interrupt generating bits
+ 674:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 675:arch/stm32/mcu_periph/i2c_arch.c ****     // Count The Errors
+ 676:arch/stm32/mcu_periph/i2c_arch.c ****     i2c_error(periph);
+ 269              		.loc 1 676 0
+ 270 0012 FFF7FEFF 		bl	i2c_error.constprop.2
+ 271              	.LVL9:
+ 677:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 678:arch/stm32/mcu_periph/i2c_arch.c ****     // Clear Running Events
+ 679:arch/stm32/mcu_periph/i2c_arch.c ****     stmi2c_clear_pending_interrupts(i2c);
+ 272              		.loc 1 679 0
+ 273 0016 2046     		mov	r0, r4
+ 274 0018 FFF7FEFF 		bl	stmi2c_clear_pending_interrupts
+ 275              	.LVL10:
+ 680:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 681:arch/stm32/mcu_periph/i2c_arch.c ****     // Mark this as a special error
+ 682:arch/stm32/mcu_periph/i2c_arch.c ****     periph->errors->last_unexpected_event++;
+ 276              		.loc 1 682 0
+ 277 001c F06A     		ldr	r0, [r6, #44]
+ 278 001e 0169     		ldr	r1, [r0, #16]
+ 279 0020 4A1C     		adds	r2, r1, #1
+ 280 0022 0261     		str	r2, [r0, #16]
+ 683:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 684:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 685:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CIdle;
+ 281              		.loc 1 685 0
+ 282 0024 0021     		movs	r1, #0
+ 283 0026 2AE0     		b	.L107
+ 284              	.L48:
+ 285              	.LVL11:
+ 686:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 687:arch/stm32/mcu_periph/i2c_arch.c ****     // There are no transactions anymore: return
+ 688:arch/stm32/mcu_periph/i2c_arch.c ****     // further-on in this routine we need a transaction pointer: so we are not allowed to continue
+ 689:arch/stm32/mcu_periph/i2c_arch.c ****     return;
+ 690:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 691:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 692:arch/stm32/mcu_periph/i2c_arch.c ****   // get the I2C transaction we were working on ...
+ 693:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 694:arch/stm32/mcu_periph/i2c_arch.c ****   enum STMI2CSubTransactionStatus ret = 0;
+ 695:arch/stm32/mcu_periph/i2c_arch.c ****   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
+ 696:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 697:arch/stm32/mcu_periph/i2c_arch.c ****   ///////////////////////////
+ 698:arch/stm32/mcu_periph/i2c_arch.c ****   // If there was an error:
+ 699:arch/stm32/mcu_periph/i2c_arch.c ****   if (( I2C_SR1(i2c) & I2C_SR1_ERR_MASK ) != 0x0000)
+ 286              		.loc 1 699 0
+ 287 0028 6069     		ldr	r0, [r4, #20]
+ 695:arch/stm32/mcu_periph/i2c_arch.c ****   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
+ 288              		.loc 1 695 0
+ 289 002a 56F82350 		ldr	r5, [r6, r3, lsl #2]
+ 290              	.LVL12:
+ 291              		.loc 1 699 0
+ 292 002e 10F45F4F 		tst	r0, #57088
+ 293 0032 0ED0     		beq	.L50
+ 700:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 701:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 702:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 703:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+ 704:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_ON();
+ 705:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+ 706:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_OFF();
+ 707:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 708:arch/stm32/mcu_periph/i2c_arch.c ****     LED_SHOW_ACTIVE_BITS(regs);
+ 709:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 710:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 711:arch/stm32/mcu_periph/i2c_arch.c ****     // Notify everyone about the error ...
+ 712:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 713:arch/stm32/mcu_periph/i2c_arch.c ****     // Set result in transaction
+ 714:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransFailed;
+ 294              		.loc 1 714 0
+ 295 0034 0321     		movs	r1, #3
+ 715:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 716:arch/stm32/mcu_periph/i2c_arch.c ****     // Document the current Status
+ 717:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CFailed;
+ 296              		.loc 1 717 0
+ 297 0036 0A23     		movs	r3, #10
+ 714:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransFailed;
+ 298              		.loc 1 714 0
+ 299 0038 85F82510 		strb	r1, [r5, #37]
+ 300              		.loc 1 717 0
+ 301 003c 86F82230 		strb	r3, [r6, #34]
+ 718:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 719:arch/stm32/mcu_periph/i2c_arch.c ****     // Make sure a TxRx does not Restart
+ 720:arch/stm32/mcu_periph/i2c_arch.c ****     trans->type = I2CTransRx;
+ 302              		.loc 1 720 0
+ 303 0040 0126     		movs	r6, #1
+ 304 0042 2E70     		strb	r6, [r5, #0]
+ 721:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 722:arch/stm32/mcu_periph/i2c_arch.c ****     // Count The Errors
+ 723:arch/stm32/mcu_periph/i2c_arch.c ****     i2c_error(periph);
+ 305              		.loc 1 723 0
+ 306 0044 FFF7FEFF 		bl	i2c_error.constprop.2
+ 307              	.LVL13:
+ 724:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 725:arch/stm32/mcu_periph/i2c_arch.c ****     // Clear Running Events
+ 726:arch/stm32/mcu_periph/i2c_arch.c ****     stmi2c_clear_pending_interrupts(i2c);
+ 308              		.loc 1 726 0
+ 309 0048 2046     		mov	r0, r4
+ 310 004a FFF7FEFF 		bl	stmi2c_clear_pending_interrupts
+ 311              	.LVL14:
+ 727:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 728:arch/stm32/mcu_periph/i2c_arch.c ****     // Now continue as if everything was normal from now on
+ 729:arch/stm32/mcu_periph/i2c_arch.c ****     ret = STMI2C_SubTra_Ready;
+ 312              		.loc 1 729 0
+ 313 004e 0226     		movs	r6, #2
+ 314 0050 56E1     		b	.L51
+ 315              	.LVL15:
+ 316              	.L50:
+ 730:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 731:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 732:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 733:arch/stm32/mcu_periph/i2c_arch.c ****   ///////////////////////////
+ 734:arch/stm32/mcu_periph/i2c_arch.c ****   // Normal Event:
+ 735:arch/stm32/mcu_periph/i2c_arch.c ****   else
+ 736:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 737:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 738:arch/stm32/mcu_periph/i2c_arch.c ****     ///////////////////////////////////////////////////////////////////////////////////////////////
+ 739:arch/stm32/mcu_periph/i2c_arch.c ****     ///////////////////////////////////////////////////////////////////////////////////////////////
+ 740:arch/stm32/mcu_periph/i2c_arch.c ****     //
+ 741:arch/stm32/mcu_periph/i2c_arch.c ****     //	SUB-TRANSACTION HANDLER
+ 742:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 743:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->type == I2CTransRx) // TxRx are converted to Rx after the Tx Part
+ 317              		.loc 1 743 0
+ 318 0052 2A78     		ldrb	r2, [r5, #0]	@ zero_extendqisi2
+ 319 0054 012A     		cmp	r2, #1
+ 320 0056 40F0F680 		bne	.L52
+ 744:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 745:arch/stm32/mcu_periph/i2c_arch.c ****       switch (trans->len_r)
+ 321              		.loc 1 745 0
+ 322 005a 6B88     		ldrh	r3, [r5, #2]
+ 323 005c 012B     		cmp	r3, #1
+ 324 005e 02D0     		beq	.L54
+ 325 0060 022B     		cmp	r3, #2
+ 326 0062 66D1     		bne	.L102
+ 327 0064 36E0     		b	.L114
+ 328              	.L54:
+ 329              	.LVL16:
+ 330              	.LBB78:
+ 331              	.LBB79:
+ 220:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 332              		.loc 1 220 0
+ 333 0066 6269     		ldr	r2, [r4, #20]
+ 334              	.LVL17:
+ 223:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 335              		.loc 1 223 0
+ 336 0068 D307     		lsls	r3, r2, #31
+ 337 006a 0BD5     		bpl	.L56
+ 225:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 338              		.loc 1 225 0
+ 339 006c 6168     		ldr	r1, [r4, #4]
+ 340 006e 21F48063 		bic	r3, r1, #1024
+ 341 0072 6360     		str	r3, [r4, #4]
+ 342              	.LVL18:
+ 343              	.L111:
+ 226:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr | 0x01;
+ 344              		.loc 1 226 0
+ 345 0074 6878     		ldrb	r0, [r5, #1]	@ zero_extendqisi2
+ 229:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrRdSent;
+ 346              		.loc 1 229 0
+ 347 0076 0321     		movs	r1, #3
+ 226:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr | 0x01;
+ 348              		.loc 1 226 0
+ 349 0078 40F00102 		orr	r2, r0, #1
+ 350 007c 2261     		str	r2, [r4, #16]
+ 351              	.LVL19:
+ 352              	.L107:
+ 229:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrRdSent;
+ 353              		.loc 1 229 0
+ 354 007e 86F82210 		strb	r1, [r6, #34]
+ 355 0082 70BD     		pop	{r4, r5, r6, pc}
+ 356              	.LVL20:
+ 357              	.L56:
+ 232:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 358              		.loc 1 232 0
+ 359 0084 9007     		lsls	r0, r2, #30
+ 360 0086 14D5     		bpl	.L58
+ 361              	.LBB80:
+ 235:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_POS;
+ 362              		.loc 1 235 0
+ 363 0088 2168     		ldr	r1, [r4, #0]
+ 364 008a 21F40063 		bic	r3, r1, #2048
+ 365 008e 2360     		str	r3, [r4, #0]
+ 236:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 366              		.loc 1 236 0
+ 367 0090 2068     		ldr	r0, [r4, #0]
+ 368 0092 20F48062 		bic	r2, r0, #1024
+ 369              	.LVL21:
+ 370 0096 2260     		str	r2, [r4, #0]
+ 371              	.LBB81:
+ 372              	.LBB82:
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+ 373              		.loc 1 65 0
+ 374              	@ 65 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 375 0098 72B6     		cpsid i
+ 376              	@ 0 "" 2
+ 377              		.thumb
+ 378              	.LBE82:
+ 379              	.LBE81:
+ 242:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 380              		.loc 1 242 0
+ 381 009a A369     		ldr	r3, [r4, #24]
+ 382              	.LVL22:
+ 383              	.LBB83:
+ 384              	.LBB84:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 385              		.loc 1 77 0
+ 386 009c 2168     		ldr	r1, [r4, #0]
+ 387 009e 41F40073 		orr	r3, r1, #512
+ 388 00a2 2360     		str	r3, [r4, #0]
+ 389              	.LBE84:
+ 390              	.LBE83:
+ 391              	.LBB85:
+ 392              	.LBB86:
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+ 393              		.loc 1 66 0
+ 394              	@ 66 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 395 00a4 62B6     		cpsie i
+ 396              	@ 0 "" 2
+ 397              		.thumb
+ 398              	.LBE86:
+ 399              	.LBE85:
+ 251:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 400              		.loc 1 251 0
+ 401 00a6 6068     		ldr	r0, [r4, #4]
+ 254:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingLastByte;
+ 402              		.loc 1 254 0
+ 403 00a8 0621     		movs	r1, #6
+ 251:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 404              		.loc 1 251 0
+ 405 00aa 40F48062 		orr	r2, r0, #1024
+ 406 00ae 6260     		str	r2, [r4, #4]
+ 407 00b0 E5E7     		b	.L107
+ 408              	.LVL23:
+ 409              	.L58:
+ 410              	.LBE80:
+ 257:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_RxNE, SR1) )
+ 411              		.loc 1 257 0
+ 412 00b2 5106     		lsls	r1, r2, #25
+ 413 00b4 40F11381 		bpl	.L88
+ 259:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 414              		.loc 1 259 0
+ 415 00b8 6068     		ldr	r0, [r4, #4]
+ 416 00ba 20F48062 		bic	r2, r0, #1024
+ 417              	.LVL24:
+ 418 00be 6260     		str	r2, [r4, #4]
+ 260:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 419              		.loc 1 260 0
+ 420 00c0 2169     		ldr	r1, [r4, #16]
+ 263:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransSuccess;
+ 421              		.loc 1 263 0
+ 422 00c2 0220     		movs	r0, #2
+ 260:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 423              		.loc 1 260 0
+ 424 00c4 CBB2     		uxtb	r3, r1
+ 267:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 425              		.loc 1 267 0
+ 426 00c6 0722     		movs	r2, #7
+ 260:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 427              		.loc 1 260 0
+ 428 00c8 6B71     		strb	r3, [r5, #5]
+ 263:arch/stm32/mcu_periph/i2c_arch.c ****     trans->status = I2CTransSuccess;
+ 429              		.loc 1 263 0
+ 430 00ca 85F82500 		strb	r0, [r5, #37]
+ 267:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 431              		.loc 1 267 0
+ 432 00ce 86F82220 		strb	r2, [r6, #34]
+ 433 00d2 81E0     		b	.L106
+ 434              	.LVL25:
+ 435              	.L114:
+ 436              	.LBE79:
+ 437              	.LBE78:
+ 438              	.LBB87:
+ 439              	.LBB88:
+ 283:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 440              		.loc 1 283 0
+ 441 00d4 6169     		ldr	r1, [r4, #20]
+ 442              	.LVL26:
+ 286:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 443              		.loc 1 286 0
+ 444 00d6 CA07     		lsls	r2, r1, #31
+ 445 00d8 0BD5     		bpl	.L60
+ 289:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 446              		.loc 1 289 0
+ 447 00da 6368     		ldr	r3, [r4, #4]
+ 448 00dc 23F48062 		bic	r2, r3, #1024
+ 449 00e0 6260     		str	r2, [r4, #4]
+ 290:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_ACK;
+ 450              		.loc 1 290 0
+ 451 00e2 2068     		ldr	r0, [r4, #0]
+ 452 00e4 40F48061 		orr	r1, r0, #1024
+ 453              	.LVL27:
+ 454 00e8 2160     		str	r1, [r4, #0]
+ 291:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_POS;
+ 455              		.loc 1 291 0
+ 456 00ea 2368     		ldr	r3, [r4, #0]
+ 457 00ec 43F40060 		orr	r0, r3, #2048
+ 458 00f0 2EE0     		b	.L112
+ 459              	.LVL28:
+ 460              	.L60:
+ 298:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 461              		.loc 1 298 0
+ 462 00f2 8807     		lsls	r0, r1, #30
+ 463 00f4 0CD5     		bpl	.L62
+ 464              	.LBB89:
+ 465              	.LBB90:
+ 466              	.LBB91:
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+ 467              		.loc 1 65 0
+ 468              	@ 65 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 469 00f6 72B6     		cpsid i
+ 470              	@ 0 "" 2
+ 471              		.thumb
+ 472              	.LBE91:
+ 473              	.LBE90:
+ 307:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 474              		.loc 1 307 0
+ 475 00f8 A369     		ldr	r3, [r4, #24]
+ 310:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 476              		.loc 1 310 0
+ 477 00fa 2368     		ldr	r3, [r4, #0]
+ 478 00fc 23F48062 		bic	r2, r3, #1024
+ 479 0100 2260     		str	r2, [r4, #0]
+ 313:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 480              		.loc 1 313 0
+ 481 0102 6068     		ldr	r0, [r4, #4]
+ 482 0104 20F48061 		bic	r1, r0, #1024
+ 483              	.LVL29:
+ 484 0108 6160     		str	r1, [r4, #4]
+ 485              	.LBB92:
+ 486              	.LBB93:
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+ 487              		.loc 1 66 0
+ 488              	@ 66 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 489 010a 62B6     		cpsie i
+ 490              	@ 0 "" 2
+ 491              		.thumb
+ 492              	.LBE93:
+ 493              	.LBE92:
+ 321:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingByte;
+ 494              		.loc 1 321 0
+ 495 010c 0521     		movs	r1, #5
+ 496 010e B6E7     		b	.L107
+ 497              	.LVL30:
+ 498              	.L62:
+ 499              	.LBE89:
+ 324:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 500              		.loc 1 324 0
+ 501 0110 4A07     		lsls	r2, r1, #29
+ 502 0112 40F1E480 		bpl	.L88
+ 503              	.LVL31:
+ 504              	.LBB94:
+ 505              	.LBB95:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 506              		.loc 1 77 0
+ 507 0116 2268     		ldr	r2, [r4, #0]
+ 508              	.LBE95:
+ 509              	.LBE94:
+ 331:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 510              		.loc 1 331 0
+ 511 0118 0721     		movs	r1, #7
+ 512              	.LVL32:
+ 513              	.LBB97:
+ 514              	.LBB96:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 515              		.loc 1 77 0
+ 516 011a 42F40070 		orr	r0, r2, #512
+ 517 011e 2060     		str	r0, [r4, #0]
+ 518              	.LBE96:
+ 519              	.LBE97:
+ 331:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 520              		.loc 1 331 0
+ 521 0120 86F82210 		strb	r1, [r6, #34]
+ 333:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[0] = I2C_DR(i2c);
+ 522              		.loc 1 333 0
+ 523 0124 2669     		ldr	r6, [r4, #16]
+ 524 0126 F2B2     		uxtb	r2, r6
+ 525 0128 6A71     		strb	r2, [r5, #5]
+ 334:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[1] = I2C_DR(i2c);
+ 526              		.loc 1 334 0
+ 527 012a 2069     		ldr	r0, [r4, #16]
+ 528 012c C1B2     		uxtb	r1, r0
+ 529 012e A971     		strb	r1, [r5, #6]
+ 530 0130 50E0     		b	.L105
+ 531              	.LVL33:
+ 532              	.L102:
+ 533              	.LBE88:
+ 534              	.LBE87:
+ 535              	.LBB98:
+ 536              	.LBB99:
+ 353:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 537              		.loc 1 353 0
+ 538 0132 6269     		ldr	r2, [r4, #20]
+ 539              	.LVL34:
+ 356:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 540              		.loc 1 356 0
+ 541 0134 12F00101 		ands	r1, r2, #1
+ 542 0138 0CD0     		beq	.L63
+ 358:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 543              		.loc 1 358 0
+ 544 013a 6268     		ldr	r2, [r4, #4]
+ 545              	.LVL35:
+ 546 013c 22F48060 		bic	r0, r2, #1024
+ 547 0140 6060     		str	r0, [r4, #4]
+ 360:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_POS;
+ 548              		.loc 1 360 0
+ 549 0142 2368     		ldr	r3, [r4, #0]
+ 550 0144 23F40061 		bic	r1, r3, #2048
+ 551 0148 2160     		str	r1, [r4, #0]
+ 361:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |= I2C_CR1_ACK;
+ 552              		.loc 1 361 0
+ 553 014a 2268     		ldr	r2, [r4, #0]
+ 554 014c 42F48060 		orr	r0, r2, #1024
+ 555              	.LVL36:
+ 556              	.L112:
+ 557 0150 2060     		str	r0, [r4, #0]
+ 558 0152 8FE7     		b	.L111
+ 559              	.LVL37:
+ 560              	.L63:
+ 369:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 561              		.loc 1 369 0
+ 562 0154 9007     		lsls	r0, r2, #30
+ 563 0156 0FD5     		bpl	.L65
+ 564              	.LBB100:
+ 371:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf = 0;
+ 565              		.loc 1 371 0
+ 566 0158 86F82310 		strb	r1, [r6, #35]
+ 375:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 567              		.loc 1 375 0
+ 568 015c 6A88     		ldrh	r2, [r5, #2]
+ 569              	.LVL38:
+ 570 015e 96F82310 		ldrb	r1, [r6, #35]	@ zero_extendqisi2
+ 571 0162 D01E     		subs	r0, r2, #3
+ 572 0164 8142     		cmp	r1, r0
+ 573 0166 03DA     		bge	.L66
+ 377:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 574              		.loc 1 377 0
+ 575 0168 6368     		ldr	r3, [r4, #4]
+ 576 016a 43F48061 		orr	r1, r3, #1024
+ 577 016e 6160     		str	r1, [r4, #4]
+ 578              	.L66:
+ 382:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2 __attribute__ ((unused)) = I2C_SR2(i2c);
+ 579              		.loc 1 382 0
+ 580 0170 A369     		ldr	r3, [r4, #24]
+ 385:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CReadingByte;
+ 581              		.loc 1 385 0
+ 582 0172 0521     		movs	r1, #5
+ 583 0174 484B     		ldr	r3, .L115
+ 584 0176 8BE0     		b	.L110
+ 585              	.LVL39:
+ 586              	.L65:
+ 587              	.LBE100:
+ 388:arch/stm32/mcu_periph/i2c_arch.c ****   else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_RxNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_ITBUFEN, I2C_
+ 588              		.loc 1 388 0
+ 589 0178 5006     		lsls	r0, r2, #25
+ 590 017a 38D5     		bpl	.L67
+ 591 017c 6068     		ldr	r0, [r4, #4]
+ 592 017e 4105     		lsls	r1, r0, #21
+ 593 0180 35D5     		bpl	.L67
+ 391:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 594              		.loc 1 391 0
+ 595 0182 96F82300 		ldrb	r0, [r6, #35]	@ zero_extendqisi2
+ 596 0186 D91E     		subs	r1, r3, #3
+ 597 0188 8842     		cmp	r0, r1
+ 598 018a 0CDA     		bge	.L68
+ 393:arch/stm32/mcu_periph/i2c_arch.c ****       trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 599              		.loc 1 393 0
+ 600 018c 96F82310 		ldrb	r1, [r6, #35]	@ zero_extendqisi2
+ 601 0190 2269     		ldr	r2, [r4, #16]
+ 602              	.LVL40:
+ 603 0192 6B18     		adds	r3, r5, r1
+ 604 0194 D0B2     		uxtb	r0, r2
+ 605 0196 5871     		strb	r0, [r3, #5]
+ 394:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf ++;
+ 606              		.loc 1 394 0
+ 607 0198 96F82310 		ldrb	r1, [r6, #35]	@ zero_extendqisi2
+ 608 019c 4A1C     		adds	r2, r1, #1
+ 609 019e D0B2     		uxtb	r0, r2
+ 610 01a0 86F82300 		strb	r0, [r6, #35]
+ 611 01a4 1AE0     		b	.L69
+ 612              	.LVL41:
+ 613              	.L68:
+ 399:arch/stm32/mcu_periph/i2c_arch.c ****     else if (periph->idx_buf >= (trans->len_r - 1))
+ 614              		.loc 1 399 0
+ 615 01a6 96F82300 		ldrb	r0, [r6, #35]	@ zero_extendqisi2
+ 616 01aa 013B     		subs	r3, r3, #1
+ 617 01ac 9842     		cmp	r0, r3
+ 618 01ae 3A4A     		ldr	r2, .L115
+ 619              	.LVL42:
+ 620 01b0 14DB     		blt	.L69
+ 401:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 621              		.loc 1 401 0
+ 622 01b2 6668     		ldr	r6, [r4, #4]
+ 623 01b4 26F48061 		bic	r1, r6, #1024
+ 624 01b8 6160     		str	r1, [r4, #4]
+ 404:arch/stm32/mcu_periph/i2c_arch.c ****       trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 625              		.loc 1 404 0
+ 626 01ba 92F82300 		ldrb	r0, [r2, #35]	@ zero_extendqisi2
+ 627 01be 2369     		ldr	r3, [r4, #16]
+ 628 01c0 2918     		adds	r1, r5, r0
+ 629 01c2 DEB2     		uxtb	r6, r3
+ 630 01c4 4E71     		strb	r6, [r1, #5]
+ 405:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf ++;
+ 631              		.loc 1 405 0
+ 632 01c6 92F82300 		ldrb	r0, [r2, #35]	@ zero_extendqisi2
+ 633 01ca 431C     		adds	r3, r0, #1
+ 634 01cc DEB2     		uxtb	r6, r3
+ 635 01ce 82F82360 		strb	r6, [r2, #35]
+ 408:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransSuccess;
+ 636              		.loc 1 408 0
+ 637 01d2 0223     		movs	r3, #2
+ 638              	.LVL43:
+ 639              	.L105:
+ 640 01d4 85F82530 		strb	r3, [r5, #37]
+ 641              	.L106:
+ 410:arch/stm32/mcu_periph/i2c_arch.c ****       return STMI2C_SubTra_Ready_StopRequested;
+ 642              		.loc 1 410 0
+ 643 01d8 0126     		movs	r6, #1
+ 644 01da 91E0     		b	.L51
+ 645              	.LVL44:
+ 646              	.L69:
+ 414:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 647              		.loc 1 414 0
+ 648 01dc 2E4B     		ldr	r3, .L115
+ 649 01de 6A88     		ldrh	r2, [r5, #2]
+ 650 01e0 93F82310 		ldrb	r1, [r3, #35]	@ zero_extendqisi2
+ 651 01e4 D01E     		subs	r0, r2, #3
+ 652 01e6 8142     		cmp	r1, r0
+ 416:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 653              		.loc 1 416 0
+ 654 01e8 6068     		ldr	r0, [r4, #4]
+ 414:arch/stm32/mcu_periph/i2c_arch.c ****     if (periph->idx_buf < (trans->len_r - 3))
+ 655              		.loc 1 414 0
+ 656 01ea 6DDA     		bge	.L109
+ 657 01ec 28E0     		b	.L113
+ 658              	.LVL45:
+ 659              	.L67:
+ 427:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 660              		.loc 1 427 0
+ 661 01ee 5307     		lsls	r3, r2, #29
+ 662 01f0 75D5     		bpl	.L88
+ 663              	.LBB101:
+ 664              	.LBB102:
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+ 665              		.loc 1 65 0
+ 666              	@ 65 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 667 01f2 72B6     		cpsid i
+ 668              	@ 0 "" 2
+ 669              		.thumb
+ 670              	.LBE102:
+ 671              	.LBE101:
+ 436:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 672              		.loc 1 436 0
+ 673 01f4 2368     		ldr	r3, [r4, #0]
+ 439:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 674              		.loc 1 439 0
+ 675 01f6 2848     		ldr	r0, .L115
+ 436:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_ACK;
+ 676              		.loc 1 436 0
+ 677 01f8 23F48062 		bic	r2, r3, #1024
+ 678              	.LVL46:
+ 679 01fc 2260     		str	r2, [r4, #0]
+ 439:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 680              		.loc 1 439 0
+ 681 01fe 90F82330 		ldrb	r3, [r0, #35]	@ zero_extendqisi2
+ 682 0202 2169     		ldr	r1, [r4, #16]
+ 683 0204 EA18     		adds	r2, r5, r3
+ 684 0206 C9B2     		uxtb	r1, r1
+ 685 0208 5171     		strb	r1, [r2, #5]
+ 440:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf ++;
+ 686              		.loc 1 440 0
+ 687 020a 90F82330 		ldrb	r3, [r0, #35]	@ zero_extendqisi2
+ 688 020e 591C     		adds	r1, r3, #1
+ 689 0210 CAB2     		uxtb	r2, r1
+ 690 0212 80F82320 		strb	r2, [r0, #35]
+ 691              	.LVL47:
+ 692              	.LBB103:
+ 693              	.LBB104:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 694              		.loc 1 77 0
+ 695 0216 2368     		ldr	r3, [r4, #0]
+ 696 0218 43F40071 		orr	r1, r3, #512
+ 697 021c 2160     		str	r1, [r4, #0]
+ 698              	.LBE104:
+ 699              	.LBE103:
+ 700              	.LBB105:
+ 701              	.LBB106:
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+ 702              		.loc 1 66 0
+ 703              	@ 66 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 704 021e 62B6     		cpsie i
+ 705              	@ 0 "" 2
+ 706              		.thumb
+ 707              	.LBE106:
+ 708              	.LBE105:
+ 449:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CStopRequested;
+ 709              		.loc 1 449 0
+ 710 0220 0722     		movs	r2, #7
+ 711 0222 80F82220 		strb	r2, [r0, #34]
+ 452:arch/stm32/mcu_periph/i2c_arch.c ****     trans->buf[periph->idx_buf] = I2C_DR(i2c);
+ 712              		.loc 1 452 0
+ 713 0226 90F82330 		ldrb	r3, [r0, #35]	@ zero_extendqisi2
+ 714 022a 2169     		ldr	r1, [r4, #16]
+ 715 022c ED18     		adds	r5, r5, r3
+ 716              	.LVL48:
+ 717 022e CAB2     		uxtb	r2, r1
+ 718 0230 6A71     		strb	r2, [r5, #5]
+ 453:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf ++;
+ 719              		.loc 1 453 0
+ 720 0232 90F82330 		ldrb	r3, [r0, #35]	@ zero_extendqisi2
+ 721 0236 591C     		adds	r1, r3, #1
+ 722 0238 CAB2     		uxtb	r2, r1
+ 723 023a 80F82320 		strb	r2, [r0, #35]
+ 457:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 724              		.loc 1 457 0
+ 725 023e 6068     		ldr	r0, [r4, #4]
+ 726              	.LVL49:
+ 727              	.L113:
+ 728 0240 40F48063 		orr	r3, r0, #1024
+ 729 0244 42E0     		b	.L108
+ 730              	.LVL50:
+ 731              	.L52:
+ 732              	.LBE99:
+ 733              	.LBE98:
+ 734              	.LBB107:
+ 735              	.LBB108:
+ 139:arch/stm32/mcu_periph/i2c_arch.c ****   uint16_t SR1 = I2C_SR1(i2c);
+ 736              		.loc 1 139 0
+ 737 0246 6369     		ldr	r3, [r4, #20]
+ 738              	.LVL51:
+ 142:arch/stm32/mcu_periph/i2c_arch.c ****   if (BIT_X_IS_SET_IN_REG( I2C_SR1_SB, SR1 ) )
+ 739              		.loc 1 142 0
+ 740 0248 D807     		lsls	r0, r3, #31
+ 741 024a 07D5     		bpl	.L71
+ 145:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 742              		.loc 1 145 0
+ 743 024c 6368     		ldr	r3, [r4, #4]
+ 744              	.LVL52:
+ 149:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CAddrWrSent;
+ 745              		.loc 1 149 0
+ 746 024e 0221     		movs	r1, #2
+ 145:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 747              		.loc 1 145 0
+ 748 0250 23F48060 		bic	r0, r3, #1024
+ 749 0254 6060     		str	r0, [r4, #4]
+ 147:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->slave_addr;
+ 750              		.loc 1 147 0
+ 751 0256 6A78     		ldrb	r2, [r5, #1]	@ zero_extendqisi2
+ 752 0258 2261     		str	r2, [r4, #16]
+ 753 025a 10E7     		b	.L107
+ 754              	.LVL53:
+ 755              	.L71:
+ 152:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_ADDR, SR1) )
+ 756              		.loc 1 152 0
+ 757 025c 9907     		lsls	r1, r3, #30
+ 758 025e 1DD5     		bpl	.L73
+ 759              	.LBB109:
+ 155:arch/stm32/mcu_periph/i2c_arch.c ****     uint16_t SR2  __attribute__ ((unused)) = I2C_SR2(i2c);
+ 760              		.loc 1 155 0
+ 761 0260 A369     		ldr	r3, [r4, #24]
+ 762              	.LVL54:
+ 162:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->buf[0];
+ 763              		.loc 1 162 0
+ 764 0262 6A79     		ldrb	r2, [r5, #5]	@ zero_extendqisi2
+ 765 0264 2261     		str	r2, [r4, #16]
+ 163:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->len_w > 1)
+ 766              		.loc 1 163 0
+ 767 0266 2B79     		ldrb	r3, [r5, #4]	@ zero_extendqisi2
+ 768 0268 012B     		cmp	r3, #1
+ 769 026a 03D9     		bls	.L74
+ 165:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_DR(i2c) = trans->buf[1];
+ 770              		.loc 1 165 0
+ 771 026c A879     		ldrb	r0, [r5, #6]	@ zero_extendqisi2
+ 166:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf = 2;
+ 772              		.loc 1 166 0
+ 773 026e 0221     		movs	r1, #2
+ 165:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_DR(i2c) = trans->buf[1];
+ 774              		.loc 1 165 0
+ 775 0270 2061     		str	r0, [r4, #16]
+ 776 0272 00E0     		b	.L104
+ 777              	.L74:
+ 170:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf = 1;
+ 778              		.loc 1 170 0
+ 779 0274 0121     		movs	r1, #1
+ 780              	.L104:
+ 175:arch/stm32/mcu_periph/i2c_arch.c ****     if ( periph->idx_buf < trans->len_w)
+ 781              		.loc 1 175 0
+ 782 0276 084B     		ldr	r3, .L115
+ 170:arch/stm32/mcu_periph/i2c_arch.c ****       periph->idx_buf = 1;
+ 783              		.loc 1 170 0
+ 784 0278 86F82310 		strb	r1, [r6, #35]
+ 175:arch/stm32/mcu_periph/i2c_arch.c ****     if ( periph->idx_buf < trans->len_w)
+ 785              		.loc 1 175 0
+ 786 027c 93F82320 		ldrb	r2, [r3, #35]	@ zero_extendqisi2
+ 787 0280 2979     		ldrb	r1, [r5, #4]	@ zero_extendqisi2
+ 788 0282 9142     		cmp	r1, r2
+ 789 0284 03D9     		bls	.L76
+ 176:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+ 790              		.loc 1 176 0
+ 791 0286 6068     		ldr	r0, [r4, #4]
+ 792 0288 40F48062 		orr	r2, r0, #1024
+ 793 028c 6260     		str	r2, [r4, #4]
+ 794              	.L76:
+ 179:arch/stm32/mcu_periph/i2c_arch.c ****     periph->status = I2CSendingByte;
+ 795              		.loc 1 179 0
+ 796 028e 0421     		movs	r1, #4
+ 797              	.LVL55:
+ 798              	.L110:
+ 799 0290 83F82210 		strb	r1, [r3, #34]
+ 800 0294 70BD     		pop	{r4, r5, r6, pc}
+ 801              	.L116:
+ 802 0296 00BF     		.align	2
+ 803              	.L115:
+ 804 0298 00000000 		.word	i2c2
+ 805              	.LVL56:
+ 806              	.L73:
+ 807              	.LBE109:
+ 182:arch/stm32/mcu_periph/i2c_arch.c ****   else if ((BIT_X_IS_SET_IN_REG(I2C_SR1_TxE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_ITBUFEN, I2C_CR
+ 808              		.loc 1 182 0
+ 809 029c 1806     		lsls	r0, r3, #24
+ 810 029e 17D5     		bpl	.L77
+ 811 02a0 6168     		ldr	r1, [r4, #4]
+ 812 02a2 4905     		lsls	r1, r1, #21
+ 813 02a4 14D5     		bpl	.L77
+ 185:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_DR(i2c) = trans->buf[periph->idx_buf];
+ 814              		.loc 1 185 0
+ 815 02a6 96F82300 		ldrb	r0, [r6, #35]	@ zero_extendqisi2
+ 816 02aa 2A18     		adds	r2, r5, r0
+ 817 02ac 5379     		ldrb	r3, [r2, #5]	@ zero_extendqisi2
+ 818              	.LVL57:
+ 819 02ae 2361     		str	r3, [r4, #16]
+ 186:arch/stm32/mcu_periph/i2c_arch.c ****     periph->idx_buf++;
+ 820              		.loc 1 186 0
+ 821 02b0 96F82310 		ldrb	r1, [r6, #35]	@ zero_extendqisi2
+ 822 02b4 481C     		adds	r0, r1, #1
+ 823 02b6 C2B2     		uxtb	r2, r0
+ 824 02b8 86F82320 		strb	r2, [r6, #35]
+ 189:arch/stm32/mcu_periph/i2c_arch.c ****     if ( periph->idx_buf >= trans->len_w)
+ 825              		.loc 1 189 0
+ 826 02bc 96F82330 		ldrb	r3, [r6, #35]	@ zero_extendqisi2
+ 827 02c0 2979     		ldrb	r1, [r5, #4]	@ zero_extendqisi2
+ 828 02c2 9942     		cmp	r1, r3
+ 829 02c4 4ED8     		bhi	.L47
+ 192:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
+ 830              		.loc 1 192 0
+ 831 02c6 6068     		ldr	r0, [r4, #4]
+ 832              	.LVL58:
+ 833              	.L109:
+ 834 02c8 20F48063 		bic	r3, r0, #1024
+ 835              	.LVL59:
+ 836              	.L108:
+ 837 02cc 6360     		str	r3, [r4, #4]
+ 838 02ce 70BD     		pop	{r4, r5, r6, pc}
+ 839              	.LVL60:
+ 840              	.L77:
+ 197:arch/stm32/mcu_periph/i2c_arch.c ****   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
+ 841              		.loc 1 197 0
+ 842 02d0 5E07     		lsls	r6, r3, #29
+ 843 02d2 04D5     		bpl	.L88
+ 844 02d4 0226     		movs	r6, #2
+ 199:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->type == I2CTransTx)
+ 845              		.loc 1 199 0
+ 846 02d6 9AB9     		cbnz	r2, .L51
+ 202:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransSuccess;
+ 847              		.loc 1 202 0
+ 848 02d8 85F82560 		strb	r6, [r5, #37]
+ 849 02dc 10E0     		b	.L51
+ 850              	.LVL61:
+ 851              	.L88:
+ 852              	.LBE108:
+ 853              	.LBE107:
+ 746:arch/stm32/mcu_periph/i2c_arch.c ****       {
+ 747:arch/stm32/mcu_periph/i2c_arch.c ****       case 1:
+ 748:arch/stm32/mcu_periph/i2c_arch.c ****         ret = stmi2c_read1(i2c,periph,trans);
+ 749:arch/stm32/mcu_periph/i2c_arch.c ****         break;
+ 750:arch/stm32/mcu_periph/i2c_arch.c ****       case 2:
+ 751:arch/stm32/mcu_periph/i2c_arch.c ****         ret = stmi2c_read2(i2c,periph,trans);
+ 752:arch/stm32/mcu_periph/i2c_arch.c ****         break;
+ 753:arch/stm32/mcu_periph/i2c_arch.c ****       default:
+ 754:arch/stm32/mcu_periph/i2c_arch.c ****         ret = stmi2c_readmany(i2c,periph,trans);
+ 755:arch/stm32/mcu_periph/i2c_arch.c ****         break;
+ 756:arch/stm32/mcu_periph/i2c_arch.c ****       }
+ 757:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 758:arch/stm32/mcu_periph/i2c_arch.c ****     else // TxRx or Tx
+ 759:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 760:arch/stm32/mcu_periph/i2c_arch.c ****       ret = stmi2c_send(i2c,periph,trans);
+ 761:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 762:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 763:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 764:arch/stm32/mcu_periph/i2c_arch.c ****   /////////////////////////////////
+ 765:arch/stm32/mcu_periph/i2c_arch.c ****   // Sub-transaction has finished
+ 766:arch/stm32/mcu_periph/i2c_arch.c ****   if (ret != STMI2C_SubTra_Busy)
+ 767:arch/stm32/mcu_periph/i2c_arch.c ****   {
+ 768:arch/stm32/mcu_periph/i2c_arch.c ****     // Ready or SubTraError
+ 769:arch/stm32/mcu_periph/i2c_arch.c ****     // -ready: with or without stop already asked
+ 770:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 771:arch/stm32/mcu_periph/i2c_arch.c ****     // In case of unexpected event condition during subtransaction handling:
+ 772:arch/stm32/mcu_periph/i2c_arch.c ****     if (ret == STMI2C_SubTra_Error)
+ 773:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 774:arch/stm32/mcu_periph/i2c_arch.c ****       // Tell everyone about the subtransaction error:
+ 775:arch/stm32/mcu_periph/i2c_arch.c ****       // this is the previously called SPURRIOUS INTERRUPT
+ 776:arch/stm32/mcu_periph/i2c_arch.c ****       periph->status = I2CFailed;
+ 854              		.loc 1 776 0
+ 855 02de 2248     		ldr	r0, .L117
+ 856 02e0 0A21     		movs	r1, #10
+ 857 02e2 80F82210 		strb	r1, [r0, #34]
+ 858              	.LBB111:
+ 859              	.LBB110:
+ 210:arch/stm32/mcu_periph/i2c_arch.c ****     return STMI2C_SubTra_Error;
+ 860              		.loc 1 210 0
+ 861 02e6 0326     		movs	r6, #3
+ 862              	.LBE110:
+ 863              	.LBE111:
+ 777:arch/stm32/mcu_periph/i2c_arch.c ****       trans->type = I2CTransRx;		// Avoid possible restart
+ 778:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransFailed;	// Notify Ready
+ 779:arch/stm32/mcu_periph/i2c_arch.c ****       periph->errors->unexpected_event_cnt++;
+ 864              		.loc 1 779 0
+ 865 02e8 C06A     		ldr	r0, [r0, #44]
+ 778:arch/stm32/mcu_periph/i2c_arch.c ****       trans->status = I2CTransFailed;	// Notify Ready
+ 866              		.loc 1 778 0
+ 867 02ea 85F82560 		strb	r6, [r5, #37]
+ 868              		.loc 1 779 0
+ 869 02ee C289     		ldrh	r2, [r0, #14]
+ 777:arch/stm32/mcu_periph/i2c_arch.c ****       trans->type = I2CTransRx;		// Avoid possible restart
+ 870              		.loc 1 777 0
+ 871 02f0 0123     		movs	r3, #1
+ 872              		.loc 1 779 0
+ 873 02f2 511C     		adds	r1, r2, #1
+ 777:arch/stm32/mcu_periph/i2c_arch.c ****       trans->type = I2CTransRx;		// Avoid possible restart
+ 874              		.loc 1 777 0
+ 875 02f4 2B70     		strb	r3, [r5, #0]
+ 876              		.loc 1 779 0
+ 877 02f6 8BB2     		uxth	r3, r1
+ 878 02f8 C381     		strh	r3, [r0, #14]	@ movhi
+ 780:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 781:arch/stm32/mcu_periph/i2c_arch.c ****       // Error
+ 782:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 783:arch/stm32/mcu_periph/i2c_arch.c ****       LED2_ON();
+ 784:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_ON();
+ 785:arch/stm32/mcu_periph/i2c_arch.c ****       LED2_OFF();
+ 786:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_OFF();
+ 787:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 788:arch/stm32/mcu_periph/i2c_arch.c ****       LED_SHOW_ACTIVE_BITS(regs);
+ 789:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 790:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 791:arch/stm32/mcu_periph/i2c_arch.c ****       // Clear Running Events
+ 792:arch/stm32/mcu_periph/i2c_arch.c ****       stmi2c_clear_pending_interrupts(i2c);
+ 879              		.loc 1 792 0
+ 880 02fa 2046     		mov	r0, r4
+ 881 02fc FFF7FEFF 		bl	stmi2c_clear_pending_interrupts
+ 882              	.LVL62:
+ 883              	.L51:
+ 793:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 794:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 795:arch/stm32/mcu_periph/i2c_arch.c ****     // RxTx -> Restart and do Rx part
+ 796:arch/stm32/mcu_periph/i2c_arch.c ****     if (trans->type == I2CTransTxRx)
+ 884              		.loc 1 796 0
+ 885 0300 2878     		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 886 0302 1949     		ldr	r1, .L117
+ 887 0304 0228     		cmp	r0, #2
+ 888 0306 0AD1     		bne	.L79
+ 797:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 798:arch/stm32/mcu_periph/i2c_arch.c ****       trans->type = I2CTransRx;
+ 889              		.loc 1 798 0
+ 890 0308 0120     		movs	r0, #1
+ 891 030a 2870     		strb	r0, [r5, #0]
+ 799:arch/stm32/mcu_periph/i2c_arch.c ****       periph->status = I2CStartRequested;
+ 892              		.loc 1 799 0
+ 893 030c 81F82200 		strb	r0, [r1, #34]
+ 800:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR1(i2c) |= I2C_CR1_START;
+ 894              		.loc 1 800 0
+ 895 0310 2168     		ldr	r1, [r4, #0]
+ 801:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 802:arch/stm32/mcu_periph/i2c_arch.c ****       // Silent any BTF that would occur before SB
+ 803:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_DR(i2c) = 0x00;
+ 896              		.loc 1 803 0
+ 897 0312 0023     		movs	r3, #0
+ 800:arch/stm32/mcu_periph/i2c_arch.c ****       I2C_CR1(i2c) |= I2C_CR1_START;
+ 898              		.loc 1 800 0
+ 899 0314 41F48072 		orr	r2, r1, #256
+ 900 0318 2260     		str	r2, [r4, #0]
+ 901              		.loc 1 803 0
+ 902 031a 2361     		str	r3, [r4, #16]
+ 903 031c 70BD     		pop	{r4, r5, r6, pc}
+ 904              	.L79:
+ 804:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 805:arch/stm32/mcu_periph/i2c_arch.c ****     // If a restart is not needed: Rx part or Tx-only
+ 806:arch/stm32/mcu_periph/i2c_arch.c ****     else
+ 807:arch/stm32/mcu_periph/i2c_arch.c ****     {
+ 808:arch/stm32/mcu_periph/i2c_arch.c ****       // Ready, no stop condition set yet
+ 809:arch/stm32/mcu_periph/i2c_arch.c ****       if (ret == STMI2C_SubTra_Ready)
+ 905              		.loc 1 809 0
+ 906 031e 022E     		cmp	r6, #2
+ 907 0320 05D1     		bne	.L80
+ 908              	.LVL63:
+ 909              	.LBB112:
+ 910              	.LBB113:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 911              		.loc 1 77 0
+ 912 0322 2268     		ldr	r2, [r4, #0]
+ 913              	.LBE113:
+ 914              	.LBE112:
+ 810:arch/stm32/mcu_periph/i2c_arch.c ****       {
+ 811:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 812:arch/stm32/mcu_periph/i2c_arch.c ****         // Program a stop
+ 813:arch/stm32/mcu_periph/i2c_arch.c ****         PPRZ_I2C_SEND_STOP(i2c);
+ 814:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 815:arch/stm32/mcu_periph/i2c_arch.c ****         // Silent any BTF that would occur before STOP is executed
+ 816:arch/stm32/mcu_periph/i2c_arch.c ****         I2C_DR(i2c) = 0x00;
+ 915              		.loc 1 816 0
+ 916 0324 0020     		movs	r0, #0
+ 917              	.LBB115:
+ 918              	.LBB114:
+  77:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR1(i2c) |= I2C_CR1_STOP;
+ 919              		.loc 1 77 0
+ 920 0326 42F40073 		orr	r3, r2, #512
+ 921 032a 2360     		str	r3, [r4, #0]
+ 922              	.LBE114:
+ 923              	.LBE115:
+ 924              		.loc 1 816 0
+ 925 032c 2061     		str	r0, [r4, #16]
+ 926              	.LVL64:
+ 927              	.L80:
+ 928              	.LBB116:
+ 929              	.LBB117:
+ 817:arch/stm32/mcu_periph/i2c_arch.c ****       }
+ 818:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 819:arch/stm32/mcu_periph/i2c_arch.c ****       // Jump to the next transaction
+ 820:arch/stm32/mcu_periph/i2c_arch.c ****       periph->trans_extract_idx++;
+ 930              		.loc 1 820 0
+ 931 032e 91F82110 		ldrb	r1, [r1, #33]	@ zero_extendqisi2
+ 932 0332 0D4A     		ldr	r2, .L117
+ 933 0334 4B1C     		adds	r3, r1, #1
+ 934 0336 D8B2     		uxtb	r0, r3
+ 821:arch/stm32/mcu_periph/i2c_arch.c ****       if (periph->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
+ 935              		.loc 1 821 0
+ 936 0338 0728     		cmp	r0, #7
+ 820:arch/stm32/mcu_periph/i2c_arch.c ****       periph->trans_extract_idx++;
+ 937              		.loc 1 820 0
+ 938 033a 98BF     		it	ls
+ 939 033c 82F82100 		strbls	r0, [r2, #33]
+ 940 0340 4FF00001 		mov	r1, #0
+ 822:arch/stm32/mcu_periph/i2c_arch.c ****         periph->trans_extract_idx = 0;
+ 823:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 824:arch/stm32/mcu_periph/i2c_arch.c ****       // Tell everyone we are ready
+ 825:arch/stm32/mcu_periph/i2c_arch.c ****       periph->status = I2CIdle;
+ 941              		.loc 1 825 0
+ 942 0344 0848     		ldr	r0, .L117
+ 822:arch/stm32/mcu_periph/i2c_arch.c ****         periph->trans_extract_idx = 0;
+ 943              		.loc 1 822 0
+ 944 0346 88BF     		it	hi
+ 945 0348 82F82110 		strbhi	r1, [r2, #33]
+ 826:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 827:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 828:arch/stm32/mcu_periph/i2c_arch.c ****       // if we have no more transaction to process, stop here
+ 829:arch/stm32/mcu_periph/i2c_arch.c ****       if (periph->trans_extract_idx == periph->trans_insert_idx)
+ 946              		.loc 1 829 0
+ 947 034c 90F82120 		ldrb	r2, [r0, #33]	@ zero_extendqisi2
+ 948 0350 90F82030 		ldrb	r3, [r0, #32]	@ zero_extendqisi2
+ 825:arch/stm32/mcu_periph/i2c_arch.c ****       periph->status = I2CIdle;
+ 949              		.loc 1 825 0
+ 950 0354 80F82210 		strb	r1, [r0, #34]
+ 951              		.loc 1 829 0
+ 952 0358 9A42     		cmp	r2, r3
+ 953 035a 03D0     		beq	.L47
+ 954              	.LBE117:
+ 955              	.LBE116:
+ 830:arch/stm32/mcu_periph/i2c_arch.c ****       {
+ 831:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 832:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 833:arch/stm32/mcu_periph/i2c_arch.c ****         LED2_ON();
+ 834:arch/stm32/mcu_periph/i2c_arch.c ****         LED1_ON();
+ 835:arch/stm32/mcu_periph/i2c_arch.c ****         LED1_OFF();
+ 836:arch/stm32/mcu_periph/i2c_arch.c ****         LED1_ON();
+ 837:arch/stm32/mcu_periph/i2c_arch.c ****         LED1_OFF();
+ 838:arch/stm32/mcu_periph/i2c_arch.c ****         LED2_OFF();
+ 839:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 840:arch/stm32/mcu_periph/i2c_arch.c ****       }
+ 841:arch/stm32/mcu_periph/i2c_arch.c ****       // if not, start next transaction
+ 842:arch/stm32/mcu_periph/i2c_arch.c ****       else
+ 843:arch/stm32/mcu_periph/i2c_arch.c ****       {
+ 844:arch/stm32/mcu_periph/i2c_arch.c ****         // Restart transaction doing the Rx part now
+ 845:arch/stm32/mcu_periph/i2c_arch.c ****         // --- moved to idle function
+ 846:arch/stm32/mcu_periph/i2c_arch.c ****         PPRZ_I2C_SEND_START(periph);
+ 847:arch/stm32/mcu_periph/i2c_arch.c ****         // ------
+ 848:arch/stm32/mcu_periph/i2c_arch.c ****       }
+ 849:arch/stm32/mcu_periph/i2c_arch.c ****     }
+ 850:arch/stm32/mcu_periph/i2c_arch.c ****   }
+ 851:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 852:arch/stm32/mcu_periph/i2c_arch.c ****   return;
+ 853:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 956              		.loc 1 853 0
+ 957 035c BDE87040 		pop	{r4, r5, r6, lr}
+ 958              	.LBB119:
+ 959              	.LBB118:
+ 846:arch/stm32/mcu_periph/i2c_arch.c ****         PPRZ_I2C_SEND_START(periph);
+ 960              		.loc 1 846 0
+ 961 0360 FFF7FEBF 		b	PPRZ_I2C_SEND_START
+ 962              	.LVL65:
+ 963              	.L47:
+ 964 0364 70BD     		pop	{r4, r5, r6, pc}
+ 965              	.L118:
+ 966 0366 00BF     		.align	2
+ 967              	.L117:
+ 968 0368 00000000 		.word	i2c2
+ 969              	.LBE118:
+ 970              	.LBE119:
+ 971              		.cfi_endproc
+ 972              	.LFE27:
+ 974              		.section	.text.i2c2_ev_isr,"ax",%progbits
+ 975              		.align	1
+ 976              		.weak	i2c2_ev_isr
+ 977              		.thumb
+ 978              		.thumb_func
+ 980              	i2c2_ev_isr:
+ 981              	.LFB14:
+ 854:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 855:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 856:arch/stm32/mcu_periph/i2c_arch.c **** /*
+ 857:arch/stm32/mcu_periph/i2c_arch.c **** // Make sure the bus is free before resetting (p722)
+ 858:arch/stm32/mcu_periph/i2c_arch.c **** if (regs->SR2 & (I2C_FLAG_BUSY >> 16)) {
+ 859:arch/stm32/mcu_periph/i2c_arch.c **** // Reset the I2C block
+ 860:arch/stm32/mcu_periph/i2c_arch.c **** I2C_SoftwareResetCmd(periph->reg_addr, ENABLE);
+ 861:arch/stm32/mcu_periph/i2c_arch.c **** I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
+ 862:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 863:arch/stm32/mcu_periph/i2c_arch.c **** */
+ 864:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 865:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 866:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C0
+ 867:arch/stm32/mcu_periph/i2c_arch.c **** #error "The STM32 doesn't have I2C0, use I2C1 or I2C2"
+ 868:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 869:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 870:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C1
+ 871:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 872:arch/stm32/mcu_periph/i2c_arch.c **** /** default I2C1 clock speed */
+ 873:arch/stm32/mcu_periph/i2c_arch.c **** #ifndef I2C1_CLOCK_SPEED
+ 874:arch/stm32/mcu_periph/i2c_arch.c **** #define I2C1_CLOCK_SPEED 200000
+ 875:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 876:arch/stm32/mcu_periph/i2c_arch.c **** PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
+ 877:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 878:arch/stm32/mcu_periph/i2c_arch.c **** struct i2c_errors i2c1_errors;
+ 879:arch/stm32/mcu_periph/i2c_arch.c **** volatile uint32_t i2c1_watchdog_counter;
+ 880:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 881:arch/stm32/mcu_periph/i2c_arch.c **** void i2c1_hw_init(void) {
+ 882:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 883:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1.reg_addr = (void *)I2C1;
+ 884:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1.init_struct = NULL;
+ 885:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1.errors = &i2c1_errors;
+ 886:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1_watchdog_counter = 0;
+ 887:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 888:arch/stm32/mcu_periph/i2c_arch.c ****   /* zeros error counter */
+ 889:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c1_errors);
+ 890:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 891:arch/stm32/mcu_periph/i2c_arch.c ****   // Extra
+ 892:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+ 893:arch/stm32/mcu_periph/i2c_arch.c ****   LED_INIT();
+ 894:arch/stm32/mcu_periph/i2c_arch.c **** #else
+ 895:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 896:arch/stm32/mcu_periph/i2c_arch.c ****   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
+ 897:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_reset(I2C1);
+ 898:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 899:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
+ 900:arch/stm32/mcu_periph/i2c_arch.c ****   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+ 901:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 902:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C1 event interrupt --------------------------------*/
+ 903:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C1_EV_IRQ, 0);
+ 904:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C1_EV_IRQ);
+ 905:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 906:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C1 err interrupt ----------------------------------*/
+ 907:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C1_ER_IRQ, 1);
+ 908:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C1_ER_IRQ);
+ 909:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 910:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable peripheral clocks -------------------------------------------------*/
+ 911:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable I2C1 clock */
+ 912:arch/stm32/mcu_periph/i2c_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
+ 913:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable GPIO clock */
+ 914:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C1_GPIO_PORT);
+ 915:arch/stm32/mcu_periph/i2c_arch.c **** #if defined(STM32F1)
+ 916:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+ 917:arch/stm32/mcu_periph/i2c_arch.c ****                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+ 918:arch/stm32/mcu_periph/i2c_arch.c ****                 I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+ 919:arch/stm32/mcu_periph/i2c_arch.c **** #elif defined(STM32F4)
+ 920:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+ 921:arch/stm32/mcu_periph/i2c_arch.c ****                   I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+ 922:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+ 923:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+ 924:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+ 925:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 926:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 927:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_reset(I2C1);
+ 928:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 929:arch/stm32/mcu_periph/i2c_arch.c ****   // enable peripheral
+ 930:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_peripheral_enable(I2C1);
+ 931:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 932:arch/stm32/mcu_periph/i2c_arch.c ****   /*
+ 933:arch/stm32/mcu_periph/i2c_arch.c ****    * XXX: there is a function to do that already in libopencm3 but I am not
+ 934:arch/stm32/mcu_periph/i2c_arch.c ****    * sure if it is correct, using direct register instead (esden)
+ 935:arch/stm32/mcu_periph/i2c_arch.c ****    */
+ 936:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_set_own_7bit_slave_address(I2C1, 0);
+ 937:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_OAR1(I2C1) = 0 | 0x4000;
+ 938:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 939:arch/stm32/mcu_periph/i2c_arch.c ****   // enable error interrupts
+ 940:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+ 941:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 942:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c1, I2C1_CLOCK_SPEED);
+ 943:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 944:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 945:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 946:arch/stm32/mcu_periph/i2c_arch.c **** void i2c1_ev_isr(void) {
+ 947:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c1.reg_addr;
+ 948:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
+ 949:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c1);
+ 950:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1_watchdog_counter = 0;
+ 951:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
+ 952:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 953:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 954:arch/stm32/mcu_periph/i2c_arch.c **** void i2c1_er_isr(void) {
+ 955:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c1.reg_addr;
+ 956:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
+ 957:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c1);
+ 958:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1_watchdog_counter = 0;
+ 959:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
+ 960:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 961:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 962:arch/stm32/mcu_periph/i2c_arch.c **** #endif /* USE_I2C1 */
+ 963:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 964:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C2
+ 965:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 966:arch/stm32/mcu_periph/i2c_arch.c **** /** default I2C2 clock speed */
+ 967:arch/stm32/mcu_periph/i2c_arch.c **** #ifndef I2C2_CLOCK_SPEED
+ 968:arch/stm32/mcu_periph/i2c_arch.c **** #define I2C2_CLOCK_SPEED 300000
+ 969:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+ 970:arch/stm32/mcu_periph/i2c_arch.c **** PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
+ 971:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 972:arch/stm32/mcu_periph/i2c_arch.c **** struct i2c_errors i2c2_errors;
+ 973:arch/stm32/mcu_periph/i2c_arch.c **** volatile uint32_t i2c2_watchdog_counter;
+ 974:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 975:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_hw_init(void) {
+ 976:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 977:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.reg_addr = (void *)I2C2;
+ 978:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.init_struct = NULL;
+ 979:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.errors = &i2c2_errors;
+ 980:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter = 0;
+ 981:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 982:arch/stm32/mcu_periph/i2c_arch.c ****   /* zeros error counter */
+ 983:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c2_errors);
+ 984:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 985:arch/stm32/mcu_periph/i2c_arch.c ****   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
+ 986:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_reset(I2C2);
+ 987:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 988:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
+ 989:arch/stm32/mcu_periph/i2c_arch.c ****   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+ 990:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 991:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C2 event interrupt --------------------------------*/
+ 992:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C2_EV_IRQ, 0);
+ 993:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C2_EV_IRQ);
+ 994:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 995:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C2 err interrupt ----------------------------------*/
+ 996:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C2_ER_IRQ, 1);
+ 997:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C2_ER_IRQ);
+ 998:arch/stm32/mcu_periph/i2c_arch.c **** 
+ 999:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable peripheral clocks -------------------------------------------------*/
+1000:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable I2C2 clock */
+1001:arch/stm32/mcu_periph/i2c_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C2EN);
+1002:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable GPIO clock */
+1003:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C2_GPIO_PORT);
+1004:arch/stm32/mcu_periph/i2c_arch.c **** #if defined(STM32F1)
+1005:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+1006:arch/stm32/mcu_periph/i2c_arch.c ****                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+1007:arch/stm32/mcu_periph/i2c_arch.c ****                 I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+1008:arch/stm32/mcu_periph/i2c_arch.c **** #elif defined(STM32F4)
+1009:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_mode_setup(I2C2_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+1010:arch/stm32/mcu_periph/i2c_arch.c ****                   I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+1011:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+1012:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+1013:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
+1014:arch/stm32/mcu_periph/i2c_arch.c ****               I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+1015:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1016:arch/stm32/mcu_periph/i2c_arch.c **** 
+1017:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_reset(I2C2);
+1018:arch/stm32/mcu_periph/i2c_arch.c **** 
+1019:arch/stm32/mcu_periph/i2c_arch.c ****   // enable peripheral
+1020:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_peripheral_enable(I2C2);
+1021:arch/stm32/mcu_periph/i2c_arch.c **** 
+1022:arch/stm32/mcu_periph/i2c_arch.c ****   /*
+1023:arch/stm32/mcu_periph/i2c_arch.c ****    * XXX: there is a function to do that already in libopencm3 but I am not
+1024:arch/stm32/mcu_periph/i2c_arch.c ****    * sure if it is correct, using direct register instead (esden)
+1025:arch/stm32/mcu_periph/i2c_arch.c ****    */
+1026:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_set_own_7bit_slave_address(I2C2, 0);
+1027:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_OAR1(I2C2) = 0 | 0x4000;
+1028:arch/stm32/mcu_periph/i2c_arch.c **** 
+1029:arch/stm32/mcu_periph/i2c_arch.c ****   // enable error interrupts
+1030:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+1031:arch/stm32/mcu_periph/i2c_arch.c **** 
+1032:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c2, I2C2_CLOCK_SPEED);
+1033:arch/stm32/mcu_periph/i2c_arch.c **** }
+1034:arch/stm32/mcu_periph/i2c_arch.c **** 
+1035:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_ev_isr(void) {
+ 982              		.loc 1 1035 0
+ 983              		.cfi_startproc
+ 984              		@ args = 0, pretend = 0, frame = 0
+ 985              		@ frame_needed = 0, uses_anonymous_args = 0
+ 986              	.LVL66:
+1036:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c2.reg_addr;
+ 987              		.loc 1 1036 0
+ 988 0000 084B     		ldr	r3, .L120
+1035:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_ev_isr(void) {
+ 989              		.loc 1 1035 0
+ 990 0002 10B5     		push	{r4, lr}
+ 991              	.LCFI1:
+ 992              		.cfi_def_cfa_offset 8
+ 993              		.cfi_offset 4, -8
+ 994              		.cfi_offset 14, -4
+1037:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
+ 995              		.loc 1 1037 0
+ 996 0004 5C6A     		ldr	r4, [r3, #36]
+ 997 0006 6068     		ldr	r0, [r4, #4]
+ 998 0008 20F48071 		bic	r1, r0, #256
+ 999 000c 6160     		str	r1, [r4, #4]
+1038:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c2);
+ 1000              		.loc 1 1038 0
+ 1001 000e FFF7FEFF 		bl	i2c_irq.constprop.1
+ 1002              	.LVL67:
+1039:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter = 0;
+ 1003              		.loc 1 1039 0
+ 1004 0012 054B     		ldr	r3, .L120+4
+ 1005 0014 0022     		movs	r2, #0
+ 1006 0016 1A60     		str	r2, [r3, #0]
+1040:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
+ 1007              		.loc 1 1040 0
+ 1008 0018 6068     		ldr	r0, [r4, #4]
+ 1009 001a 40F48071 		orr	r1, r0, #256
+ 1010 001e 6160     		str	r1, [r4, #4]
+ 1011 0020 10BD     		pop	{r4, pc}
+ 1012              	.L121:
+ 1013 0022 00BF     		.align	2
+ 1014              	.L120:
+ 1015 0024 00000000 		.word	i2c2
+ 1016 0028 00000000 		.word	.LANCHOR0
+ 1017              		.cfi_endproc
+ 1018              	.LFE14:
+ 1020              		.section	.text.i2c2_er_isr,"ax",%progbits
+ 1021              		.align	1
+ 1022              		.weak	i2c2_er_isr
+ 1023              		.thumb
+ 1024              		.thumb_func
+ 1026              	i2c2_er_isr:
+ 1027              	.LFB15:
+1041:arch/stm32/mcu_periph/i2c_arch.c **** }
+1042:arch/stm32/mcu_periph/i2c_arch.c **** 
+1043:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_er_isr(void) {
+ 1028              		.loc 1 1043 0
+ 1029              		.cfi_startproc
+ 1030              		@ args = 0, pretend = 0, frame = 0
+ 1031              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1032              	.LVL68:
+1044:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c2.reg_addr;
+ 1033              		.loc 1 1044 0
+ 1034 0000 084B     		ldr	r3, .L123
+1043:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_er_isr(void) {
+ 1035              		.loc 1 1043 0
+ 1036 0002 10B5     		push	{r4, lr}
+ 1037              	.LCFI2:
+ 1038              		.cfi_def_cfa_offset 8
+ 1039              		.cfi_offset 4, -8
+ 1040              		.cfi_offset 14, -4
+1045:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
+ 1041              		.loc 1 1045 0
+ 1042 0004 5C6A     		ldr	r4, [r3, #36]
+ 1043 0006 6068     		ldr	r0, [r4, #4]
+ 1044 0008 20F40071 		bic	r1, r0, #512
+ 1045 000c 6160     		str	r1, [r4, #4]
+1046:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c2);
+ 1046              		.loc 1 1046 0
+ 1047 000e FFF7FEFF 		bl	i2c_irq.constprop.1
+ 1048              	.LVL69:
+1047:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter = 0;
+ 1049              		.loc 1 1047 0
+ 1050 0012 054B     		ldr	r3, .L123+4
+ 1051 0014 0022     		movs	r2, #0
+ 1052 0016 1A60     		str	r2, [r3, #0]
+1048:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
+ 1053              		.loc 1 1048 0
+ 1054 0018 6068     		ldr	r0, [r4, #4]
+ 1055 001a 40F40071 		orr	r1, r0, #512
+ 1056 001e 6160     		str	r1, [r4, #4]
+ 1057 0020 10BD     		pop	{r4, pc}
+ 1058              	.L124:
+ 1059 0022 00BF     		.align	2
+ 1060              	.L123:
+ 1061 0024 00000000 		.word	i2c2
+ 1062 0028 00000000 		.word	.LANCHOR0
+ 1063              		.cfi_endproc
+ 1064              	.LFE15:
+ 1066              		.section	.text.i2c_event,"ax",%progbits
+ 1067              		.align	1
+ 1068              		.global	i2c_event
+ 1069              		.thumb
+ 1070              		.thumb_func
+ 1072              	i2c_event:
+ 1073              	.LFB17:
+1049:arch/stm32/mcu_periph/i2c_arch.c **** }
+1050:arch/stm32/mcu_periph/i2c_arch.c **** 
+1051:arch/stm32/mcu_periph/i2c_arch.c **** #endif /* USE_I2C2 */
+1052:arch/stm32/mcu_periph/i2c_arch.c **** 
+1053:arch/stm32/mcu_periph/i2c_arch.c **** 
+1054:arch/stm32/mcu_periph/i2c_arch.c **** #if defined USE_I2C3 && defined STM32F4
+1055:arch/stm32/mcu_periph/i2c_arch.c **** 
+1056:arch/stm32/mcu_periph/i2c_arch.c **** /** default I2C3 clock speed */
+1057:arch/stm32/mcu_periph/i2c_arch.c **** #ifndef I2C3_CLOCK_SPEED
+1058:arch/stm32/mcu_periph/i2c_arch.c **** #define I2C3_CLOCK_SPEED 300000
+1059:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1060:arch/stm32/mcu_periph/i2c_arch.c **** PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
+1061:arch/stm32/mcu_periph/i2c_arch.c **** 
+1062:arch/stm32/mcu_periph/i2c_arch.c **** struct i2c_errors i2c3_errors;
+1063:arch/stm32/mcu_periph/i2c_arch.c **** volatile uint32_t i2c3_watchdog_counter;
+1064:arch/stm32/mcu_periph/i2c_arch.c **** 
+1065:arch/stm32/mcu_periph/i2c_arch.c **** void i2c3_hw_init(void) {
+1066:arch/stm32/mcu_periph/i2c_arch.c **** 
+1067:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3.reg_addr = (void *)I2C3;
+1068:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3.init_struct = NULL;
+1069:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3.errors = &i2c3_errors;
+1070:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3_watchdog_counter = 0;
+1071:arch/stm32/mcu_periph/i2c_arch.c **** 
+1072:arch/stm32/mcu_periph/i2c_arch.c ****   /* zeros error counter */
+1073:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c3_errors);
+1074:arch/stm32/mcu_periph/i2c_arch.c **** 
+1075:arch/stm32/mcu_periph/i2c_arch.c ****   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
+1076:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_reset(I2C3);
+1077:arch/stm32/mcu_periph/i2c_arch.c **** 
+1078:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
+1079:arch/stm32/mcu_periph/i2c_arch.c ****   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+1080:arch/stm32/mcu_periph/i2c_arch.c **** 
+1081:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C3 event interrupt --------------------------------*/
+1082:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C3_EV_IRQ, 0);
+1083:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C3_EV_IRQ);
+1084:arch/stm32/mcu_periph/i2c_arch.c **** 
+1085:arch/stm32/mcu_periph/i2c_arch.c ****   /* Configure and enable I2C3 err interrupt ----------------------------------*/
+1086:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C3_ER_IRQ, 1);
+1087:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C3_ER_IRQ);
+1088:arch/stm32/mcu_periph/i2c_arch.c **** 
+1089:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable peripheral clocks -------------------------------------------------*/
+1090:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable I2C3 clock */
+1091:arch/stm32/mcu_periph/i2c_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C3EN);
+1092:arch/stm32/mcu_periph/i2c_arch.c ****   /* Enable GPIO clock */
+1093:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C3_GPIO_PORT_SCL);
+1094:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
+1095:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+1096:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C3_GPIO_SCL);
+1097:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
+1098:arch/stm32/mcu_periph/i2c_arch.c **** 
+1099:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C3_GPIO_PORT_SDA);
+1100:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
+1101:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+1102:arch/stm32/mcu_periph/i2c_arch.c ****                           I2C3_GPIO_SDA);
+1103:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
+1104:arch/stm32/mcu_periph/i2c_arch.c **** 
+1105:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_reset(I2C3);
+1106:arch/stm32/mcu_periph/i2c_arch.c **** 
+1107:arch/stm32/mcu_periph/i2c_arch.c ****   // enable peripheral
+1108:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_peripheral_enable(I2C3);
+1109:arch/stm32/mcu_periph/i2c_arch.c **** 
+1110:arch/stm32/mcu_periph/i2c_arch.c ****   /*
+1111:arch/stm32/mcu_periph/i2c_arch.c ****    * XXX: there is a function to do that already in libopencm3 but I am not
+1112:arch/stm32/mcu_periph/i2c_arch.c ****    * sure if it is correct, using direct register instead (esden)
+1113:arch/stm32/mcu_periph/i2c_arch.c ****    */
+1114:arch/stm32/mcu_periph/i2c_arch.c ****   //i2c_set_own_7bit_slave_address(I2C3, 0);
+1115:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_OAR1(I2C3) = 0 | 0x4000;
+1116:arch/stm32/mcu_periph/i2c_arch.c **** 
+1117:arch/stm32/mcu_periph/i2c_arch.c ****   // enable error interrupts
+1118:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+1119:arch/stm32/mcu_periph/i2c_arch.c **** 
+1120:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c3, I2C3_CLOCK_SPEED);
+1121:arch/stm32/mcu_periph/i2c_arch.c **** }
+1122:arch/stm32/mcu_periph/i2c_arch.c **** 
+1123:arch/stm32/mcu_periph/i2c_arch.c **** void i2c3_ev_isr(void) {
+1124:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c3.reg_addr;
+1125:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
+1126:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c3);
+1127:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3_watchdog_counter = 0;
+1128:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
+1129:arch/stm32/mcu_periph/i2c_arch.c **** }
+1130:arch/stm32/mcu_periph/i2c_arch.c **** 
+1131:arch/stm32/mcu_periph/i2c_arch.c **** void i2c3_er_isr(void) {
+1132:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) i2c3.reg_addr;
+1133:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
+1134:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_irq(&i2c3);
+1135:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3_watchdog_counter = 0;
+1136:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
+1137:arch/stm32/mcu_periph/i2c_arch.c **** }
+1138:arch/stm32/mcu_periph/i2c_arch.c **** 
+1139:arch/stm32/mcu_periph/i2c_arch.c **** #endif /* USE_I2C3 */
+1140:arch/stm32/mcu_periph/i2c_arch.c **** 
+1141:arch/stm32/mcu_periph/i2c_arch.c **** //////////////////////////////////////////////////
+1142:arch/stm32/mcu_periph/i2c_arch.c **** // Set Bitrate to Match your application:
+1143:arch/stm32/mcu_periph/i2c_arch.c **** // -short wires, low capacitance bus: IMU: high speed
+1144:arch/stm32/mcu_periph/i2c_arch.c **** // -long wires with a lot of capacitance: motor controller: put speed as low as possible
+1145:arch/stm32/mcu_periph/i2c_arch.c **** 
+1146:arch/stm32/mcu_periph/i2c_arch.c **** void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
+1147:arch/stm32/mcu_periph/i2c_arch.c **** {
+1148:arch/stm32/mcu_periph/i2c_arch.c ****   // If NOT Busy
+1149:arch/stm32/mcu_periph/i2c_arch.c ****   if (i2c_idle(periph))
+1150:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1151:arch/stm32/mcu_periph/i2c_arch.c ****     volatile int devider;
+1152:arch/stm32/mcu_periph/i2c_arch.c ****     volatile int risetime;
+1153:arch/stm32/mcu_periph/i2c_arch.c **** 
+1154:arch/stm32/mcu_periph/i2c_arch.c ****     u32 i2c = (u32) periph->reg_addr;
+1155:arch/stm32/mcu_periph/i2c_arch.c **** 
+1156:arch/stm32/mcu_periph/i2c_arch.c ****     /*****************************************************
+1157:arch/stm32/mcu_periph/i2c_arch.c ****     Bitrate:
+1158:arch/stm32/mcu_periph/i2c_arch.c **** 
+1159:arch/stm32/mcu_periph/i2c_arch.c ****     -CR2 + CCR + TRISE registers
+1160:arch/stm32/mcu_periph/i2c_arch.c ****     -only change when PE=0
+1161:arch/stm32/mcu_periph/i2c_arch.c **** 
+1162:arch/stm32/mcu_periph/i2c_arch.c ****     e.g.
+1163:arch/stm32/mcu_periph/i2c_arch.c **** 
+1164:arch/stm32/mcu_periph/i2c_arch.c ****     10kHz:  36MHz + Standard 0x708 + 0x25
+1165:arch/stm32/mcu_periph/i2c_arch.c ****     70kHz:  36MHz + Standard 0x101 +
+1166:arch/stm32/mcu_periph/i2c_arch.c ****     400kHz: 36MHz + Fast 0x1E      + 0xb
+1167:arch/stm32/mcu_periph/i2c_arch.c **** 
+1168:arch/stm32/mcu_periph/i2c_arch.c ****     // 1) Program peripheral input clock CR2: to get correct timings
+1169:arch/stm32/mcu_periph/i2c_arch.c ****     // 2) Configure clock control registers
+1170:arch/stm32/mcu_periph/i2c_arch.c ****     // 3) Configure rise time register
+1171:arch/stm32/mcu_periph/i2c_arch.c ****     ******************************************************/
+1172:arch/stm32/mcu_periph/i2c_arch.c **** 
+1173:arch/stm32/mcu_periph/i2c_arch.c ****     if (bitrate < 3000)
+1174:arch/stm32/mcu_periph/i2c_arch.c ****       bitrate = 3000;
+1175:arch/stm32/mcu_periph/i2c_arch.c **** 
+1176:arch/stm32/mcu_periph/i2c_arch.c ****     // 36MHz, fast scl: 2counts low 1 count high -> / 3:
+1177:arch/stm32/mcu_periph/i2c_arch.c ****     devider = 18000 / (bitrate/1000);
+1178:arch/stm32/mcu_periph/i2c_arch.c **** 
+1179:arch/stm32/mcu_periph/i2c_arch.c ****     // never allow faster than 600kbps
+1180:arch/stm32/mcu_periph/i2c_arch.c ****     if (devider < 20)
+1181:arch/stm32/mcu_periph/i2c_arch.c ****       devider = 20;
+1182:arch/stm32/mcu_periph/i2c_arch.c **** 
+1183:arch/stm32/mcu_periph/i2c_arch.c ****     // no overflow either
+1184:arch/stm32/mcu_periph/i2c_arch.c ****     if (devider >=4095)
+1185:arch/stm32/mcu_periph/i2c_arch.c ****       devider = 4095;
+1186:arch/stm32/mcu_periph/i2c_arch.c **** 
+1187:arch/stm32/mcu_periph/i2c_arch.c ****     // risetime can be up to 1/6th of the period
+1188:arch/stm32/mcu_periph/i2c_arch.c ****     risetime = 1000000 / (bitrate/1000) / 6 / 28;
+1189:arch/stm32/mcu_periph/i2c_arch.c **** 
+1190:arch/stm32/mcu_periph/i2c_arch.c ****     if (risetime < 10)
+1191:arch/stm32/mcu_periph/i2c_arch.c ****       risetime = 10;
+1192:arch/stm32/mcu_periph/i2c_arch.c **** 
+1193:arch/stm32/mcu_periph/i2c_arch.c ****     // more will overflow the register: for more you should lower the FREQ
+1194:arch/stm32/mcu_periph/i2c_arch.c ****     if (risetime >=31)
+1195:arch/stm32/mcu_periph/i2c_arch.c ****       risetime = 31;
+1196:arch/stm32/mcu_periph/i2c_arch.c **** 
+1197:arch/stm32/mcu_periph/i2c_arch.c ****     // we do not expect an interrupt as the interface should have been idle, but just in case...
+1198:arch/stm32/mcu_periph/i2c_arch.c ****     __disable_irq(); // this code is in user space:
+1199:arch/stm32/mcu_periph/i2c_arch.c **** 
+1200:arch/stm32/mcu_periph/i2c_arch.c ****     // CCR can only be written when PE is disabled
+1201:arch/stm32/mcu_periph/i2c_arch.c ****     // p731 note 5
+1202:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_PE;
+1203:arch/stm32/mcu_periph/i2c_arch.c **** 
+1204:arch/stm32/mcu_periph/i2c_arch.c ****     // 1)
+1205:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) = 0x0324;
+1206:arch/stm32/mcu_periph/i2c_arch.c ****     // 2)
+1207:arch/stm32/mcu_periph/i2c_arch.c ****     //I2C_CCR(i2c) = 0x8000 + devider;
+1208:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CCR(i2c) = 0x0000 + devider;
+1209:arch/stm32/mcu_periph/i2c_arch.c ****     // 3)
+1210:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_TRISE(i2c) = risetime;
+1211:arch/stm32/mcu_periph/i2c_arch.c **** 
+1212:arch/stm32/mcu_periph/i2c_arch.c ****     // Re-Enable
+1213:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |=   I2C_CR1_PE;
+1214:arch/stm32/mcu_periph/i2c_arch.c **** 
+1215:arch/stm32/mcu_periph/i2c_arch.c ****     __enable_irq();
+1216:arch/stm32/mcu_periph/i2c_arch.c **** 
+1217:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+1218:arch/stm32/mcu_periph/i2c_arch.c ****     __disable_irq(); // this code is in user space:
+1219:arch/stm32/mcu_periph/i2c_arch.c **** 
+1220:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_ON();
+1221:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1222:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_OFF();
+1223:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1224:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_ON();
+1225:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1226:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_OFF();
+1227:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1228:arch/stm32/mcu_periph/i2c_arch.c **** 
+1229:arch/stm32/mcu_periph/i2c_arch.c ****     __enable_irq();
+1230:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1231:arch/stm32/mcu_periph/i2c_arch.c **** 
+1232:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1233:arch/stm32/mcu_periph/i2c_arch.c **** }
+1234:arch/stm32/mcu_periph/i2c_arch.c **** 
+1235:arch/stm32/mcu_periph/i2c_arch.c **** 
+1236:arch/stm32/mcu_periph/i2c_arch.c **** /// @todo Watchdog timer
+1237:arch/stm32/mcu_periph/i2c_arch.c **** void i2c_event(void)
+1238:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 1074              		.loc 1 1238 0
+ 1075              		.cfi_startproc
+ 1076              		@ args = 0, pretend = 0, frame = 0
+ 1077              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1078              		@ link register save eliminated.
+1239:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C1
+1240:arch/stm32/mcu_periph/i2c_arch.c ****   i2c1_watchdog_counter++;
+1241:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1242:arch/stm32/mcu_periph/i2c_arch.c **** 
+1243:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C2
+1244:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter++;
+ 1079              		.loc 1 1244 0
+ 1080 0000 084B     		ldr	r3, .L127
+ 1081 0002 1A68     		ldr	r2, [r3, #0]
+ 1082 0004 501C     		adds	r0, r2, #1
+ 1083 0006 1860     		str	r0, [r3, #0]
+1245:arch/stm32/mcu_periph/i2c_arch.c **** 
+1246:arch/stm32/mcu_periph/i2c_arch.c ****   if (i2c2_watchdog_counter > 10000)
+ 1084              		.loc 1 1246 0
+ 1085 0008 1968     		ldr	r1, [r3, #0]
+ 1086 000a 42F21072 		movw	r2, #10000
+ 1087 000e 9142     		cmp	r1, r2
+ 1088 0010 07D9     		bls	.L125
+1247:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1248:arch/stm32/mcu_periph/i2c_arch.c ****     i2c2.errors->timeout_tlow_cnt++;
+ 1089              		.loc 1 1248 0
+ 1090 0012 0548     		ldr	r0, .L127+4
+ 1091 0014 C26A     		ldr	r2, [r0, #44]
+ 1092 0016 5189     		ldrh	r1, [r2, #10]
+ 1093 0018 481C     		adds	r0, r1, #1
+ 1094 001a 81B2     		uxth	r1, r0
+ 1095 001c 5181     		strh	r1, [r2, #10]	@ movhi
+1249:arch/stm32/mcu_periph/i2c_arch.c ****     i2c2_watchdog_counter = 0;
+ 1096              		.loc 1 1249 0
+ 1097 001e 0022     		movs	r2, #0
+ 1098 0020 1A60     		str	r2, [r3, #0]
+ 1099              	.L125:
+ 1100 0022 7047     		bx	lr
+ 1101              	.L128:
+ 1102              		.align	2
+ 1103              	.L127:
+ 1104 0024 00000000 		.word	.LANCHOR0
+ 1105 0028 00000000 		.word	i2c2
+ 1106              		.cfi_endproc
+ 1107              	.LFE17:
+ 1109              		.section	.text.i2c_submit,"ax",%progbits
+ 1110              		.align	1
+ 1111              		.global	i2c_submit
+ 1112              		.thumb
+ 1113              		.thumb_func
+ 1115              	i2c_submit:
+ 1116              	.LFB18:
+1250:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1251:arch/stm32/mcu_periph/i2c_arch.c **** 
+1252:arch/stm32/mcu_periph/i2c_arch.c **** 
+1253:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+1254:arch/stm32/mcu_periph/i2c_arch.c ****   if (i2c2_watchdog_counter == 0)
+1255:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1256:arch/stm32/mcu_periph/i2c_arch.c ****     __disable_irq();
+1257:arch/stm32/mcu_periph/i2c_arch.c **** 
+1258:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_ON();
+1259:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1260:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1261:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1262:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1263:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1264:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1265:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_ON();
+1266:arch/stm32/mcu_periph/i2c_arch.c ****     LED1_OFF();
+1267:arch/stm32/mcu_periph/i2c_arch.c ****     if (i2c2.status == I2CIdle)
+1268:arch/stm32/mcu_periph/i2c_arch.c ****     {
+1269:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_ON();
+1270:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_OFF();
+1271:arch/stm32/mcu_periph/i2c_arch.c ****     }
+1272:arch/stm32/mcu_periph/i2c_arch.c ****     else if (i2c2.status == I2CStartRequested)
+1273:arch/stm32/mcu_periph/i2c_arch.c ****     {
+1274:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_ON();
+1275:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_OFF();
+1276:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_ON();
+1277:arch/stm32/mcu_periph/i2c_arch.c ****       LED1_OFF();
+1278:arch/stm32/mcu_periph/i2c_arch.c **** 
+1279:arch/stm32/mcu_periph/i2c_arch.c ****     }
+1280:arch/stm32/mcu_periph/i2c_arch.c ****     LED2_OFF();
+1281:arch/stm32/mcu_periph/i2c_arch.c **** 
+1282:arch/stm32/mcu_periph/i2c_arch.c ****     //regs = (I2C_TypeDef *) i2c2.reg_addr;
+1283:arch/stm32/mcu_periph/i2c_arch.c ****     //LED_SHOW_ACTIVE_BITS(regs);
+1284:arch/stm32/mcu_periph/i2c_arch.c **** 
+1285:arch/stm32/mcu_periph/i2c_arch.c ****     __enable_irq();
+1286:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1287:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1288:arch/stm32/mcu_periph/i2c_arch.c **** 
+1289:arch/stm32/mcu_periph/i2c_arch.c **** 
+1290:arch/stm32/mcu_periph/i2c_arch.c ****   //if (i2c2.status == I2CIdle)
+1291:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1292:arch/stm32/mcu_periph/i2c_arch.c ****     //if (i2c_idle(&i2c2))
+1293:arch/stm32/mcu_periph/i2c_arch.c ****     {
+1294:arch/stm32/mcu_periph/i2c_arch.c ****       //__disable_irq();
+1295:arch/stm32/mcu_periph/i2c_arch.c ****       // More work to do
+1296:arch/stm32/mcu_periph/i2c_arch.c ****       //if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
+1297:arch/stm32/mcu_periph/i2c_arch.c ****       {
+1298:arch/stm32/mcu_periph/i2c_arch.c ****         // Restart transaction doing the Rx part now
+1299:arch/stm32/mcu_periph/i2c_arch.c ****         //PPRZ_I2C_SEND_START(&i2c2);
+1300:arch/stm32/mcu_periph/i2c_arch.c ****       }
+1301:arch/stm32/mcu_periph/i2c_arch.c ****       //__enable_irq();
+1302:arch/stm32/mcu_periph/i2c_arch.c ****     }
+1303:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1304:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1305:arch/stm32/mcu_periph/i2c_arch.c **** 
+1306:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C3
+1307:arch/stm32/mcu_periph/i2c_arch.c ****   i2c3_watchdog_counter++;
+1308:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1309:arch/stm32/mcu_periph/i2c_arch.c **** }
+1310:arch/stm32/mcu_periph/i2c_arch.c **** 
+1311:arch/stm32/mcu_periph/i2c_arch.c **** /////////////////////////////////////////////////////////
+1312:arch/stm32/mcu_periph/i2c_arch.c **** // Implement Interface Functions
+1313:arch/stm32/mcu_periph/i2c_arch.c **** 
+1314:arch/stm32/mcu_periph/i2c_arch.c **** bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
+ 1117              		.loc 1 1314 0
+ 1118              		.cfi_startproc
+ 1119              		@ args = 0, pretend = 0, frame = 0
+ 1120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1121              	.LVL70:
+ 1122 0000 10B5     		push	{r4, lr}
+ 1123              	.LCFI3:
+ 1124              		.cfi_def_cfa_offset 8
+ 1125              		.cfi_offset 4, -8
+ 1126              		.cfi_offset 14, -4
+1315:arch/stm32/mcu_periph/i2c_arch.c **** 
+1316:arch/stm32/mcu_periph/i2c_arch.c ****   uint8_t temp;
+1317:arch/stm32/mcu_periph/i2c_arch.c ****   temp = periph->trans_insert_idx + 1;
+ 1127              		.loc 1 1317 0
+ 1128 0002 90F82040 		ldrb	r4, [r0, #32]	@ zero_extendqisi2
+ 1129 0006 621C     		adds	r2, r4, #1
+ 1130 0008 D4B2     		uxtb	r4, r2
+ 1131              	.LVL71:
+1318:arch/stm32/mcu_periph/i2c_arch.c ****   if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
+1319:arch/stm32/mcu_periph/i2c_arch.c ****   if (temp == periph->trans_extract_idx)
+ 1132              		.loc 1 1319 0
+ 1133 000a 90F82120 		ldrb	r2, [r0, #33]	@ zero_extendqisi2
+ 1134              	.LVL72:
+1318:arch/stm32/mcu_periph/i2c_arch.c ****   if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
+ 1135              		.loc 1 1318 0
+ 1136 000e 072C     		cmp	r4, #7
+ 1137 0010 88BF     		it	hi
+ 1138 0012 0024     		movhi	r4, #0
+ 1139              	.LVL73:
+ 1140              		.loc 1 1319 0
+ 1141 0014 A242     		cmp	r2, r4
+ 1142 0016 4FF00002 		mov	r2, #0
+ 1143 001a 10D0     		beq	.L134
+1320:arch/stm32/mcu_periph/i2c_arch.c ****     return FALSE;                          // queue full
+1321:arch/stm32/mcu_periph/i2c_arch.c **** 
+1322:arch/stm32/mcu_periph/i2c_arch.c ****   t->status = I2CTransPending;
+ 1144              		.loc 1 1322 0
+ 1145 001c 81F82520 		strb	r2, [r1, #37]
+ 1146              	.LBB120:
+ 1147              	.LBB121:
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+ 1148              		.loc 1 65 0
+ 1149              	@ 65 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 1150 0020 72B6     		cpsid i
+ 1151              	@ 0 "" 2
+ 1152              		.thumb
+ 1153              	.LBE121:
+ 1154              	.LBE120:
+1323:arch/stm32/mcu_periph/i2c_arch.c **** 
+1324:arch/stm32/mcu_periph/i2c_arch.c ****   __disable_irq();
+1325:arch/stm32/mcu_periph/i2c_arch.c ****   /* put transacation in queue */
+1326:arch/stm32/mcu_periph/i2c_arch.c ****   periph->trans[periph->trans_insert_idx] = t;
+ 1155              		.loc 1 1326 0
+ 1156 0022 90F82020 		ldrb	r2, [r0, #32]	@ zero_extendqisi2
+1327:arch/stm32/mcu_periph/i2c_arch.c ****   periph->trans_insert_idx = temp;
+ 1157              		.loc 1 1327 0
+ 1158 0026 80F82040 		strb	r4, [r0, #32]
+1326:arch/stm32/mcu_periph/i2c_arch.c ****   periph->trans[periph->trans_insert_idx] = t;
+ 1159              		.loc 1 1326 0
+ 1160 002a 40F82210 		str	r1, [r0, r2, lsl #2]
+1328:arch/stm32/mcu_periph/i2c_arch.c **** 
+1329:arch/stm32/mcu_periph/i2c_arch.c ****   /* if peripheral is idle, start the transaction */
+1330:arch/stm32/mcu_periph/i2c_arch.c ****   // if (PPRZ_I2C_IS_IDLE(p))
+1331:arch/stm32/mcu_periph/i2c_arch.c ****   if (periph->status == I2CIdle)
+ 1161              		.loc 1 1331 0
+ 1162 002e 90F82210 		ldrb	r1, [r0, #34]	@ zero_extendqisi2
+ 1163              	.LVL74:
+ 1164 0032 09B9     		cbnz	r1, .L132
+1332:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1333:arch/stm32/mcu_periph/i2c_arch.c ****     //if (i2c_idle(periph))
+1334:arch/stm32/mcu_periph/i2c_arch.c ****     {
+1335:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+1336:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C1
+1337:arch/stm32/mcu_periph/i2c_arch.c ****       if (periph == &i2c1)
+1338:arch/stm32/mcu_periph/i2c_arch.c ****       {
+1339:arch/stm32/mcu_periph/i2c_arch.c **** 
+1340:arch/stm32/mcu_periph/i2c_arch.c ****       }
+1341:arch/stm32/mcu_periph/i2c_arch.c ****       else
+1342:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1343:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1344:arch/stm32/mcu_periph/i2c_arch.c ****       {
+1345:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+1346:arch/stm32/mcu_periph/i2c_arch.c ****         LED2_ON();
+1347:arch/stm32/mcu_periph/i2c_arch.c ****         LED2_OFF();
+1348:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1349:arch/stm32/mcu_periph/i2c_arch.c ****         PPRZ_I2C_SEND_START(periph);
+ 1165              		.loc 1 1349 0
+ 1166 0034 FFF7FEFF 		bl	PPRZ_I2C_SEND_START
+ 1167              	.LVL75:
+ 1168              	.L132:
+ 1169              	.LBB122:
+ 1170              	.LBB123:
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+ 1171              		.loc 1 66 0
+ 1172              	@ 66 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 1173 0038 62B6     		cpsie i
+ 1174              	@ 0 "" 2
+ 1175              		.thumb
+ 1176              	.LBE123:
+ 1177              	.LBE122:
+1350:arch/stm32/mcu_periph/i2c_arch.c ****       }
+1351:arch/stm32/mcu_periph/i2c_arch.c ****     }
+1352:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1353:arch/stm32/mcu_periph/i2c_arch.c ****   /* else it will be started by the interrupt handler when the previous transactions completes */
+1354:arch/stm32/mcu_periph/i2c_arch.c ****   __enable_irq();
+1355:arch/stm32/mcu_periph/i2c_arch.c **** 
+1356:arch/stm32/mcu_periph/i2c_arch.c ****   return TRUE;
+ 1178              		.loc 1 1356 0
+ 1179 003a 0120     		movs	r0, #1
+ 1180 003c 10BD     		pop	{r4, pc}
+ 1181              	.LVL76:
+ 1182              	.L134:
+1320:arch/stm32/mcu_periph/i2c_arch.c ****     return FALSE;                          // queue full
+ 1183              		.loc 1 1320 0
+ 1184 003e 1046     		mov	r0, r2
+ 1185              	.LVL77:
+1357:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 1186              		.loc 1 1357 0
+ 1187 0040 10BD     		pop	{r4, pc}
+ 1188              		.cfi_endproc
+ 1189              	.LFE18:
+ 1191              		.section	.text.i2c_idle,"ax",%progbits
+ 1192              		.align	1
+ 1193              		.global	i2c_idle
+ 1194              		.thumb
+ 1195              		.thumb_func
+ 1197              	i2c_idle:
+ 1198              	.LFB19:
+1358:arch/stm32/mcu_periph/i2c_arch.c **** 
+1359:arch/stm32/mcu_periph/i2c_arch.c **** bool_t i2c_idle(struct i2c_periph* periph)
+1360:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 1199              		.loc 1 1360 0
+ 1200              		.cfi_startproc
+ 1201              		@ args = 0, pretend = 0, frame = 0
+ 1202              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1203              		@ link register save eliminated.
+ 1204              	.LVL78:
+1361:arch/stm32/mcu_periph/i2c_arch.c ****   // This is actually a difficult function:
+1362:arch/stm32/mcu_periph/i2c_arch.c ****   // -simply reading the status flags can clear bits and corrupt the transaction
+1363:arch/stm32/mcu_periph/i2c_arch.c **** 
+1364:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) periph->reg_addr;
+1365:arch/stm32/mcu_periph/i2c_arch.c **** 
+1366:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef I2C_DEBUG_LED
+1367:arch/stm32/mcu_periph/i2c_arch.c **** #ifdef USE_I2C1
+1368:arch/stm32/mcu_periph/i2c_arch.c ****   if (periph == &i2c1)
+1369:arch/stm32/mcu_periph/i2c_arch.c ****   {
+1370:arch/stm32/mcu_periph/i2c_arch.c ****     return TRUE;
+1371:arch/stm32/mcu_periph/i2c_arch.c ****   }
+1372:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1373:arch/stm32/mcu_periph/i2c_arch.c **** #endif
+1374:arch/stm32/mcu_periph/i2c_arch.c **** 
+1375:arch/stm32/mcu_periph/i2c_arch.c ****   // First we check if the software thinks it is ready
+1376:arch/stm32/mcu_periph/i2c_arch.c ****   if (periph->status == I2CIdle)
+ 1205              		.loc 1 1376 0
+ 1206 0000 90F82220 		ldrb	r2, [r0, #34]	@ zero_extendqisi2
+1364:arch/stm32/mcu_periph/i2c_arch.c ****   u32 i2c = (u32) periph->reg_addr;
+ 1207              		.loc 1 1364 0
+ 1208 0004 436A     		ldr	r3, [r0, #36]
+ 1209              	.LVL79:
+ 1210              		.loc 1 1376 0
+ 1211 0006 2AB9     		cbnz	r2, .L137
+1377:arch/stm32/mcu_periph/i2c_arch.c ****     return ! (BIT_X_IS_SET_IN_REG( I2C_SR2_BUSY, I2C_SR2(i2c) ) );
+ 1212              		.loc 1 1377 0
+ 1213 0008 9869     		ldr	r0, [r3, #24]
+ 1214              	.LVL80:
+ 1215 000a 80F00201 		eor	r1, r0, #2
+ 1216 000e C1F34000 		ubfx	r0, r1, #1, #1
+ 1217 0012 7047     		bx	lr
+ 1218              	.LVL81:
+ 1219              	.L137:
+1378:arch/stm32/mcu_periph/i2c_arch.c ****   else
+1379:arch/stm32/mcu_periph/i2c_arch.c ****     return FALSE;
+ 1220              		.loc 1 1379 0
+ 1221 0014 0020     		movs	r0, #0
+ 1222              	.LVL82:
+1380:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 1223              		.loc 1 1380 0
+ 1224 0016 7047     		bx	lr
+ 1225              		.cfi_endproc
+ 1226              	.LFE19:
+ 1228              		.section	.text.i2c_setbitrate,"ax",%progbits
+ 1229              		.align	1
+ 1230              		.global	i2c_setbitrate
+ 1231              		.thumb
+ 1232              		.thumb_func
+ 1234              	i2c_setbitrate:
+ 1235              	.LFB16:
+1147:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 1236              		.loc 1 1147 0
+ 1237              		.cfi_startproc
+ 1238              		@ args = 0, pretend = 0, frame = 8
+ 1239              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1240              	.LVL83:
+ 1241 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 1242              	.LCFI4:
+ 1243              		.cfi_def_cfa_offset 24
+ 1244              		.cfi_offset 0, -24
+ 1245              		.cfi_offset 1, -20
+ 1246              		.cfi_offset 2, -16
+ 1247              		.cfi_offset 4, -12
+ 1248              		.cfi_offset 5, -8
+ 1249              		.cfi_offset 14, -4
+1147:arch/stm32/mcu_periph/i2c_arch.c **** {
+ 1250              		.loc 1 1147 0
+ 1251 0002 0446     		mov	r4, r0
+ 1252 0004 0D46     		mov	r5, r1
+1149:arch/stm32/mcu_periph/i2c_arch.c ****   if (i2c_idle(periph))
+ 1253              		.loc 1 1149 0
+ 1254 0006 FFF7FEFF 		bl	i2c_idle
+ 1255              	.LVL84:
+ 1256 000a 0028     		cmp	r0, #0
+ 1257 000c 3CD0     		beq	.L138
+ 1258              	.LBB124:
+1174:arch/stm32/mcu_periph/i2c_arch.c ****       bitrate = 3000;
+ 1259              		.loc 1 1174 0
+ 1260 000e 40F6B831 		movw	r1, #3000
+ 1261 0012 8D42     		cmp	r5, r1
+ 1262 0014 A8BF     		it	ge
+ 1263 0016 2946     		movge	r1, r5
+1177:arch/stm32/mcu_periph/i2c_arch.c ****     devider = 18000 / (bitrate/1000);
+ 1264              		.loc 1 1177 0
+ 1265 0018 4FF47A72 		mov	r2, #1000
+ 1266 001c 44F25060 		movw	r0, #18000
+ 1267 0020 91FBF2F1 		sdiv	r1, r1, r2
+ 1268 0024 90FBF1F2 		sdiv	r2, r0, r1
+ 1269              	.LVL85:
+ 1270 0028 0092     		str	r2, [sp, #0]
+ 1271              	.LVL86:
+1180:arch/stm32/mcu_periph/i2c_arch.c ****     if (devider < 20)
+ 1272              		.loc 1 1180 0
+ 1273 002a 0098     		ldr	r0, [sp, #0]
+1154:arch/stm32/mcu_periph/i2c_arch.c ****     u32 i2c = (u32) periph->reg_addr;
+ 1274              		.loc 1 1154 0
+ 1275 002c 636A     		ldr	r3, [r4, #36]
+ 1276              	.LVL87:
+1180:arch/stm32/mcu_periph/i2c_arch.c ****     if (devider < 20)
+ 1277              		.loc 1 1180 0
+ 1278 002e 1328     		cmp	r0, #19
+ 1279 0030 01DC     		bgt	.L141
+1181:arch/stm32/mcu_periph/i2c_arch.c ****       devider = 20;
+ 1280              		.loc 1 1181 0
+ 1281 0032 1422     		movs	r2, #20
+ 1282 0034 0092     		str	r2, [sp, #0]
+ 1283              	.LVL88:
+ 1284              	.L141:
+1184:arch/stm32/mcu_periph/i2c_arch.c ****     if (devider >=4095)
+ 1285              		.loc 1 1184 0
+ 1286 0036 0098     		ldr	r0, [sp, #0]
+ 1287 0038 40F6FE72 		movw	r2, #4094
+ 1288 003c 9042     		cmp	r0, r2
+ 1289 003e 01DD     		ble	.L142
+1185:arch/stm32/mcu_periph/i2c_arch.c ****       devider = 4095;
+ 1290              		.loc 1 1185 0
+ 1291 0040 501C     		adds	r0, r2, #1
+ 1292 0042 0090     		str	r0, [sp, #0]
+ 1293              	.L142:
+1188:arch/stm32/mcu_periph/i2c_arch.c ****     risetime = 1000000 / (bitrate/1000) / 6 / 28;
+ 1294              		.loc 1 1188 0
+ 1295 0044 114A     		ldr	r2, .L149
+ 1296 0046 A820     		movs	r0, #168
+ 1297 0048 92FBF1F1 		sdiv	r1, r2, r1
+ 1298 004c 91FBF0F2 		sdiv	r2, r1, r0
+ 1299              	.LVL89:
+ 1300 0050 0192     		str	r2, [sp, #4]
+ 1301              	.LVL90:
+1190:arch/stm32/mcu_periph/i2c_arch.c ****     if (risetime < 10)
+ 1302              		.loc 1 1190 0
+ 1303 0052 0199     		ldr	r1, [sp, #4]
+ 1304 0054 0929     		cmp	r1, #9
+ 1305 0056 01DC     		bgt	.L143
+1191:arch/stm32/mcu_periph/i2c_arch.c ****       risetime = 10;
+ 1306              		.loc 1 1191 0
+ 1307 0058 0A20     		movs	r0, #10
+ 1308 005a 0190     		str	r0, [sp, #4]
+ 1309              	.LVL91:
+ 1310              	.L143:
+1194:arch/stm32/mcu_periph/i2c_arch.c ****     if (risetime >=31)
+ 1311              		.loc 1 1194 0
+ 1312 005c 019A     		ldr	r2, [sp, #4]
+ 1313 005e 1E2A     		cmp	r2, #30
+ 1314 0060 01DD     		ble	.L144
+1195:arch/stm32/mcu_periph/i2c_arch.c ****       risetime = 31;
+ 1315              		.loc 1 1195 0
+ 1316 0062 1F21     		movs	r1, #31
+ 1317 0064 0191     		str	r1, [sp, #4]
+ 1318              	.L144:
+ 1319              	.LBB125:
+ 1320              	.LBB126:
+  65:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __disable_irq(void)  { asm volatile ("cpsid i"); }
+ 1321              		.loc 1 65 0
+ 1322              	@ 65 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 1323 0066 72B6     		cpsid i
+ 1324              	@ 0 "" 2
+ 1325              		.thumb
+ 1326              	.LBE126:
+ 1327              	.LBE125:
+1202:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_PE;
+ 1328              		.loc 1 1202 0
+ 1329 0068 1868     		ldr	r0, [r3, #0]
+1205:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) = 0x0324;
+ 1330              		.loc 1 1205 0
+ 1331 006a 4FF44971 		mov	r1, #804
+1202:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) &= ~ I2C_CR1_PE;
+ 1332              		.loc 1 1202 0
+ 1333 006e 20F00102 		bic	r2, r0, #1
+ 1334 0072 1A60     		str	r2, [r3, #0]
+1205:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR2(i2c) = 0x0324;
+ 1335              		.loc 1 1205 0
+ 1336 0074 5960     		str	r1, [r3, #4]
+1208:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CCR(i2c) = 0x0000 + devider;
+ 1337              		.loc 1 1208 0
+ 1338 0076 0098     		ldr	r0, [sp, #0]
+ 1339 0078 D861     		str	r0, [r3, #28]
+1210:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_TRISE(i2c) = risetime;
+ 1340              		.loc 1 1210 0
+ 1341 007a 019A     		ldr	r2, [sp, #4]
+ 1342 007c 1A62     		str	r2, [r3, #32]
+1213:arch/stm32/mcu_periph/i2c_arch.c ****     I2C_CR1(i2c) |=   I2C_CR1_PE;
+ 1343              		.loc 1 1213 0
+ 1344 007e 1968     		ldr	r1, [r3, #0]
+ 1345 0080 41F00100 		orr	r0, r1, #1
+ 1346 0084 1860     		str	r0, [r3, #0]
+ 1347              	.LBB127:
+ 1348              	.LBB128:
+  66:arch/stm32/mcu_periph/i2c_arch.c **** static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
+ 1349              		.loc 1 66 0
+ 1350              	@ 66 "arch/stm32/mcu_periph/i2c_arch.c" 1
+ 1351 0086 62B6     		cpsie i
+ 1352              	@ 0 "" 2
+ 1353              	.LVL92:
+ 1354              		.thumb
+ 1355              	.L138:
+ 1356              	.LBE128:
+ 1357              	.LBE127:
+ 1358              	.LBE124:
+1233:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 1359              		.loc 1 1233 0
+ 1360 0088 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 1361              	.L150:
+ 1362 008a 00BF     		.align	2
+ 1363              	.L149:
+ 1364 008c 40420F00 		.word	1000000
+ 1365              		.cfi_endproc
+ 1366              	.LFE16:
+ 1368              		.section	.text.i2c2_hw_init,"ax",%progbits
+ 1369              		.align	1
+ 1370              		.global	i2c2_hw_init
+ 1371              		.thumb
+ 1372              		.thumb_func
+ 1374              	i2c2_hw_init:
+ 1375              	.LFB13:
+ 975:arch/stm32/mcu_periph/i2c_arch.c **** void i2c2_hw_init(void) {
+ 1376              		.loc 1 975 0
+ 1377              		.cfi_startproc
+ 1378              		@ args = 0, pretend = 0, frame = 0
+ 1379              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1380 0000 70B5     		push	{r4, r5, r6, lr}
+ 1381              	.LCFI5:
+ 1382              		.cfi_def_cfa_offset 16
+ 1383              		.cfi_offset 4, -16
+ 1384              		.cfi_offset 5, -12
+ 1385              		.cfi_offset 6, -8
+ 1386              		.cfi_offset 14, -4
+ 979:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.errors = &i2c2_errors;
+ 1387              		.loc 1 979 0
+ 1388 0002 254B     		ldr	r3, .L152
+ 980:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter = 0;
+ 1389              		.loc 1 980 0
+ 1390 0004 254A     		ldr	r2, .L152+4
+ 977:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.reg_addr = (void *)I2C2;
+ 1391              		.loc 1 977 0
+ 1392 0006 264D     		ldr	r5, .L152+8
+ 1393 0008 264E     		ldr	r6, .L152+12
+ 978:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.init_struct = NULL;
+ 1394              		.loc 1 978 0
+ 1395 000a 0024     		movs	r4, #0
+ 989:arch/stm32/mcu_periph/i2c_arch.c ****   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+ 1396              		.loc 1 989 0
+ 1397 000c 4FF4E060 		mov	r0, #1792
+ 980:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2_watchdog_counter = 0;
+ 1398              		.loc 1 980 0
+ 1399 0010 1460     		str	r4, [r2, #0]
+ 979:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.errors = &i2c2_errors;
+ 1400              		.loc 1 979 0
+ 1401 0012 EB62     		str	r3, [r5, #44]
+ 983:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c2_errors);
+ 1402              		.loc 1 983 0
+ 1403 0014 1C80     		strh	r4, [r3, #0]	@ movhi
+ 978:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.init_struct = NULL;
+ 1404              		.loc 1 978 0
+ 1405 0016 AC62     		str	r4, [r5, #40]
+ 983:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c2_errors);
+ 1406              		.loc 1 983 0
+ 1407 0018 5C80     		strh	r4, [r3, #2]	@ movhi
+ 977:arch/stm32/mcu_periph/i2c_arch.c ****   i2c2.reg_addr = (void *)I2C2;
+ 1408              		.loc 1 977 0
+ 1409 001a 6E62     		str	r6, [r5, #36]
+ 983:arch/stm32/mcu_periph/i2c_arch.c ****   ZEROS_ERR_COUNTER(i2c2_errors);
+ 1410              		.loc 1 983 0
+ 1411 001c 9C80     		strh	r4, [r3, #4]	@ movhi
+ 1412 001e DC80     		strh	r4, [r3, #6]	@ movhi
+ 1413 0020 1C81     		strh	r4, [r3, #8]	@ movhi
+ 1414 0022 5C81     		strh	r4, [r3, #10]	@ movhi
+ 1415 0024 9C81     		strh	r4, [r3, #12]	@ movhi
+ 1416 0026 DC81     		strh	r4, [r3, #14]	@ movhi
+ 1417 0028 1C61     		str	r4, [r3, #16]
+ 1418 002a 5C61     		str	r4, [r3, #20]
+ 989:arch/stm32/mcu_periph/i2c_arch.c ****   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+ 1419              		.loc 1 989 0
+ 1420 002c FFF7FEFF 		bl	scb_set_priority_grouping
+ 1421              	.LVL93:
+ 992:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C2_EV_IRQ, 0);
+ 1422              		.loc 1 992 0
+ 1423 0030 2146     		mov	r1, r4
+ 1424 0032 2120     		movs	r0, #33
+ 1425 0034 FFF7FEFF 		bl	nvic_set_priority
+ 1426              	.LVL94:
+ 993:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C2_EV_IRQ);
+ 1427              		.loc 1 993 0
+ 1428 0038 2120     		movs	r0, #33
+ 1429 003a FFF7FEFF 		bl	nvic_enable_irq
+ 1430              	.LVL95:
+ 996:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_set_priority(NVIC_I2C2_ER_IRQ, 1);
+ 1431              		.loc 1 996 0
+ 1432 003e 0121     		movs	r1, #1
+ 1433 0040 2220     		movs	r0, #34
+ 1434 0042 FFF7FEFF 		bl	nvic_set_priority
+ 1435              	.LVL96:
+1003:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C2_GPIO_PORT);
+ 1436              		.loc 1 1003 0
+ 1437 0046 184C     		ldr	r4, .L152+16
+ 997:arch/stm32/mcu_periph/i2c_arch.c ****   nvic_enable_irq(NVIC_I2C2_ER_IRQ);
+ 1438              		.loc 1 997 0
+ 1439 0048 2220     		movs	r0, #34
+ 1440 004a FFF7FEFF 		bl	nvic_enable_irq
+ 1441              	.LVL97:
+1001:arch/stm32/mcu_periph/i2c_arch.c ****   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C2EN);
+ 1442              		.loc 1 1001 0
+ 1443 004e 4FF48001 		mov	r1, #4194304
+ 1444 0052 1648     		ldr	r0, .L152+20
+ 1445 0054 FFF7FEFF 		bl	rcc_peripheral_enable_clock
+ 1446              	.LVL98:
+1003:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_enable_clock(I2C2_GPIO_PORT);
+ 1447              		.loc 1 1003 0
+ 1448 0058 2046     		mov	r0, r4
+ 1449 005a FFF7FEFF 		bl	gpio_enable_clock
+ 1450              	.LVL99:
+1005:arch/stm32/mcu_periph/i2c_arch.c ****   gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+ 1451              		.loc 1 1005 0
+ 1452 005e 0221     		movs	r1, #2
+ 1453 0060 0322     		movs	r2, #3
+ 1454 0062 4FF44063 		mov	r3, #3072
+ 1455 0066 2046     		mov	r0, r4
+ 1456 0068 FFF7FEFF 		bl	gpio_set_mode
+ 1457              	.LVL100:
+1017:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_reset(I2C2);
+ 1458              		.loc 1 1017 0
+ 1459 006c 3046     		mov	r0, r6
+ 1460 006e FFF7FEFF 		bl	i2c_reset
+ 1461              	.LVL101:
+1020:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_peripheral_enable(I2C2);
+ 1462              		.loc 1 1020 0
+ 1463 0072 3046     		mov	r0, r6
+ 1464 0074 FFF7FEFF 		bl	i2c_peripheral_enable
+ 1465              	.LVL102:
+1027:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_OAR1(I2C2) = 0 | 0x4000;
+ 1466              		.loc 1 1027 0
+ 1467 0078 0D49     		ldr	r1, .L152+24
+1030:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+ 1468              		.loc 1 1030 0
+ 1469 007a 0E4B     		ldr	r3, .L152+28
+1027:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_OAR1(I2C2) = 0 | 0x4000;
+ 1470              		.loc 1 1027 0
+ 1471 007c 4FF48040 		mov	r0, #16384
+ 1472 0080 0860     		str	r0, [r1, #0]
+1030:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+ 1473              		.loc 1 1030 0
+ 1474 0082 1A68     		ldr	r2, [r3, #0]
+1032:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c2, I2C2_CLOCK_SPEED);
+ 1475              		.loc 1 1032 0
+ 1476 0084 0C49     		ldr	r1, .L152+32
+1030:arch/stm32/mcu_periph/i2c_arch.c ****   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+ 1477              		.loc 1 1030 0
+ 1478 0086 42F48070 		orr	r0, r2, #256
+ 1479 008a 1860     		str	r0, [r3, #0]
+1032:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c2, I2C2_CLOCK_SPEED);
+ 1480              		.loc 1 1032 0
+ 1481 008c 2846     		mov	r0, r5
+1033:arch/stm32/mcu_periph/i2c_arch.c **** }
+ 1482              		.loc 1 1033 0
+ 1483 008e BDE87040 		pop	{r4, r5, r6, lr}
+1032:arch/stm32/mcu_periph/i2c_arch.c ****   i2c_setbitrate(&i2c2, I2C2_CLOCK_SPEED);
+ 1484              		.loc 1 1032 0
+ 1485 0092 FFF7FEBF 		b	i2c_setbitrate
+ 1486              	.LVL103:
+ 1487              	.L153:
+ 1488 0096 00BF     		.align	2
+ 1489              	.L152:
+ 1490 0098 00000000 		.word	.LANCHOR1
+ 1491 009c 00000000 		.word	.LANCHOR0
+ 1492 00a0 00000000 		.word	i2c2
+ 1493 00a4 00580040 		.word	1073764352
+ 1494 00a8 000C0140 		.word	1073810432
+ 1495 00ac 1C100240 		.word	1073877020
+ 1496 00b0 08580040 		.word	1073764360
+ 1497 00b4 04540040 		.word	1073763332
+ 1498 00b8 E0930400 		.word	300000
+ 1499              		.cfi_endproc
+ 1500              	.LFE13:
+ 1502              		.global	i2c2_watchdog_counter
+ 1503              		.global	i2c2_errors
+ 1504              		.section	.bss.i2c2_errors,"aw",%nobits
+ 1505              		.align	2
+ 1506              		.set	.LANCHOR1,. + 0
+ 1509              	i2c2_errors:
+ 1510 0000 00000000 		.space	108
+ 1510      00000000 
+ 1510      00000000 
+ 1510      00000000 
+ 1510      00000000 
+ 1511              		.section	.bss.i2c2_watchdog_counter,"aw",%nobits
+ 1512              		.align	2
+ 1513              		.set	.LANCHOR0,. + 0
+ 1516              	i2c2_watchdog_counter:
+ 1517 0000 00000000 		.space	4
+ 1518              		.text
+ 1519              	.Letext0:
+ 1520              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1521              		.file 3 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1522              		.file 4 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+ 1523              		.file 5 "./mcu_periph/i2c.h"
+ 1524              		.file 6 "../ext/libopencm3/include/libopencm3/cm3/scb.h"
+ 1525              		.file 7 "../ext/libopencm3/include/libopencm3/cm3/nvic.h"
+ 1526              		.file 8 "../ext/libopencm3/include/libopencm3/stm32/f1/rcc.h"
+ 1527              		.file 9 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_periph/gpio_arch.h"
+ 1528              		.file 10 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
+ 1529              		.file 11 "../ext/libopencm3/include/libopencm3/stm32/common/i2c_common_all.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 i2c_arch.c
+/var/tmp//ccdZ9kFV.s:19     .text.PPRZ_I2C_SEND_START:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:23     .text.PPRZ_I2C_SEND_START:0000000000000000 PPRZ_I2C_SEND_START
+/var/tmp//ccdZ9kFV.s:64     .text.stmi2c_clear_pending_interrupts:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:68     .text.stmi2c_clear_pending_interrupts:0000000000000000 stmi2c_clear_pending_interrupts
+/var/tmp//ccdZ9kFV.s:114    .text.i2c_error.constprop.2:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:118    .text.i2c_error.constprop.2:0000000000000000 i2c_error.constprop.2
+/var/tmp//ccdZ9kFV.s:235    .text.i2c_error.constprop.2:00000000000000a4 $d
+/var/tmp//ccdZ9kFV.s:240    .text.i2c_irq.constprop.1:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:244    .text.i2c_irq.constprop.1:0000000000000000 i2c_irq.constprop.1
+/var/tmp//ccdZ9kFV.s:804    .text.i2c_irq.constprop.1:0000000000000298 $d
+/var/tmp//ccdZ9kFV.s:809    .text.i2c_irq.constprop.1:000000000000029c $t
+/var/tmp//ccdZ9kFV.s:968    .text.i2c_irq.constprop.1:0000000000000368 $d
+/var/tmp//ccdZ9kFV.s:975    .text.i2c2_ev_isr:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:980    .text.i2c2_ev_isr:0000000000000000 i2c2_ev_isr
+/var/tmp//ccdZ9kFV.s:1015   .text.i2c2_ev_isr:0000000000000024 $d
+/var/tmp//ccdZ9kFV.s:1021   .text.i2c2_er_isr:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1026   .text.i2c2_er_isr:0000000000000000 i2c2_er_isr
+/var/tmp//ccdZ9kFV.s:1061   .text.i2c2_er_isr:0000000000000024 $d
+/var/tmp//ccdZ9kFV.s:1067   .text.i2c_event:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1072   .text.i2c_event:0000000000000000 i2c_event
+/var/tmp//ccdZ9kFV.s:1104   .text.i2c_event:0000000000000024 $d
+/var/tmp//ccdZ9kFV.s:1110   .text.i2c_submit:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1115   .text.i2c_submit:0000000000000000 i2c_submit
+/var/tmp//ccdZ9kFV.s:1192   .text.i2c_idle:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1197   .text.i2c_idle:0000000000000000 i2c_idle
+/var/tmp//ccdZ9kFV.s:1229   .text.i2c_setbitrate:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1234   .text.i2c_setbitrate:0000000000000000 i2c_setbitrate
+/var/tmp//ccdZ9kFV.s:1364   .text.i2c_setbitrate:000000000000008c $d
+/var/tmp//ccdZ9kFV.s:1369   .text.i2c2_hw_init:0000000000000000 $t
+/var/tmp//ccdZ9kFV.s:1374   .text.i2c2_hw_init:0000000000000000 i2c2_hw_init
+/var/tmp//ccdZ9kFV.s:1490   .text.i2c2_hw_init:0000000000000098 $d
+/var/tmp//ccdZ9kFV.s:1516   .bss.i2c2_watchdog_counter:0000000000000000 i2c2_watchdog_counter
+/var/tmp//ccdZ9kFV.s:1509   .bss.i2c2_errors:0000000000000000 i2c2_errors
+/var/tmp//ccdZ9kFV.s:1505   .bss.i2c2_errors:0000000000000000 $d
+/var/tmp//ccdZ9kFV.s:1512   .bss.i2c2_watchdog_counter:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+i2c2
+scb_set_priority_grouping
+nvic_set_priority
+nvic_enable_irq
+rcc_peripheral_enable_clock
+gpio_enable_clock
+gpio_set_mode
+i2c_reset
+i2c_peripheral_enable

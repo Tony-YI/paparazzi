@@ -1,0 +1,45 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"downlink.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	downlink_nb_msgs
+  19              		.global	downlink_nb_bytes
+  20              		.global	downlink_nb_ovrn
+  21              		.section	.bss.downlink_nb_msgs,"aw",%nobits
+  22              		.align	1
+  25              	downlink_nb_msgs:
+  26 0000 0000     		.space	2
+  27              		.section	.bss.downlink_nb_ovrn,"aw",%nobits
+  30              	downlink_nb_ovrn:
+  31 0000 00       		.space	1
+  32              		.section	.bss.downlink_nb_bytes,"aw",%nobits
+  33              		.align	1
+  36              	downlink_nb_bytes:
+  37 0000 0000     		.space	2
+  38              		.text
+  39              	.Letext0:
+  40              		.file 1 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+  41              		.file 2 "subsystems/datalink/downlink.c"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 downlink.c
+/var/tmp//cck7SR4o.s:25     .bss.downlink_nb_msgs:0000000000000000 downlink_nb_msgs
+/var/tmp//cck7SR4o.s:36     .bss.downlink_nb_bytes:0000000000000000 downlink_nb_bytes
+/var/tmp//cck7SR4o.s:30     .bss.downlink_nb_ovrn:0000000000000000 downlink_nb_ovrn
+/var/tmp//cck7SR4o.s:22     .bss.downlink_nb_msgs:0000000000000000 $d
+/var/tmp//cck7SR4o.s:31     .bss.downlink_nb_ovrn:0000000000000000 $d
+/var/tmp//cck7SR4o.s:33     .bss.downlink_nb_bytes:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,30 +1,30 @@
 paparazzicenter.cmo : pc_control_panel.cmo pc_common.cmo pc_aircraft.cmo \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
 paparazzicenter.cmx : pc_control_panel.cmx pc_common.cmx pc_aircraft.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
 pc_aircraft.cmo : pc_common.cmo \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/os_calls.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/os_calls.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
 pc_aircraft.cmx : pc_common.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/os_calls.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
-pc_common.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
-pc_common.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/os_calls.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
+pc_common.cmo : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
+pc_common.cmx : /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
 pc_control_panel.cmo : pc_common.cmo \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmi
 pc_control_panel.cmx : pc_common.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
-    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi_local/sw/lib/ocaml/env.cmx
