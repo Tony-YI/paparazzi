@@ -1,0 +1,10 @@
+input2ivy.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmi
+input2ivy.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/expr_syntax.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmx

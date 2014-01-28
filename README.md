@@ -1,69 +1,38 @@
-Paparazzi UAS
-=============
-
-Paparazzi is an attempt to develop a free software Unmanned (Air) Vehicle System.
- As of today the system is being used successfuly by a number of hobyists, universities and companies all over the world, on vehicle of various size ( 100g to 25Kg ) and of various nature ( fixed wing, rotorcrafts, boats and surface vehicles).
-
-Up to date information is available in the wiki http://paparazzi.enac.fr
-
-and from the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi)
-and the IRC channel (freenode, #paparazzi).
+I have modified some files of paparazzi UAS to meet our FYP's GOAL!
 
 
-Required Software
------------------
-
-Installation is described in the wiki (http://paparazzi.enac.fr/wiki/Installation).
-
-For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
-Debian users can use http://paparazzi.enac.fr/debian
 
 
-- **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
-- **paparazzi-arm-multilib** ARM cross-compiling toolchain for LPC21 and STM32 based boards.
-- **paparazzi-omap** toolchain for the optional Gumstix Overo module available on lisa/L.
-- **paparazzi-jsbsim** is needed for using JSBSim as flight dynamic model for the simulator.
 
 
-Directories quick and dirty description:
-----------------------------------------
+This file is used for record some solutions when you face ERROR.
 
-_conf_: the configuration directory (airframe, radio, ... descriptions).
+1.When you click the "Execute" button of "Paparazzi Center", if it return this message:
+  Failure("Error opening modem serial device : fd < 0 (/dev/ttyUSB0)")
+  It means that something is wrong with the "datalink" configuration.
 
-_data_: where to put read-only data (e.g. maps, terrain elevation files, icons)
+  For OSX:
+  Since Paparazzi is currently configured to use /dev/ttyUSB0 it's easiest to just create a link to the required device.
+  Remove all USB devices from the computer and run the command ls -l /dev/*usb* /dev/*USB* hopefully this will not list anything
+  Plug in your radio and repeat the command ls -l /dev/*usb* /dev/*USB* this should now list the serial port that the radio has been connected to. In my case I get
+    
+    ls -l /dev/*usb* /dev/*USB*
+  
+  crw-rw-rw- 1 root wheel 11, 27 20 Jan 14:38 /dev/cu.usbserial-000013FD
+  crw-rw-rw- 1 root wheel 11, 26 20 Jan 14:38 /dev/tty.usbserial-000013FD
 
-_doc_: documentation (diagrams, manual source files, ...)
+  Next we need to create a symbolic link to the tty.usbserial device listed to /dev/ttyUSB0 in my case the command is sudo ln -s /dev/tty.usbserial-000013FD /dev/ttyUSB0
+  To check that everything is correct run the first command again ls -l /dev/*usb* /dev/*USB* and you should get something like this
+   
+    ls -l /dev/*usb* /dev/*USB*
 
-_sw_: software (onboard, ground station, simulation, ...)
+  crw-rw-rw- 1 root wheel 11, 27 20 Jan 14:38 /dev/cu.usbserial-000013FD
+  crw-rw-rw- 1 root wheel 11, 26 20 Jan 14:38 /dev/tty.usbserial-000013FD
+  lrwxr-xr-x 1 root wheel 0 20 Jan 14:42 /dev/ttyUSB0 -> /dev/tty.usbserial-000013FD
+  
+  ***It looks like there are some problems using the method mentioned above. So, just replace ...../dev/ttyUSB0 in the paparazzi center with your serial usb port identifier.
 
-_var_: products of compilation, cache for the map tiles, ...
-
-
-Compilation and demo simulation
--------------------------------
-
-1. type "make" in the top directory to compile all the libraries and tools.
-
-2. "./paparazzi" to run the Paparazzi Center
-
-3. Select the "Microjet" aircraft in the upper-left A/C combo box.
-  Select "sim" from upper-middle "target" combo box. Click "Build".
-  When the compilation is finished, select "Simulation" from
-  the upper-right session combo box and click "Execute".
-
-4. In the GCS, wait about 10s for the aircraft to be in the "Holding point" navigation block.
-  Switch to the "Takeoff" block (lower-left blue airway button in the strip).
-  Takeoff with the green launch button.
-
-Uploading of the embedded software
-----------------------------------
-
-1. Power the flight controller board while it is connected to the PC with the USB cable.
-
-2. From the Paparazzi center, select the "ap" target, and click "Upload".
-
-
-Flight
-------
-
-1.  From the Paparazzi Center, select the flight session and ... do the same than in simulation !
+2.When you 'make' under /paparazzi directory and it shows such error:
+  ERROR: make[1]: no rule for 'lib'
+  It means it can't connect to the repository(git) of some external librany files.
+  In order to solve this problem, using 'git' method instead of 'download zip file' method.

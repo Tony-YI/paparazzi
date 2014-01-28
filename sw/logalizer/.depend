@@ -1,0 +1,73 @@
+export.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi export.cmi
+export.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx export.cmi
+export.cmi : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi
+log_file.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+log_file.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
+play-nox.cmo : play_core.cmo
+play-nox.cmx : play_core.cmx
+play.cmo : play_core.cmo log_file.cmo \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+play.cmx : play_core.cmx log_file.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
+play_core.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/serial.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/debug.cmi
+play_core.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/serial.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/debug.cmx
+plot.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi log_file.cmo \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/fig.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi export.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/debug.cmi
+plot.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx log_file.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/fig.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx export.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/debug.cmx
+plotter.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmi
+plotter.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/gtk_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/defivybus.cmx
+sd2log.cmo : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/serial.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/logpprz.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmi \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmi
+sd2log.cmx : /Users/tony-yi/git/paparazzi/sw/lib/ocaml/serial.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/pprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/ocaml_tools.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/logpprz.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/latlong.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/extXml.cmx \
+    /Users/tony-yi/git/paparazzi/sw/lib/ocaml/env.cmx
