@@ -2629,11 +2629,11 @@
  1009              		@ link register save eliminated.
   95:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = GUIDANCE_H_MODE_KILL;
  1010              		.loc 2 95 0
- 1011 0000 124A     		ldr	r2, .L76
+ 1011 0000 114A     		ldr	r2, .L76
  1012 0002 0023     		movs	r3, #0
   96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
  1013              		.loc 2 96 0
- 1014 0004 1248     		ldr	r0, .L76+4
+ 1014 0004 1148     		ldr	r0, .L76+4
   95:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = GUIDANCE_H_MODE_KILL;
  1015              		.loc 2 95 0
  1016 0006 1370     		strb	r3, [r2, #0]
@@ -2642,25 +2642,25 @@
  1018 0008 0121     		movs	r1, #1
   98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
  1019              		.loc 2 98 0
- 1020 000a 124A     		ldr	r2, .L76+8
+ 1020 000a 114A     		ldr	r2, .L76+8
   96:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_use_ref = GUIDANCE_H_USE_REF;
  1021              		.loc 2 96 0
  1022 000c 0170     		strb	r1, [r0, #0]
  100:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_rc_sp);
  1023              		.loc 2 100 0
- 1024 000e 1248     		ldr	r0, .L76+12
+ 1024 000e 1148     		ldr	r0, .L76+12
   98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
  1025              		.loc 2 98 0
  1026 0010 1360     		str	r3, [r2, #0]
   99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
  1027              		.loc 2 99 0
- 1028 0012 1249     		ldr	r1, .L76+16
+ 1028 0012 1149     		ldr	r1, .L76+16
   98:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_sp);
  1029              		.loc 2 98 0
  1030 0014 5360     		str	r3, [r2, #4]
  101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
  1031              		.loc 2 101 0
- 1032 0016 124A     		ldr	r2, .L76+20
+ 1032 0016 114A     		ldr	r2, .L76+20
  100:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_rc_sp);
  1033              		.loc 2 100 0
  1034 0018 0360     		str	r3, [r0, #0]
@@ -2668,7 +2668,7 @@
  1036 001c 8360     		str	r3, [r0, #8]
  102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
  1037              		.loc 2 102 0
- 1038 001e 1148     		ldr	r0, .L76+24
+ 1038 001e 1048     		ldr	r0, .L76+24
   99:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_VECT2_ZERO(guidance_h_pos_err_sum);
  1039              		.loc 2 99 0
  1040 0020 0B60     		str	r3, [r1, #0]
@@ -2683,742 +2683,739 @@
  1046 0026 5360     		str	r3, [r2, #4]
  102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
  1047              		.loc 2 102 0
- 1048 0028 1921     		movs	r1, #25
+ 1048 0028 1E21     		movs	r1, #30
  101:firmwares/rotorcraft/guidance/guidance_h.c ****   INT_EULERS_ZERO(guidance_h_command_body);
  1049              		.loc 2 101 0
  1050 002a 9360     		str	r3, [r2, #8]
  103:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_igain = GUIDANCE_H_IGAIN;
  1051              		.loc 2 103 0
- 1052 002c 0E4A     		ldr	r2, .L76+28
+ 1052 002c 0D4A     		ldr	r2, .L76+28
  102:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_pgain = GUIDANCE_H_PGAIN;
  1053              		.loc 2 102 0
  1054 002e 0160     		str	r1, [r0, #0]
  103:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_igain = GUIDANCE_H_IGAIN;
  1055              		.loc 2 103 0
- 1056 0030 1C21     		movs	r1, #28
+ 1056 0030 2821     		movs	r1, #40
  1057 0032 1160     		str	r1, [r2, #0]
  104:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_dgain = GUIDANCE_H_DGAIN;
  1058              		.loc 2 104 0
- 1059 0034 0D49     		ldr	r1, .L76+32
- 1060 0036 4B20     		movs	r0, #75
+ 1059 0034 0C49     		ldr	r1, .L76+32
+ 1060 0036 5A20     		movs	r0, #90
+ 1061 0038 0860     		str	r0, [r1, #0]
  105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
- 1061              		.loc 2 105 0
- 1062 0038 0D4A     		ldr	r2, .L76+36
- 104:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_dgain = GUIDANCE_H_DGAIN;
- 1063              		.loc 2 104 0
- 1064 003a 0860     		str	r0, [r1, #0]
- 105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
- 1065              		.loc 2 105 0
- 1066 003c 0520     		movs	r0, #5
- 1067 003e 1060     		str	r0, [r2, #0]
+ 1062              		.loc 2 105 0
+ 1063 003a 0C4A     		ldr	r2, .L76+36
  106:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage = 0;
- 1068              		.loc 2 106 0
- 1069 0040 0C49     		ldr	r1, .L76+40
+ 1064              		.loc 2 106 0
+ 1065 003c 0C48     		ldr	r0, .L76+40
  107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
- 1070              		.loc 2 107 0
- 1071 0042 0D48     		ldr	r0, .L76+44
+ 1066              		.loc 2 107 0
+ 1067 003e 0D49     		ldr	r1, .L76+44
+ 105:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_again = GUIDANCE_H_AGAIN;
+ 1068              		.loc 2 105 0
+ 1069 0040 1360     		str	r3, [r2, #0]
  106:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage = 0;
- 1072              		.loc 2 106 0
+ 1070              		.loc 2 106 0
+ 1071 0042 0360     		str	r3, [r0, #0]
+ 107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
+ 1072              		.loc 2 107 0
  1073 0044 0B60     		str	r3, [r1, #0]
- 107:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_theta_offset = 0;
- 1074              		.loc 2 107 0
- 1075 0046 0360     		str	r3, [r0, #0]
- 1076 0048 7047     		bx	lr
- 1077              	.L77:
- 1078 004a 00BF     		.align	2
- 1079              	.L76:
- 1080 004c 00000000 		.word	.LANCHOR15
- 1081 0050 00000000 		.word	.LANCHOR5
- 1082 0054 00000000 		.word	.LANCHOR4
- 1083 0058 00000000 		.word	.LANCHOR14
- 1084 005c 00000000 		.word	.LANCHOR3
- 1085 0060 00000000 		.word	.LANCHOR13
- 1086 0064 00000000 		.word	.LANCHOR8
- 1087 0068 00000000 		.word	.LANCHOR10
- 1088 006c 00000000 		.word	.LANCHOR9
- 1089 0070 00000000 		.word	.LANCHOR11
- 1090 0074 00000000 		.word	.LANCHOR16
- 1091 0078 00000000 		.word	.LANCHOR17
- 1092              		.cfi_endproc
- 1093              	.LFE120:
- 1095              		.section	.text.guidance_h_mode_changed,"ax",%progbits
- 1096              		.align	1
- 1097              		.global	guidance_h_mode_changed
- 1098              		.thumb
- 1099              		.thumb_func
- 1101              	guidance_h_mode_changed:
- 1102              	.LFB122:
+ 1074 0046 7047     		bx	lr
+ 1075              	.L77:
+ 1076              		.align	2
+ 1077              	.L76:
+ 1078 0048 00000000 		.word	.LANCHOR15
+ 1079 004c 00000000 		.word	.LANCHOR5
+ 1080 0050 00000000 		.word	.LANCHOR4
+ 1081 0054 00000000 		.word	.LANCHOR14
+ 1082 0058 00000000 		.word	.LANCHOR3
+ 1083 005c 00000000 		.word	.LANCHOR13
+ 1084 0060 00000000 		.word	.LANCHOR8
+ 1085 0064 00000000 		.word	.LANCHOR10
+ 1086 0068 00000000 		.word	.LANCHOR9
+ 1087 006c 00000000 		.word	.LANCHOR11
+ 1088 0070 00000000 		.word	.LANCHOR16
+ 1089 0074 00000000 		.word	.LANCHOR17
+ 1090              		.cfi_endproc
+ 1091              	.LFE120:
+ 1093              		.section	.text.guidance_h_mode_changed,"ax",%progbits
+ 1094              		.align	1
+ 1095              		.global	guidance_h_mode_changed
+ 1096              		.thumb
+ 1097              		.thumb_func
+ 1099              	guidance_h_mode_changed:
+ 1100              	.LFB122:
  120:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_mode_changed(uint8_t new_mode) {
- 1103              		.loc 2 120 0
- 1104              		.cfi_startproc
- 1105              		@ args = 0, pretend = 0, frame = 0
- 1106              		@ frame_needed = 0, uses_anonymous_args = 0
- 1107              	.LVL76:
- 1108 0000 38B5     		push	{r3, r4, r5, lr}
- 1109              	.LCFI8:
- 1110              		.cfi_def_cfa_offset 16
- 1111              		.cfi_offset 3, -16
- 1112              		.cfi_offset 4, -12
- 1113              		.cfi_offset 5, -8
- 1114              		.cfi_offset 14, -4
+ 1101              		.loc 2 120 0
+ 1102              		.cfi_startproc
+ 1103              		@ args = 0, pretend = 0, frame = 0
+ 1104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1105              	.LVL76:
+ 1106 0000 38B5     		push	{r3, r4, r5, lr}
+ 1107              	.LCFI8:
+ 1108              		.cfi_def_cfa_offset 16
+ 1109              		.cfi_offset 3, -16
+ 1110              		.cfi_offset 4, -12
+ 1111              		.cfi_offset 5, -8
+ 1112              		.cfi_offset 14, -4
  121:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode == guidance_h_mode)
- 1115              		.loc 2 121 0
- 1116 0002 184D     		ldr	r5, .L109
+ 1113              		.loc 2 121 0
+ 1114 0002 184D     		ldr	r5, .L109
  120:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_mode_changed(uint8_t new_mode) {
- 1117              		.loc 2 120 0
- 1118 0004 0446     		mov	r4, r0
+ 1115              		.loc 2 120 0
+ 1116 0004 0446     		mov	r4, r0
  121:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode == guidance_h_mode)
- 1119              		.loc 2 121 0
- 1120 0006 2B78     		ldrb	r3, [r5, #0]	@ zero_extendqisi2
- 1121 0008 8342     		cmp	r3, r0
- 1122 000a 29D0     		beq	.L78
+ 1117              		.loc 2 121 0
+ 1118 0006 2B78     		ldrb	r3, [r5, #0]	@ zero_extendqisi2
+ 1119 0008 8342     		cmp	r3, r0
+ 1120 000a 29D0     		beq	.L78
  124:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
- 1123              		.loc 2 124 0
- 1124 000c 0728     		cmp	r0, #7
- 1125 000e 1DD0     		beq	.L89
+ 1121              		.loc 2 124 0
+ 1122 000c 0728     		cmp	r0, #7
+ 1123 000e 1DD0     		beq	.L89
  124:firmwares/rotorcraft/guidance/guidance_h.c ****   if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
- 1126              		.loc 2 124 0 is_stmt 0 discriminator 1
- 1127 0010 0128     		cmp	r0, #1
- 1128 0012 10D0     		beq	.L81
+ 1124              		.loc 2 124 0 is_stmt 0 discriminator 1
+ 1125 0010 0128     		cmp	r0, #1
+ 1126 0012 10D0     		beq	.L81
  125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
- 1129              		.loc 2 125 0 is_stmt 1
- 1130 0014 144A     		ldr	r2, .L109+4
+ 1127              		.loc 2 125 0 is_stmt 1
+ 1128 0014 144A     		ldr	r2, .L109+4
  126:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_theta_offset = 0;
- 1131              		.loc 2 126 0
- 1132 0016 1549     		ldr	r1, .L109+8
+ 1129              		.loc 2 126 0
+ 1130 0016 1549     		ldr	r1, .L109+8
  125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
- 1133              		.loc 2 125 0
- 1134 0018 0020     		movs	r0, #0
- 1135              	.LVL77:
+ 1131              		.loc 2 125 0
+ 1132 0018 0020     		movs	r0, #0
+ 1133              	.LVL77:
  129:firmwares/rotorcraft/guidance/guidance_h.c ****   switch (new_mode) {
- 1136              		.loc 2 129 0
- 1137 001a 631E     		subs	r3, r4, #1
+ 1134              		.loc 2 129 0
+ 1135 001a 631E     		subs	r3, r4, #1
  125:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_percentage = 0;
- 1138              		.loc 2 125 0
- 1139 001c 1060     		str	r0, [r2, #0]
+ 1136              		.loc 2 125 0
+ 1137 001c 1060     		str	r0, [r2, #0]
  126:firmwares/rotorcraft/guidance/guidance_h.c ****      transition_theta_offset = 0;
- 1140              		.loc 2 126 0
- 1141 001e 0860     		str	r0, [r1, #0]
+ 1138              		.loc 2 126 0
+ 1139 001e 0860     		str	r0, [r1, #0]
  129:firmwares/rotorcraft/guidance/guidance_h.c ****   switch (new_mode) {
- 1142              		.loc 2 129 0
- 1143 0020 062B     		cmp	r3, #6
- 1144 0022 1BD8     		bhi	.L82
- 1145 0024 DFE803F0 		tbb	[pc, r3]
- 1146              	.L87:
- 1147 0028 07       		.byte	(.L81-.L87)/2
- 1148 0029 12       		.byte	(.L89-.L87)/2
- 1149 002a 0D       		.byte	(.L83-.L87)/2
- 1150 002b 15       		.byte	(.L84-.L87)/2
- 1151 002c 04       		.byte	(.L85-.L87)/2
- 1152 002d 0A       		.byte	(.L86-.L87)/2
- 1153 002e 12       		.byte	(.L89-.L87)/2
- 1154 002f 00       		.align	1
- 1155              	.L85:
+ 1140              		.loc 2 129 0
+ 1141 0020 062B     		cmp	r3, #6
+ 1142 0022 1BD8     		bhi	.L82
+ 1143 0024 DFE803F0 		tbb	[pc, r3]
+ 1144              	.L87:
+ 1145 0028 07       		.byte	(.L81-.L87)/2
+ 1146 0029 12       		.byte	(.L89-.L87)/2
+ 1147 002a 0D       		.byte	(.L83-.L87)/2
+ 1148 002b 15       		.byte	(.L84-.L87)/2
+ 1149 002c 04       		.byte	(.L85-.L87)/2
+ 1150 002d 0A       		.byte	(.L86-.L87)/2
+ 1151 002e 12       		.byte	(.L89-.L87)/2
+ 1152 002f 00       		.align	1
+ 1153              	.L85:
  131:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_enter();
- 1156              		.loc 2 131 0
- 1157 0030 FFF7FEFF 		bl	stabilization_none_enter
- 1158              	.LVL78:
+ 1154              		.loc 2 131 0
+ 1155 0030 FFF7FEFF 		bl	stabilization_none_enter
+ 1156              	.LVL78:
  132:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
- 1159              		.loc 2 132 0
- 1160 0034 12E0     		b	.L82
- 1161              	.L81:
+ 1157              		.loc 2 132 0
+ 1158 0034 12E0     		b	.L82
+ 1159              	.L81:
  135:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_enter();
- 1162              		.loc 2 135 0
- 1163 0036 FFF7FEFF 		bl	stabilization_rate_enter
- 1164              	.LVL79:
+ 1160              		.loc 2 135 0
+ 1161 0036 FFF7FEFF 		bl	stabilization_rate_enter
+ 1162              	.LVL79:
  136:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
- 1165              		.loc 2 136 0
- 1166 003a 0FE0     		b	.L82
- 1167              	.L86:
+ 1163              		.loc 2 136 0
+ 1164 003a 0FE0     		b	.L82
+ 1165              	.L86:
  139:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_reset_care_free_heading();
- 1168              		.loc 2 139 0
- 1169 003c FFF7FEFF 		bl	stabilization_attitude_reset_care_free_heading
- 1170              	.LVL80:
- 1171 0040 04E0     		b	.L89
- 1172              	.L83:
+ 1166              		.loc 2 139 0
+ 1167 003c FFF7FEFF 		bl	stabilization_attitude_reset_care_free_heading
+ 1168              	.LVL80:
+ 1169 0040 04E0     		b	.L89
+ 1170              	.L83:
  146:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_hover_enter();
- 1173              		.loc 2 146 0
- 1174 0042 FFF7FEFF 		bl	guidance_h_hover_enter
- 1175              	.LVL81:
- 1176              	.L108:
+ 1171              		.loc 2 146 0
+ 1172 0042 FFF7FEFF 		bl	guidance_h_hover_enter
+ 1173              	.LVL81:
+ 1174              	.L108:
  148:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
- 1177              		.loc 2 148 0
- 1178 0046 2878     		ldrb	r0, [r5, #0]	@ zero_extendqisi2
- 1179 0048 0528     		cmp	r0, #5
- 1180 004a 05D1     		bne	.L107
- 1181              	.L89:
+ 1175              		.loc 2 148 0
+ 1176 0046 2878     		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 1177 0048 0528     		cmp	r0, #5
+ 1178 004a 05D1     		bne	.L107
+ 1179              	.L89:
  150:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_enter();
- 1182              		.loc 2 150 0
- 1183 004c FFF7FEFF 		bl	stabilization_attitude_enter
- 1184              	.LVL82:
- 1185 0050 04E0     		b	.L82
- 1186              	.L84:
+ 1180              		.loc 2 150 0
+ 1181 004c FFF7FEFF 		bl	stabilization_attitude_enter
+ 1182              	.LVL82:
+ 1183 0050 04E0     		b	.L82
+ 1184              	.L84:
  155:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_nav_enter();
- 1187              		.loc 2 155 0
- 1188 0052 FFF7FEFF 		bl	guidance_h_nav_enter
- 1189              	.LVL83:
- 1190 0056 F6E7     		b	.L108
- 1191              	.L107:
+ 1185              		.loc 2 155 0
+ 1186 0052 FFF7FEFF 		bl	guidance_h_nav_enter
+ 1187              	.LVL83:
+ 1188 0056 F6E7     		b	.L108
+ 1189              	.L107:
  157:firmwares/rotorcraft/guidance/guidance_h.c ****       if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
- 1192              		.loc 2 157 0 discriminator 1
- 1193 0058 0128     		cmp	r0, #1
- 1194 005a F7D0     		beq	.L89
- 1195              	.L82:
+ 1190              		.loc 2 157 0 discriminator 1
+ 1191 0058 0128     		cmp	r0, #1
+ 1192 005a F7D0     		beq	.L89
+ 1193              	.L82:
  167:firmwares/rotorcraft/guidance/guidance_h.c ****   guidance_h_mode = new_mode;
- 1196              		.loc 2 167 0
- 1197 005c 014A     		ldr	r2, .L109
- 1198 005e 1470     		strb	r4, [r2, #0]
- 1199              	.L78:
- 1200 0060 38BD     		pop	{r3, r4, r5, pc}
- 1201              	.L110:
- 1202 0062 00BF     		.align	2
- 1203              	.L109:
- 1204 0064 00000000 		.word	.LANCHOR15
- 1205 0068 00000000 		.word	.LANCHOR16
- 1206 006c 00000000 		.word	.LANCHOR17
- 1207              		.cfi_endproc
- 1208              	.LFE122:
- 1210              		.section	.text.guidance_h_read_rc,"ax",%progbits
- 1211              		.align	1
- 1212              		.global	guidance_h_read_rc
- 1213              		.thumb
- 1214              		.thumb_func
- 1216              	guidance_h_read_rc:
- 1217              	.LFB123:
+ 1194              		.loc 2 167 0
+ 1195 005c 014A     		ldr	r2, .L109
+ 1196 005e 1470     		strb	r4, [r2, #0]
+ 1197              	.L78:
+ 1198 0060 38BD     		pop	{r3, r4, r5, pc}
+ 1199              	.L110:
+ 1200 0062 00BF     		.align	2
+ 1201              	.L109:
+ 1202 0064 00000000 		.word	.LANCHOR15
+ 1203 0068 00000000 		.word	.LANCHOR16
+ 1204 006c 00000000 		.word	.LANCHOR17
+ 1205              		.cfi_endproc
+ 1206              	.LFE122:
+ 1208              		.section	.text.guidance_h_read_rc,"ax",%progbits
+ 1209              		.align	1
+ 1210              		.global	guidance_h_read_rc
+ 1211              		.thumb
+ 1212              		.thumb_func
+ 1214              	guidance_h_read_rc:
+ 1215              	.LFB123:
  172:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_read_rc(bool_t  in_flight) {
- 1218              		.loc 2 172 0
- 1219              		.cfi_startproc
- 1220              		@ args = 0, pretend = 0, frame = 0
- 1221              		@ frame_needed = 0, uses_anonymous_args = 0
- 1222              		@ link register save eliminated.
- 1223              	.LVL84:
+ 1216              		.loc 2 172 0
+ 1217              		.cfi_startproc
+ 1218              		@ args = 0, pretend = 0, frame = 0
+ 1219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1220              		@ link register save eliminated.
+ 1221              	.LVL84:
  174:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
- 1224              		.loc 2 174 0
- 1225 0000 0F4B     		ldr	r3, .L121
+ 1222              		.loc 2 174 0
+ 1223 0000 0F4B     		ldr	r3, .L121
  172:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_read_rc(bool_t  in_flight) {
- 1226              		.loc 2 172 0
- 1227 0002 0146     		mov	r1, r0
+ 1224              		.loc 2 172 0
+ 1225 0002 0146     		mov	r1, r0
  174:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
- 1228              		.loc 2 174 0
- 1229 0004 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
- 1230              	.LVL85:
- 1231 0006 431E     		subs	r3, r0, #1
- 1232 0008 062B     		cmp	r3, #6
- 1233 000a 17D8     		bhi	.L111
- 1234 000c DFE803F0 		tbb	[pc, r3]
- 1235              	.L118:
- 1236 0010 06       		.byte	(.L113-.L118)/2
- 1237 0011 08       		.byte	(.L114-.L118)/2
- 1238 0012 0E       		.byte	(.L120-.L118)/2
- 1239 0013 0B       		.byte	(.L116-.L118)/2
- 1240 0014 04       		.byte	(.L117-.L118)/2
- 1241 0015 08       		.byte	(.L114-.L118)/2
- 1242 0016 08       		.byte	(.L114-.L118)/2
- 1243 0017 00       		.align	1
- 1244              	.L117:
+ 1226              		.loc 2 174 0
+ 1227 0004 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 1228              	.LVL85:
+ 1229 0006 431E     		subs	r3, r0, #1
+ 1230 0008 062B     		cmp	r3, #6
+ 1231 000a 17D8     		bhi	.L111
+ 1232 000c DFE803F0 		tbb	[pc, r3]
+ 1233              	.L118:
+ 1234 0010 06       		.byte	(.L113-.L118)/2
+ 1235 0011 08       		.byte	(.L114-.L118)/2
+ 1236 0012 0E       		.byte	(.L120-.L118)/2
+ 1237 0013 0B       		.byte	(.L116-.L118)/2
+ 1238 0014 04       		.byte	(.L117-.L118)/2
+ 1239 0015 08       		.byte	(.L114-.L118)/2
+ 1240 0016 08       		.byte	(.L114-.L118)/2
+ 1241 0017 00       		.align	1
+ 1242              	.L117:
  210:firmwares/rotorcraft/guidance/guidance_h.c **** }
- 1245              		.loc 2 210 0
+ 1243              		.loc 2 210 0
  177:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_read_rc();
- 1246              		.loc 2 177 0
- 1247 0018 FFF7FEBF 		b	stabilization_none_read_rc
- 1248              	.LVL86:
- 1249              	.L113:
+ 1244              		.loc 2 177 0
+ 1245 0018 FFF7FEBF 		b	stabilization_none_read_rc
+ 1246              	.LVL86:
+ 1247              	.L113:
  210:firmwares/rotorcraft/guidance/guidance_h.c **** }
- 1250              		.loc 2 210 0
+ 1248              		.loc 2 210 0
  184:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_read_rc();
- 1251              		.loc 2 184 0
- 1252 001c FFF7FEBF 		b	stabilization_rate_read_rc
- 1253              	.LVL87:
- 1254              	.L114:
+ 1249              		.loc 2 184 0
+ 1250 001c FFF7FEBF 		b	stabilization_rate_read_rc
+ 1251              	.LVL87:
+ 1252              	.L114:
  191:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc(in_flight);
- 1255              		.loc 2 191 0
- 1256 0020 0846     		mov	r0, r1
+ 1253              		.loc 2 191 0
+ 1254 0020 0846     		mov	r0, r1
  210:firmwares/rotorcraft/guidance/guidance_h.c **** }
- 1257              		.loc 2 210 0
+ 1255              		.loc 2 210 0
  191:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_read_rc(in_flight);
- 1258              		.loc 2 191 0
- 1259 0022 FFF7FEBF 		b	stabilization_attitude_read_rc
- 1260              	.LVL88:
- 1261              	.L116:
+ 1256              		.loc 2 191 0
+ 1257 0022 FFF7FEBF 		b	stabilization_attitude_read_rc
+ 1258              	.LVL88:
+ 1259              	.L116:
  199:firmwares/rotorcraft/guidance/guidance_h.c ****       if (radio_control.status == RC_OK) {
- 1262              		.loc 2 199 0
- 1263 0026 074A     		ldr	r2, .L121+4
- 1264 0028 1078     		ldrb	r0, [r2, #0]	@ zero_extendqisi2
- 1265 002a 10B9     		cbnz	r0, .L119
- 1266              	.L120:
+ 1260              		.loc 2 199 0
+ 1261 0026 074A     		ldr	r2, .L121+4
+ 1262 0028 1078     		ldrb	r0, [r2, #0]	@ zero_extendqisi2
+ 1263 002a 10B9     		cbnz	r0, .L119
+ 1264              	.L120:
  200:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
- 1267              		.loc 2 200 0
- 1268 002c 0648     		ldr	r0, .L121+8
+ 1265              		.loc 2 200 0
+ 1266 002c 0648     		ldr	r0, .L121+8
  210:firmwares/rotorcraft/guidance/guidance_h.c **** }
- 1269              		.loc 2 210 0
+ 1267              		.loc 2 210 0
  200:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
- 1270              		.loc 2 200 0
- 1271 002e FFF7FEBF 		b	stabilization_attitude_read_rc_setpoint_eulers
- 1272              	.LVL89:
- 1273              	.L119:
+ 1268              		.loc 2 200 0
+ 1269 002e FFF7FEBF 		b	stabilization_attitude_read_rc_setpoint_eulers
+ 1270              	.LVL89:
+ 1271              	.L119:
  203:firmwares/rotorcraft/guidance/guidance_h.c ****         INT_EULERS_ZERO(guidance_h_rc_sp);
- 1274              		.loc 2 203 0
- 1275 0032 0549     		ldr	r1, .L121+8
- 1276 0034 0023     		movs	r3, #0
- 1277 0036 0B60     		str	r3, [r1, #0]
- 1278 0038 4B60     		str	r3, [r1, #4]
- 1279 003a 8B60     		str	r3, [r1, #8]
- 1280              	.L111:
- 1281 003c 7047     		bx	lr
- 1282              	.L122:
- 1283 003e 00BF     		.align	2
- 1284              	.L121:
- 1285 0040 00000000 		.word	.LANCHOR15
- 1286 0044 00000000 		.word	radio_control
- 1287 0048 00000000 		.word	.LANCHOR14
- 1288              		.cfi_endproc
- 1289              	.LFE123:
- 1291              		.section	.text.guidance_h_run,"ax",%progbits
- 1292              		.align	1
- 1293              		.global	guidance_h_run
- 1294              		.thumb
- 1295              		.thumb_func
- 1297              	guidance_h_run:
- 1298              	.LFB124:
+ 1272              		.loc 2 203 0
+ 1273 0032 0549     		ldr	r1, .L121+8
+ 1274 0034 0023     		movs	r3, #0
+ 1275 0036 0B60     		str	r3, [r1, #0]
+ 1276 0038 4B60     		str	r3, [r1, #4]
+ 1277 003a 8B60     		str	r3, [r1, #8]
+ 1278              	.L111:
+ 1279 003c 7047     		bx	lr
+ 1280              	.L122:
+ 1281 003e 00BF     		.align	2
+ 1282              	.L121:
+ 1283 0040 00000000 		.word	.LANCHOR15
+ 1284 0044 00000000 		.word	radio_control
+ 1285 0048 00000000 		.word	.LANCHOR14
+ 1286              		.cfi_endproc
+ 1287              	.LFE123:
+ 1289              		.section	.text.guidance_h_run,"ax",%progbits
+ 1290              		.align	1
+ 1291              		.global	guidance_h_run
+ 1292              		.thumb
+ 1293              		.thumb_func
+ 1295              	guidance_h_run:
+ 1296              	.LFB124:
  213:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_run(bool_t  in_flight) {
- 1299              		.loc 2 213 0
- 1300              		.cfi_startproc
- 1301              		@ args = 0, pretend = 0, frame = 16
- 1302              		@ frame_needed = 0, uses_anonymous_args = 0
- 1303              	.LVL90:
- 1304 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
- 1305              	.LCFI9:
- 1306              		.cfi_def_cfa_offset 24
- 1307              		.cfi_offset 0, -24
- 1308              		.cfi_offset 1, -20
- 1309              		.cfi_offset 2, -16
- 1310              		.cfi_offset 3, -12
- 1311              		.cfi_offset 4, -8
- 1312              		.cfi_offset 14, -4
+ 1297              		.loc 2 213 0
+ 1298              		.cfi_startproc
+ 1299              		@ args = 0, pretend = 0, frame = 16
+ 1300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1301              	.LVL90:
+ 1302 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 1303              	.LCFI9:
+ 1304              		.cfi_def_cfa_offset 24
+ 1305              		.cfi_offset 0, -24
+ 1306              		.cfi_offset 1, -20
+ 1307              		.cfi_offset 2, -16
+ 1308              		.cfi_offset 3, -12
+ 1309              		.cfi_offset 4, -8
+ 1310              		.cfi_offset 14, -4
  214:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
- 1313              		.loc 2 214 0
- 1314 0002 264B     		ldr	r3, .L137
+ 1311              		.loc 2 214 0
+ 1312 0002 264B     		ldr	r3, .L137
  213:firmwares/rotorcraft/guidance/guidance_h.c **** void guidance_h_run(bool_t  in_flight) {
- 1315              		.loc 2 213 0
- 1316 0004 0446     		mov	r4, r0
+ 1313              		.loc 2 213 0
+ 1314 0004 0446     		mov	r4, r0
  214:firmwares/rotorcraft/guidance/guidance_h.c ****   switch ( guidance_h_mode ) {
- 1317              		.loc 2 214 0
- 1318 0006 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
- 1319              	.LVL91:
- 1320 0008 411E     		subs	r1, r0, #1
- 1321 000a 0629     		cmp	r1, #6
- 1322 000c 44D8     		bhi	.L123
- 1323 000e DFE801F0 		tbb	[pc, r1]
- 1324              	.L131:
- 1325 0012 08       		.byte	(.L125-.L131)/2
- 1326 0013 40       		.byte	(.L135-.L131)/2
- 1327 0014 14       		.byte	(.L127-.L131)/2
- 1328 0015 1C       		.byte	(.L128-.L131)/2
- 1329 0016 04       		.byte	(.L129-.L131)/2
- 1330 0017 40       		.byte	(.L135-.L131)/2
- 1331 0018 0C       		.byte	(.L130-.L131)/2
- 1332 0019 00       		.align	1
- 1333              	.L129:
+ 1315              		.loc 2 214 0
+ 1316 0006 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 1317              	.LVL91:
+ 1318 0008 411E     		subs	r1, r0, #1
+ 1319 000a 0629     		cmp	r1, #6
+ 1320 000c 44D8     		bhi	.L123
+ 1321 000e DFE801F0 		tbb	[pc, r1]
+ 1322              	.L131:
+ 1323 0012 08       		.byte	(.L125-.L131)/2
+ 1324 0013 40       		.byte	(.L135-.L131)/2
+ 1325 0014 14       		.byte	(.L127-.L131)/2
+ 1326 0015 1C       		.byte	(.L128-.L131)/2
+ 1327 0016 04       		.byte	(.L129-.L131)/2
+ 1328 0017 40       		.byte	(.L135-.L131)/2
+ 1329 0018 0C       		.byte	(.L130-.L131)/2
+ 1330 0019 00       		.align	1
+ 1331              	.L129:
  217:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_none_run(in_flight);
- 1334              		.loc 2 217 0
- 1335 001a 2046     		mov	r0, r4
- 1336 001c FFF7FEFF 		bl	stabilization_none_run
- 1337              	.LVL92:
+ 1332              		.loc 2 217 0
+ 1333 001a 2046     		mov	r0, r4
+ 1334 001c FFF7FEFF 		bl	stabilization_none_run
+ 1335              	.LVL92:
  218:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
- 1338              		.loc 2 218 0
- 1339 0020 3AE0     		b	.L123
- 1340              	.L125:
+ 1336              		.loc 2 218 0
+ 1337 0020 3AE0     		b	.L123
+ 1338              	.L125:
  221:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_rate_run(in_flight);
- 1341              		.loc 2 221 0
- 1342 0022 2046     		mov	r0, r4
- 1343 0024 FFF7FEFF 		bl	stabilization_rate_run
- 1344              	.LVL93:
+ 1339              		.loc 2 221 0
+ 1340 0022 2046     		mov	r0, r4
+ 1341 0024 FFF7FEFF 		bl	stabilization_rate_run
+ 1342              	.LVL93:
  222:firmwares/rotorcraft/guidance/guidance_h.c ****       break;
- 1345              		.loc 2 222 0
- 1346 0028 36E0     		b	.L123
- 1347              	.L130:
+ 1343              		.loc 2 222 0
+ 1344 0028 36E0     		b	.L123
+ 1345              	.L130:
  225:firmwares/rotorcraft/guidance/guidance_h.c ****       if(transition_percentage < (100<<INT32_PERCENTAGE_FRAC)) {
- 1348              		.loc 2 225 0
- 1349 002a 1D4B     		ldr	r3, .L137+4
- 1350 002c 1A68     		ldr	r2, [r3, #0]
- 1351 002e B2F5C83F 		cmp	r2, #102400
- 1352 0032 2EDA     		bge	.L135
- 1353              	.LBB27:
- 1354              	.LBB28:
+ 1346              		.loc 2 225 0
+ 1347 002a 1D4B     		ldr	r3, .L137+4
+ 1348 002c 1A68     		ldr	r2, [r3, #0]
+ 1349 002e B2F5C83F 		cmp	r2, #102400
+ 1350 0032 2EDA     		bge	.L135
+ 1351              	.LBB27:
+ 1352              	.LBB28:
  383:firmwares/rotorcraft/guidance/guidance_h.c **** }
  384:firmwares/rotorcraft/guidance/guidance_h.c **** 
  385:firmwares/rotorcraft/guidance/guidance_h.c **** static inline void transition_run(void) {
  386:firmwares/rotorcraft/guidance/guidance_h.c ****   //Add 0.00625%
  387:firmwares/rotorcraft/guidance/guidance_h.c ****   transition_percentage += 1<<(INT32_PERCENTAGE_FRAC-4);
- 1355              		.loc 2 387 0
- 1356 0034 4032     		adds	r2, r2, #64
- 1357 0036 1A60     		str	r2, [r3, #0]
- 1358 0038 2BE0     		b	.L135
- 1359              	.L127:
- 1360              	.LBE28:
- 1361              	.LBE27:
+ 1353              		.loc 2 387 0
+ 1354 0034 4032     		adds	r2, r2, #64
+ 1355 0036 1A60     		str	r2, [r3, #0]
+ 1356 0038 2BE0     		b	.L135
+ 1357              	.L127:
+ 1358              	.LBE28:
+ 1359              	.LBE27:
  234:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
- 1362              		.loc 2 234 0
- 1363 003a 0CB9     		cbnz	r4, .L132
+ 1360              		.loc 2 234 0
+ 1361 003a 0CB9     		cbnz	r4, .L132
  235:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_hover_enter();
- 1364              		.loc 2 235 0
- 1365 003c FFF7FEFF 		bl	guidance_h_hover_enter
- 1366              	.LVL94:
- 1367              	.L132:
+ 1362              		.loc 2 235 0
+ 1363 003c FFF7FEFF 		bl	guidance_h_hover_enter
+ 1364              	.LVL94:
+ 1365              	.L132:
  237:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_update_reference();
- 1368              		.loc 2 237 0
- 1369 0040 FFF7FEFF 		bl	guidance_h_update_reference
- 1370              	.LVL95:
+ 1366              		.loc 2 237 0
+ 1367 0040 FFF7FEFF 		bl	guidance_h_update_reference
+ 1368              	.LVL95:
  240:firmwares/rotorcraft/guidance/guidance_h.c ****       guidance_h_command_body.psi = guidance_h_rc_sp.psi;
- 1371              		.loc 2 240 0
- 1372 0044 1749     		ldr	r1, .L137+8
- 1373 0046 8A68     		ldr	r2, [r1, #8]
- 1374 0048 1EE0     		b	.L136
- 1375              	.L128:
+ 1369              		.loc 2 240 0
+ 1370 0044 1749     		ldr	r1, .L137+8
+ 1371 0046 8A68     		ldr	r2, [r1, #8]
+ 1372 0048 1EE0     		b	.L136
+ 1373              	.L128:
  248:firmwares/rotorcraft/guidance/guidance_h.c ****       if (!in_flight)
- 1376              		.loc 2 248 0
- 1377 004a 0CB9     		cbnz	r4, .L133
+ 1374              		.loc 2 248 0
+ 1375 004a 0CB9     		cbnz	r4, .L133
  249:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_nav_enter();
- 1378              		.loc 2 249 0
- 1379 004c FFF7FEFF 		bl	guidance_h_nav_enter
- 1380              	.LVL96:
- 1381              	.L133:
+ 1376              		.loc 2 249 0
+ 1377 004c FFF7FEFF 		bl	guidance_h_nav_enter
+ 1378              	.LVL96:
+ 1379              	.L133:
  251:firmwares/rotorcraft/guidance/guidance_h.c ****       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
- 1382              		.loc 2 251 0
- 1383 0050 1548     		ldr	r0, .L137+12
- 1384 0052 0178     		ldrb	r1, [r0, #0]	@ zero_extendqisi2
- 1385 0054 0329     		cmp	r1, #3
- 1386 0056 0DD1     		bne	.L134
- 1387              	.LBB29:
+ 1380              		.loc 2 251 0
+ 1381 0050 1548     		ldr	r0, .L137+12
+ 1382 0052 0178     		ldrb	r1, [r0, #0]	@ zero_extendqisi2
+ 1383 0054 0329     		cmp	r1, #3
+ 1384 0056 0DD1     		bne	.L134
+ 1385              	.LBB29:
  254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
- 1388              		.loc 2 254 0
- 1389 0058 144B     		ldr	r3, .L137+16
+ 1386              		.loc 2 254 0
+ 1387 0058 144B     		ldr	r3, .L137+16
  253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
- 1390              		.loc 2 253 0
- 1391 005a 1548     		ldr	r0, .L137+20
+ 1388              		.loc 2 253 0
+ 1389 005a 1548     		ldr	r0, .L137+20
  254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
- 1392              		.loc 2 254 0
- 1393 005c 1A68     		ldr	r2, [r3, #0]
+ 1390              		.loc 2 254 0
+ 1391 005c 1A68     		ldr	r2, [r3, #0]
  253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
- 1394              		.loc 2 253 0
- 1395 005e 0168     		ldr	r1, [r0, #0]
+ 1392              		.loc 2 253 0
+ 1393 005e 0168     		ldr	r1, [r0, #0]
  254:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.theta = nav_pitch;
- 1396              		.loc 2 254 0
- 1397 0060 0292     		str	r2, [sp, #8]
+ 1394              		.loc 2 254 0
+ 1395 0060 0292     		str	r2, [sp, #8]
  253:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.phi = nav_roll;
- 1398              		.loc 2 253 0
- 1399 0062 0191     		str	r1, [sp, #4]
- 1400              	.LBB30:
- 1401              	.LBB31:
- 1402              		.loc 1 1013 0
- 1403 0064 FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
- 1404              	.LVL97:
- 1405              	.LBE31:
- 1406              	.LBE30:
+ 1396              		.loc 2 253 0
+ 1397 0062 0191     		str	r1, [sp, #4]
+ 1398              	.LBB30:
+ 1399              	.LBB31:
+ 1400              		.loc 1 1013 0
+ 1401 0064 FFF7FEFF 		bl	orientationGetEulers_i.constprop.1
+ 1402              	.LVL97:
+ 1403              	.LBE31:
+ 1404              	.LBE30:
  256:firmwares/rotorcraft/guidance/guidance_h.c ****         sp_euler_i.psi = stateGetNedToBodyEulers_i()->psi;
- 1407              		.loc 2 256 0
- 1408 0068 8068     		ldr	r0, [r0, #8]
- 1409 006a 0390     		str	r0, [sp, #12]
+ 1405              		.loc 2 256 0
+ 1406 0068 8068     		ldr	r0, [r0, #8]
+ 1407 006a 0390     		str	r0, [sp, #12]
  257:firmwares/rotorcraft/guidance/guidance_h.c ****         stabilization_attitude_set_from_eulers_i(&sp_euler_i);
- 1410              		.loc 2 257 0
- 1411 006c 01A8     		add	r0, sp, #4
- 1412 006e FFF7FEFF 		bl	stabilization_attitude_set_from_eulers_i
- 1413              	.LVL98:
- 1414 0072 0EE0     		b	.L135
- 1415              	.L134:
- 1416              	.LBE29:
+ 1408              		.loc 2 257 0
+ 1409 006c 01A8     		add	r0, sp, #4
+ 1410 006e FFF7FEFF 		bl	stabilization_attitude_set_from_eulers_i
+ 1411              	.LVL98:
+ 1412 0072 0EE0     		b	.L135
+ 1413              	.L134:
+ 1414              	.LBE29:
  260:firmwares/rotorcraft/guidance/guidance_h.c ****         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
- 1417              		.loc 2 260 0
- 1418 0074 0F4A     		ldr	r2, .L137+24
- 1419 0076 104B     		ldr	r3, .L137+28
- 1420 0078 5068     		ldr	r0, [r2, #4]
- 1421 007a 1168     		ldr	r1, [r2, #0]
- 1422 007c 1860     		str	r0, [r3, #0]
- 1423 007e 5960     		str	r1, [r3, #4]
+ 1415              		.loc 2 260 0
+ 1416 0074 0F4A     		ldr	r2, .L137+24
+ 1417 0076 104B     		ldr	r3, .L137+28
+ 1418 0078 5068     		ldr	r0, [r2, #4]
+ 1419 007a 1168     		ldr	r1, [r2, #0]
+ 1420 007c 1860     		str	r0, [r3, #0]
+ 1421 007e 5960     		str	r1, [r3, #4]
  262:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_update_reference();
- 1424              		.loc 2 262 0
- 1425 0080 FFF7FEFF 		bl	guidance_h_update_reference
- 1426              	.LVL99:
+ 1422              		.loc 2 262 0
+ 1423 0080 FFF7FEFF 		bl	guidance_h_update_reference
+ 1424              	.LVL99:
  265:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_command_body.psi = nav_heading;
- 1427              		.loc 2 265 0
- 1428 0084 0D4B     		ldr	r3, .L137+32
- 1429 0086 1A68     		ldr	r2, [r3, #0]
- 1430              	.L136:
- 1431 0088 0D4B     		ldr	r3, .L137+36
+ 1425              		.loc 2 265 0
+ 1426 0084 0D4B     		ldr	r3, .L137+32
+ 1427 0086 1A68     		ldr	r2, [r3, #0]
+ 1428              	.L136:
+ 1429 0088 0D4B     		ldr	r3, .L137+36
  267:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_traj_run(in_flight);
- 1432              		.loc 2 267 0
- 1433 008a 2046     		mov	r0, r4
+ 1430              		.loc 2 267 0
+ 1431 008a 2046     		mov	r0, r4
  265:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_command_body.psi = nav_heading;
- 1434              		.loc 2 265 0
- 1435 008c 9A60     		str	r2, [r3, #8]
+ 1432              		.loc 2 265 0
+ 1433 008c 9A60     		str	r2, [r3, #8]
  267:firmwares/rotorcraft/guidance/guidance_h.c ****         guidance_h_traj_run(in_flight);
- 1436              		.loc 2 267 0
- 1437 008e FFF7FEFF 		bl	guidance_h_traj_run
- 1438              	.LVL100:
- 1439              	.L135:
+ 1434              		.loc 2 267 0
+ 1435 008e FFF7FEFF 		bl	guidance_h_traj_run
+ 1436              	.LVL100:
+ 1437              	.L135:
  269:firmwares/rotorcraft/guidance/guidance_h.c ****       stabilization_attitude_run(in_flight);
- 1440              		.loc 2 269 0
- 1441 0092 2046     		mov	r0, r4
- 1442 0094 FFF7FEFF 		bl	stabilization_attitude_run
- 1443              	.LVL101:
- 1444              	.L123:
+ 1438              		.loc 2 269 0
+ 1439 0092 2046     		mov	r0, r4
+ 1440 0094 FFF7FEFF 		bl	stabilization_attitude_run
+ 1441              	.LVL101:
+ 1442              	.L123:
  275:firmwares/rotorcraft/guidance/guidance_h.c **** }
- 1445              		.loc 2 275 0
- 1446 0098 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
- 1447              	.L138:
- 1448 009a 00BF     		.align	2
- 1449              	.L137:
- 1450 009c 00000000 		.word	.LANCHOR15
- 1451 00a0 00000000 		.word	.LANCHOR16
- 1452 00a4 00000000 		.word	.LANCHOR14
- 1453 00a8 00000000 		.word	horizontal_mode
- 1454 00ac 00000000 		.word	nav_pitch
- 1455 00b0 00000000 		.word	nav_roll
- 1456 00b4 00000000 		.word	navigation_carrot
- 1457 00b8 00000000 		.word	.LANCHOR4
- 1458 00bc 00000000 		.word	nav_heading
- 1459 00c0 00000000 		.word	.LANCHOR13
- 1460              		.cfi_endproc
- 1461              	.LFE124:
- 1463              		.global	transition_theta_offset
- 1464              		.global	transition_percentage
- 1465              		.global	guidance_h_again
- 1466              		.global	guidance_h_igain
- 1467              		.global	guidance_h_dgain
- 1468              		.global	guidance_h_pgain
- 1469              		.global	guidance_h_command_body
- 1470              		.global	guidance_h_stick_earth_sp
- 1471              		.global	guidance_h_command_earth
- 1472              		.global	guidance_h_rc_sp
- 1473              		.global	guidance_h_nav_err
- 1474              		.global	guidance_h_pos_err_sum
- 1475              		.global	guidance_h_speed_err
- 1476              		.global	guidance_h_pos_err
- 1477              		.global	guidance_h_accel_ref
- 1478              		.global	guidance_h_speed_ref
- 1479              		.global	guidance_h_pos_ref
- 1480              		.global	guidance_h_pos_sp
- 1481              		.global	guidance_h_use_ref
- 1482              		.global	guidance_h_mode
- 1483              		.section	.bss.guidance_h_mode,"aw",%nobits
- 1484              		.set	.LANCHOR15,. + 0
- 1487              	guidance_h_mode:
- 1488 0000 00       		.space	1
- 1489              		.section	.bss.guidance_h_rc_sp,"aw",%nobits
- 1490              		.align	2
- 1491              		.set	.LANCHOR14,. + 0
- 1494              	guidance_h_rc_sp:
- 1495 0000 00000000 		.space	12
- 1495      00000000 
- 1495      00000000 
- 1496              		.section	.bss.guidance_h_pos_ref,"aw",%nobits
- 1497              		.align	2
- 1498              		.set	.LANCHOR0,. + 0
- 1501              	guidance_h_pos_ref:
- 1502 0000 00000000 		.space	8
- 1502      00000000 
- 1503              		.section	.bss.guidance_h_stick_earth_sp,"aw",%nobits
- 1504              		.align	2
- 1507              	guidance_h_stick_earth_sp:
- 1508 0000 00000000 		.space	8
- 1508      00000000 
- 1509              		.section	.bss.guidance_h_speed_ref,"aw",%nobits
- 1510              		.align	2
- 1511              		.set	.LANCHOR1,. + 0
- 1514              	guidance_h_speed_ref:
- 1515 0000 00000000 		.space	8
- 1515      00000000 
- 1516              		.section	.bss.transition_percentage,"aw",%nobits
- 1517              		.align	2
- 1518              		.set	.LANCHOR16,. + 0
- 1521              	transition_percentage:
- 1522 0000 00000000 		.space	4
- 1523              		.section	.bss.guidance_h_nav_err,"aw",%nobits
- 1524              		.align	2
- 1527              	guidance_h_nav_err:
- 1528 0000 00000000 		.space	8
- 1528      00000000 
- 1529              		.section	.bss.guidance_h_again,"aw",%nobits
- 1530              		.align	2
- 1531              		.set	.LANCHOR11,. + 0
- 1534              	guidance_h_again:
- 1535 0000 00000000 		.space	4
- 1536              		.section	.bss.guidance_h_use_ref,"aw",%nobits
- 1537              		.set	.LANCHOR5,. + 0
- 1540              	guidance_h_use_ref:
- 1541 0000 00       		.space	1
- 1542              		.section	.bss.guidance_h_igain,"aw",%nobits
- 1543              		.align	2
- 1544              		.set	.LANCHOR10,. + 0
- 1547              	guidance_h_igain:
- 1548 0000 00000000 		.space	4
- 1549              		.section	.bss.guidance_h_pos_err,"aw",%nobits
- 1550              		.align	2
- 1551              		.set	.LANCHOR6,. + 0
- 1554              	guidance_h_pos_err:
- 1555 0000 00000000 		.space	8
- 1555      00000000 
- 1556              		.section	.bss.guidance_h_pos_err_sum,"aw",%nobits
- 1557              		.align	2
- 1558              		.set	.LANCHOR3,. + 0
- 1561              	guidance_h_pos_err_sum:
- 1562 0000 00000000 		.space	8
- 1562      00000000 
- 1563              		.section	.bss.guidance_h_accel_ref,"aw",%nobits
- 1564              		.align	2
- 1565              		.set	.LANCHOR2,. + 0
- 1568              	guidance_h_accel_ref:
- 1569 0000 00000000 		.space	8
- 1569      00000000 
- 1570              		.section	.bss.guidance_h_command_earth,"aw",%nobits
- 1571              		.align	2
- 1572              		.set	.LANCHOR12,. + 0
- 1575              	guidance_h_command_earth:
- 1576 0000 00000000 		.space	8
- 1576      00000000 
- 1577              		.section	.bss.guidance_h_speed_err,"aw",%nobits
- 1578              		.align	2
- 1579              		.set	.LANCHOR7,. + 0
- 1582              	guidance_h_speed_err:
- 1583 0000 00000000 		.space	8
- 1583      00000000 
- 1584              		.section	.bss.guidance_h_pgain,"aw",%nobits
- 1585              		.align	2
- 1586              		.set	.LANCHOR8,. + 0
- 1589              	guidance_h_pgain:
- 1590 0000 00000000 		.space	4
- 1591              		.section	.bss.transition_theta_offset,"aw",%nobits
- 1592              		.align	2
- 1593              		.set	.LANCHOR17,. + 0
- 1596              	transition_theta_offset:
- 1597 0000 00000000 		.space	4
- 1598              		.section	.bss.guidance_h_dgain,"aw",%nobits
- 1599              		.align	2
- 1600              		.set	.LANCHOR9,. + 0
- 1603              	guidance_h_dgain:
- 1604 0000 00000000 		.space	4
- 1605              		.section	.bss.guidance_h_command_body,"aw",%nobits
- 1606              		.align	2
- 1607              		.set	.LANCHOR13,. + 0
- 1610              	guidance_h_command_body:
- 1611 0000 00000000 		.space	12
- 1611      00000000 
- 1611      00000000 
- 1612              		.section	.bss.guidance_h_pos_sp,"aw",%nobits
- 1613              		.align	2
- 1614              		.set	.LANCHOR4,. + 0
- 1617              	guidance_h_pos_sp:
- 1618 0000 00000000 		.space	8
- 1618      00000000 
- 1619              		.text
- 1620              	.Letext0:
- 1621              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
- 1622              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
- 1623              		.file 6 "./math/pprz_algebra_int.h"
- 1624              		.file 7 "./math/pprz_algebra_float.h"
- 1625              		.file 8 "./math/pprz_geodetic_int.h"
- 1626              		.file 9 "./math/pprz_geodetic_float.h"
- 1627              		.file 10 "./paparazzi.h"
- 1628              		.file 11 "./mcu_periph/sys_time.h"
- 1629              		.file 12 "./subsystems/radio_control.h"
- 1630              		.file 13 "./math/pprz_trig_int.h"
- 1631              		.file 14 "./firmwares/rotorcraft/guidance/guidance_h_ref.h"
- 1632              		.file 15 "./firmwares/rotorcraft/navigation.h"
- 1633              		.file 16 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
- 1634              		.file 17 "./firmwares/rotorcraft/stabilization/stabilization_none.h"
- 1635              		.file 18 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
- 1636              		.file 19 "./firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+ 1443              		.loc 2 275 0
+ 1444 0098 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
+ 1445              	.L138:
+ 1446 009a 00BF     		.align	2
+ 1447              	.L137:
+ 1448 009c 00000000 		.word	.LANCHOR15
+ 1449 00a0 00000000 		.word	.LANCHOR16
+ 1450 00a4 00000000 		.word	.LANCHOR14
+ 1451 00a8 00000000 		.word	horizontal_mode
+ 1452 00ac 00000000 		.word	nav_pitch
+ 1453 00b0 00000000 		.word	nav_roll
+ 1454 00b4 00000000 		.word	navigation_carrot
+ 1455 00b8 00000000 		.word	.LANCHOR4
+ 1456 00bc 00000000 		.word	nav_heading
+ 1457 00c0 00000000 		.word	.LANCHOR13
+ 1458              		.cfi_endproc
+ 1459              	.LFE124:
+ 1461              		.global	transition_theta_offset
+ 1462              		.global	transition_percentage
+ 1463              		.global	guidance_h_again
+ 1464              		.global	guidance_h_igain
+ 1465              		.global	guidance_h_dgain
+ 1466              		.global	guidance_h_pgain
+ 1467              		.global	guidance_h_command_body
+ 1468              		.global	guidance_h_stick_earth_sp
+ 1469              		.global	guidance_h_command_earth
+ 1470              		.global	guidance_h_rc_sp
+ 1471              		.global	guidance_h_nav_err
+ 1472              		.global	guidance_h_pos_err_sum
+ 1473              		.global	guidance_h_speed_err
+ 1474              		.global	guidance_h_pos_err
+ 1475              		.global	guidance_h_accel_ref
+ 1476              		.global	guidance_h_speed_ref
+ 1477              		.global	guidance_h_pos_ref
+ 1478              		.global	guidance_h_pos_sp
+ 1479              		.global	guidance_h_use_ref
+ 1480              		.global	guidance_h_mode
+ 1481              		.section	.bss.guidance_h_mode,"aw",%nobits
+ 1482              		.set	.LANCHOR15,. + 0
+ 1485              	guidance_h_mode:
+ 1486 0000 00       		.space	1
+ 1487              		.section	.bss.guidance_h_rc_sp,"aw",%nobits
+ 1488              		.align	2
+ 1489              		.set	.LANCHOR14,. + 0
+ 1492              	guidance_h_rc_sp:
+ 1493 0000 00000000 		.space	12
+ 1493      00000000 
+ 1493      00000000 
+ 1494              		.section	.bss.guidance_h_pos_ref,"aw",%nobits
+ 1495              		.align	2
+ 1496              		.set	.LANCHOR0,. + 0
+ 1499              	guidance_h_pos_ref:
+ 1500 0000 00000000 		.space	8
+ 1500      00000000 
+ 1501              		.section	.bss.guidance_h_stick_earth_sp,"aw",%nobits
+ 1502              		.align	2
+ 1505              	guidance_h_stick_earth_sp:
+ 1506 0000 00000000 		.space	8
+ 1506      00000000 
+ 1507              		.section	.bss.guidance_h_speed_ref,"aw",%nobits
+ 1508              		.align	2
+ 1509              		.set	.LANCHOR1,. + 0
+ 1512              	guidance_h_speed_ref:
+ 1513 0000 00000000 		.space	8
+ 1513      00000000 
+ 1514              		.section	.bss.transition_percentage,"aw",%nobits
+ 1515              		.align	2
+ 1516              		.set	.LANCHOR16,. + 0
+ 1519              	transition_percentage:
+ 1520 0000 00000000 		.space	4
+ 1521              		.section	.bss.guidance_h_nav_err,"aw",%nobits
+ 1522              		.align	2
+ 1525              	guidance_h_nav_err:
+ 1526 0000 00000000 		.space	8
+ 1526      00000000 
+ 1527              		.section	.bss.guidance_h_again,"aw",%nobits
+ 1528              		.align	2
+ 1529              		.set	.LANCHOR11,. + 0
+ 1532              	guidance_h_again:
+ 1533 0000 00000000 		.space	4
+ 1534              		.section	.bss.guidance_h_use_ref,"aw",%nobits
+ 1535              		.set	.LANCHOR5,. + 0
+ 1538              	guidance_h_use_ref:
+ 1539 0000 00       		.space	1
+ 1540              		.section	.bss.guidance_h_igain,"aw",%nobits
+ 1541              		.align	2
+ 1542              		.set	.LANCHOR10,. + 0
+ 1545              	guidance_h_igain:
+ 1546 0000 00000000 		.space	4
+ 1547              		.section	.bss.guidance_h_pos_err,"aw",%nobits
+ 1548              		.align	2
+ 1549              		.set	.LANCHOR6,. + 0
+ 1552              	guidance_h_pos_err:
+ 1553 0000 00000000 		.space	8
+ 1553      00000000 
+ 1554              		.section	.bss.guidance_h_pos_err_sum,"aw",%nobits
+ 1555              		.align	2
+ 1556              		.set	.LANCHOR3,. + 0
+ 1559              	guidance_h_pos_err_sum:
+ 1560 0000 00000000 		.space	8
+ 1560      00000000 
+ 1561              		.section	.bss.guidance_h_accel_ref,"aw",%nobits
+ 1562              		.align	2
+ 1563              		.set	.LANCHOR2,. + 0
+ 1566              	guidance_h_accel_ref:
+ 1567 0000 00000000 		.space	8
+ 1567      00000000 
+ 1568              		.section	.bss.guidance_h_command_earth,"aw",%nobits
+ 1569              		.align	2
+ 1570              		.set	.LANCHOR12,. + 0
+ 1573              	guidance_h_command_earth:
+ 1574 0000 00000000 		.space	8
+ 1574      00000000 
+ 1575              		.section	.bss.guidance_h_speed_err,"aw",%nobits
+ 1576              		.align	2
+ 1577              		.set	.LANCHOR7,. + 0
+ 1580              	guidance_h_speed_err:
+ 1581 0000 00000000 		.space	8
+ 1581      00000000 
+ 1582              		.section	.bss.guidance_h_pgain,"aw",%nobits
+ 1583              		.align	2
+ 1584              		.set	.LANCHOR8,. + 0
+ 1587              	guidance_h_pgain:
+ 1588 0000 00000000 		.space	4
+ 1589              		.section	.bss.transition_theta_offset,"aw",%nobits
+ 1590              		.align	2
+ 1591              		.set	.LANCHOR17,. + 0
+ 1594              	transition_theta_offset:
+ 1595 0000 00000000 		.space	4
+ 1596              		.section	.bss.guidance_h_dgain,"aw",%nobits
+ 1597              		.align	2
+ 1598              		.set	.LANCHOR9,. + 0
+ 1601              	guidance_h_dgain:
+ 1602 0000 00000000 		.space	4
+ 1603              		.section	.bss.guidance_h_command_body,"aw",%nobits
+ 1604              		.align	2
+ 1605              		.set	.LANCHOR13,. + 0
+ 1608              	guidance_h_command_body:
+ 1609 0000 00000000 		.space	12
+ 1609      00000000 
+ 1609      00000000 
+ 1610              		.section	.bss.guidance_h_pos_sp,"aw",%nobits
+ 1611              		.align	2
+ 1612              		.set	.LANCHOR4,. + 0
+ 1615              	guidance_h_pos_sp:
+ 1616 0000 00000000 		.space	8
+ 1616      00000000 
+ 1617              		.text
+ 1618              	.Letext0:
+ 1619              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1620              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1621              		.file 6 "./math/pprz_algebra_int.h"
+ 1622              		.file 7 "./math/pprz_algebra_float.h"
+ 1623              		.file 8 "./math/pprz_geodetic_int.h"
+ 1624              		.file 9 "./math/pprz_geodetic_float.h"
+ 1625              		.file 10 "./paparazzi.h"
+ 1626              		.file 11 "./mcu_periph/sys_time.h"
+ 1627              		.file 12 "./subsystems/radio_control.h"
+ 1628              		.file 13 "./math/pprz_trig_int.h"
+ 1629              		.file 14 "./firmwares/rotorcraft/guidance/guidance_h_ref.h"
+ 1630              		.file 15 "./firmwares/rotorcraft/navigation.h"
+ 1631              		.file 16 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+ 1632              		.file 17 "./firmwares/rotorcraft/stabilization/stabilization_none.h"
+ 1633              		.file 18 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
+ 1634              		.file 19 "./firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 guidance_h.c
-/var/tmp//ccEx5Q2a.s:19     .text.stateGetPositionNed_i:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:23     .text.stateGetPositionNed_i:0000000000000000 stateGetPositionNed_i
-/var/tmp//ccEx5Q2a.s:50     .text.stateGetPositionNed_i:0000000000000014 $d
-/var/tmp//ccEx5Q2a.s:56     .text.stateGetSpeedNed_i:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:60     .text.stateGetSpeedNed_i:0000000000000000 stateGetSpeedNed_i
-/var/tmp//ccEx5Q2a.s:86     .text.stateGetSpeedNed_i:0000000000000014 $d
-/var/tmp//ccEx5Q2a.s:92     .text.reset_guidance_reference_from_current_position:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:96     .text.reset_guidance_reference_from_current_position:0000000000000000 reset_guidance_reference_from_current_position
-/var/tmp//ccEx5Q2a.s:160    .text.reset_guidance_reference_from_current_position:000000000000004c $d
-/var/tmp//ccEx5Q2a.s:168    .text.guidance_h_update_reference:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:172    .text.guidance_h_update_reference:0000000000000000 guidance_h_update_reference
-/var/tmp//ccEx5Q2a.s:252    .text.guidance_h_update_reference:0000000000000068 $d
-/var/tmp//ccEx5Q2a.s:264    .text.orientationGetEulers_i.constprop.1:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:268    .text.orientationGetEulers_i.constprop.1:0000000000000000 orientationGetEulers_i.constprop.1
-/var/tmp//ccEx5Q2a.s:297    .text.orientationGetEulers_i.constprop.1:0000000000000018 $d
-/var/tmp//ccEx5Q2a.s:307    .text.guidance_h_traj_run:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:311    .text.guidance_h_traj_run:0000000000000000 guidance_h_traj_run
-/var/tmp//ccEx5Q2a.s:726    .text.guidance_h_traj_run:0000000000000278 $d
-/var/tmp//ccEx5Q2a.s:752    .text.guidance_h_traj_run:00000000000002d8 $t
-/var/tmp//ccEx5Q2a.s:891    .text.guidance_h_traj_run:0000000000000390 $d
-/var/tmp//ccEx5Q2a.s:900    .text.guidance_h_hover_enter:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:904    .text.guidance_h_hover_enter:0000000000000000 guidance_h_hover_enter
-/var/tmp//ccEx5Q2a.s:943    .text.guidance_h_hover_enter:0000000000000024 $d
-/var/tmp//ccEx5Q2a.s:949    .text.guidance_h_nav_enter:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:953    .text.guidance_h_nav_enter:0000000000000000 guidance_h_nav_enter
-/var/tmp//ccEx5Q2a.s:991    .text.guidance_h_nav_enter:0000000000000020 $d
-/var/tmp//ccEx5Q2a.s:998    .text.guidance_h_init:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:1003   .text.guidance_h_init:0000000000000000 guidance_h_init
-/var/tmp//ccEx5Q2a.s:1080   .text.guidance_h_init:000000000000004c $d
-/var/tmp//ccEx5Q2a.s:1096   .text.guidance_h_mode_changed:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:1101   .text.guidance_h_mode_changed:0000000000000000 guidance_h_mode_changed
-/var/tmp//ccEx5Q2a.s:1147   .text.guidance_h_mode_changed:0000000000000028 $d
-/var/tmp//ccEx5Q2a.s:1204   .text.guidance_h_mode_changed:0000000000000064 $d
-/var/tmp//ccEx5Q2a.s:1211   .text.guidance_h_read_rc:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:1216   .text.guidance_h_read_rc:0000000000000000 guidance_h_read_rc
-/var/tmp//ccEx5Q2a.s:1236   .text.guidance_h_read_rc:0000000000000010 $d
-/var/tmp//ccEx5Q2a.s:1285   .text.guidance_h_read_rc:0000000000000040 $d
-/var/tmp//ccEx5Q2a.s:1292   .text.guidance_h_run:0000000000000000 $t
-/var/tmp//ccEx5Q2a.s:1297   .text.guidance_h_run:0000000000000000 guidance_h_run
-/var/tmp//ccEx5Q2a.s:1325   .text.guidance_h_run:0000000000000012 $d
-/var/tmp//ccEx5Q2a.s:1450   .text.guidance_h_run:000000000000009c $d
-/var/tmp//ccEx5Q2a.s:1596   .bss.transition_theta_offset:0000000000000000 transition_theta_offset
-/var/tmp//ccEx5Q2a.s:1521   .bss.transition_percentage:0000000000000000 transition_percentage
-/var/tmp//ccEx5Q2a.s:1534   .bss.guidance_h_again:0000000000000000 guidance_h_again
-/var/tmp//ccEx5Q2a.s:1547   .bss.guidance_h_igain:0000000000000000 guidance_h_igain
-/var/tmp//ccEx5Q2a.s:1603   .bss.guidance_h_dgain:0000000000000000 guidance_h_dgain
-/var/tmp//ccEx5Q2a.s:1589   .bss.guidance_h_pgain:0000000000000000 guidance_h_pgain
-/var/tmp//ccEx5Q2a.s:1610   .bss.guidance_h_command_body:0000000000000000 guidance_h_command_body
-/var/tmp//ccEx5Q2a.s:1507   .bss.guidance_h_stick_earth_sp:0000000000000000 guidance_h_stick_earth_sp
-/var/tmp//ccEx5Q2a.s:1575   .bss.guidance_h_command_earth:0000000000000000 guidance_h_command_earth
-/var/tmp//ccEx5Q2a.s:1494   .bss.guidance_h_rc_sp:0000000000000000 guidance_h_rc_sp
-/var/tmp//ccEx5Q2a.s:1527   .bss.guidance_h_nav_err:0000000000000000 guidance_h_nav_err
-/var/tmp//ccEx5Q2a.s:1561   .bss.guidance_h_pos_err_sum:0000000000000000 guidance_h_pos_err_sum
-/var/tmp//ccEx5Q2a.s:1582   .bss.guidance_h_speed_err:0000000000000000 guidance_h_speed_err
-/var/tmp//ccEx5Q2a.s:1554   .bss.guidance_h_pos_err:0000000000000000 guidance_h_pos_err
-/var/tmp//ccEx5Q2a.s:1568   .bss.guidance_h_accel_ref:0000000000000000 guidance_h_accel_ref
-/var/tmp//ccEx5Q2a.s:1514   .bss.guidance_h_speed_ref:0000000000000000 guidance_h_speed_ref
-/var/tmp//ccEx5Q2a.s:1501   .bss.guidance_h_pos_ref:0000000000000000 guidance_h_pos_ref
-/var/tmp//ccEx5Q2a.s:1617   .bss.guidance_h_pos_sp:0000000000000000 guidance_h_pos_sp
-/var/tmp//ccEx5Q2a.s:1540   .bss.guidance_h_use_ref:0000000000000000 guidance_h_use_ref
-/var/tmp//ccEx5Q2a.s:1487   .bss.guidance_h_mode:0000000000000000 guidance_h_mode
-/var/tmp//ccEx5Q2a.s:1488   .bss.guidance_h_mode:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1490   .bss.guidance_h_rc_sp:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1497   .bss.guidance_h_pos_ref:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1504   .bss.guidance_h_stick_earth_sp:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1510   .bss.guidance_h_speed_ref:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1517   .bss.transition_percentage:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1524   .bss.guidance_h_nav_err:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1530   .bss.guidance_h_again:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1541   .bss.guidance_h_use_ref:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1543   .bss.guidance_h_igain:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1550   .bss.guidance_h_pos_err:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1557   .bss.guidance_h_pos_err_sum:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1564   .bss.guidance_h_accel_ref:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1571   .bss.guidance_h_command_earth:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1578   .bss.guidance_h_speed_err:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1585   .bss.guidance_h_pgain:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1592   .bss.transition_theta_offset:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1599   .bss.guidance_h_dgain:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1606   .bss.guidance_h_command_body:0000000000000000 $d
-/var/tmp//ccEx5Q2a.s:1613   .bss.guidance_h_pos_sp:0000000000000000 $d
+/var/tmp//ccBpPcks.s:19     .text.stateGetPositionNed_i:0000000000000000 $t
+/var/tmp//ccBpPcks.s:23     .text.stateGetPositionNed_i:0000000000000000 stateGetPositionNed_i
+/var/tmp//ccBpPcks.s:50     .text.stateGetPositionNed_i:0000000000000014 $d
+/var/tmp//ccBpPcks.s:56     .text.stateGetSpeedNed_i:0000000000000000 $t
+/var/tmp//ccBpPcks.s:60     .text.stateGetSpeedNed_i:0000000000000000 stateGetSpeedNed_i
+/var/tmp//ccBpPcks.s:86     .text.stateGetSpeedNed_i:0000000000000014 $d
+/var/tmp//ccBpPcks.s:92     .text.reset_guidance_reference_from_current_position:0000000000000000 $t
+/var/tmp//ccBpPcks.s:96     .text.reset_guidance_reference_from_current_position:0000000000000000 reset_guidance_reference_from_current_position
+/var/tmp//ccBpPcks.s:160    .text.reset_guidance_reference_from_current_position:000000000000004c $d
+/var/tmp//ccBpPcks.s:168    .text.guidance_h_update_reference:0000000000000000 $t
+/var/tmp//ccBpPcks.s:172    .text.guidance_h_update_reference:0000000000000000 guidance_h_update_reference
+/var/tmp//ccBpPcks.s:252    .text.guidance_h_update_reference:0000000000000068 $d
+/var/tmp//ccBpPcks.s:264    .text.orientationGetEulers_i.constprop.1:0000000000000000 $t
+/var/tmp//ccBpPcks.s:268    .text.orientationGetEulers_i.constprop.1:0000000000000000 orientationGetEulers_i.constprop.1
+/var/tmp//ccBpPcks.s:297    .text.orientationGetEulers_i.constprop.1:0000000000000018 $d
+/var/tmp//ccBpPcks.s:307    .text.guidance_h_traj_run:0000000000000000 $t
+/var/tmp//ccBpPcks.s:311    .text.guidance_h_traj_run:0000000000000000 guidance_h_traj_run
+/var/tmp//ccBpPcks.s:726    .text.guidance_h_traj_run:0000000000000278 $d
+/var/tmp//ccBpPcks.s:752    .text.guidance_h_traj_run:00000000000002d8 $t
+/var/tmp//ccBpPcks.s:891    .text.guidance_h_traj_run:0000000000000390 $d
+/var/tmp//ccBpPcks.s:900    .text.guidance_h_hover_enter:0000000000000000 $t
+/var/tmp//ccBpPcks.s:904    .text.guidance_h_hover_enter:0000000000000000 guidance_h_hover_enter
+/var/tmp//ccBpPcks.s:943    .text.guidance_h_hover_enter:0000000000000024 $d
+/var/tmp//ccBpPcks.s:949    .text.guidance_h_nav_enter:0000000000000000 $t
+/var/tmp//ccBpPcks.s:953    .text.guidance_h_nav_enter:0000000000000000 guidance_h_nav_enter
+/var/tmp//ccBpPcks.s:991    .text.guidance_h_nav_enter:0000000000000020 $d
+/var/tmp//ccBpPcks.s:998    .text.guidance_h_init:0000000000000000 $t
+/var/tmp//ccBpPcks.s:1003   .text.guidance_h_init:0000000000000000 guidance_h_init
+/var/tmp//ccBpPcks.s:1078   .text.guidance_h_init:0000000000000048 $d
+/var/tmp//ccBpPcks.s:1094   .text.guidance_h_mode_changed:0000000000000000 $t
+/var/tmp//ccBpPcks.s:1099   .text.guidance_h_mode_changed:0000000000000000 guidance_h_mode_changed
+/var/tmp//ccBpPcks.s:1145   .text.guidance_h_mode_changed:0000000000000028 $d
+/var/tmp//ccBpPcks.s:1202   .text.guidance_h_mode_changed:0000000000000064 $d
+/var/tmp//ccBpPcks.s:1209   .text.guidance_h_read_rc:0000000000000000 $t
+/var/tmp//ccBpPcks.s:1214   .text.guidance_h_read_rc:0000000000000000 guidance_h_read_rc
+/var/tmp//ccBpPcks.s:1234   .text.guidance_h_read_rc:0000000000000010 $d
+/var/tmp//ccBpPcks.s:1283   .text.guidance_h_read_rc:0000000000000040 $d
+/var/tmp//ccBpPcks.s:1290   .text.guidance_h_run:0000000000000000 $t
+/var/tmp//ccBpPcks.s:1295   .text.guidance_h_run:0000000000000000 guidance_h_run
+/var/tmp//ccBpPcks.s:1323   .text.guidance_h_run:0000000000000012 $d
+/var/tmp//ccBpPcks.s:1448   .text.guidance_h_run:000000000000009c $d
+/var/tmp//ccBpPcks.s:1594   .bss.transition_theta_offset:0000000000000000 transition_theta_offset
+/var/tmp//ccBpPcks.s:1519   .bss.transition_percentage:0000000000000000 transition_percentage
+/var/tmp//ccBpPcks.s:1532   .bss.guidance_h_again:0000000000000000 guidance_h_again
+/var/tmp//ccBpPcks.s:1545   .bss.guidance_h_igain:0000000000000000 guidance_h_igain
+/var/tmp//ccBpPcks.s:1601   .bss.guidance_h_dgain:0000000000000000 guidance_h_dgain
+/var/tmp//ccBpPcks.s:1587   .bss.guidance_h_pgain:0000000000000000 guidance_h_pgain
+/var/tmp//ccBpPcks.s:1608   .bss.guidance_h_command_body:0000000000000000 guidance_h_command_body
+/var/tmp//ccBpPcks.s:1505   .bss.guidance_h_stick_earth_sp:0000000000000000 guidance_h_stick_earth_sp
+/var/tmp//ccBpPcks.s:1573   .bss.guidance_h_command_earth:0000000000000000 guidance_h_command_earth
+/var/tmp//ccBpPcks.s:1492   .bss.guidance_h_rc_sp:0000000000000000 guidance_h_rc_sp
+/var/tmp//ccBpPcks.s:1525   .bss.guidance_h_nav_err:0000000000000000 guidance_h_nav_err
+/var/tmp//ccBpPcks.s:1559   .bss.guidance_h_pos_err_sum:0000000000000000 guidance_h_pos_err_sum
+/var/tmp//ccBpPcks.s:1580   .bss.guidance_h_speed_err:0000000000000000 guidance_h_speed_err
+/var/tmp//ccBpPcks.s:1552   .bss.guidance_h_pos_err:0000000000000000 guidance_h_pos_err
+/var/tmp//ccBpPcks.s:1566   .bss.guidance_h_accel_ref:0000000000000000 guidance_h_accel_ref
+/var/tmp//ccBpPcks.s:1512   .bss.guidance_h_speed_ref:0000000000000000 guidance_h_speed_ref
+/var/tmp//ccBpPcks.s:1499   .bss.guidance_h_pos_ref:0000000000000000 guidance_h_pos_ref
+/var/tmp//ccBpPcks.s:1615   .bss.guidance_h_pos_sp:0000000000000000 guidance_h_pos_sp
+/var/tmp//ccBpPcks.s:1538   .bss.guidance_h_use_ref:0000000000000000 guidance_h_use_ref
+/var/tmp//ccBpPcks.s:1485   .bss.guidance_h_mode:0000000000000000 guidance_h_mode
+/var/tmp//ccBpPcks.s:1486   .bss.guidance_h_mode:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1488   .bss.guidance_h_rc_sp:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1495   .bss.guidance_h_pos_ref:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1502   .bss.guidance_h_stick_earth_sp:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1508   .bss.guidance_h_speed_ref:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1515   .bss.transition_percentage:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1522   .bss.guidance_h_nav_err:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1528   .bss.guidance_h_again:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1539   .bss.guidance_h_use_ref:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1541   .bss.guidance_h_igain:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1548   .bss.guidance_h_pos_err:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1555   .bss.guidance_h_pos_err_sum:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1562   .bss.guidance_h_accel_ref:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1569   .bss.guidance_h_command_earth:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1576   .bss.guidance_h_speed_err:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1583   .bss.guidance_h_pgain:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1590   .bss.transition_theta_offset:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1597   .bss.guidance_h_dgain:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1604   .bss.guidance_h_command_body:0000000000000000 $d
+/var/tmp//ccBpPcks.s:1611   .bss.guidance_h_pos_sp:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccEx5Q2a.s:899    .text.guidance_h_traj_run:00000000000003a4 $t
-/var/tmp//ccEx5Q2a.s:1154   .text.guidance_h_mode_changed:000000000000002f $d
-/var/tmp//ccEx5Q2a.s:1154   .text.guidance_h_mode_changed:0000000000000030 $t
-/var/tmp//ccEx5Q2a.s:1243   .text.guidance_h_read_rc:0000000000000017 $d
-/var/tmp//ccEx5Q2a.s:1243   .text.guidance_h_read_rc:0000000000000018 $t
-/var/tmp//ccEx5Q2a.s:1332   .text.guidance_h_run:0000000000000019 $d
-/var/tmp//ccEx5Q2a.s:1332   .text.guidance_h_run:000000000000001a $t
+/var/tmp//ccBpPcks.s:899    .text.guidance_h_traj_run:00000000000003a4 $t
+/var/tmp//ccBpPcks.s:1152   .text.guidance_h_mode_changed:000000000000002f $d
+/var/tmp//ccBpPcks.s:1152   .text.guidance_h_mode_changed:0000000000000030 $t
+/var/tmp//ccBpPcks.s:1241   .text.guidance_h_read_rc:0000000000000017 $d
+/var/tmp//ccBpPcks.s:1241   .text.guidance_h_read_rc:0000000000000018 $t
+/var/tmp//ccBpPcks.s:1330   .text.guidance_h_run:0000000000000019 $d
+/var/tmp//ccBpPcks.s:1330   .text.guidance_h_run:000000000000001a $t
 
 UNDEFINED SYMBOLS
 stateCalcPositionNed_i

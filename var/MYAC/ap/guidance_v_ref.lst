@@ -599,21 +599,21 @@
  429              		.file 2 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 guidance_v_ref.c
-/var/tmp//ccVX3SQq.s:19     .text.gv_set_ref:0000000000000000 $t
-/var/tmp//ccVX3SQq.s:24     .text.gv_set_ref:0000000000000000 gv_set_ref
-/var/tmp//ccVX3SQq.s:65     .text.gv_set_ref:0000000000000020 $d
-/var/tmp//ccVX3SQq.s:77     .text.gv_update_ref_from_z_sp:0000000000000000 $t
-/var/tmp//ccVX3SQq.s:82     .text.gv_update_ref_from_z_sp:0000000000000000 gv_update_ref_from_z_sp
-/var/tmp//ccVX3SQq.s:231    .text.gv_update_ref_from_z_sp:00000000000000c0 $d
-/var/tmp//ccVX3SQq.s:247    .text.gv_update_ref_from_zd_sp:0000000000000000 $t
-/var/tmp//ccVX3SQq.s:252    .text.gv_update_ref_from_zd_sp:0000000000000000 gv_update_ref_from_zd_sp
-/var/tmp//ccVX3SQq.s:388    .text.gv_update_ref_from_zd_sp:00000000000000b8 $d
-/var/tmp//ccVX3SQq.s:411    .bss.gv_z_ref:0000000000000000 gv_z_ref
-/var/tmp//ccVX3SQq.s:418    .bss.gv_zd_ref:0000000000000000 gv_zd_ref
-/var/tmp//ccVX3SQq.s:425    .bss.gv_zdd_ref:0000000000000000 gv_zdd_ref
-/var/tmp//ccVX3SQq.s:407    .bss.gv_z_ref:0000000000000000 $d
-/var/tmp//ccVX3SQq.s:414    .bss.gv_zd_ref:0000000000000000 $d
-/var/tmp//ccVX3SQq.s:421    .bss.gv_zdd_ref:0000000000000000 $d
+/var/tmp//ccSfHLiR.s:19     .text.gv_set_ref:0000000000000000 $t
+/var/tmp//ccSfHLiR.s:24     .text.gv_set_ref:0000000000000000 gv_set_ref
+/var/tmp//ccSfHLiR.s:65     .text.gv_set_ref:0000000000000020 $d
+/var/tmp//ccSfHLiR.s:77     .text.gv_update_ref_from_z_sp:0000000000000000 $t
+/var/tmp//ccSfHLiR.s:82     .text.gv_update_ref_from_z_sp:0000000000000000 gv_update_ref_from_z_sp
+/var/tmp//ccSfHLiR.s:231    .text.gv_update_ref_from_z_sp:00000000000000c0 $d
+/var/tmp//ccSfHLiR.s:247    .text.gv_update_ref_from_zd_sp:0000000000000000 $t
+/var/tmp//ccSfHLiR.s:252    .text.gv_update_ref_from_zd_sp:0000000000000000 gv_update_ref_from_zd_sp
+/var/tmp//ccSfHLiR.s:388    .text.gv_update_ref_from_zd_sp:00000000000000b8 $d
+/var/tmp//ccSfHLiR.s:411    .bss.gv_z_ref:0000000000000000 gv_z_ref
+/var/tmp//ccSfHLiR.s:418    .bss.gv_zd_ref:0000000000000000 gv_zd_ref
+/var/tmp//ccSfHLiR.s:425    .bss.gv_zdd_ref:0000000000000000 gv_zdd_ref
+/var/tmp//ccSfHLiR.s:407    .bss.gv_z_ref:0000000000000000 $d
+/var/tmp//ccSfHLiR.s:414    .bss.gv_zd_ref:0000000000000000 $d
+/var/tmp//ccSfHLiR.s:421    .bss.gv_zdd_ref:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

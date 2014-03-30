@@ -656,25 +656,25 @@
  424              		.file 5 "./subsystems/actuators/motor_mixing.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 motor_mixing.c
-/var/tmp//ccFKorsw.s:19     .text.motor_mixing_init:0000000000000000 $t
-/var/tmp//ccFKorsw.s:24     .text.motor_mixing_init:0000000000000000 motor_mixing_init
-/var/tmp//ccFKorsw.s:68     .text.motor_mixing_init:0000000000000024 $d
-/var/tmp//ccFKorsw.s:74     .text.motor_mixing_run_spinup:0000000000000000 $t
-/var/tmp//ccFKorsw.s:79     .text.motor_mixing_run_spinup:0000000000000000 motor_mixing_run_spinup
-/var/tmp//ccFKorsw.s:115    .text.motor_mixing_run_spinup:000000000000001c $d
-/var/tmp//ccFKorsw.s:120    .text.motor_mixing_run:0000000000000000 $t
-/var/tmp//ccFKorsw.s:125    .text.motor_mixing_run:0000000000000000 motor_mixing_run
-/var/tmp//ccFKorsw.s:356    .text.motor_mixing_run:0000000000000114 $d
-/var/tmp//ccFKorsw.s:407    .bss.motor_mixing:0000000000000000 motor_mixing
-/var/tmp//ccFKorsw.s:373    .rodata.yaw_coef:0000000000000000 $d
-/var/tmp//ccFKorsw.s:377    .rodata.yaw_coef:0000000000000000 yaw_coef
-/var/tmp//ccFKorsw.s:383    .rodata.thrust_coef:0000000000000000 $d
-/var/tmp//ccFKorsw.s:387    .rodata.thrust_coef:0000000000000000 thrust_coef
-/var/tmp//ccFKorsw.s:393    .rodata.pitch_coef:0000000000000000 $d
-/var/tmp//ccFKorsw.s:397    .rodata.pitch_coef:0000000000000000 pitch_coef
-/var/tmp//ccFKorsw.s:403    .bss.motor_mixing:0000000000000000 $d
-/var/tmp//ccFKorsw.s:410    .rodata.roll_coef:0000000000000000 $d
-/var/tmp//ccFKorsw.s:414    .rodata.roll_coef:0000000000000000 roll_coef
+/var/tmp//ccOcJy7S.s:19     .text.motor_mixing_init:0000000000000000 $t
+/var/tmp//ccOcJy7S.s:24     .text.motor_mixing_init:0000000000000000 motor_mixing_init
+/var/tmp//ccOcJy7S.s:68     .text.motor_mixing_init:0000000000000024 $d
+/var/tmp//ccOcJy7S.s:74     .text.motor_mixing_run_spinup:0000000000000000 $t
+/var/tmp//ccOcJy7S.s:79     .text.motor_mixing_run_spinup:0000000000000000 motor_mixing_run_spinup
+/var/tmp//ccOcJy7S.s:115    .text.motor_mixing_run_spinup:000000000000001c $d
+/var/tmp//ccOcJy7S.s:120    .text.motor_mixing_run:0000000000000000 $t
+/var/tmp//ccOcJy7S.s:125    .text.motor_mixing_run:0000000000000000 motor_mixing_run
+/var/tmp//ccOcJy7S.s:356    .text.motor_mixing_run:0000000000000114 $d
+/var/tmp//ccOcJy7S.s:407    .bss.motor_mixing:0000000000000000 motor_mixing
+/var/tmp//ccOcJy7S.s:373    .rodata.yaw_coef:0000000000000000 $d
+/var/tmp//ccOcJy7S.s:377    .rodata.yaw_coef:0000000000000000 yaw_coef
+/var/tmp//ccOcJy7S.s:383    .rodata.thrust_coef:0000000000000000 $d
+/var/tmp//ccOcJy7S.s:387    .rodata.thrust_coef:0000000000000000 thrust_coef
+/var/tmp//ccOcJy7S.s:393    .rodata.pitch_coef:0000000000000000 $d
+/var/tmp//ccOcJy7S.s:397    .rodata.pitch_coef:0000000000000000 pitch_coef
+/var/tmp//ccOcJy7S.s:403    .bss.motor_mixing:0000000000000000 $d
+/var/tmp//ccOcJy7S.s:410    .rodata.roll_coef:0000000000000000 $d
+/var/tmp//ccOcJy7S.s:414    .rodata.roll_coef:0000000000000000 roll_coef
                      .debug_frame:0000000000000010 $d
 
 NO UNDEFINED SYMBOLS

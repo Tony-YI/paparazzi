@@ -195,18 +195,18 @@
  126              		.file 4 "./mcu_periph/adc.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 electrical.c
-/var/tmp//ccfvLOdq.s:19     .text.electrical_init:0000000000000000 $t
-/var/tmp//ccfvLOdq.s:24     .text.electrical_init:0000000000000000 electrical_init
-/var/tmp//ccfvLOdq.s:51     .text.electrical_init:0000000000000014 $d
-/var/tmp//ccfvLOdq.s:60     .text.electrical_periodic:0000000000000000 $t
-/var/tmp//ccfvLOdq.s:65     .text.electrical_periodic:0000000000000000 electrical_periodic
-/var/tmp//ccfvLOdq.s:99     .text.electrical_periodic:0000000000000030 $d
-/var/tmp//ccfvLOdq.s:120    .bss.electrical:0000000000000000 electrical
-/var/tmp//ccfvLOdq.s:109    .bss.electrical_priv:0000000000000000 $d
-/var/tmp//ccfvLOdq.s:113    .bss.electrical_priv:0000000000000000 electrical_priv
-/var/tmp//ccfvLOdq.s:116    .bss.electrical:0000000000000000 $d
+/var/tmp//ccbOIS8N.s:19     .text.electrical_init:0000000000000000 $t
+/var/tmp//ccbOIS8N.s:24     .text.electrical_init:0000000000000000 electrical_init
+/var/tmp//ccbOIS8N.s:51     .text.electrical_init:0000000000000014 $d
+/var/tmp//ccbOIS8N.s:60     .text.electrical_periodic:0000000000000000 $t
+/var/tmp//ccbOIS8N.s:65     .text.electrical_periodic:0000000000000000 electrical_periodic
+/var/tmp//ccbOIS8N.s:99     .text.electrical_periodic:0000000000000030 $d
+/var/tmp//ccbOIS8N.s:120    .bss.electrical:0000000000000000 electrical
+/var/tmp//ccbOIS8N.s:109    .bss.electrical_priv:0000000000000000 $d
+/var/tmp//ccbOIS8N.s:113    .bss.electrical_priv:0000000000000000 electrical_priv
+/var/tmp//ccbOIS8N.s:116    .bss.electrical:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccfvLOdq.s:108    .text.electrical_periodic:0000000000000044 $t
+/var/tmp//ccbOIS8N.s:108    .text.electrical_periodic:0000000000000044 $t
 
 UNDEFINED SYMBOLS
 adc_buf_channel

@@ -1326,31 +1326,31 @@
  1046              		.file 5 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 guidance_h_ref.c
-/var/tmp//cc2Hl4t4.s:19     .text.gh_set_ref:0000000000000000 $t
-/var/tmp//cc2Hl4t4.s:24     .text.gh_set_ref:0000000000000000 gh_set_ref
-/var/tmp//cc2Hl4t4.s:95     .text.gh_set_ref:000000000000004c $d
-/var/tmp//cc2Hl4t4.s:108    .text.gh_update_ref_from_pos_sp:0000000000000000 $t
-/var/tmp//cc2Hl4t4.s:113    .text.gh_update_ref_from_pos_sp:0000000000000000 gh_update_ref_from_pos_sp
-/var/tmp//cc2Hl4t4.s:546    .text.gh_update_ref_from_pos_sp:0000000000000260 $d
-/var/tmp//cc2Hl4t4.s:564    .text.gh_update_ref_from_speed_sp:0000000000000000 $t
-/var/tmp//cc2Hl4t4.s:569    .text.gh_update_ref_from_speed_sp:0000000000000000 gh_update_ref_from_speed_sp
-/var/tmp//cc2Hl4t4.s:969    .text.gh_update_ref_from_speed_sp:000000000000021c $d
-/var/tmp//cc2Hl4t4.s:1004   .bss.gh_pos_ref:0000000000000000 gh_pos_ref
-/var/tmp//cc2Hl4t4.s:997    .bss.gh_speed_ref:0000000000000000 gh_speed_ref
-/var/tmp//cc2Hl4t4.s:1032   .bss.gh_accel_ref:0000000000000000 gh_accel_ref
-/var/tmp//cc2Hl4t4.s:986    .bss.s_route_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:990    .bss.s_route_ref:0000000000000000 s_route_ref
-/var/tmp//cc2Hl4t4.s:993    .bss.gh_speed_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1000   .bss.gh_pos_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1007   .bss.gh_max_accel_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1011   .bss.gh_max_accel_ref:0000000000000000 gh_max_accel_ref
-/var/tmp//cc2Hl4t4.s:1014   .bss.c_route_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1018   .bss.c_route_ref:0000000000000000 c_route_ref
-/var/tmp//cc2Hl4t4.s:1021   .bss.route_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1025   .bss.route_ref:0000000000000000 route_ref
-/var/tmp//cc2Hl4t4.s:1028   .bss.gh_accel_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1035   .bss.gh_max_speed_ref:0000000000000000 $d
-/var/tmp//cc2Hl4t4.s:1039   .bss.gh_max_speed_ref:0000000000000000 gh_max_speed_ref
+/var/tmp//ccJ6BsDY.s:19     .text.gh_set_ref:0000000000000000 $t
+/var/tmp//ccJ6BsDY.s:24     .text.gh_set_ref:0000000000000000 gh_set_ref
+/var/tmp//ccJ6BsDY.s:95     .text.gh_set_ref:000000000000004c $d
+/var/tmp//ccJ6BsDY.s:108    .text.gh_update_ref_from_pos_sp:0000000000000000 $t
+/var/tmp//ccJ6BsDY.s:113    .text.gh_update_ref_from_pos_sp:0000000000000000 gh_update_ref_from_pos_sp
+/var/tmp//ccJ6BsDY.s:546    .text.gh_update_ref_from_pos_sp:0000000000000260 $d
+/var/tmp//ccJ6BsDY.s:564    .text.gh_update_ref_from_speed_sp:0000000000000000 $t
+/var/tmp//ccJ6BsDY.s:569    .text.gh_update_ref_from_speed_sp:0000000000000000 gh_update_ref_from_speed_sp
+/var/tmp//ccJ6BsDY.s:969    .text.gh_update_ref_from_speed_sp:000000000000021c $d
+/var/tmp//ccJ6BsDY.s:1004   .bss.gh_pos_ref:0000000000000000 gh_pos_ref
+/var/tmp//ccJ6BsDY.s:997    .bss.gh_speed_ref:0000000000000000 gh_speed_ref
+/var/tmp//ccJ6BsDY.s:1032   .bss.gh_accel_ref:0000000000000000 gh_accel_ref
+/var/tmp//ccJ6BsDY.s:986    .bss.s_route_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:990    .bss.s_route_ref:0000000000000000 s_route_ref
+/var/tmp//ccJ6BsDY.s:993    .bss.gh_speed_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1000   .bss.gh_pos_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1007   .bss.gh_max_accel_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1011   .bss.gh_max_accel_ref:0000000000000000 gh_max_accel_ref
+/var/tmp//ccJ6BsDY.s:1014   .bss.c_route_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1018   .bss.c_route_ref:0000000000000000 c_route_ref
+/var/tmp//ccJ6BsDY.s:1021   .bss.route_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1025   .bss.route_ref:0000000000000000 route_ref
+/var/tmp//ccJ6BsDY.s:1028   .bss.gh_accel_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1035   .bss.gh_max_speed_ref:0000000000000000 $d
+/var/tmp//ccJ6BsDY.s:1039   .bss.gh_max_speed_ref:0000000000000000 gh_max_speed_ref
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

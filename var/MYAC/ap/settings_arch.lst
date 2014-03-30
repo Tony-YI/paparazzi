@@ -889,16 +889,16 @@
  562              		.file 20 "../ext/libopencm3/include/libopencm3/stm32/f1/flash.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 settings_arch.c
-/var/tmp//ccSdlcNw.s:19     .text.pflash_checksum:0000000000000000 $t
-/var/tmp//ccSdlcNw.s:23     .text.pflash_checksum:0000000000000000 pflash_checksum
-/var/tmp//ccSdlcNw.s:152    .text.pflash_checksum:000000000000008c $d
-/var/tmp//ccSdlcNw.s:158    .text.flash_detect:0000000000000000 $t
-/var/tmp//ccSdlcNw.s:162    .text.flash_detect:0000000000000000 flash_detect
-/var/tmp//ccSdlcNw.s:234    .text.flash_detect:000000000000006c $d
-/var/tmp//ccSdlcNw.s:239    .text.persistent_write:0000000000000000 $t
-/var/tmp//ccSdlcNw.s:244    .text.persistent_write:0000000000000000 persistent_write
-/var/tmp//ccSdlcNw.s:446    .text.persistent_read:0000000000000000 $t
-/var/tmp//ccSdlcNw.s:451    .text.persistent_read:0000000000000000 persistent_read
+/var/tmp//cccltqAa.s:19     .text.pflash_checksum:0000000000000000 $t
+/var/tmp//cccltqAa.s:23     .text.pflash_checksum:0000000000000000 pflash_checksum
+/var/tmp//cccltqAa.s:152    .text.pflash_checksum:000000000000008c $d
+/var/tmp//cccltqAa.s:158    .text.flash_detect:0000000000000000 $t
+/var/tmp//cccltqAa.s:162    .text.flash_detect:0000000000000000 flash_detect
+/var/tmp//cccltqAa.s:234    .text.flash_detect:000000000000006c $d
+/var/tmp//cccltqAa.s:239    .text.persistent_write:0000000000000000 $t
+/var/tmp//cccltqAa.s:244    .text.persistent_write:0000000000000000 persistent_write
+/var/tmp//cccltqAa.s:446    .text.persistent_read:0000000000000000 $t
+/var/tmp//cccltqAa.s:451    .text.persistent_read:0000000000000000 persistent_read
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

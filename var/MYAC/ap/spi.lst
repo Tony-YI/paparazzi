@@ -176,13 +176,13 @@
   93              		.file 3 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 spi.c
-/var/tmp//cc4AFIci.s:19     .text.spi_init:0000000000000000 $t
-/var/tmp//cc4AFIci.s:24     .text.spi_init:0000000000000000 spi_init
-/var/tmp//cc4AFIci.s:50     .text.spi2_init:0000000000000000 $t
-/var/tmp//cc4AFIci.s:55     .text.spi2_init:0000000000000000 spi2_init
-/var/tmp//cc4AFIci.s:78     .text.spi2_init:0000000000000010 $d
-/var/tmp//cc4AFIci.s:88     .bss.spi2:0000000000000000 spi2
-/var/tmp//cc4AFIci.s:84     .bss.spi2:0000000000000000 $d
+/var/tmp//cc4QghPG.s:19     .text.spi_init:0000000000000000 $t
+/var/tmp//cc4QghPG.s:24     .text.spi_init:0000000000000000 spi_init
+/var/tmp//cc4QghPG.s:50     .text.spi2_init:0000000000000000 $t
+/var/tmp//cc4QghPG.s:55     .text.spi2_init:0000000000000000 spi2_init
+/var/tmp//cc4QghPG.s:78     .text.spi2_init:0000000000000010 $d
+/var/tmp//cc4QghPG.s:88     .bss.spi2:0000000000000000 spi2
+/var/tmp//cc4QghPG.s:84     .bss.spi2:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

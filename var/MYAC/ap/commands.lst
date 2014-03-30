@@ -34,9 +34,9 @@
   36              		.file 3 "subsystems/commands.c"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 commands.c
-/var/tmp//ccYXVCOw.s:30     .rodata.commands_failsafe:0000000000000000 commands_failsafe
-/var/tmp//ccYXVCOw.s:24     .bss.commands:0000000000000000 commands
-/var/tmp//ccYXVCOw.s:21     .bss.commands:0000000000000000 $d
-/var/tmp//ccYXVCOw.s:27     .rodata.commands_failsafe:0000000000000000 $d
+/var/tmp//ccwebC4s.s:30     .rodata.commands_failsafe:0000000000000000 commands_failsafe
+/var/tmp//ccwebC4s.s:24     .bss.commands:0000000000000000 commands
+/var/tmp//ccwebC4s.s:21     .bss.commands:0000000000000000 $d
+/var/tmp//ccwebC4s.s:27     .rodata.commands_failsafe:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS

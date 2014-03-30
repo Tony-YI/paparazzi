@@ -379,16 +379,16 @@
  161              		.file 8 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 gps.c
-/var/tmp//ccFP24TH.s:19     .text.gps_init:0000000000000000 $t
-/var/tmp//ccFP24TH.s:24     .text.gps_init:0000000000000000 gps_init
-/var/tmp//ccFP24TH.s:57     .text.gps_init:000000000000001c $d
-/var/tmp//ccFP24TH.s:63     .text.gps_tow_from_sys_ticks:0000000000000000 $t
-/var/tmp//ccFP24TH.s:68     .text.gps_tow_from_sys_ticks:0000000000000000 gps_tow_from_sys_ticks
-/var/tmp//ccFP24TH.s:132    .text.gps_tow_from_sys_ticks:0000000000000038 $d
-/var/tmp//ccFP24TH.s:145    .bss.gps_time_sync:0000000000000000 gps_time_sync
-/var/tmp//ccFP24TH.s:152    .bss.gps:0000000000000000 gps
-/var/tmp//ccFP24TH.s:141    .bss.gps_time_sync:0000000000000000 $d
-/var/tmp//ccFP24TH.s:148    .bss.gps:0000000000000000 $d
+/var/tmp//ccObhdYX.s:19     .text.gps_init:0000000000000000 $t
+/var/tmp//ccObhdYX.s:24     .text.gps_init:0000000000000000 gps_init
+/var/tmp//ccObhdYX.s:57     .text.gps_init:000000000000001c $d
+/var/tmp//ccObhdYX.s:63     .text.gps_tow_from_sys_ticks:0000000000000000 $t
+/var/tmp//ccObhdYX.s:68     .text.gps_tow_from_sys_ticks:0000000000000000 gps_tow_from_sys_ticks
+/var/tmp//ccObhdYX.s:132    .text.gps_tow_from_sys_ticks:0000000000000038 $d
+/var/tmp//ccObhdYX.s:145    .bss.gps_time_sync:0000000000000000 gps_time_sync
+/var/tmp//ccObhdYX.s:152    .bss.gps:0000000000000000 gps
+/var/tmp//ccObhdYX.s:141    .bss.gps_time_sync:0000000000000000 $d
+/var/tmp//ccObhdYX.s:148    .bss.gps:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

@@ -1731,10 +1731,10 @@
   95:firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.c ****     if (YAW_DEADBAND_EXCEEDED()) {
  393              		.loc 3 95 0
  394 002c 9889     		ldrh	r0, [r3, #12]
- 395 002e 00F19602 		add	r2, r0, #150
+ 395 002e 00F5FA72 		add	r2, r0, #500
  396 0032 91B2     		uxth	r1, r2
  397              	.LVL40:
- 398 0034 B1F5967F 		cmp	r1, #300
+ 398 0034 B1F57A7F 		cmp	r1, #1000
  399 0038 04D8     		bhi	.L45
  400              	.L52:
   96:firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.c ****       sp->psi += (int32_t) ((radio_control.values[RADIO_YAW] * max_rc_r) /  MAX_PPRZ / RC_UPDATE_FR
@@ -1751,7 +1751,7 @@
   96:firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.c ****       sp->psi += (int32_t) ((radio_control.values[RADIO_YAW] * max_rc_r) /  MAX_PPRZ / RC_UPDATE_FR
  408              		.loc 3 96 0
  409 0044 03B2     		sxth	r3, r0
- 410 0046 41F62110 		movw	r0, #6433
+ 410 0046 4FF44960 		mov	r0, #3216
  411 004a 4343     		muls	r3, r0, r3
  412 004c 6A4A     		ldr	r2, .L80+24
  413 004e 93FBF2F1 		sdiv	r1, r3, r2
@@ -2196,9 +2196,9 @@
  161:firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.c ****     if (YAW_DEADBAND_EXCEEDED()) {
  781              		.loc 3 161 0
  782 0054 B4F80C90 		ldrh	r9, [r4, #12]
- 783 0058 09F19600 		add	r0, r9, #150
+ 783 0058 09F5FA70 		add	r0, r9, #500
  784 005c 81B2     		uxth	r1, r0
- 785 005e B1F5967F 		cmp	r1, #300
+ 785 005e B1F57A7F 		cmp	r1, #1000
  786 0062 04D8     		bhi	.L84
  787              	.L91:
  162:firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.c ****       sp->psi += (radio_control.values[RADIO_YAW] * STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC
@@ -2535,7 +2535,7 @@
  1059 0228 A038DB37 		.word	937113760
  1060 022c 52C1E03F 		.word	1071694162
  1061 0230 F1D4C853 		.word	1405670641
- 1062 0234 FB21F93F 		.word	1073291771
+ 1062 0234 FB21E93F 		.word	1072243195
  1063 0238 182D4454 		.word	1413754136
  1064 023c FB210940 		.word	1074340347
  1065 0240 182D4454 		.word	1413754136
@@ -4175,44 +4175,44 @@
  2553              		.file 17 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization_attitude_rc_setpoint.c
-/var/tmp//ccsy29XX.s:19     .text.stateGetNedToBodyEulers_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:23     .text.stateGetNedToBodyEulers_f:0000000000000000 stateGetNedToBodyEulers_f
-/var/tmp//ccsy29XX.s:57     .text.stateGetNedToBodyEulers_f:0000000000000018 $d
-/var/tmp//ccsy29XX.s:63     .text.stabilization_attitude_reset_care_free_heading:0000000000000000 $t
-/var/tmp//ccsy29XX.s:68     .text.stabilization_attitude_reset_care_free_heading:0000000000000000 stabilization_attitude_reset_care_free_heading
-/var/tmp//ccsy29XX.s:90     .text.stabilization_attitude_reset_care_free_heading:0000000000000010 $d
-/var/tmp//ccsy29XX.s:98     .text.stabilization_attitude_get_heading_i:0000000000000000 $t
-/var/tmp//ccsy29XX.s:103    .text.stabilization_attitude_get_heading_i:0000000000000000 stabilization_attitude_get_heading_i
-/var/tmp//ccsy29XX.s:248    .text.stabilization_attitude_get_heading_i:00000000000000b8 $d
-/var/tmp//ccsy29XX.s:260    .text.stabilization_attitude_get_heading_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:265    .text.stabilization_attitude_get_heading_f:0000000000000000 stabilization_attitude_get_heading_f
-/var/tmp//ccsy29XX.s:337    .text.stabilization_attitude_get_heading_f:0000000000000058 $d
-/var/tmp//ccsy29XX.s:346    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000000 $t
-/var/tmp//ccsy29XX.s:351    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000000 stabilization_attitude_read_rc_setpoint_eulers
-/var/tmp//ccsy29XX.s:691    .text.stabilization_attitude_read_rc_setpoint_eulers:00000000000001e0 $d
-/var/tmp//ccsy29XX.s:715    .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:720    .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000000 stabilization_attitude_read_rc_setpoint_eulers_f
-/var/tmp//ccsy29XX.s:1059   .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000228 $d
-/var/tmp//ccsy29XX.s:1085   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:1090   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:0000000000000000 stabilization_attitude_read_rc_roll_pitch_quat_f
-/var/tmp//ccsy29XX.s:1216   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:00000000000000c0 $d
-/var/tmp//ccsy29XX.s:1226   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:1231   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:0000000000000000 stabilization_attitude_read_rc_roll_pitch_earth_quat_f
-/var/tmp//ccsy29XX.s:1374   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:00000000000000c8 $d
-/var/tmp//ccsy29XX.s:1384   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:1389   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000000 stabilization_attitude_read_rc_setpoint_quat_f
-/var/tmp//ccsy29XX.s:1447   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000038 $d
-/var/tmp//ccsy29XX.s:1455   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000044 $t
-/var/tmp//ccsy29XX.s:2001   .text.stabilization_attitude_read_rc_setpoint_quat_f:000000000000040c $d
-/var/tmp//ccsy29XX.s:2006   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000410 $t
-/var/tmp//ccsy29XX.s:2088   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000000 $t
-/var/tmp//ccsy29XX.s:2093   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000000 stabilization_attitude_read_rc_setpoint_quat_earth_bound_f
-/var/tmp//ccsy29XX.s:2284   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000134 $d
-/var/tmp//ccsy29XX.s:2291   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000138 $t
-/var/tmp//ccsy29XX.s:2536   .bss.care_free_heading:0000000000000000 care_free_heading
-/var/tmp//ccsy29XX.s:2532   .bss.care_free_heading:0000000000000000 $d
+/var/tmp//ccdEkcXK.s:19     .text.stateGetNedToBodyEulers_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:23     .text.stateGetNedToBodyEulers_f:0000000000000000 stateGetNedToBodyEulers_f
+/var/tmp//ccdEkcXK.s:57     .text.stateGetNedToBodyEulers_f:0000000000000018 $d
+/var/tmp//ccdEkcXK.s:63     .text.stabilization_attitude_reset_care_free_heading:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:68     .text.stabilization_attitude_reset_care_free_heading:0000000000000000 stabilization_attitude_reset_care_free_heading
+/var/tmp//ccdEkcXK.s:90     .text.stabilization_attitude_reset_care_free_heading:0000000000000010 $d
+/var/tmp//ccdEkcXK.s:98     .text.stabilization_attitude_get_heading_i:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:103    .text.stabilization_attitude_get_heading_i:0000000000000000 stabilization_attitude_get_heading_i
+/var/tmp//ccdEkcXK.s:248    .text.stabilization_attitude_get_heading_i:00000000000000b8 $d
+/var/tmp//ccdEkcXK.s:260    .text.stabilization_attitude_get_heading_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:265    .text.stabilization_attitude_get_heading_f:0000000000000000 stabilization_attitude_get_heading_f
+/var/tmp//ccdEkcXK.s:337    .text.stabilization_attitude_get_heading_f:0000000000000058 $d
+/var/tmp//ccdEkcXK.s:346    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:351    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000000 stabilization_attitude_read_rc_setpoint_eulers
+/var/tmp//ccdEkcXK.s:691    .text.stabilization_attitude_read_rc_setpoint_eulers:00000000000001e0 $d
+/var/tmp//ccdEkcXK.s:715    .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:720    .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000000 stabilization_attitude_read_rc_setpoint_eulers_f
+/var/tmp//ccdEkcXK.s:1059   .text.stabilization_attitude_read_rc_setpoint_eulers_f:0000000000000228 $d
+/var/tmp//ccdEkcXK.s:1085   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:1090   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:0000000000000000 stabilization_attitude_read_rc_roll_pitch_quat_f
+/var/tmp//ccdEkcXK.s:1216   .text.stabilization_attitude_read_rc_roll_pitch_quat_f:00000000000000c0 $d
+/var/tmp//ccdEkcXK.s:1226   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:1231   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:0000000000000000 stabilization_attitude_read_rc_roll_pitch_earth_quat_f
+/var/tmp//ccdEkcXK.s:1374   .text.stabilization_attitude_read_rc_roll_pitch_earth_quat_f:00000000000000c8 $d
+/var/tmp//ccdEkcXK.s:1384   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:1389   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000000 stabilization_attitude_read_rc_setpoint_quat_f
+/var/tmp//ccdEkcXK.s:1447   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000038 $d
+/var/tmp//ccdEkcXK.s:1455   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000044 $t
+/var/tmp//ccdEkcXK.s:2001   .text.stabilization_attitude_read_rc_setpoint_quat_f:000000000000040c $d
+/var/tmp//ccdEkcXK.s:2006   .text.stabilization_attitude_read_rc_setpoint_quat_f:0000000000000410 $t
+/var/tmp//ccdEkcXK.s:2088   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000000 $t
+/var/tmp//ccdEkcXK.s:2093   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000000 stabilization_attitude_read_rc_setpoint_quat_earth_bound_f
+/var/tmp//ccdEkcXK.s:2284   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000134 $d
+/var/tmp//ccdEkcXK.s:2291   .text.stabilization_attitude_read_rc_setpoint_quat_earth_bound_f:0000000000000138 $t
+/var/tmp//ccdEkcXK.s:2536   .bss.care_free_heading:0000000000000000 care_free_heading
+/var/tmp//ccdEkcXK.s:2532   .bss.care_free_heading:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccsy29XX.s:714    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000214 $t
+/var/tmp//ccdEkcXK.s:714    .text.stabilization_attitude_read_rc_setpoint_eulers:0000000000000214 $t
 
 UNDEFINED SYMBOLS
 orientationCalcEulers_f

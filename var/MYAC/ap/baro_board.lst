@@ -1011,35 +1011,35 @@
  750              		.file 9 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 baro_board.c
-/var/tmp//ccSjNKAU.s:19     .text.bmp085_read_reg16_blocking.constprop.2:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:23     .text.bmp085_read_reg16_blocking.constprop.2:0000000000000000 bmp085_read_reg16_blocking.constprop.2
-/var/tmp//ccSjNKAU.s:88     .text.bmp085_read_reg16_blocking.constprop.2:000000000000003c $d
-/var/tmp//ccSjNKAU.s:94     .text.bmp085_write_reg.constprop.3:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:98     .text.bmp085_write_reg.constprop.3:0000000000000000 bmp085_write_reg.constprop.3
-/var/tmp//ccSjNKAU.s:140    .text.bmp085_write_reg.constprop.3:0000000000000028 $d
-/var/tmp//ccSjNKAU.s:146    .text.baro_init:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:151    .text.baro_init:0000000000000000 baro_init
-/var/tmp//ccSjNKAU.s:262    .text.baro_init:0000000000000084 $d
-/var/tmp//ccSjNKAU.s:270    .text.baro_periodic:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:275    .text.baro_periodic:0000000000000000 baro_periodic
-/var/tmp//ccSjNKAU.s:312    .text.baro_periodic:000000000000002a $d
-/var/tmp//ccSjNKAU.s:439    .text.baro_periodic:000000000000009c $d
-/var/tmp//ccSjNKAU.s:448    .text.baro_board_send_reset:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:453    .text.baro_board_send_reset:0000000000000000 baro_board_send_reset
-/var/tmp//ccSjNKAU.s:465    .text.baro_event:0000000000000000 $t
-/var/tmp//ccSjNKAU.s:470    .text.baro_event:0000000000000000 baro_event
-/var/tmp//ccSjNKAU.s:701    .text.baro_event:0000000000000124 $d
-/var/tmp//ccSjNKAU.s:733    .bss.calibration:0000000000000000 calibration
-/var/tmp//ccSjNKAU.s:726    .bss.baro_trans:0000000000000000 baro_trans
-/var/tmp//ccSjNKAU.s:739    .bss.baro_board:0000000000000000 baro_board
-/var/tmp//ccSjNKAU.s:719    .bss.baro:0000000000000000 baro
-/var/tmp//ccSjNKAU.s:715    .bss.baro:0000000000000000 $d
-/var/tmp//ccSjNKAU.s:722    .bss.baro_trans:0000000000000000 $d
-/var/tmp//ccSjNKAU.s:729    .bss.calibration:0000000000000000 $d
-/var/tmp//ccSjNKAU.s:740    .bss.baro_board:0000000000000000 $d
+/var/tmp//ccjDzo2h.s:19     .text.bmp085_read_reg16_blocking.constprop.2:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:23     .text.bmp085_read_reg16_blocking.constprop.2:0000000000000000 bmp085_read_reg16_blocking.constprop.2
+/var/tmp//ccjDzo2h.s:88     .text.bmp085_read_reg16_blocking.constprop.2:000000000000003c $d
+/var/tmp//ccjDzo2h.s:94     .text.bmp085_write_reg.constprop.3:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:98     .text.bmp085_write_reg.constprop.3:0000000000000000 bmp085_write_reg.constprop.3
+/var/tmp//ccjDzo2h.s:140    .text.bmp085_write_reg.constprop.3:0000000000000028 $d
+/var/tmp//ccjDzo2h.s:146    .text.baro_init:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:151    .text.baro_init:0000000000000000 baro_init
+/var/tmp//ccjDzo2h.s:262    .text.baro_init:0000000000000084 $d
+/var/tmp//ccjDzo2h.s:270    .text.baro_periodic:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:275    .text.baro_periodic:0000000000000000 baro_periodic
+/var/tmp//ccjDzo2h.s:312    .text.baro_periodic:000000000000002a $d
+/var/tmp//ccjDzo2h.s:439    .text.baro_periodic:000000000000009c $d
+/var/tmp//ccjDzo2h.s:448    .text.baro_board_send_reset:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:453    .text.baro_board_send_reset:0000000000000000 baro_board_send_reset
+/var/tmp//ccjDzo2h.s:465    .text.baro_event:0000000000000000 $t
+/var/tmp//ccjDzo2h.s:470    .text.baro_event:0000000000000000 baro_event
+/var/tmp//ccjDzo2h.s:701    .text.baro_event:0000000000000124 $d
+/var/tmp//ccjDzo2h.s:733    .bss.calibration:0000000000000000 calibration
+/var/tmp//ccjDzo2h.s:726    .bss.baro_trans:0000000000000000 baro_trans
+/var/tmp//ccjDzo2h.s:739    .bss.baro_board:0000000000000000 baro_board
+/var/tmp//ccjDzo2h.s:719    .bss.baro:0000000000000000 baro
+/var/tmp//ccjDzo2h.s:715    .bss.baro:0000000000000000 $d
+/var/tmp//ccjDzo2h.s:722    .bss.baro_trans:0000000000000000 $d
+/var/tmp//ccjDzo2h.s:729    .bss.calibration:0000000000000000 $d
+/var/tmp//ccjDzo2h.s:740    .bss.baro_board:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccSjNKAU.s:319    .text.baro_periodic:0000000000000031 $d
-/var/tmp//ccSjNKAU.s:319    .text.baro_periodic:0000000000000032 $t
+/var/tmp//ccjDzo2h.s:319    .text.baro_periodic:0000000000000031 $d
+/var/tmp//ccjDzo2h.s:319    .text.baro_periodic:0000000000000032 $t
 
 UNDEFINED SYMBOLS
 i2c_transceive

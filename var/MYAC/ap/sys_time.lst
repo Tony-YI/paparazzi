@@ -562,20 +562,20 @@
  330              		.file 4 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 sys_time.c
-/var/tmp//ccJefZTa.s:24     .text.sys_time_register_timer:0000000000000000 $t
-/var/tmp//ccJefZTa.s:29     .text.sys_time_register_timer:0000000000000000 sys_time_register_timer
-/var/tmp//ccJefZTa.s:122    .text.sys_time_register_timer:0000000000000054 $d
-/var/tmp//ccJefZTa.s:128    .text.sys_time_cancel_timer:0000000000000000 $t
-/var/tmp//ccJefZTa.s:133    .text.sys_time_cancel_timer:0000000000000000 sys_time_cancel_timer
-/var/tmp//ccJefZTa.s:160    .text.sys_time_cancel_timer:0000000000000018 $d
-/var/tmp//ccJefZTa.s:165    .text.sys_time_update_timer:0000000000000000 $t
-/var/tmp//ccJefZTa.s:170    .text.sys_time_update_timer:0000000000000000 sys_time_update_timer
-/var/tmp//ccJefZTa.s:238    .text.sys_time_update_timer:000000000000003c $d
-/var/tmp//ccJefZTa.s:244    .text.sys_time_init:0000000000000000 $t
-/var/tmp//ccJefZTa.s:249    .text.sys_time_init:0000000000000000 sys_time_init
-/var/tmp//ccJefZTa.s:315    .text.sys_time_init:0000000000000040 $d
-/var/tmp//ccJefZTa.s:325    .bss.sys_time:0000000000000000 sys_time
-/var/tmp//ccJefZTa.s:321    .bss.sys_time:0000000000000000 $d
+/var/tmp//ccjE5vla.s:24     .text.sys_time_register_timer:0000000000000000 $t
+/var/tmp//ccjE5vla.s:29     .text.sys_time_register_timer:0000000000000000 sys_time_register_timer
+/var/tmp//ccjE5vla.s:122    .text.sys_time_register_timer:0000000000000054 $d
+/var/tmp//ccjE5vla.s:128    .text.sys_time_cancel_timer:0000000000000000 $t
+/var/tmp//ccjE5vla.s:133    .text.sys_time_cancel_timer:0000000000000000 sys_time_cancel_timer
+/var/tmp//ccjE5vla.s:160    .text.sys_time_cancel_timer:0000000000000018 $d
+/var/tmp//ccjE5vla.s:165    .text.sys_time_update_timer:0000000000000000 $t
+/var/tmp//ccjE5vla.s:170    .text.sys_time_update_timer:0000000000000000 sys_time_update_timer
+/var/tmp//ccjE5vla.s:238    .text.sys_time_update_timer:000000000000003c $d
+/var/tmp//ccjE5vla.s:244    .text.sys_time_init:0000000000000000 $t
+/var/tmp//ccjE5vla.s:249    .text.sys_time_init:0000000000000000 sys_time_init
+/var/tmp//ccjE5vla.s:315    .text.sys_time_init:0000000000000040 $d
+/var/tmp//ccjE5vla.s:325    .bss.sys_time:0000000000000000 sys_time
+/var/tmp//ccjE5vla.s:321    .bss.sys_time:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

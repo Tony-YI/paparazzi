@@ -25,7 +25,7 @@
   27              		.file 2 "/Users/tony-yi/git/paparazzi_local/var/MYAC/generated/periodic_telemetry.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 telemetry.c
-/var/tmp//ccpCOKdy.s:22     .bss.telemetry_mode_Main:0000000000000000 telemetry_mode_Main
-/var/tmp//ccpCOKdy.s:23     .bss.telemetry_mode_Main:0000000000000000 $d
+/var/tmp//cc0hrhs1.s:22     .bss.telemetry_mode_Main:0000000000000000 telemetry_mode_Main
+/var/tmp//cc0hrhs1.s:23     .bss.telemetry_mode_Main:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS

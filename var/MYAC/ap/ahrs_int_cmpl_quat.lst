@@ -5677,40 +5677,40 @@
  3363              		.file 25 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ahrs_int_cmpl_quat.c
-/var/tmp//cc6nCPx7.s:19     .text.stateGetBodyRates_i:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:23     .text.stateGetBodyRates_i:0000000000000000 stateGetBodyRates_i
-/var/tmp//cc6nCPx7.s:50     .text.stateGetBodyRates_i:0000000000000014 $d
-/var/tmp//cc6nCPx7.s:56     .text.ahrs_init:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:61     .text.ahrs_init:0000000000000000 ahrs_init
-/var/tmp//cc6nCPx7.s:125    .text.ahrs_init:0000000000000068 $d
-/var/tmp//cc6nCPx7.s:148    .text.ahrs_align:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:153    .text.ahrs_align:0000000000000000 ahrs_align
-/var/tmp//cc6nCPx7.s:429    .text.ahrs_align:0000000000000184 $d
-/var/tmp//cc6nCPx7.s:437    .text.ahrs_align:0000000000000194 $t
-/var/tmp//cc6nCPx7.s:875    .text.ahrs_align:0000000000000448 $d
-/var/tmp//cc6nCPx7.s:888    .text.ahrs_align:000000000000046c $t
-/var/tmp//cc6nCPx7.s:1351   .text.ahrs_align:000000000000073c $d
-/var/tmp//cc6nCPx7.s:1360   .text.ahrs_propagate:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:1365   .text.ahrs_propagate:0000000000000000 ahrs_propagate
-/var/tmp//cc6nCPx7.s:1814   .text.ahrs_propagate:0000000000000224 $d
-/var/tmp//cc6nCPx7.s:1823   .text.ahrs_update_accel:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:1828   .text.ahrs_update_accel:0000000000000000 ahrs_update_accel
-/var/tmp//cc6nCPx7.s:2196   .text.ahrs_update_accel:0000000000000230 $d
-/var/tmp//cc6nCPx7.s:2208   .text.ahrs_update_mag:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:2213   .text.ahrs_update_mag:0000000000000000 ahrs_update_mag
-/var/tmp//cc6nCPx7.s:2454   .text.ahrs_update_mag:0000000000000134 $d
-/var/tmp//cc6nCPx7.s:2460   .text.ahrs_update_gps:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:2465   .text.ahrs_update_gps:0000000000000000 ahrs_update_gps
-/var/tmp//cc6nCPx7.s:2477   .text.ahrs_update_heading:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:2482   .text.ahrs_update_heading:0000000000000000 ahrs_update_heading
-/var/tmp//cc6nCPx7.s:2800   .text.ahrs_update_heading:0000000000000188 $d
-/var/tmp//cc6nCPx7.s:2808   .text.ahrs_realign_heading:0000000000000000 $t
-/var/tmp//cc6nCPx7.s:2813   .text.ahrs_realign_heading:0000000000000000 ahrs_realign_heading
-/var/tmp//cc6nCPx7.s:3319   .text.ahrs_realign_heading:000000000000027c $d
-/var/tmp//cc6nCPx7.s:3333   .bss.ahrs_impl:0000000000000000 ahrs_impl
-/var/tmp//cc6nCPx7.s:3329   .bss.ahrs_impl:0000000000000000 $d
-/var/tmp//cc6nCPx7.s:3336   .bss.filtered_gravity_measurement.6888:0000000000000000 $d
-/var/tmp//cc6nCPx7.s:3340   .bss.filtered_gravity_measurement.6888:0000000000000000 filtered_gravity_measurement.6888
+/var/tmp//ccZra2qn.s:19     .text.stateGetBodyRates_i:0000000000000000 $t
+/var/tmp//ccZra2qn.s:23     .text.stateGetBodyRates_i:0000000000000000 stateGetBodyRates_i
+/var/tmp//ccZra2qn.s:50     .text.stateGetBodyRates_i:0000000000000014 $d
+/var/tmp//ccZra2qn.s:56     .text.ahrs_init:0000000000000000 $t
+/var/tmp//ccZra2qn.s:61     .text.ahrs_init:0000000000000000 ahrs_init
+/var/tmp//ccZra2qn.s:125    .text.ahrs_init:0000000000000068 $d
+/var/tmp//ccZra2qn.s:148    .text.ahrs_align:0000000000000000 $t
+/var/tmp//ccZra2qn.s:153    .text.ahrs_align:0000000000000000 ahrs_align
+/var/tmp//ccZra2qn.s:429    .text.ahrs_align:0000000000000184 $d
+/var/tmp//ccZra2qn.s:437    .text.ahrs_align:0000000000000194 $t
+/var/tmp//ccZra2qn.s:875    .text.ahrs_align:0000000000000448 $d
+/var/tmp//ccZra2qn.s:888    .text.ahrs_align:000000000000046c $t
+/var/tmp//ccZra2qn.s:1351   .text.ahrs_align:000000000000073c $d
+/var/tmp//ccZra2qn.s:1360   .text.ahrs_propagate:0000000000000000 $t
+/var/tmp//ccZra2qn.s:1365   .text.ahrs_propagate:0000000000000000 ahrs_propagate
+/var/tmp//ccZra2qn.s:1814   .text.ahrs_propagate:0000000000000224 $d
+/var/tmp//ccZra2qn.s:1823   .text.ahrs_update_accel:0000000000000000 $t
+/var/tmp//ccZra2qn.s:1828   .text.ahrs_update_accel:0000000000000000 ahrs_update_accel
+/var/tmp//ccZra2qn.s:2196   .text.ahrs_update_accel:0000000000000230 $d
+/var/tmp//ccZra2qn.s:2208   .text.ahrs_update_mag:0000000000000000 $t
+/var/tmp//ccZra2qn.s:2213   .text.ahrs_update_mag:0000000000000000 ahrs_update_mag
+/var/tmp//ccZra2qn.s:2454   .text.ahrs_update_mag:0000000000000134 $d
+/var/tmp//ccZra2qn.s:2460   .text.ahrs_update_gps:0000000000000000 $t
+/var/tmp//ccZra2qn.s:2465   .text.ahrs_update_gps:0000000000000000 ahrs_update_gps
+/var/tmp//ccZra2qn.s:2477   .text.ahrs_update_heading:0000000000000000 $t
+/var/tmp//ccZra2qn.s:2482   .text.ahrs_update_heading:0000000000000000 ahrs_update_heading
+/var/tmp//ccZra2qn.s:2800   .text.ahrs_update_heading:0000000000000188 $d
+/var/tmp//ccZra2qn.s:2808   .text.ahrs_realign_heading:0000000000000000 $t
+/var/tmp//ccZra2qn.s:2813   .text.ahrs_realign_heading:0000000000000000 ahrs_realign_heading
+/var/tmp//ccZra2qn.s:3319   .text.ahrs_realign_heading:000000000000027c $d
+/var/tmp//ccZra2qn.s:3333   .bss.ahrs_impl:0000000000000000 ahrs_impl
+/var/tmp//ccZra2qn.s:3329   .bss.ahrs_impl:0000000000000000 $d
+/var/tmp//ccZra2qn.s:3336   .bss.filtered_gravity_measurement.6888:0000000000000000 $d
+/var/tmp//ccZra2qn.s:3340   .bss.filtered_gravity_measurement.6888:0000000000000000 filtered_gravity_measurement.6888
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

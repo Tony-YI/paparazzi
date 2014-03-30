@@ -513,20 +513,20 @@
  346              		.file 13 "../ext/libopencm3/include/libopencm3/cm3/nvic.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ppm_arch.c
-/var/tmp//ccCUM4U9.s:19     .text.ppm_arch_init:0000000000000000 $t
-/var/tmp//ccCUM4U9.s:24     .text.ppm_arch_init:0000000000000000 ppm_arch_init
-/var/tmp//ccCUM4U9.s:139    .text.ppm_arch_init:00000000000000b8 $d
-/var/tmp//ccCUM4U9.s:148    .text.tim2_isr:0000000000000000 $t
-/var/tmp//ccCUM4U9.s:153    .text.tim2_isr:0000000000000000 tim2_isr
-/var/tmp//ccCUM4U9.s:294    .text.tim2_isr:00000000000000a8 $d
-/var/tmp//ccCUM4U9.s:311    .bss.ppm_data_valid:0000000000000000 ppm_data_valid
-/var/tmp//ccCUM4U9.s:318    .bss.ppm_last_pulse_time:0000000000000000 ppm_last_pulse_time
-/var/tmp//ccCUM4U9.s:331    .bss.ppm_cur_pulse:0000000000000000 ppm_cur_pulse
-/var/tmp//ccCUM4U9.s:312    .bss.ppm_data_valid:0000000000000000 $d
-/var/tmp//ccCUM4U9.s:314    .bss.ppm_last_pulse_time:0000000000000000 $d
-/var/tmp//ccCUM4U9.s:321    .bss.timer_rollover_cnt:0000000000000000 $d
-/var/tmp//ccCUM4U9.s:325    .bss.timer_rollover_cnt:0000000000000000 timer_rollover_cnt
-/var/tmp//ccCUM4U9.s:332    .bss.ppm_cur_pulse:0000000000000000 $d
+/var/tmp//ccOyT1E1.s:19     .text.ppm_arch_init:0000000000000000 $t
+/var/tmp//ccOyT1E1.s:24     .text.ppm_arch_init:0000000000000000 ppm_arch_init
+/var/tmp//ccOyT1E1.s:139    .text.ppm_arch_init:00000000000000b8 $d
+/var/tmp//ccOyT1E1.s:148    .text.tim2_isr:0000000000000000 $t
+/var/tmp//ccOyT1E1.s:153    .text.tim2_isr:0000000000000000 tim2_isr
+/var/tmp//ccOyT1E1.s:294    .text.tim2_isr:00000000000000a8 $d
+/var/tmp//ccOyT1E1.s:311    .bss.ppm_data_valid:0000000000000000 ppm_data_valid
+/var/tmp//ccOyT1E1.s:318    .bss.ppm_last_pulse_time:0000000000000000 ppm_last_pulse_time
+/var/tmp//ccOyT1E1.s:331    .bss.ppm_cur_pulse:0000000000000000 ppm_cur_pulse
+/var/tmp//ccOyT1E1.s:312    .bss.ppm_data_valid:0000000000000000 $d
+/var/tmp//ccOyT1E1.s:314    .bss.ppm_last_pulse_time:0000000000000000 $d
+/var/tmp//ccOyT1E1.s:321    .bss.timer_rollover_cnt:0000000000000000 $d
+/var/tmp//ccOyT1E1.s:325    .bss.timer_rollover_cnt:0000000000000000 timer_rollover_cnt
+/var/tmp//ccOyT1E1.s:332    .bss.ppm_cur_pulse:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

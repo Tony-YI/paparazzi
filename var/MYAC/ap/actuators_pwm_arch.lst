@@ -680,21 +680,21 @@
  413              		.file 6 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 actuators_pwm_arch.c
-/var/tmp//ccnZsEYe.s:19     .text.actuators_pwm_arch_channel_init:0000000000000000 $t
-/var/tmp//ccnZsEYe.s:23     .text.actuators_pwm_arch_channel_init:0000000000000000 actuators_pwm_arch_channel_init
-/var/tmp//ccnZsEYe.s:82     .text.set_servo_gpio.isra.0:0000000000000000 $t
-/var/tmp//ccnZsEYe.s:86     .text.set_servo_gpio.isra.0:0000000000000000 set_servo_gpio.isra.0
-/var/tmp//ccnZsEYe.s:123    .text.set_servo_gpio.isra.0:0000000000000020 $d
-/var/tmp//ccnZsEYe.s:128    .text.set_servo_timer.constprop.1:0000000000000000 $t
-/var/tmp//ccnZsEYe.s:132    .text.set_servo_timer.constprop.1:0000000000000000 set_servo_timer.constprop.1
-/var/tmp//ccnZsEYe.s:228    .text.actuators_pwm_arch_init:0000000000000000 $t
-/var/tmp//ccnZsEYe.s:233    .text.actuators_pwm_arch_init:0000000000000000 actuators_pwm_arch_init
-/var/tmp//ccnZsEYe.s:320    .text.actuators_pwm_arch_init:0000000000000078 $d
-/var/tmp//ccnZsEYe.s:329    .text.actuators_pwm_commit:0000000000000000 $t
-/var/tmp//ccnZsEYe.s:334    .text.actuators_pwm_commit:0000000000000000 actuators_pwm_commit
-/var/tmp//ccnZsEYe.s:394    .text.actuators_pwm_commit:000000000000004c $d
-/var/tmp//ccnZsEYe.s:405    .bss.actuators_pwm_values:0000000000000000 actuators_pwm_values
-/var/tmp//ccnZsEYe.s:401    .bss.actuators_pwm_values:0000000000000000 $d
+/var/tmp//ccBCb626.s:19     .text.actuators_pwm_arch_channel_init:0000000000000000 $t
+/var/tmp//ccBCb626.s:23     .text.actuators_pwm_arch_channel_init:0000000000000000 actuators_pwm_arch_channel_init
+/var/tmp//ccBCb626.s:82     .text.set_servo_gpio.isra.0:0000000000000000 $t
+/var/tmp//ccBCb626.s:86     .text.set_servo_gpio.isra.0:0000000000000000 set_servo_gpio.isra.0
+/var/tmp//ccBCb626.s:123    .text.set_servo_gpio.isra.0:0000000000000020 $d
+/var/tmp//ccBCb626.s:128    .text.set_servo_timer.constprop.1:0000000000000000 $t
+/var/tmp//ccBCb626.s:132    .text.set_servo_timer.constprop.1:0000000000000000 set_servo_timer.constprop.1
+/var/tmp//ccBCb626.s:228    .text.actuators_pwm_arch_init:0000000000000000 $t
+/var/tmp//ccBCb626.s:233    .text.actuators_pwm_arch_init:0000000000000000 actuators_pwm_arch_init
+/var/tmp//ccBCb626.s:320    .text.actuators_pwm_arch_init:0000000000000078 $d
+/var/tmp//ccBCb626.s:329    .text.actuators_pwm_commit:0000000000000000 $t
+/var/tmp//ccBCb626.s:334    .text.actuators_pwm_commit:0000000000000000 actuators_pwm_commit
+/var/tmp//ccBCb626.s:394    .text.actuators_pwm_commit:000000000000004c $d
+/var/tmp//ccBCb626.s:405    .bss.actuators_pwm_values:0000000000000000 actuators_pwm_values
+/var/tmp//ccBCb626.s:401    .bss.actuators_pwm_values:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

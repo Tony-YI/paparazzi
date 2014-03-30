@@ -326,12 +326,12 @@
  216              		.file 5 "./peripherals/mpu60x0.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mpu60x0.c
-/var/tmp//cc6v0W9U.s:19     .text.mpu60x0_set_default_config:0000000000000000 $t
-/var/tmp//cc6v0W9U.s:24     .text.mpu60x0_set_default_config:0000000000000000 mpu60x0_set_default_config
-/var/tmp//cc6v0W9U.s:64     .text.mpu60x0_send_config:0000000000000000 $t
-/var/tmp//cc6v0W9U.s:69     .text.mpu60x0_send_config:0000000000000000 mpu60x0_send_config
-/var/tmp//cc6v0W9U.s:95     .text.mpu60x0_send_config:0000000000000012 $d
-/var/tmp//cc6v0W9U.s:105    .text.mpu60x0_send_config:000000000000001c $t
+/var/tmp//cc1Pec9x.s:19     .text.mpu60x0_set_default_config:0000000000000000 $t
+/var/tmp//cc1Pec9x.s:24     .text.mpu60x0_set_default_config:0000000000000000 mpu60x0_set_default_config
+/var/tmp//cc1Pec9x.s:64     .text.mpu60x0_send_config:0000000000000000 $t
+/var/tmp//cc1Pec9x.s:69     .text.mpu60x0_send_config:0000000000000000 mpu60x0_send_config
+/var/tmp//cc1Pec9x.s:95     .text.mpu60x0_send_config:0000000000000012 $d
+/var/tmp//cc1Pec9x.s:105    .text.mpu60x0_send_config:000000000000001c $t
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

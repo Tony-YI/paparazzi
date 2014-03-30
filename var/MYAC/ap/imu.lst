@@ -467,14 +467,14 @@
  378              		.file 12 "./math/pprz_trig_int.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 imu.c
-/var/tmp//cclSgHpf.s:19     .text.imu_init:0000000000000000 $t
-/var/tmp//cclSgHpf.s:24     .text.imu_init:0000000000000000 imu_init
-/var/tmp//cclSgHpf.s:274    .text.imu_init:000000000000015c $d
-/var/tmp//cclSgHpf.s:281    .text.imu_float_init:0000000000000000 $t
-/var/tmp//cclSgHpf.s:286    .text.imu_float_init:0000000000000000 imu_float_init
-/var/tmp//cclSgHpf.s:349    .text.imu_float_init:0000000000000038 $d
-/var/tmp//cclSgHpf.s:364    .bss.imu:0000000000000000 imu
-/var/tmp//cclSgHpf.s:360    .bss.imu:0000000000000000 $d
+/var/tmp//cchix7LE.s:19     .text.imu_init:0000000000000000 $t
+/var/tmp//cchix7LE.s:24     .text.imu_init:0000000000000000 imu_init
+/var/tmp//cchix7LE.s:274    .text.imu_init:000000000000015c $d
+/var/tmp//cchix7LE.s:281    .text.imu_float_init:0000000000000000 $t
+/var/tmp//cchix7LE.s:286    .text.imu_float_init:0000000000000000 imu_float_init
+/var/tmp//cchix7LE.s:349    .text.imu_float_init:0000000000000038 $d
+/var/tmp//cchix7LE.s:364    .bss.imu:0000000000000000 imu
+/var/tmp//cchix7LE.s:360    .bss.imu:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

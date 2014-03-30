@@ -33,7 +33,7 @@
   35              		.file 10 "subsystems/ahrs.c"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ahrs.c
-/var/tmp//ccipDbCf.s:22     .bss.ahrs:0000000000000000 ahrs
-/var/tmp//ccipDbCf.s:23     .bss.ahrs:0000000000000000 $d
+/var/tmp//ccKmX29Y.s:22     .bss.ahrs:0000000000000000 ahrs
+/var/tmp//ccKmX29Y.s:23     .bss.ahrs:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS

@@ -1695,17 +1695,17 @@
  390              		.cfi_startproc
  391              		@ args = 0, pretend = 0, frame = 24
  392              		@ frame_needed = 0, uses_anonymous_args = 0
- 393 0000 30B5     		push	{r4, r5, lr}
+ 393 0000 70B5     		push	{r4, r5, r6, lr}
  394              	.LCFI2:
- 395              		.cfi_def_cfa_offset 12
- 396              		.cfi_offset 4, -12
- 397              		.cfi_offset 5, -8
- 398              		.cfi_offset 14, -4
+ 395              		.cfi_def_cfa_offset 16
+ 396              		.cfi_offset 4, -16
+ 397              		.cfi_offset 5, -12
+ 398              		.cfi_offset 6, -8
+ 399              		.cfi_offset 14, -4
   89:subsystems/ins/ins_int.c **** #if USE_INS_NAV_INIT
   90:subsystems/ins/ins_int.c ****   ins_ltp_initialised = TRUE;
- 399              		.loc 3 90 0
- 400 0002 184B     		ldr	r3, .L19
- 401 0004 0125     		movs	r5, #1
+ 400              		.loc 3 90 0
+ 401 0002 184B     		ldr	r3, .L19
   91:subsystems/ins/ins_int.c **** 
   92:subsystems/ins/ins_int.c ****   /** FIXME: should use the same code than MOVE_WP in firmwares/rotorcraft/datalink.c */
   93:subsystems/ins/ins_int.c ****   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
@@ -1714,404 +1714,405 @@
   96:subsystems/ins/ins_int.c ****   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
   97:subsystems/ins/ins_int.c ****   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
  402              		.loc 3 97 0
- 403 0006 184A     		ldr	r2, .L19+4
+ 403 0004 184A     		ldr	r2, .L19+4
   90:subsystems/ins/ins_int.c ****   ins_ltp_initialised = TRUE;
  404              		.loc 3 90 0
- 405 0008 1D70     		strb	r5, [r3, #0]
+ 405 0006 0125     		movs	r5, #1
  406              		.loc 3 97 0
- 407 000a 1849     		ldr	r1, .L19+8
- 408 000c 184B     		ldr	r3, .L19+12
+ 407 0008 1849     		ldr	r1, .L19+8
   88:subsystems/ins/ins_int.c **** void ins_init() {
- 409              		.loc 3 88 0
- 410 000e 87B0     		sub	sp, sp, #28
- 411              	.LCFI3:
- 412              		.cfi_def_cfa_offset 40
+ 408              		.loc 3 88 0
+ 409 000a 86B0     		sub	sp, sp, #24
+ 410              	.LCFI3:
+ 411              		.cfi_def_cfa_offset 40
+  90:subsystems/ins/ins_int.c ****   ins_ltp_initialised = TRUE;
+ 412              		.loc 3 90 0
+ 413 000c 1D70     		strb	r5, [r3, #0]
   98:subsystems/ins/ins_int.c **** 
   99:subsystems/ins/ins_int.c ****   struct EcefCoor_i ecef_nav0;
  100:subsystems/ins/ins_int.c ****   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
  101:subsystems/ins/ins_int.c **** 
  102:subsystems/ins/ins_int.c ****   ltp_def_from_ecef_i(&ins_ltp_def, &ecef_nav0);
- 413              		.loc 3 102 0
- 414 0010 184C     		ldr	r4, .L19+16
+ 414              		.loc 3 102 0
+ 415 000e 184E     		ldr	r6, .L19+12
   97:subsystems/ins/ins_int.c ****   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
- 415              		.loc 3 97 0
- 416 0012 8DE80E00 		stmia	sp, {r1, r2, r3}
+ 416              		.loc 3 97 0
+ 417 0010 4CF68A23 		movw	r3, #51850
+ 418 0014 8DE80E00 		stmia	sp, {r1, r2, r3}
  100:subsystems/ins/ins_int.c ****   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
- 417              		.loc 3 100 0
- 418 0016 03A8     		add	r0, sp, #12
- 419 0018 6946     		mov	r1, sp
- 420 001a FFF7FEFF 		bl	ecef_of_lla_i
- 421              	.LVL45:
- 422              		.loc 3 102 0
- 423 001e 2046     		mov	r0, r4
- 424 0020 03A9     		add	r1, sp, #12
- 425 0022 FFF7FEFF 		bl	ltp_def_from_ecef_i
- 426              	.LVL46:
+ 419              		.loc 3 100 0
+ 420 0018 03A8     		add	r0, sp, #12
+ 421 001a 6946     		mov	r1, sp
  103:subsystems/ins/ins_int.c ****   ins_ltp_def.hmsl = NAV_ALT0;
- 427              		.loc 3 103 0
- 428 0026 1448     		ldr	r0, .L19+20
- 429 0028 E063     		str	r0, [r4, #60]
+ 422              		.loc 3 103 0
+ 423 001c 0024     		movs	r4, #0
+ 100:subsystems/ins/ins_int.c ****   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
+ 424              		.loc 3 100 0
+ 425 001e FFF7FEFF 		bl	ecef_of_lla_i
+ 426              	.LVL45:
+ 102:subsystems/ins/ins_int.c ****   ltp_def_from_ecef_i(&ins_ltp_def, &ecef_nav0);
+ 427              		.loc 3 102 0
+ 428 0022 3046     		mov	r0, r6
+ 429 0024 03A9     		add	r1, sp, #12
+ 430 0026 FFF7FEFF 		bl	ltp_def_from_ecef_i
+ 431              	.LVL46:
+ 432              		.loc 3 103 0
+ 433 002a F463     		str	r4, [r6, #60]
  104:subsystems/ins/ins_int.c ****   stateSetLocalOrigin_i(&ins_ltp_def);
- 430              		.loc 3 104 0
- 431 002a FFF7FEFF 		bl	stateSetLocalOrigin_i.constprop.3
- 432              	.LVL47:
+ 434              		.loc 3 104 0
+ 435 002c FFF7FEFF 		bl	stateSetLocalOrigin_i.constprop.3
+ 436              	.LVL47:
  105:subsystems/ins/ins_int.c **** #else
  106:subsystems/ins/ins_int.c ****   ins_ltp_initialised  = FALSE;
  107:subsystems/ins/ins_int.c **** #endif
  108:subsystems/ins/ins_int.c **** #if USE_VFF
  109:subsystems/ins/ins_int.c ****   ins_baro_initialised = FALSE;
- 433              		.loc 3 109 0
- 434 002e 1349     		ldr	r1, .L19+24
- 435 0030 0024     		movs	r4, #0
+ 437              		.loc 3 109 0
+ 438 0030 1048     		ldr	r0, .L19+16
+ 439 0032 0470     		strb	r4, [r0, #0]
  110:subsystems/ins/ins_int.c **** #if USE_SONAR
  111:subsystems/ins/ins_int.c ****   ins_update_on_agl = FALSE;
  112:subsystems/ins/ins_int.c **** #endif
  113:subsystems/ins/ins_int.c ****   vff_init(0., 0., 0.);
- 436              		.loc 3 113 0
- 437 0032 0020     		movs	r0, #0
- 438 0034 0246     		mov	r2, r0
- 109:subsystems/ins/ins_int.c ****   ins_baro_initialised = FALSE;
- 439              		.loc 3 109 0
- 440 0036 0C70     		strb	r4, [r1, #0]
- 441              		.loc 3 113 0
- 442 0038 0146     		mov	r1, r0
- 443 003a FFF7FEFF 		bl	vff_init
- 444              	.LVL48:
+ 440              		.loc 3 113 0
+ 441 0034 0020     		movs	r0, #0
+ 442 0036 0146     		mov	r1, r0
+ 443 0038 0246     		mov	r2, r0
+ 444 003a FFF7FEFF 		bl	vff_init
+ 445              	.LVL48:
  114:subsystems/ins/ins_int.c **** #endif
  115:subsystems/ins/ins_int.c ****   ins.vf_realign = FALSE;
- 445              		.loc 3 115 0
- 446 003e 104B     		ldr	r3, .L19+28
+ 446              		.loc 3 115 0
+ 447 003e 0E49     		ldr	r1, .L19+20
  116:subsystems/ins/ins_int.c ****   ins.hf_realign = FALSE;
  117:subsystems/ins/ins_int.c **** #if USE_HFF
  118:subsystems/ins/ins_int.c ****   b2_hff_init(0., 0., 0., 0.);
  119:subsystems/ins/ins_int.c **** #endif
  120:subsystems/ins/ins_int.c ****   INT32_VECT3_ZERO(ins_ltp_pos);
- 447              		.loc 3 120 0
- 448 0040 104A     		ldr	r2, .L19+32
+ 448              		.loc 3 120 0
+ 449 0040 0E4A     		ldr	r2, .L19+24
  121:subsystems/ins/ins_int.c ****   INT32_VECT3_ZERO(ins_ltp_speed);
- 449              		.loc 3 121 0
- 450 0042 1148     		ldr	r0, .L19+36
+ 450              		.loc 3 121 0
+ 451 0042 0F4B     		ldr	r3, .L19+28
  122:subsystems/ins/ins_int.c ****   INT32_VECT3_ZERO(ins_ltp_accel);
- 451              		.loc 3 122 0
- 452 0044 1149     		ldr	r1, .L19+40
+ 452              		.loc 3 122 0
+ 453 0044 0F48     		ldr	r0, .L19+32
  115:subsystems/ins/ins_int.c ****   ins.vf_realign = FALSE;
- 453              		.loc 3 115 0
- 454 0046 9C70     		strb	r4, [r3, #2]
+ 454              		.loc 3 115 0
+ 455 0046 8C70     		strb	r4, [r1, #2]
  116:subsystems/ins/ins_int.c ****   ins.hf_realign = FALSE;
- 455              		.loc 3 116 0
- 456 0048 5C70     		strb	r4, [r3, #1]
+ 456              		.loc 3 116 0
+ 457 0048 4C70     		strb	r4, [r1, #1]
  120:subsystems/ins/ins_int.c ****   INT32_VECT3_ZERO(ins_ltp_pos);
- 457              		.loc 3 120 0
- 458 004a 1460     		str	r4, [r2, #0]
- 459 004c 5460     		str	r4, [r2, #4]
- 460 004e 9460     		str	r4, [r2, #8]
+ 458              		.loc 3 120 0
+ 459 004a 1460     		str	r4, [r2, #0]
+ 460 004c 5460     		str	r4, [r2, #4]
+ 461 004e 9460     		str	r4, [r2, #8]
  121:subsystems/ins/ins_int.c ****   INT32_VECT3_ZERO(ins_ltp_speed);
- 461              		.loc 3 121 0
- 462 0050 0460     		str	r4, [r0, #0]
- 463 0052 4460     		str	r4, [r0, #4]
- 464 0054 8460     		str	r4, [r0, #8]
- 465              		.loc 3 122 0
- 466 0056 0C60     		str	r4, [r1, #0]
- 467 0058 4C60     		str	r4, [r1, #4]
- 468 005a 8C60     		str	r4, [r1, #8]
+ 462              		.loc 3 121 0
+ 463 0050 1C60     		str	r4, [r3, #0]
+ 464 0052 5C60     		str	r4, [r3, #4]
+ 465 0054 9C60     		str	r4, [r3, #8]
+ 466              		.loc 3 122 0
+ 467 0056 0460     		str	r4, [r0, #0]
+ 468 0058 4460     		str	r4, [r0, #4]
+ 469 005a 8460     		str	r4, [r0, #8]
  123:subsystems/ins/ins_int.c **** 
  124:subsystems/ins/ins_int.c ****   // TODO correct init
  125:subsystems/ins/ins_int.c ****   ins.status = INS_RUNNING;
- 469              		.loc 3 125 0
- 470 005c 1D70     		strb	r5, [r3, #0]
+ 470              		.loc 3 125 0
+ 471 005c 0D70     		strb	r5, [r1, #0]
  126:subsystems/ins/ins_int.c **** 
  127:subsystems/ins/ins_int.c **** }
- 471              		.loc 3 127 0
- 472 005e 07B0     		add	sp, sp, #28
- 473 0060 30BD     		pop	{r4, r5, pc}
- 474              	.L20:
- 475 0062 00BF     		.align	2
- 476              	.L19:
- 477 0064 00000000 		.word	.LANCHOR4
- 478 0068 AD047400 		.word	7603373
- 479 006c E4F10300 		.word	258532
- 480 0070 C2080300 		.word	198850
- 481 0074 00000000 		.word	.LANCHOR3
- 482 0078 383E0200 		.word	147000
- 483 007c 00000000 		.word	.LANCHOR5
- 484 0080 00000000 		.word	ins
- 485 0084 00000000 		.word	.LANCHOR2
- 486 0088 00000000 		.word	.LANCHOR1
- 487 008c 00000000 		.word	.LANCHOR0
- 488              		.cfi_endproc
- 489              	.LFE123:
- 491              		.section	.text.ins_periodic,"ax",%progbits
- 492              		.align	1
- 493              		.global	ins_periodic
- 494              		.thumb
- 495              		.thumb_func
- 497              	ins_periodic:
- 498              	.LFB124:
+ 472              		.loc 3 127 0
+ 473 005e 06B0     		add	sp, sp, #24
+ 474 0060 70BD     		pop	{r4, r5, r6, pc}
+ 475              	.L20:
+ 476 0062 00BF     		.align	2
+ 477              	.L19:
+ 478 0064 00000000 		.word	.LANCHOR4
+ 479 0068 AD047400 		.word	7603373
+ 480 006c E4F10300 		.word	258532
+ 481 0070 00000000 		.word	.LANCHOR3
+ 482 0074 00000000 		.word	.LANCHOR5
+ 483 0078 00000000 		.word	ins
+ 484 007c 00000000 		.word	.LANCHOR2
+ 485 0080 00000000 		.word	.LANCHOR1
+ 486 0084 00000000 		.word	.LANCHOR0
+ 487              		.cfi_endproc
+ 488              	.LFE123:
+ 490              		.section	.text.ins_periodic,"ax",%progbits
+ 491              		.align	1
+ 492              		.global	ins_periodic
+ 493              		.thumb
+ 494              		.thumb_func
+ 496              	ins_periodic:
+ 497              	.LFB124:
  128:subsystems/ins/ins_int.c **** 
  129:subsystems/ins/ins_int.c **** void ins_periodic( void ) {
- 499              		.loc 3 129 0
- 500              		.cfi_startproc
- 501              		@ args = 0, pretend = 0, frame = 0
- 502              		@ frame_needed = 0, uses_anonymous_args = 0
- 503              		@ link register save eliminated.
- 504 0000 7047     		bx	lr
- 505              		.cfi_endproc
- 506              	.LFE124:
- 508              		.section	.text.ins_realign_h,"ax",%progbits
- 509              		.align	1
- 510              		.global	ins_realign_h
- 511              		.thumb
- 512              		.thumb_func
- 514              	ins_realign_h:
- 515              	.LFB125:
+ 498              		.loc 3 129 0
+ 499              		.cfi_startproc
+ 500              		@ args = 0, pretend = 0, frame = 0
+ 501              		@ frame_needed = 0, uses_anonymous_args = 0
+ 502              		@ link register save eliminated.
+ 503 0000 7047     		bx	lr
+ 504              		.cfi_endproc
+ 505              	.LFE124:
+ 507              		.section	.text.ins_realign_h,"ax",%progbits
+ 508              		.align	1
+ 509              		.global	ins_realign_h
+ 510              		.thumb
+ 511              		.thumb_func
+ 513              	ins_realign_h:
+ 514              	.LFB125:
  130:subsystems/ins/ins_int.c **** }
  131:subsystems/ins/ins_int.c **** 
  132:subsystems/ins/ins_int.c **** void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attrib
- 516              		.loc 3 132 0
- 517              		.cfi_startproc
- 518              		@ args = 0, pretend = 0, frame = 16
- 519              		@ frame_needed = 0, uses_anonymous_args = 0
- 520              		.loc 3 132 0
- 521 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
- 522              	.LCFI4:
- 523              		.cfi_def_cfa_offset 24
- 524              		.cfi_offset 0, -24
- 525              		.cfi_offset 1, -20
- 526              		.cfi_offset 2, -16
- 527              		.cfi_offset 3, -12
- 528              		.cfi_offset 4, -8
- 529              		.cfi_offset 14, -4
- 530              		.loc 3 132 0
- 531 0002 04AC     		add	r4, sp, #16
- 532 0004 04E90300 		stmdb	r4, {r0, r1}
- 533 0008 8DE80C00 		stmia	sp, {r2, r3}
+ 515              		.loc 3 132 0
+ 516              		.cfi_startproc
+ 517              		@ args = 0, pretend = 0, frame = 16
+ 518              		@ frame_needed = 0, uses_anonymous_args = 0
+ 519              		.loc 3 132 0
+ 520 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 521              	.LCFI4:
+ 522              		.cfi_def_cfa_offset 24
+ 523              		.cfi_offset 0, -24
+ 524              		.cfi_offset 1, -20
+ 525              		.cfi_offset 2, -16
+ 526              		.cfi_offset 3, -12
+ 527              		.cfi_offset 4, -8
+ 528              		.cfi_offset 14, -4
+ 529              		.loc 3 132 0
+ 530 0002 04AC     		add	r4, sp, #16
+ 531 0004 04E90300 		stmdb	r4, {r0, r1}
+ 532 0008 8DE80C00 		stmia	sp, {r2, r3}
  133:subsystems/ins/ins_int.c **** #if USE_HFF
  134:subsystems/ins/ins_int.c ****   b2_hff_realign(pos, speed);
  135:subsystems/ins/ins_int.c **** #endif /* USE_HFF */
  136:subsystems/ins/ins_int.c **** }
- 534              		.loc 3 136 0
- 535 000c 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
- 536              		.cfi_endproc
- 537              	.LFE125:
- 539              		.section	.text.ins_realign_v,"ax",%progbits
- 540              		.align	1
- 541              		.global	ins_realign_v
- 542              		.thumb
- 543              		.thumb_func
- 545              	ins_realign_v:
- 546              	.LFB126:
+ 533              		.loc 3 136 0
+ 534 000c 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
+ 535              		.cfi_endproc
+ 536              	.LFE125:
+ 538              		.section	.text.ins_realign_v,"ax",%progbits
+ 539              		.align	1
+ 540              		.global	ins_realign_v
+ 541              		.thumb
+ 542              		.thumb_func
+ 544              	ins_realign_v:
+ 545              	.LFB126:
  137:subsystems/ins/ins_int.c **** 
  138:subsystems/ins/ins_int.c **** void ins_realign_v(float z __attribute__ ((unused))) {
- 547              		.loc 3 138 0
- 548              		.cfi_startproc
- 549              		@ args = 0, pretend = 0, frame = 0
- 550              		@ frame_needed = 0, uses_anonymous_args = 0
- 551              		@ link register save eliminated.
- 552              	.LVL49:
+ 546              		.loc 3 138 0
+ 547              		.cfi_startproc
+ 548              		@ args = 0, pretend = 0, frame = 0
+ 549              		@ frame_needed = 0, uses_anonymous_args = 0
+ 550              		@ link register save eliminated.
+ 551              	.LVL49:
  139:subsystems/ins/ins_int.c **** #if USE_VFF
  140:subsystems/ins/ins_int.c ****   vff_realign(z);
  141:subsystems/ins/ins_int.c **** #endif
  142:subsystems/ins/ins_int.c **** }
- 553              		.loc 3 142 0
+ 552              		.loc 3 142 0
  140:subsystems/ins/ins_int.c ****   vff_realign(z);
- 554              		.loc 3 140 0
- 555 0000 FFF7FEBF 		b	vff_realign
- 556              	.LVL50:
- 557              		.cfi_endproc
- 558              	.LFE126:
- 560              		.global	__aeabi_f2iz
- 561              		.global	__aeabi_dadd
- 562              		.global	__aeabi_d2iz
- 563              		.section	.text.ins_propagate,"ax",%progbits
- 564              		.align	1
- 565              		.global	ins_propagate
- 566              		.thumb
- 567              		.thumb_func
- 569              	ins_propagate:
- 570              	.LFB127:
+ 553              		.loc 3 140 0
+ 554 0000 FFF7FEBF 		b	vff_realign
+ 555              	.LVL50:
+ 556              		.cfi_endproc
+ 557              	.LFE126:
+ 559              		.global	__aeabi_f2iz
+ 560              		.global	__aeabi_dadd
+ 561              		.global	__aeabi_d2iz
+ 562              		.section	.text.ins_propagate,"ax",%progbits
+ 563              		.align	1
+ 564              		.global	ins_propagate
+ 565              		.thumb
+ 566              		.thumb_func
+ 568              	ins_propagate:
+ 569              	.LFB127:
  143:subsystems/ins/ins_int.c **** 
  144:subsystems/ins/ins_int.c **** void ins_propagate() {
- 571              		.loc 3 144 0
- 572              		.cfi_startproc
- 573              		@ args = 0, pretend = 0, frame = 0
- 574              		@ frame_needed = 0, uses_anonymous_args = 0
+ 570              		.loc 3 144 0
+ 571              		.cfi_startproc
+ 572              		@ args = 0, pretend = 0, frame = 0
+ 573              		@ frame_needed = 0, uses_anonymous_args = 0
  145:subsystems/ins/ins_int.c ****   /* untilt accels */
  146:subsystems/ins/ins_int.c ****   struct Int32Vect3 accel_meas_body;
  147:subsystems/ins/ins_int.c ****   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
- 575              		.loc 3 147 0
- 576 0000 514B     		ldr	r3, .L31+8
+ 574              		.loc 3 147 0
+ 575 0000 514B     		ldr	r3, .L31+8
  144:subsystems/ins/ins_int.c **** void ins_propagate() {
- 577              		.loc 3 144 0
- 578 0002 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
- 579              	.LCFI5:
- 580              		.cfi_def_cfa_offset 24
- 581              		.cfi_offset 4, -24
- 582              		.cfi_offset 5, -20
- 583              		.cfi_offset 6, -16
- 584              		.cfi_offset 7, -12
- 585              		.cfi_offset 8, -8
- 586              		.cfi_offset 14, -4
- 587              		.loc 3 147 0
- 588 0006 1869     		ldr	r0, [r3, #16]
- 589 0008 D3F8A040 		ldr	r4, [r3, #160]
- 590 000c D968     		ldr	r1, [r3, #12]
- 591 000e 4443     		muls	r4, r0, r4
- 592 0010 D3F89450 		ldr	r5, [r3, #148]
- 593 0014 5A69     		ldr	r2, [r3, #20]
- 594 0016 05FB0146 		mla	r6, r5, r1, r4
- 595 001a D3F8AC70 		ldr	r7, [r3, #172]
- 596 001e D3F8A440 		ldr	r4, [r3, #164]
- 597 0022 07FB0265 		mla	r5, r7, r2, r6
- 598 0026 4443     		muls	r4, r0, r4
- 599 0028 D3F89870 		ldr	r7, [r3, #152]
- 600 002c AE13     		asrs	r6, r5, #14
- 601              	.LVL51:
- 602 002e 07FB0145 		mla	r5, r7, r1, r4
- 603 0032 D3F8B070 		ldr	r7, [r3, #176]
- 604 0036 07FB0254 		mla	r4, r7, r2, r5
- 605 003a A513     		asrs	r5, r4, #14
- 606              	.LVL52:
- 607 003c D3F8A840 		ldr	r4, [r3, #168]
- 608 0040 D3F89C70 		ldr	r7, [r3, #156]
- 609 0044 4443     		muls	r4, r0, r4
- 610 0046 07FB0141 		mla	r1, r7, r1, r4
- 611 004a D3F8B430 		ldr	r3, [r3, #180]
- 612 004e 03FB0210 		mla	r0, r3, r2, r1
- 613 0052 8413     		asrs	r4, r0, #14
- 614              	.LVL53:
+ 576              		.loc 3 144 0
+ 577 0002 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 578              	.LCFI5:
+ 579              		.cfi_def_cfa_offset 24
+ 580              		.cfi_offset 4, -24
+ 581              		.cfi_offset 5, -20
+ 582              		.cfi_offset 6, -16
+ 583              		.cfi_offset 7, -12
+ 584              		.cfi_offset 8, -8
+ 585              		.cfi_offset 14, -4
+ 586              		.loc 3 147 0
+ 587 0006 1869     		ldr	r0, [r3, #16]
+ 588 0008 D3F8A040 		ldr	r4, [r3, #160]
+ 589 000c D968     		ldr	r1, [r3, #12]
+ 590 000e 4443     		muls	r4, r0, r4
+ 591 0010 D3F89450 		ldr	r5, [r3, #148]
+ 592 0014 5A69     		ldr	r2, [r3, #20]
+ 593 0016 05FB0146 		mla	r6, r5, r1, r4
+ 594 001a D3F8AC70 		ldr	r7, [r3, #172]
+ 595 001e D3F8A440 		ldr	r4, [r3, #164]
+ 596 0022 07FB0265 		mla	r5, r7, r2, r6
+ 597 0026 4443     		muls	r4, r0, r4
+ 598 0028 D3F89870 		ldr	r7, [r3, #152]
+ 599 002c AE13     		asrs	r6, r5, #14
+ 600              	.LVL51:
+ 601 002e 07FB0145 		mla	r5, r7, r1, r4
+ 602 0032 D3F8B070 		ldr	r7, [r3, #176]
+ 603 0036 07FB0254 		mla	r4, r7, r2, r5
+ 604 003a A513     		asrs	r5, r4, #14
+ 605              	.LVL52:
+ 606 003c D3F8A840 		ldr	r4, [r3, #168]
+ 607 0040 D3F89C70 		ldr	r7, [r3, #156]
+ 608 0044 4443     		muls	r4, r0, r4
+ 609 0046 07FB0141 		mla	r1, r7, r1, r4
+ 610 004a D3F8B430 		ldr	r3, [r3, #180]
+ 611 004e 03FB0210 		mla	r0, r3, r2, r1
+ 612 0052 8413     		asrs	r4, r0, #14
+ 613              	.LVL53:
  148:subsystems/ins/ins_int.c ****   struct Int32Vect3 accel_meas_ltp;
  149:subsystems/ins/ins_int.c ****   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
- 615              		.loc 3 149 0
- 616 0054 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 617              	.LVL54:
- 618 0058 0268     		ldr	r2, [r0, #0]
- 619 005a 02FB06F8 		mul	r8, r2, r6
- 620 005e FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 621              	.LVL55:
- 622 0062 C768     		ldr	r7, [r0, #12]
- 623 0064 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 624              	.LVL56:
- 625 0068 07FB0588 		mla	r8, r7, r5, r8
- 626 006c 8169     		ldr	r1, [r0, #24]
- 627 006e 01FB0483 		mla	r3, r1, r4, r8
- 628 0072 4FEAA338 		asr	r8, r3, #14
- 629              	.LVL57:
- 630 0076 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 631              	.LVL58:
- 632 007a 4768     		ldr	r7, [r0, #4]
- 633 007c FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 634              	.LVL59:
- 635 0080 7743     		muls	r7, r6, r7
- 636 0082 0069     		ldr	r0, [r0, #16]
- 637 0084 00FB0577 		mla	r7, r0, r5, r7
- 638 0088 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 639              	.LVL60:
- 640 008c C269     		ldr	r2, [r0, #28]
- 641 008e 02FB0471 		mla	r1, r2, r4, r7
- 642 0092 8F13     		asrs	r7, r1, #14
- 643              	.LVL61:
- 644 0094 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 645              	.LVL62:
- 646 0098 8368     		ldr	r3, [r0, #8]
- 647 009a 5E43     		muls	r6, r3, r6
- 648              	.LVL63:
- 649 009c FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 650              	.LVL64:
- 651 00a0 4069     		ldr	r0, [r0, #20]
- 652 00a2 00FB0565 		mla	r5, r0, r5, r6
- 653              	.LVL65:
- 654 00a6 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
- 655              	.LVL66:
- 656 00aa 026A     		ldr	r2, [r0, #32]
+ 614              		.loc 3 149 0
+ 615 0054 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 616              	.LVL54:
+ 617 0058 0268     		ldr	r2, [r0, #0]
+ 618 005a 02FB06F8 		mul	r8, r2, r6
+ 619 005e FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 620              	.LVL55:
+ 621 0062 C768     		ldr	r7, [r0, #12]
+ 622 0064 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 623              	.LVL56:
+ 624 0068 07FB0588 		mla	r8, r7, r5, r8
+ 625 006c 8169     		ldr	r1, [r0, #24]
+ 626 006e 01FB0483 		mla	r3, r1, r4, r8
+ 627 0072 4FEAA338 		asr	r8, r3, #14
+ 628              	.LVL57:
+ 629 0076 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 630              	.LVL58:
+ 631 007a 4768     		ldr	r7, [r0, #4]
+ 632 007c FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 633              	.LVL59:
+ 634 0080 7743     		muls	r7, r6, r7
+ 635 0082 0069     		ldr	r0, [r0, #16]
+ 636 0084 00FB0577 		mla	r7, r0, r5, r7
+ 637 0088 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 638              	.LVL60:
+ 639 008c C269     		ldr	r2, [r0, #28]
+ 640 008e 02FB0471 		mla	r1, r2, r4, r7
+ 641 0092 8F13     		asrs	r7, r1, #14
+ 642              	.LVL61:
+ 643 0094 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 644              	.LVL62:
+ 645 0098 8368     		ldr	r3, [r0, #8]
+ 646 009a 5E43     		muls	r6, r3, r6
+ 647              	.LVL63:
+ 648 009c FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 649              	.LVL64:
+ 650 00a0 4069     		ldr	r0, [r0, #20]
+ 651 00a2 00FB0565 		mla	r5, r0, r5, r6
+ 652              	.LVL65:
+ 653 00a6 FFF7FEFF 		bl	stateGetNedToBodyRMat_i
+ 654              	.LVL66:
+ 655 00aa 026A     		ldr	r2, [r0, #32]
  150:subsystems/ins/ins_int.c **** 
  151:subsystems/ins/ins_int.c **** #if USE_VFF
  152:subsystems/ins/ins_int.c ****   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
  153:subsystems/ins/ins_int.c ****   if (baro.status == BS_RUNNING && ins_baro_initialised) {
- 657              		.loc 3 153 0
- 658 00ac 2749     		ldr	r1, .L31+12
+ 656              		.loc 3 153 0
+ 657 00ac 2749     		ldr	r1, .L31+12
  149:subsystems/ins/ins_int.c ****   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
- 659              		.loc 3 149 0
- 660 00ae 02FB0455 		mla	r5, r2, r4, r5
- 661              		.loc 3 153 0
- 662 00b2 0B7A     		ldrb	r3, [r1, #8]	@ zero_extendqisi2
+ 658              		.loc 3 149 0
+ 659 00ae 02FB0455 		mla	r5, r2, r4, r5
+ 660              		.loc 3 153 0
+ 661 00b2 0B7A     		ldrb	r3, [r1, #8]	@ zero_extendqisi2
  149:subsystems/ins/ins_int.c ****   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
- 663              		.loc 3 149 0
- 664 00b4 A813     		asrs	r0, r5, #14
- 665              	.LVL67:
- 666              		.loc 3 153 0
- 667 00b6 012B     		cmp	r3, #1
- 668 00b8 28D1     		bne	.L25
- 669              		.loc 3 153 0 is_stmt 0 discriminator 1
- 670 00ba 254A     		ldr	r2, .L31+16
- 671 00bc 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
- 672 00be 29B3     		cbz	r1, .L25
+ 662              		.loc 3 149 0
+ 663 00b4 A813     		asrs	r0, r5, #14
+ 664              	.LVL67:
+ 665              		.loc 3 153 0
+ 666 00b6 012B     		cmp	r3, #1
+ 667 00b8 28D1     		bne	.L25
+ 668              		.loc 3 153 0 is_stmt 0 discriminator 1
+ 669 00ba 254A     		ldr	r2, .L31+16
+ 670 00bc 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
+ 671 00be 29B3     		cbz	r1, .L25
  152:subsystems/ins/ins_int.c ****   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
- 673              		.loc 3 152 0 is_stmt 1
- 674 00c0 FFF7FEFF 		bl	__aeabi_i2f
- 675              	.LVL68:
- 676 00c4 4FF06A51 		mov	r1, #981467136
- 677 00c8 FFF7FEFF 		bl	__aeabi_fmul
- 678              	.LVL69:
+ 672              		.loc 3 152 0 is_stmt 1
+ 673 00c0 FFF7FEFF 		bl	__aeabi_i2f
+ 674              	.LVL68:
+ 675 00c4 4FF06A51 		mov	r1, #981467136
+ 676 00c8 FFF7FEFF 		bl	__aeabi_fmul
+ 677              	.LVL69:
  154:subsystems/ins/ins_int.c ****     vff_propagate(z_accel_meas_float);
- 679              		.loc 3 154 0
- 680 00cc FFF7FEFF 		bl	vff_propagate
- 681              	.LVL70:
+ 678              		.loc 3 154 0
+ 679 00cc FFF7FEFF 		bl	vff_propagate
+ 680              	.LVL70:
  155:subsystems/ins/ins_int.c ****     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
- 682              		.loc 3 155 0
- 683 00d0 2048     		ldr	r0, .L31+20
- 684 00d2 4FF08941 		mov	r1, #1149239296
- 685 00d6 0068     		ldr	r0, [r0, #0]	@ float
- 686 00d8 FFF7FEFF 		bl	__aeabi_fmul
- 687              	.LVL71:
- 688 00dc FFF7FEFF 		bl	__aeabi_f2iz
- 689              	.LVL72:
- 690 00e0 1D4A     		ldr	r2, .L31+24
+ 681              		.loc 3 155 0
+ 682 00d0 2048     		ldr	r0, .L31+20
+ 683 00d2 4FF08941 		mov	r1, #1149239296
+ 684 00d6 0068     		ldr	r0, [r0, #0]	@ float
+ 685 00d8 FFF7FEFF 		bl	__aeabi_fmul
+ 686              	.LVL71:
+ 687 00dc FFF7FEFF 		bl	__aeabi_f2iz
+ 688              	.LVL72:
+ 689 00e0 1D4A     		ldr	r2, .L31+24
  156:subsystems/ins/ins_int.c ****     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
- 691              		.loc 3 156 0
- 692 00e2 1E49     		ldr	r1, .L31+28
+ 690              		.loc 3 156 0
+ 691 00e2 1E49     		ldr	r1, .L31+28
  155:subsystems/ins/ins_int.c ****     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
- 693              		.loc 3 155 0
- 694 00e4 9060     		str	r0, [r2, #8]
- 695              		.loc 3 156 0
- 696 00e6 0868     		ldr	r0, [r1, #0]	@ float
- 697 00e8 4FF09241 		mov	r1, #1224736768
- 698 00ec FFF7FEFF 		bl	__aeabi_fmul
- 699              	.LVL73:
- 700 00f0 FFF7FEFF 		bl	__aeabi_f2iz
- 701              	.LVL74:
- 702 00f4 1A4B     		ldr	r3, .L31+32
+ 692              		.loc 3 155 0
+ 693 00e4 9060     		str	r0, [r2, #8]
+ 694              		.loc 3 156 0
+ 695 00e6 0868     		ldr	r0, [r1, #0]	@ float
+ 696 00e8 4FF09241 		mov	r1, #1224736768
+ 697 00ec FFF7FEFF 		bl	__aeabi_fmul
+ 698              	.LVL73:
+ 699 00f0 FFF7FEFF 		bl	__aeabi_f2iz
+ 700              	.LVL74:
+ 701 00f4 1A4B     		ldr	r3, .L31+32
  157:subsystems/ins/ins_int.c ****     ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
- 703              		.loc 3 157 0
- 704 00f6 4FF08741 		mov	r1, #1132462080
+ 702              		.loc 3 157 0
+ 703 00f6 4FF08741 		mov	r1, #1132462080
  156:subsystems/ins/ins_int.c ****     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
- 705              		.loc 3 156 0
- 706 00fa 9860     		str	r0, [r3, #8]
- 707              		.loc 3 157 0
- 708 00fc 1948     		ldr	r0, .L31+36
- 709 00fe 0068     		ldr	r0, [r0, #0]	@ float
- 710 0100 FFF7FEFF 		bl	__aeabi_fmul
- 711              	.LVL75:
- 712 0104 FFF7FEFF 		bl	__aeabi_f2iz
- 713              	.LVL76:
- 714 0108 174B     		ldr	r3, .L31+40
- 715 010a 09E0     		b	.L30
- 716              	.LVL77:
- 717              	.L25:
+ 704              		.loc 3 156 0
+ 705 00fa 9860     		str	r0, [r3, #8]
+ 706              		.loc 3 157 0
+ 707 00fc 1948     		ldr	r0, .L31+36
+ 708 00fe 0068     		ldr	r0, [r0, #0]	@ float
+ 709 0100 FFF7FEFF 		bl	__aeabi_fmul
+ 710              	.LVL75:
+ 711 0104 FFF7FEFF 		bl	__aeabi_f2iz
+ 712              	.LVL76:
+ 713 0108 174B     		ldr	r3, .L31+40
+ 714 010a 09E0     		b	.L30
+ 715              	.LVL77:
+ 716              	.L25:
  158:subsystems/ins/ins_int.c ****   }
  159:subsystems/ins/ins_int.c ****   else { // feed accel from the sensors
  160:subsystems/ins/ins_int.c ****     // subtract -9.81m/s2 (acceleration measured due to gravity, but vehivle not accelerating in lt
  161:subsystems/ins/ins_int.c ****     ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
- 718              		.loc 3 161 0
- 719 010c FFF7FEFF 		bl	__aeabi_i2d
- 720              	.LVL78:
- 721 0110 0BA3     		adr	r3, .L31
- 722 0112 D3E90023 		ldrd	r2, [r3]
- 723 0116 FFF7FEFF 		bl	__aeabi_dadd
- 724              	.LVL79:
- 725 011a FFF7FEFF 		bl	__aeabi_d2iz
- 726              	.LVL80:
- 727 011e 0E4B     		ldr	r3, .L31+24
- 728              	.L30:
+ 717              		.loc 3 161 0
+ 718 010c FFF7FEFF 		bl	__aeabi_i2d
+ 719              	.LVL78:
+ 720 0110 0BA3     		adr	r3, .L31
+ 721 0112 D3E90023 		ldrd	r2, [r3]
+ 722 0116 FFF7FEFF 		bl	__aeabi_dadd
+ 723              	.LVL79:
+ 724 011a FFF7FEFF 		bl	__aeabi_d2iz
+ 725              	.LVL80:
+ 726 011e 0E4B     		ldr	r3, .L31+24
+ 727              	.L30:
  162:subsystems/ins/ins_int.c ****   }
  163:subsystems/ins/ins_int.c **** #else
  164:subsystems/ins/ins_int.c ****   ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
@@ -2122,302 +2123,302 @@
  169:subsystems/ins/ins_int.c ****   b2_hff_propagate();
  170:subsystems/ins/ins_int.c **** #else
  171:subsystems/ins/ins_int.c ****   ins_ltp_accel.x = accel_meas_ltp.x;
- 729              		.loc 3 171 0
- 730 0120 0D4A     		ldr	r2, .L31+24
+ 728              		.loc 3 171 0
+ 729 0120 0D4A     		ldr	r2, .L31+24
  161:subsystems/ins/ins_int.c ****     ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
- 731              		.loc 3 161 0
- 732 0122 9860     		str	r0, [r3, #8]
- 733              		.loc 3 171 0
- 734 0124 C2F80080 		str	r8, [r2, #0]
+ 730              		.loc 3 161 0
+ 731 0122 9860     		str	r0, [r3, #8]
+ 732              		.loc 3 171 0
+ 733 0124 C2F80080 		str	r8, [r2, #0]
  172:subsystems/ins/ins_int.c ****   ins_ltp_accel.y = accel_meas_ltp.y;
- 735              		.loc 3 172 0
- 736 0128 5760     		str	r7, [r2, #4]
+ 734              		.loc 3 172 0
+ 735 0128 5760     		str	r7, [r2, #4]
  173:subsystems/ins/ins_int.c **** #endif /* USE_HFF */
  174:subsystems/ins/ins_int.c **** 
  175:subsystems/ins/ins_int.c ****   INS_NED_TO_STATE();
- 737              		.loc 3 175 0
- 738 012a FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
- 739              	.LVL81:
- 740 012e FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
- 741              	.LVL82:
+ 736              		.loc 3 175 0
+ 737 012a FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
+ 738              	.LVL81:
+ 739 012e FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
+ 740              	.LVL82:
  176:subsystems/ins/ins_int.c **** }
- 742              		.loc 3 176 0
- 743 0132 BDE8F041 		pop	{r4, r5, r6, r7, r8, lr}
+ 741              		.loc 3 176 0
+ 742 0132 BDE8F041 		pop	{r4, r5, r6, r7, r8, lr}
  175:subsystems/ins/ins_int.c ****   INS_NED_TO_STATE();
- 744              		.loc 3 175 0
- 745 0136 FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
- 746              	.LVL83:
- 747              	.L32:
- 748 013a 00BFAFF3 		.align	3
- 748      0080
- 749              	.L31:
- 750 0140 1F85EB51 		.word	1374389535
- 751 0144 B89EC340 		.word	1086561976
- 752 0148 00000000 		.word	imu
- 753 014c 00000000 		.word	baro
- 754 0150 00000000 		.word	.LANCHOR5
- 755 0154 00000000 		.word	vff_zdotdot
- 756 0158 00000000 		.word	.LANCHOR0
- 757 015c 00000000 		.word	vff_zdot
- 758 0160 00000000 		.word	.LANCHOR1
- 759 0164 00000000 		.word	vff_z
- 760 0168 00000000 		.word	.LANCHOR2
- 761              		.cfi_endproc
- 762              	.LFE127:
- 764 016c AFF30080 		.section	.text.ins_update_baro,"ax",%progbits
- 765              		.align	1
- 766              		.global	ins_update_baro
- 767              		.thumb
- 768              		.thumb_func
- 770              	ins_update_baro:
- 771              	.LFB128:
+ 743              		.loc 3 175 0
+ 744 0136 FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
+ 745              	.LVL83:
+ 746              	.L32:
+ 747 013a 00BFAFF3 		.align	3
+ 747      0080
+ 748              	.L31:
+ 749 0140 1F85EB51 		.word	1374389535
+ 750 0144 B89EC340 		.word	1086561976
+ 751 0148 00000000 		.word	imu
+ 752 014c 00000000 		.word	baro
+ 753 0150 00000000 		.word	.LANCHOR5
+ 754 0154 00000000 		.word	vff_zdotdot
+ 755 0158 00000000 		.word	.LANCHOR0
+ 756 015c 00000000 		.word	vff_zdot
+ 757 0160 00000000 		.word	.LANCHOR1
+ 758 0164 00000000 		.word	vff_z
+ 759 0168 00000000 		.word	.LANCHOR2
+ 760              		.cfi_endproc
+ 761              	.LFE127:
+ 763 016c AFF30080 		.section	.text.ins_update_baro,"ax",%progbits
+ 764              		.align	1
+ 765              		.global	ins_update_baro
+ 766              		.thumb
+ 767              		.thumb_func
+ 769              	ins_update_baro:
+ 770              	.LFB128:
  177:subsystems/ins/ins_int.c **** 
  178:subsystems/ins/ins_int.c **** void ins_update_baro() {
- 772              		.loc 3 178 0
- 773              		.cfi_startproc
- 774              		@ args = 0, pretend = 0, frame = 0
- 775              		@ frame_needed = 0, uses_anonymous_args = 0
+ 771              		.loc 3 178 0
+ 772              		.cfi_startproc
+ 773              		@ args = 0, pretend = 0, frame = 0
+ 774              		@ frame_needed = 0, uses_anonymous_args = 0
  179:subsystems/ins/ins_int.c **** #if USE_VFF
  180:subsystems/ins/ins_int.c ****   if (baro.status == BS_RUNNING) {
- 776              		.loc 3 180 0
- 777 0000 2849     		ldr	r1, .L37
+ 775              		.loc 3 180 0
+ 776 0000 2849     		ldr	r1, .L37
  178:subsystems/ins/ins_int.c **** void ins_update_baro() {
- 778              		.loc 3 178 0
- 779 0002 08B5     		push	{r3, lr}
- 780              	.LCFI6:
- 781              		.cfi_def_cfa_offset 8
- 782              		.cfi_offset 3, -8
- 783              		.cfi_offset 14, -4
- 784              		.loc 3 180 0
- 785 0004 0A7A     		ldrb	r2, [r1, #8]	@ zero_extendqisi2
- 786 0006 012A     		cmp	r2, #1
- 787 0008 43D1     		bne	.L34
+ 777              		.loc 3 178 0
+ 778 0002 08B5     		push	{r3, lr}
+ 779              	.LCFI6:
+ 780              		.cfi_def_cfa_offset 8
+ 781              		.cfi_offset 3, -8
+ 782              		.cfi_offset 14, -4
+ 783              		.loc 3 180 0
+ 784 0004 0A7A     		ldrb	r2, [r1, #8]	@ zero_extendqisi2
+ 785 0006 012A     		cmp	r2, #1
+ 786 0008 43D1     		bne	.L34
  181:subsystems/ins/ins_int.c ****     if (!ins_baro_initialised) {
- 788              		.loc 3 181 0
- 789 000a 274B     		ldr	r3, .L37+4
- 790 000c 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
- 791 000e 18B9     		cbnz	r0, .L35
+ 787              		.loc 3 181 0
+ 788 000a 274B     		ldr	r3, .L37+4
+ 789 000c 1878     		ldrb	r0, [r3, #0]	@ zero_extendqisi2
+ 790 000e 18B9     		cbnz	r0, .L35
  182:subsystems/ins/ins_int.c ****       ins_qfe = baro.absolute;
- 792              		.loc 3 182 0
- 793 0010 0868     		ldr	r0, [r1, #0]
- 794 0012 2649     		ldr	r1, .L37+8
+ 791              		.loc 3 182 0
+ 792 0010 0868     		ldr	r0, [r1, #0]
+ 793 0012 2649     		ldr	r1, .L37+8
  183:subsystems/ins/ins_int.c ****       ins_baro_initialised = TRUE;
- 795              		.loc 3 183 0
- 796 0014 1A70     		strb	r2, [r3, #0]
+ 794              		.loc 3 183 0
+ 795 0014 1A70     		strb	r2, [r3, #0]
  182:subsystems/ins/ins_int.c ****       ins_qfe = baro.absolute;
- 797              		.loc 3 182 0
- 798 0016 0860     		str	r0, [r1, #0]
- 799              	.L35:
+ 796              		.loc 3 182 0
+ 797 0016 0860     		str	r0, [r1, #0]
+ 798              	.L35:
  184:subsystems/ins/ins_int.c ****     }
  185:subsystems/ins/ins_int.c ****     if (ins.vf_realign) {
- 800              		.loc 3 185 0
- 801 0018 2549     		ldr	r1, .L37+12
- 802 001a 224A     		ldr	r2, .L37
- 803 001c 8878     		ldrb	r0, [r1, #2]	@ zero_extendqisi2
- 804 001e 234B     		ldr	r3, .L37+8
- 805 0020 28B3     		cbz	r0, .L36
+ 799              		.loc 3 185 0
+ 800 0018 2549     		ldr	r1, .L37+12
+ 801 001a 224A     		ldr	r2, .L37
+ 802 001c 8878     		ldrb	r0, [r1, #2]	@ zero_extendqisi2
+ 803 001e 234B     		ldr	r3, .L37+8
+ 804 0020 28B3     		cbz	r0, .L36
  186:subsystems/ins/ins_int.c ****       ins.vf_realign = FALSE;
- 806              		.loc 3 186 0
- 807 0022 0020     		movs	r0, #0
- 808 0024 8870     		strb	r0, [r1, #2]
+ 805              		.loc 3 186 0
+ 806 0022 0020     		movs	r0, #0
+ 807 0024 8870     		strb	r0, [r1, #2]
  187:subsystems/ins/ins_int.c ****       ins_qfe = baro.absolute;
- 809              		.loc 3 187 0
- 810 0026 1168     		ldr	r1, [r2, #0]
+ 808              		.loc 3 187 0
+ 809 0026 1168     		ldr	r1, [r2, #0]
  188:subsystems/ins/ins_int.c **** #if USE_SONAR
  189:subsystems/ins/ins_int.c ****       ins_sonar_offset = sonar_meas;
  190:subsystems/ins/ins_int.c **** #endif
  191:subsystems/ins/ins_int.c ****       vff_realign(0.);
- 811              		.loc 3 191 0
- 812 0028 0020     		movs	r0, #0
+ 810              		.loc 3 191 0
+ 811 0028 0020     		movs	r0, #0
  187:subsystems/ins/ins_int.c ****       ins_qfe = baro.absolute;
- 813              		.loc 3 187 0
- 814 002a 1960     		str	r1, [r3, #0]
- 815              		.loc 3 191 0
- 816 002c FFF7FEFF 		bl	vff_realign
- 817              	.LVL84:
+ 812              		.loc 3 187 0
+ 813 002a 1960     		str	r1, [r3, #0]
+ 814              		.loc 3 191 0
+ 815 002c FFF7FEFF 		bl	vff_realign
+ 816              	.LVL84:
  192:subsystems/ins/ins_int.c ****       ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
- 818              		.loc 3 192 0
- 819 0030 204B     		ldr	r3, .L37+16
- 820 0032 4FF08941 		mov	r1, #1149239296
- 821 0036 1868     		ldr	r0, [r3, #0]	@ float
- 822 0038 FFF7FEFF 		bl	__aeabi_fmul
- 823              	.LVL85:
- 824 003c FFF7FEFF 		bl	__aeabi_f2iz
- 825              	.LVL86:
- 826 0040 1D4A     		ldr	r2, .L37+20
+ 817              		.loc 3 192 0
+ 818 0030 204B     		ldr	r3, .L37+16
+ 819 0032 4FF08941 		mov	r1, #1149239296
+ 820 0036 1868     		ldr	r0, [r3, #0]	@ float
+ 821 0038 FFF7FEFF 		bl	__aeabi_fmul
+ 822              	.LVL85:
+ 823 003c FFF7FEFF 		bl	__aeabi_f2iz
+ 824              	.LVL86:
+ 825 0040 1D4A     		ldr	r2, .L37+20
  193:subsystems/ins/ins_int.c ****       ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
- 827              		.loc 3 193 0
- 828 0042 4FF09241 		mov	r1, #1224736768
+ 826              		.loc 3 193 0
+ 827 0042 4FF09241 		mov	r1, #1224736768
  192:subsystems/ins/ins_int.c ****       ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
- 829              		.loc 3 192 0
- 830 0046 9060     		str	r0, [r2, #8]
- 831              		.loc 3 193 0
- 832 0048 1C48     		ldr	r0, .L37+24
- 833 004a 0068     		ldr	r0, [r0, #0]	@ float
- 834 004c FFF7FEFF 		bl	__aeabi_fmul
- 835              	.LVL87:
- 836 0050 FFF7FEFF 		bl	__aeabi_f2iz
- 837              	.LVL88:
+ 828              		.loc 3 192 0
+ 829 0046 9060     		str	r0, [r2, #8]
+ 830              		.loc 3 193 0
+ 831 0048 1C48     		ldr	r0, .L37+24
+ 832 004a 0068     		ldr	r0, [r0, #0]	@ float
+ 833 004c FFF7FEFF 		bl	__aeabi_fmul
+ 834              	.LVL87:
+ 835 0050 FFF7FEFF 		bl	__aeabi_f2iz
+ 836              	.LVL88:
  194:subsystems/ins/ins_int.c ****       ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
- 838              		.loc 3 194 0
- 839 0054 1A4B     		ldr	r3, .L37+28
+ 837              		.loc 3 194 0
+ 838 0054 1A4B     		ldr	r3, .L37+28
  193:subsystems/ins/ins_int.c ****       ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
- 840              		.loc 3 193 0
- 841 0056 1B49     		ldr	r1, .L37+32
- 842 0058 8860     		str	r0, [r1, #8]
- 843              		.loc 3 194 0
- 844 005a 1868     		ldr	r0, [r3, #0]	@ float
- 845 005c 4FF08741 		mov	r1, #1132462080
- 846 0060 FFF7FEFF 		bl	__aeabi_fmul
- 847              	.LVL89:
- 848 0064 FFF7FEFF 		bl	__aeabi_f2iz
- 849              	.LVL90:
- 850 0068 174A     		ldr	r2, .L37+36
- 851 006a 9060     		str	r0, [r2, #8]
- 852 006c 11E0     		b	.L34
- 853              	.L36:
- 854              	.LBB6:
+ 839              		.loc 3 193 0
+ 840 0056 1B49     		ldr	r1, .L37+32
+ 841 0058 8860     		str	r0, [r1, #8]
+ 842              		.loc 3 194 0
+ 843 005a 1868     		ldr	r0, [r3, #0]	@ float
+ 844 005c 4FF08741 		mov	r1, #1132462080
+ 845 0060 FFF7FEFF 		bl	__aeabi_fmul
+ 846              	.LVL89:
+ 847 0064 FFF7FEFF 		bl	__aeabi_f2iz
+ 848              	.LVL90:
+ 849 0068 174A     		ldr	r2, .L37+36
+ 850 006a 9060     		str	r0, [r2, #8]
+ 851 006c 11E0     		b	.L34
+ 852              	.L36:
+ 853              	.LBB6:
  195:subsystems/ins/ins_int.c ****     }
  196:subsystems/ins/ins_int.c ****     else { /* not realigning, so normal update with baro measurement */
  197:subsystems/ins/ins_int.c ****       ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
- 855              		.loc 3 197 0
- 856 006e 1168     		ldr	r1, [r2, #0]
- 857 0070 1868     		ldr	r0, [r3, #0]
- 858 0072 DF23     		movs	r3, #223
- 859 0074 0A1A     		subs	r2, r1, r0
- 860 0076 5A43     		muls	r2, r3, r2
- 861 0078 0A21     		movs	r1, #10
- 862 007a 92FBF1F0 		sdiv	r0, r2, r1
- 863 007e 134A     		ldr	r2, .L37+40
- 864 0080 1060     		str	r0, [r2, #0]
- 865              	.LVL91:
+ 854              		.loc 3 197 0
+ 855 006e 1168     		ldr	r1, [r2, #0]
+ 856 0070 1868     		ldr	r0, [r3, #0]
+ 857 0072 DF23     		movs	r3, #223
+ 858 0074 0A1A     		subs	r2, r1, r0
+ 859 0076 5A43     		muls	r2, r3, r2
+ 860 0078 0A21     		movs	r1, #10
+ 861 007a 92FBF1F0 		sdiv	r0, r2, r1
+ 862 007e 134A     		ldr	r2, .L37+40
+ 863 0080 1060     		str	r0, [r2, #0]
+ 864              	.LVL91:
  198:subsystems/ins/ins_int.c ****       float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
- 866              		.loc 3 198 0
- 867 0082 FFF7FEFF 		bl	__aeabi_i2f
- 868              	.LVL92:
- 869 0086 4FF06E51 		mov	r1, #998244352
- 870 008a FFF7FEFF 		bl	__aeabi_fmul
- 871              	.LVL93:
+ 865              		.loc 3 198 0
+ 866 0082 FFF7FEFF 		bl	__aeabi_i2f
+ 867              	.LVL92:
+ 868 0086 4FF06E51 		mov	r1, #998244352
+ 869 008a FFF7FEFF 		bl	__aeabi_fmul
+ 870              	.LVL93:
  199:subsystems/ins/ins_int.c ****       vff_update(alt_float);
- 872              		.loc 3 199 0
- 873 008e FFF7FEFF 		bl	vff_update
- 874              	.LVL94:
- 875              	.L34:
- 876              	.LBE6:
+ 871              		.loc 3 199 0
+ 872 008e FFF7FEFF 		bl	vff_update
+ 873              	.LVL94:
+ 874              	.L34:
+ 875              	.LBE6:
  200:subsystems/ins/ins_int.c ****     }
  201:subsystems/ins/ins_int.c ****   }
  202:subsystems/ins/ins_int.c ****   INS_NED_TO_STATE();
- 877              		.loc 3 202 0
- 878 0092 FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
- 879              	.LVL95:
- 880 0096 FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
- 881              	.LVL96:
+ 876              		.loc 3 202 0
+ 877 0092 FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
+ 878              	.LVL95:
+ 879 0096 FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
+ 880              	.LVL96:
  203:subsystems/ins/ins_int.c **** #endif
  204:subsystems/ins/ins_int.c **** }
- 882              		.loc 3 204 0
- 883 009a BDE80840 		pop	{r3, lr}
+ 881              		.loc 3 204 0
+ 882 009a BDE80840 		pop	{r3, lr}
  202:subsystems/ins/ins_int.c ****   INS_NED_TO_STATE();
- 884              		.loc 3 202 0
- 885 009e FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
- 886              	.LVL97:
- 887              	.L38:
- 888 00a2 00BF     		.align	2
- 889              	.L37:
- 890 00a4 00000000 		.word	baro
- 891 00a8 00000000 		.word	.LANCHOR5
- 892 00ac 00000000 		.word	.LANCHOR6
- 893 00b0 00000000 		.word	ins
- 894 00b4 00000000 		.word	vff_zdotdot
- 895 00b8 00000000 		.word	.LANCHOR0
- 896 00bc 00000000 		.word	vff_zdot
- 897 00c0 00000000 		.word	vff_z
- 898 00c4 00000000 		.word	.LANCHOR1
- 899 00c8 00000000 		.word	.LANCHOR2
- 900 00cc 00000000 		.word	.LANCHOR7
- 901              		.cfi_endproc
- 902              	.LFE128:
- 904              		.section	.text.ins_update_gps,"ax",%progbits
- 905              		.align	1
- 906              		.global	ins_update_gps
- 907              		.thumb
- 908              		.thumb_func
- 910              	ins_update_gps:
- 911              	.LFB129:
+ 883              		.loc 3 202 0
+ 884 009e FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
+ 885              	.LVL97:
+ 886              	.L38:
+ 887 00a2 00BF     		.align	2
+ 888              	.L37:
+ 889 00a4 00000000 		.word	baro
+ 890 00a8 00000000 		.word	.LANCHOR5
+ 891 00ac 00000000 		.word	.LANCHOR6
+ 892 00b0 00000000 		.word	ins
+ 893 00b4 00000000 		.word	vff_zdotdot
+ 894 00b8 00000000 		.word	.LANCHOR0
+ 895 00bc 00000000 		.word	vff_zdot
+ 896 00c0 00000000 		.word	vff_z
+ 897 00c4 00000000 		.word	.LANCHOR1
+ 898 00c8 00000000 		.word	.LANCHOR2
+ 899 00cc 00000000 		.word	.LANCHOR7
+ 900              		.cfi_endproc
+ 901              	.LFE128:
+ 903              		.section	.text.ins_update_gps,"ax",%progbits
+ 904              		.align	1
+ 905              		.global	ins_update_gps
+ 906              		.thumb
+ 907              		.thumb_func
+ 909              	ins_update_gps:
+ 910              	.LFB129:
  205:subsystems/ins/ins_int.c **** 
  206:subsystems/ins/ins_int.c **** 
  207:subsystems/ins/ins_int.c **** void ins_update_gps(void) {
- 912              		.loc 3 207 0
- 913              		.cfi_startproc
- 914              		@ args = 0, pretend = 0, frame = 0
- 915              		@ frame_needed = 0, uses_anonymous_args = 0
- 916 0000 70B5     		push	{r4, r5, r6, lr}
- 917              	.LCFI7:
- 918              		.cfi_def_cfa_offset 16
- 919              		.cfi_offset 4, -16
- 920              		.cfi_offset 5, -12
- 921              		.cfi_offset 6, -8
- 922              		.cfi_offset 14, -4
+ 911              		.loc 3 207 0
+ 912              		.cfi_startproc
+ 913              		@ args = 0, pretend = 0, frame = 0
+ 914              		@ frame_needed = 0, uses_anonymous_args = 0
+ 915 0000 70B5     		push	{r4, r5, r6, lr}
+ 916              	.LCFI7:
+ 917              		.cfi_def_cfa_offset 16
+ 918              		.cfi_offset 4, -16
+ 919              		.cfi_offset 5, -12
+ 920              		.cfi_offset 6, -8
+ 921              		.cfi_offset 14, -4
  208:subsystems/ins/ins_int.c **** #if USE_GPS
  209:subsystems/ins/ins_int.c ****   if (gps.fix == GPS_FIX_3D) {
- 923              		.loc 3 209 0
- 924 0002 224C     		ldr	r4, .L42
- 925 0004 94F85B30 		ldrb	r3, [r4, #91]	@ zero_extendqisi2
- 926 0008 032B     		cmp	r3, #3
- 927 000a 3ED1     		bne	.L39
+ 922              		.loc 3 209 0
+ 923 0002 224C     		ldr	r4, .L42
+ 924 0004 94F85B30 		ldrb	r3, [r4, #91]	@ zero_extendqisi2
+ 925 0008 032B     		cmp	r3, #3
+ 926 000a 3ED1     		bne	.L39
  210:subsystems/ins/ins_int.c ****     if (!ins_ltp_initialised) {
- 928              		.loc 3 210 0
- 929 000c 204E     		ldr	r6, .L42+4
- 930 000e 3078     		ldrb	r0, [r6, #0]	@ zero_extendqisi2
- 931 0010 60B9     		cbnz	r0, .L41
+ 927              		.loc 3 210 0
+ 928 000c 204E     		ldr	r6, .L42+4
+ 929 000e 3078     		ldrb	r0, [r6, #0]	@ zero_extendqisi2
+ 930 0010 60B9     		cbnz	r0, .L41
  211:subsystems/ins/ins_int.c ****       ltp_def_from_ecef_i(&ins_ltp_def, &gps.ecef_pos);
- 932              		.loc 3 211 0
- 933 0012 204D     		ldr	r5, .L42+8
- 934 0014 2146     		mov	r1, r4
- 935 0016 2846     		mov	r0, r5
- 936 0018 FFF7FEFF 		bl	ltp_def_from_ecef_i
- 937              	.LVL98:
+ 931              		.loc 3 211 0
+ 932 0012 204D     		ldr	r5, .L42+8
+ 933 0014 2146     		mov	r1, r4
+ 934 0016 2846     		mov	r0, r5
+ 935 0018 FFF7FEFF 		bl	ltp_def_from_ecef_i
+ 936              	.LVL98:
  212:subsystems/ins/ins_int.c ****       ins_ltp_def.lla.alt = gps.lla_pos.alt;
- 938              		.loc 3 212 0
- 939 001c 6169     		ldr	r1, [r4, #20]
+ 937              		.loc 3 212 0
+ 938 001c 6169     		ldr	r1, [r4, #20]
  213:subsystems/ins/ins_int.c ****       ins_ltp_def.hmsl = gps.hmsl;
- 940              		.loc 3 213 0
- 941 001e A26A     		ldr	r2, [r4, #40]
+ 939              		.loc 3 213 0
+ 940 001e A26A     		ldr	r2, [r4, #40]
  214:subsystems/ins/ins_int.c ****       ins_ltp_initialised = TRUE;
- 942              		.loc 3 214 0
- 943 0020 0124     		movs	r4, #1
+ 941              		.loc 3 214 0
+ 942 0020 0124     		movs	r4, #1
  212:subsystems/ins/ins_int.c ****       ins_ltp_def.lla.alt = gps.lla_pos.alt;
- 944              		.loc 3 212 0
- 945 0022 6961     		str	r1, [r5, #20]
+ 943              		.loc 3 212 0
+ 944 0022 6961     		str	r1, [r5, #20]
  213:subsystems/ins/ins_int.c ****       ins_ltp_def.hmsl = gps.hmsl;
- 946              		.loc 3 213 0
- 947 0024 EA63     		str	r2, [r5, #60]
- 948              		.loc 3 214 0
- 949 0026 3470     		strb	r4, [r6, #0]
+ 945              		.loc 3 213 0
+ 946 0024 EA63     		str	r2, [r5, #60]
+ 947              		.loc 3 214 0
+ 948 0026 3470     		strb	r4, [r6, #0]
  215:subsystems/ins/ins_int.c ****       stateSetLocalOrigin_i(&ins_ltp_def);
- 950              		.loc 3 215 0
- 951 0028 FFF7FEFF 		bl	stateSetLocalOrigin_i.constprop.3
- 952              	.LVL99:
- 953              	.L41:
+ 949              		.loc 3 215 0
+ 950 0028 FFF7FEFF 		bl	stateSetLocalOrigin_i.constprop.3
+ 951              	.LVL99:
+ 952              	.L41:
  216:subsystems/ins/ins_int.c ****     }
  217:subsystems/ins/ins_int.c ****     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
- 954              		.loc 3 217 0
- 955 002c 1A4D     		ldr	r5, .L42+12
+ 953              		.loc 3 217 0
+ 954 002c 1A4D     		ldr	r5, .L42+12
  218:subsystems/ins/ins_int.c ****     ned_of_ecef_vect_i(&ins_gps_speed_cm_s_ned, &ins_ltp_def, &gps.ecef_vel);
- 956              		.loc 3 218 0
- 957 002e 1B4C     		ldr	r4, .L42+16
+ 955              		.loc 3 218 0
+ 956 002e 1B4C     		ldr	r4, .L42+16
  217:subsystems/ins/ins_int.c ****     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
- 958              		.loc 3 217 0
- 959 0030 2846     		mov	r0, r5
- 960 0032 1849     		ldr	r1, .L42+8
- 961 0034 154A     		ldr	r2, .L42
- 962 0036 FFF7FEFF 		bl	ned_of_ecef_point_i
- 963              	.LVL100:
- 964              		.loc 3 218 0
- 965 003a 2046     		mov	r0, r4
- 966 003c 1549     		ldr	r1, .L42+8
- 967 003e 184A     		ldr	r2, .L42+20
- 968 0040 FFF7FEFF 		bl	ned_of_ecef_vect_i
- 969              	.LVL101:
+ 957              		.loc 3 217 0
+ 958 0030 2846     		mov	r0, r5
+ 959 0032 1849     		ldr	r1, .L42+8
+ 960 0034 154A     		ldr	r2, .L42
+ 961 0036 FFF7FEFF 		bl	ned_of_ecef_point_i
+ 962              	.LVL100:
+ 963              		.loc 3 218 0
+ 964 003a 2046     		mov	r0, r4
+ 965 003c 1549     		ldr	r1, .L42+8
+ 966 003e 184A     		ldr	r2, .L42+20
+ 967 0040 FFF7FEFF 		bl	ned_of_ecef_vect_i
+ 968              	.LVL101:
  219:subsystems/ins/ins_int.c **** #if USE_HFF
  220:subsystems/ins/ins_int.c ****     VECT2_ASSIGN(ins_gps_pos_m_ned, ins_gps_pos_cm_ned.x, ins_gps_pos_cm_ned.y);
  221:subsystems/ins/ins_int.c ****     VECT2_SDIV(ins_gps_pos_m_ned, ins_gps_pos_m_ned, 100.);
@@ -2449,33 +2450,33 @@
  247:subsystems/ins/ins_int.c ****     INT32_VECT3_SCALE_3(ins_ltp_speed, ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED
  248:subsystems/ins/ins_int.c **** #else /* only vff used */
  249:subsystems/ins/ins_int.c ****     INT32_VECT2_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
- 970              		.loc 3 249 0
- 971 0044 2868     		ldr	r0, [r5, #0]
- 972 0046 1922     		movs	r2, #25
- 973 0048 8101     		lsls	r1, r0, #6
- 974 004a 91FBF2F0 		sdiv	r0, r1, r2
- 975 004e 154B     		ldr	r3, .L42+24
- 976 0050 6968     		ldr	r1, [r5, #4]
- 977 0052 1860     		str	r0, [r3, #0]
- 978 0054 8801     		lsls	r0, r1, #6
- 979 0056 90FBF2F2 		sdiv	r2, r0, r2
+ 969              		.loc 3 249 0
+ 970 0044 2868     		ldr	r0, [r5, #0]
+ 971 0046 1922     		movs	r2, #25
+ 972 0048 8101     		lsls	r1, r0, #6
+ 973 004a 91FBF2F0 		sdiv	r0, r1, r2
+ 974 004e 154B     		ldr	r3, .L42+24
+ 975 0050 6968     		ldr	r1, [r5, #4]
+ 976 0052 1860     		str	r0, [r3, #0]
+ 977 0054 8801     		lsls	r0, r1, #6
+ 978 0056 90FBF2F2 		sdiv	r2, r0, r2
  250:subsystems/ins/ins_int.c ****     INT32_VECT2_SCALE_2(ins_ltp_speed, ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED
- 980              		.loc 3 250 0
- 981 005a 2068     		ldr	r0, [r4, #0]
- 982 005c 4AF2D731 		movw	r1, #41943
- 983 0060 01FB00F0 		mul	r0, r1, r0
+ 979              		.loc 3 250 0
+ 980 005a 2068     		ldr	r0, [r4, #0]
+ 981 005c 4AF2D731 		movw	r1, #41943
+ 982 0060 01FB00F0 		mul	r0, r1, r0
  249:subsystems/ins/ins_int.c ****     INT32_VECT2_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
- 984              		.loc 3 249 0
- 985 0064 5A60     		str	r2, [r3, #4]
- 986              		.loc 3 250 0
- 987 0066 104B     		ldr	r3, .L42+28
- 988 0068 0822     		movs	r2, #8
- 989 006a 90FBF2F0 		sdiv	r0, r0, r2
- 990 006e 1860     		str	r0, [r3, #0]
- 991 0070 6068     		ldr	r0, [r4, #4]
- 992 0072 4143     		muls	r1, r0, r1
- 993 0074 91FBF2F1 		sdiv	r1, r1, r2
- 994 0078 5960     		str	r1, [r3, #4]
+ 983              		.loc 3 249 0
+ 984 0064 5A60     		str	r2, [r3, #4]
+ 985              		.loc 3 250 0
+ 986 0066 104B     		ldr	r3, .L42+28
+ 987 0068 0822     		movs	r2, #8
+ 988 006a 90FBF2F0 		sdiv	r0, r0, r2
+ 989 006e 1860     		str	r0, [r3, #0]
+ 990 0070 6068     		ldr	r0, [r4, #4]
+ 991 0072 4143     		muls	r1, r0, r1
+ 992 0074 91FBF2F1 		sdiv	r1, r1, r2
+ 993 0078 5960     		str	r1, [r3, #4]
  251:subsystems/ins/ins_int.c **** #endif
  252:subsystems/ins/ins_int.c **** 
  253:subsystems/ins/ins_int.c **** #if USE_GPS_LAG_HACK
@@ -2486,203 +2487,203 @@
  258:subsystems/ins/ins_int.c **** #endif /* hff not used */
  259:subsystems/ins/ins_int.c **** 
  260:subsystems/ins/ins_int.c ****     INS_NED_TO_STATE();
- 995              		.loc 3 260 0
- 996 007a FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
- 997              	.LVL102:
- 998 007e FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
- 999              	.LVL103:
+ 994              		.loc 3 260 0
+ 995 007a FFF7FEFF 		bl	stateSetPositionNed_i.constprop.2
+ 996              	.LVL102:
+ 997 007e FFF7FEFF 		bl	stateSetSpeedNed_i.constprop.1
+ 998              	.LVL103:
  261:subsystems/ins/ins_int.c ****   }
  262:subsystems/ins/ins_int.c **** #endif /* USE_GPS */
  263:subsystems/ins/ins_int.c **** }
- 1000              		.loc 3 263 0
- 1001 0082 BDE87040 		pop	{r4, r5, r6, lr}
+ 999              		.loc 3 263 0
+ 1000 0082 BDE87040 		pop	{r4, r5, r6, lr}
  260:subsystems/ins/ins_int.c ****     INS_NED_TO_STATE();
- 1002              		.loc 3 260 0
- 1003 0086 FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
- 1004              	.LVL104:
- 1005              	.L39:
- 1006 008a 70BD     		pop	{r4, r5, r6, pc}
- 1007              	.L43:
- 1008              		.align	2
- 1009              	.L42:
- 1010 008c 00000000 		.word	gps
- 1011 0090 00000000 		.word	.LANCHOR4
- 1012 0094 00000000 		.word	.LANCHOR3
- 1013 0098 00000000 		.word	.LANCHOR8
- 1014 009c 00000000 		.word	.LANCHOR9
- 1015 00a0 2C000000 		.word	gps+44
- 1016 00a4 00000000 		.word	.LANCHOR2
- 1017 00a8 00000000 		.word	.LANCHOR1
- 1018              		.cfi_endproc
- 1019              	.LFE129:
- 1021              		.section	.text.ins_update_sonar,"ax",%progbits
- 1022              		.align	1
- 1023              		.global	ins_update_sonar
- 1024              		.thumb
- 1025              		.thumb_func
- 1027              	ins_update_sonar:
- 1028              	.LFB130:
+ 1001              		.loc 3 260 0
+ 1002 0086 FFF7FEBF 		b	stateSetAccelNed_i.constprop.0
+ 1003              	.LVL104:
+ 1004              	.L39:
+ 1005 008a 70BD     		pop	{r4, r5, r6, pc}
+ 1006              	.L43:
+ 1007              		.align	2
+ 1008              	.L42:
+ 1009 008c 00000000 		.word	gps
+ 1010 0090 00000000 		.word	.LANCHOR4
+ 1011 0094 00000000 		.word	.LANCHOR3
+ 1012 0098 00000000 		.word	.LANCHOR8
+ 1013 009c 00000000 		.word	.LANCHOR9
+ 1014 00a0 2C000000 		.word	gps+44
+ 1015 00a4 00000000 		.word	.LANCHOR2
+ 1016 00a8 00000000 		.word	.LANCHOR1
+ 1017              		.cfi_endproc
+ 1018              	.LFE129:
+ 1020              		.section	.text.ins_update_sonar,"ax",%progbits
+ 1021              		.align	1
+ 1022              		.global	ins_update_sonar
+ 1023              		.thumb
+ 1024              		.thumb_func
+ 1026              	ins_update_sonar:
+ 1027              	.LFB130:
  264:subsystems/ins/ins_int.c **** 
  265:subsystems/ins/ins_int.c **** void ins_update_sonar() {
- 1029              		.loc 3 265 0
- 1030              		.cfi_startproc
- 1031              		@ args = 0, pretend = 0, frame = 0
- 1032              		@ frame_needed = 0, uses_anonymous_args = 0
- 1033              		@ link register save eliminated.
- 1034 0000 7047     		bx	lr
- 1035              		.cfi_endproc
- 1036              	.LFE130:
- 1038              		.global	ins_ltp_accel
- 1039              		.global	ins_ltp_speed
- 1040              		.global	ins_ltp_pos
- 1041              		.global	ins_baro_alt
- 1042              		.global	ins_baro_initialised
- 1043              		.global	ins_qfe
- 1044              		.global	ins_gps_speed_cm_s_ned
- 1045              		.global	ins_gps_pos_cm_ned
- 1046              		.global	ins_ltp_initialised
- 1047              		.global	ins_ltp_def
- 1048              		.section	.bss.ins_baro_initialised,"aw",%nobits
- 1049              		.set	.LANCHOR5,. + 0
- 1052              	ins_baro_initialised:
- 1053 0000 00       		.space	1
- 1054              		.section	.bss.ins_ltp_pos,"aw",%nobits
- 1055              		.align	2
- 1056              		.set	.LANCHOR2,. + 0
- 1059              	ins_ltp_pos:
- 1060 0000 00000000 		.space	12
- 1060      00000000 
- 1060      00000000 
- 1061              		.section	.bss.ins_ltp_accel,"aw",%nobits
- 1062              		.align	2
- 1063              		.set	.LANCHOR0,. + 0
- 1066              	ins_ltp_accel:
- 1067 0000 00000000 		.space	12
- 1067      00000000 
- 1067      00000000 
- 1068              		.section	.bss.ins_baro_alt,"aw",%nobits
- 1069              		.align	2
- 1070              		.set	.LANCHOR7,. + 0
- 1073              	ins_baro_alt:
- 1074 0000 00000000 		.space	4
- 1075              		.section	.bss.ins_ltp_def,"aw",%nobits
- 1076              		.align	2
- 1077              		.set	.LANCHOR3,. + 0
- 1080              	ins_ltp_def:
- 1081 0000 00000000 		.space	64
- 1081      00000000 
- 1081      00000000 
- 1081      00000000 
- 1081      00000000 
- 1082              		.section	.bss.ins_gps_pos_cm_ned,"aw",%nobits
- 1083              		.align	2
- 1084              		.set	.LANCHOR8,. + 0
- 1087              	ins_gps_pos_cm_ned:
- 1088 0000 00000000 		.space	12
- 1088      00000000 
- 1088      00000000 
- 1089              		.section	.bss.ins_qfe,"aw",%nobits
- 1090              		.align	2
- 1091              		.set	.LANCHOR6,. + 0
- 1094              	ins_qfe:
- 1095 0000 00000000 		.space	4
- 1096              		.section	.bss.ins_gps_speed_cm_s_ned,"aw",%nobits
- 1097              		.align	2
- 1098              		.set	.LANCHOR9,. + 0
- 1101              	ins_gps_speed_cm_s_ned:
- 1102 0000 00000000 		.space	12
- 1102      00000000 
- 1102      00000000 
- 1103              		.section	.bss.ins_ltp_speed,"aw",%nobits
- 1104              		.align	2
- 1105              		.set	.LANCHOR1,. + 0
- 1108              	ins_ltp_speed:
- 1109 0000 00000000 		.space	12
- 1109      00000000 
- 1109      00000000 
- 1110              		.section	.bss.ins_ltp_initialised,"aw",%nobits
- 1111              		.set	.LANCHOR4,. + 0
- 1114              	ins_ltp_initialised:
- 1115 0000 00       		.space	1
- 1116              		.text
- 1117              	.Letext0:
- 1118              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
- 1119              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
- 1120              		.file 6 "./math/pprz_algebra_int.h"
- 1121              		.file 7 "./math/pprz_geodetic_int.h"
- 1122              		.file 8 "./math/pprz_algebra_float.h"
- 1123              		.file 9 "./math/pprz_geodetic_float.h"
- 1124              		.file 10 "./subsystems/ins.h"
- 1125              		.file 11 "./subsystems/imu.h"
- 1126              		.file 12 "./mcu_periph/spi.h"
- 1127              		.file 13 "./peripherals/mpu60x0_regs.h"
- 1128              		.file 14 "./peripherals/mpu60x0.h"
- 1129              		.file 15 "./peripherals/mpu60x0_spi.h"
- 1130              		.file 16 "./subsystems/imu/imu_aspirin_2_spi.h"
- 1131              		.file 17 "./subsystems/sensors/baro.h"
- 1132              		.file 18 "./mcu_periph/sys_time.h"
- 1133              		.file 19 "./subsystems/gps.h"
- 1134              		.file 20 "./subsystems/ins/vf_float.h"
- 1135              		.file 21 "firmwares/rotorcraft/autopilot.h"
+ 1028              		.loc 3 265 0
+ 1029              		.cfi_startproc
+ 1030              		@ args = 0, pretend = 0, frame = 0
+ 1031              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1032              		@ link register save eliminated.
+ 1033 0000 7047     		bx	lr
+ 1034              		.cfi_endproc
+ 1035              	.LFE130:
+ 1037              		.global	ins_ltp_accel
+ 1038              		.global	ins_ltp_speed
+ 1039              		.global	ins_ltp_pos
+ 1040              		.global	ins_baro_alt
+ 1041              		.global	ins_baro_initialised
+ 1042              		.global	ins_qfe
+ 1043              		.global	ins_gps_speed_cm_s_ned
+ 1044              		.global	ins_gps_pos_cm_ned
+ 1045              		.global	ins_ltp_initialised
+ 1046              		.global	ins_ltp_def
+ 1047              		.section	.bss.ins_baro_initialised,"aw",%nobits
+ 1048              		.set	.LANCHOR5,. + 0
+ 1051              	ins_baro_initialised:
+ 1052 0000 00       		.space	1
+ 1053              		.section	.bss.ins_ltp_pos,"aw",%nobits
+ 1054              		.align	2
+ 1055              		.set	.LANCHOR2,. + 0
+ 1058              	ins_ltp_pos:
+ 1059 0000 00000000 		.space	12
+ 1059      00000000 
+ 1059      00000000 
+ 1060              		.section	.bss.ins_ltp_accel,"aw",%nobits
+ 1061              		.align	2
+ 1062              		.set	.LANCHOR0,. + 0
+ 1065              	ins_ltp_accel:
+ 1066 0000 00000000 		.space	12
+ 1066      00000000 
+ 1066      00000000 
+ 1067              		.section	.bss.ins_baro_alt,"aw",%nobits
+ 1068              		.align	2
+ 1069              		.set	.LANCHOR7,. + 0
+ 1072              	ins_baro_alt:
+ 1073 0000 00000000 		.space	4
+ 1074              		.section	.bss.ins_ltp_def,"aw",%nobits
+ 1075              		.align	2
+ 1076              		.set	.LANCHOR3,. + 0
+ 1079              	ins_ltp_def:
+ 1080 0000 00000000 		.space	64
+ 1080      00000000 
+ 1080      00000000 
+ 1080      00000000 
+ 1080      00000000 
+ 1081              		.section	.bss.ins_gps_pos_cm_ned,"aw",%nobits
+ 1082              		.align	2
+ 1083              		.set	.LANCHOR8,. + 0
+ 1086              	ins_gps_pos_cm_ned:
+ 1087 0000 00000000 		.space	12
+ 1087      00000000 
+ 1087      00000000 
+ 1088              		.section	.bss.ins_qfe,"aw",%nobits
+ 1089              		.align	2
+ 1090              		.set	.LANCHOR6,. + 0
+ 1093              	ins_qfe:
+ 1094 0000 00000000 		.space	4
+ 1095              		.section	.bss.ins_gps_speed_cm_s_ned,"aw",%nobits
+ 1096              		.align	2
+ 1097              		.set	.LANCHOR9,. + 0
+ 1100              	ins_gps_speed_cm_s_ned:
+ 1101 0000 00000000 		.space	12
+ 1101      00000000 
+ 1101      00000000 
+ 1102              		.section	.bss.ins_ltp_speed,"aw",%nobits
+ 1103              		.align	2
+ 1104              		.set	.LANCHOR1,. + 0
+ 1107              	ins_ltp_speed:
+ 1108 0000 00000000 		.space	12
+ 1108      00000000 
+ 1108      00000000 
+ 1109              		.section	.bss.ins_ltp_initialised,"aw",%nobits
+ 1110              		.set	.LANCHOR4,. + 0
+ 1113              	ins_ltp_initialised:
+ 1114 0000 00       		.space	1
+ 1115              		.text
+ 1116              	.Letext0:
+ 1117              		.file 4 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
+ 1118              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 1119              		.file 6 "./math/pprz_algebra_int.h"
+ 1120              		.file 7 "./math/pprz_geodetic_int.h"
+ 1121              		.file 8 "./math/pprz_algebra_float.h"
+ 1122              		.file 9 "./math/pprz_geodetic_float.h"
+ 1123              		.file 10 "./subsystems/ins.h"
+ 1124              		.file 11 "./subsystems/imu.h"
+ 1125              		.file 12 "./mcu_periph/spi.h"
+ 1126              		.file 13 "./peripherals/mpu60x0_regs.h"
+ 1127              		.file 14 "./peripherals/mpu60x0.h"
+ 1128              		.file 15 "./peripherals/mpu60x0_spi.h"
+ 1129              		.file 16 "./subsystems/imu/imu_aspirin_2_spi.h"
+ 1130              		.file 17 "./subsystems/sensors/baro.h"
+ 1131              		.file 18 "./mcu_periph/sys_time.h"
+ 1132              		.file 19 "./subsystems/gps.h"
+ 1133              		.file 20 "./subsystems/ins/vf_float.h"
+ 1134              		.file 21 "firmwares/rotorcraft/autopilot.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ins_int.c
-/var/tmp//ccrHCIbA.s:19     .text.stateSetAccelNed_i.constprop.0:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:23     .text.stateSetAccelNed_i.constprop.0:0000000000000000 stateSetAccelNed_i.constprop.0
-/var/tmp//ccrHCIbA.s:50     .text.stateSetAccelNed_i.constprop.0:0000000000000020 $d
-/var/tmp//ccrHCIbA.s:56     .text.stateSetSpeedNed_i.constprop.1:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:60     .text.stateSetSpeedNed_i.constprop.1:0000000000000000 stateSetSpeedNed_i.constprop.1
-/var/tmp//ccrHCIbA.s:86     .text.stateSetSpeedNed_i.constprop.1:0000000000000020 $d
-/var/tmp//ccrHCIbA.s:92     .text.stateSetPositionNed_i.constprop.2:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:96     .text.stateSetPositionNed_i.constprop.2:0000000000000000 stateSetPositionNed_i.constprop.2
-/var/tmp//ccrHCIbA.s:122    .text.stateSetPositionNed_i.constprop.2:0000000000000018 $d
-/var/tmp//ccrHCIbA.s:133    .text.stateSetLocalOrigin_i.constprop.3:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:137    .text.stateSetLocalOrigin_i.constprop.3:0000000000000000 stateSetLocalOrigin_i.constprop.3
-/var/tmp//ccrHCIbA.s:328    .text.stateSetLocalOrigin_i.constprop.3:0000000000000190 $d
-/var/tmp//ccrHCIbA.s:338    .text.stateGetNedToBodyRMat_i:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:342    .text.stateGetNedToBodyRMat_i:0000000000000000 stateGetNedToBodyRMat_i
-/var/tmp//ccrHCIbA.s:375    .text.stateGetNedToBodyRMat_i:0000000000000018 $d
-/var/tmp//ccrHCIbA.s:381    .text.ins_init:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:386    .text.ins_init:0000000000000000 ins_init
-/var/tmp//ccrHCIbA.s:477    .text.ins_init:0000000000000064 $d
-/var/tmp//ccrHCIbA.s:492    .text.ins_periodic:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:497    .text.ins_periodic:0000000000000000 ins_periodic
-/var/tmp//ccrHCIbA.s:509    .text.ins_realign_h:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:514    .text.ins_realign_h:0000000000000000 ins_realign_h
-/var/tmp//ccrHCIbA.s:540    .text.ins_realign_v:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:545    .text.ins_realign_v:0000000000000000 ins_realign_v
-/var/tmp//ccrHCIbA.s:564    .text.ins_propagate:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:569    .text.ins_propagate:0000000000000000 ins_propagate
-/var/tmp//ccrHCIbA.s:750    .text.ins_propagate:0000000000000140 $d
-/var/tmp//ccrHCIbA.s:765    .text.ins_update_baro:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:770    .text.ins_update_baro:0000000000000000 ins_update_baro
-/var/tmp//ccrHCIbA.s:890    .text.ins_update_baro:00000000000000a4 $d
-/var/tmp//ccrHCIbA.s:905    .text.ins_update_gps:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:910    .text.ins_update_gps:0000000000000000 ins_update_gps
-/var/tmp//ccrHCIbA.s:1010   .text.ins_update_gps:000000000000008c $d
-/var/tmp//ccrHCIbA.s:1022   .text.ins_update_sonar:0000000000000000 $t
-/var/tmp//ccrHCIbA.s:1027   .text.ins_update_sonar:0000000000000000 ins_update_sonar
-/var/tmp//ccrHCIbA.s:1066   .bss.ins_ltp_accel:0000000000000000 ins_ltp_accel
-/var/tmp//ccrHCIbA.s:1108   .bss.ins_ltp_speed:0000000000000000 ins_ltp_speed
-/var/tmp//ccrHCIbA.s:1059   .bss.ins_ltp_pos:0000000000000000 ins_ltp_pos
-/var/tmp//ccrHCIbA.s:1073   .bss.ins_baro_alt:0000000000000000 ins_baro_alt
-/var/tmp//ccrHCIbA.s:1052   .bss.ins_baro_initialised:0000000000000000 ins_baro_initialised
-/var/tmp//ccrHCIbA.s:1094   .bss.ins_qfe:0000000000000000 ins_qfe
-/var/tmp//ccrHCIbA.s:1101   .bss.ins_gps_speed_cm_s_ned:0000000000000000 ins_gps_speed_cm_s_ned
-/var/tmp//ccrHCIbA.s:1087   .bss.ins_gps_pos_cm_ned:0000000000000000 ins_gps_pos_cm_ned
-/var/tmp//ccrHCIbA.s:1114   .bss.ins_ltp_initialised:0000000000000000 ins_ltp_initialised
-/var/tmp//ccrHCIbA.s:1080   .bss.ins_ltp_def:0000000000000000 ins_ltp_def
-/var/tmp//ccrHCIbA.s:1053   .bss.ins_baro_initialised:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1055   .bss.ins_ltp_pos:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1062   .bss.ins_ltp_accel:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1069   .bss.ins_baro_alt:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1076   .bss.ins_ltp_def:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1083   .bss.ins_gps_pos_cm_ned:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1090   .bss.ins_qfe:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1097   .bss.ins_gps_speed_cm_s_ned:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1104   .bss.ins_ltp_speed:0000000000000000 $d
-/var/tmp//ccrHCIbA.s:1115   .bss.ins_ltp_initialised:0000000000000000 $d
+/var/tmp//cce9osTz.s:19     .text.stateSetAccelNed_i.constprop.0:0000000000000000 $t
+/var/tmp//cce9osTz.s:23     .text.stateSetAccelNed_i.constprop.0:0000000000000000 stateSetAccelNed_i.constprop.0
+/var/tmp//cce9osTz.s:50     .text.stateSetAccelNed_i.constprop.0:0000000000000020 $d
+/var/tmp//cce9osTz.s:56     .text.stateSetSpeedNed_i.constprop.1:0000000000000000 $t
+/var/tmp//cce9osTz.s:60     .text.stateSetSpeedNed_i.constprop.1:0000000000000000 stateSetSpeedNed_i.constprop.1
+/var/tmp//cce9osTz.s:86     .text.stateSetSpeedNed_i.constprop.1:0000000000000020 $d
+/var/tmp//cce9osTz.s:92     .text.stateSetPositionNed_i.constprop.2:0000000000000000 $t
+/var/tmp//cce9osTz.s:96     .text.stateSetPositionNed_i.constprop.2:0000000000000000 stateSetPositionNed_i.constprop.2
+/var/tmp//cce9osTz.s:122    .text.stateSetPositionNed_i.constprop.2:0000000000000018 $d
+/var/tmp//cce9osTz.s:133    .text.stateSetLocalOrigin_i.constprop.3:0000000000000000 $t
+/var/tmp//cce9osTz.s:137    .text.stateSetLocalOrigin_i.constprop.3:0000000000000000 stateSetLocalOrigin_i.constprop.3
+/var/tmp//cce9osTz.s:328    .text.stateSetLocalOrigin_i.constprop.3:0000000000000190 $d
+/var/tmp//cce9osTz.s:338    .text.stateGetNedToBodyRMat_i:0000000000000000 $t
+/var/tmp//cce9osTz.s:342    .text.stateGetNedToBodyRMat_i:0000000000000000 stateGetNedToBodyRMat_i
+/var/tmp//cce9osTz.s:375    .text.stateGetNedToBodyRMat_i:0000000000000018 $d
+/var/tmp//cce9osTz.s:381    .text.ins_init:0000000000000000 $t
+/var/tmp//cce9osTz.s:386    .text.ins_init:0000000000000000 ins_init
+/var/tmp//cce9osTz.s:478    .text.ins_init:0000000000000064 $d
+/var/tmp//cce9osTz.s:491    .text.ins_periodic:0000000000000000 $t
+/var/tmp//cce9osTz.s:496    .text.ins_periodic:0000000000000000 ins_periodic
+/var/tmp//cce9osTz.s:508    .text.ins_realign_h:0000000000000000 $t
+/var/tmp//cce9osTz.s:513    .text.ins_realign_h:0000000000000000 ins_realign_h
+/var/tmp//cce9osTz.s:539    .text.ins_realign_v:0000000000000000 $t
+/var/tmp//cce9osTz.s:544    .text.ins_realign_v:0000000000000000 ins_realign_v
+/var/tmp//cce9osTz.s:563    .text.ins_propagate:0000000000000000 $t
+/var/tmp//cce9osTz.s:568    .text.ins_propagate:0000000000000000 ins_propagate
+/var/tmp//cce9osTz.s:749    .text.ins_propagate:0000000000000140 $d
+/var/tmp//cce9osTz.s:764    .text.ins_update_baro:0000000000000000 $t
+/var/tmp//cce9osTz.s:769    .text.ins_update_baro:0000000000000000 ins_update_baro
+/var/tmp//cce9osTz.s:889    .text.ins_update_baro:00000000000000a4 $d
+/var/tmp//cce9osTz.s:904    .text.ins_update_gps:0000000000000000 $t
+/var/tmp//cce9osTz.s:909    .text.ins_update_gps:0000000000000000 ins_update_gps
+/var/tmp//cce9osTz.s:1009   .text.ins_update_gps:000000000000008c $d
+/var/tmp//cce9osTz.s:1021   .text.ins_update_sonar:0000000000000000 $t
+/var/tmp//cce9osTz.s:1026   .text.ins_update_sonar:0000000000000000 ins_update_sonar
+/var/tmp//cce9osTz.s:1065   .bss.ins_ltp_accel:0000000000000000 ins_ltp_accel
+/var/tmp//cce9osTz.s:1107   .bss.ins_ltp_speed:0000000000000000 ins_ltp_speed
+/var/tmp//cce9osTz.s:1058   .bss.ins_ltp_pos:0000000000000000 ins_ltp_pos
+/var/tmp//cce9osTz.s:1072   .bss.ins_baro_alt:0000000000000000 ins_baro_alt
+/var/tmp//cce9osTz.s:1051   .bss.ins_baro_initialised:0000000000000000 ins_baro_initialised
+/var/tmp//cce9osTz.s:1093   .bss.ins_qfe:0000000000000000 ins_qfe
+/var/tmp//cce9osTz.s:1100   .bss.ins_gps_speed_cm_s_ned:0000000000000000 ins_gps_speed_cm_s_ned
+/var/tmp//cce9osTz.s:1086   .bss.ins_gps_pos_cm_ned:0000000000000000 ins_gps_pos_cm_ned
+/var/tmp//cce9osTz.s:1113   .bss.ins_ltp_initialised:0000000000000000 ins_ltp_initialised
+/var/tmp//cce9osTz.s:1079   .bss.ins_ltp_def:0000000000000000 ins_ltp_def
+/var/tmp//cce9osTz.s:1052   .bss.ins_baro_initialised:0000000000000000 $d
+/var/tmp//cce9osTz.s:1054   .bss.ins_ltp_pos:0000000000000000 $d
+/var/tmp//cce9osTz.s:1061   .bss.ins_ltp_accel:0000000000000000 $d
+/var/tmp//cce9osTz.s:1068   .bss.ins_baro_alt:0000000000000000 $d
+/var/tmp//cce9osTz.s:1075   .bss.ins_ltp_def:0000000000000000 $d
+/var/tmp//cce9osTz.s:1082   .bss.ins_gps_pos_cm_ned:0000000000000000 $d
+/var/tmp//cce9osTz.s:1089   .bss.ins_qfe:0000000000000000 $d
+/var/tmp//cce9osTz.s:1096   .bss.ins_gps_speed_cm_s_ned:0000000000000000 $d
+/var/tmp//cce9osTz.s:1103   .bss.ins_ltp_speed:0000000000000000 $d
+/var/tmp//cce9osTz.s:1114   .bss.ins_ltp_initialised:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccrHCIbA.s:764    .text.ins_propagate:000000000000016c $t
+/var/tmp//cce9osTz.s:763    .text.ins_propagate:000000000000016c $t
 
 UNDEFINED SYMBOLS
 state

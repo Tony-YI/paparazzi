@@ -1458,7 +1458,7 @@
  153              		.loc 3 99 0
  154 0006 1370     		strb	r3, [r2, #0]
  155              		.loc 3 101 0
- 156 0008 8721     		movs	r1, #135
+ 156 0008 8221     		movs	r1, #130
  102:firmwares/rotorcraft/guidance/guidance_v.c ****   guidance_v_kd = GUIDANCE_V_HOVER_KD;
  157              		.loc 3 102 0
  158 000a 0B4A     		ldr	r2, .L15+8
@@ -1466,7 +1466,7 @@
  159              		.loc 3 101 0
  160 000c 0160     		str	r1, [r0, #0]
  161              		.loc 3 102 0
- 162 000e 6421     		movs	r1, #100
+ 162 000e 4B21     		movs	r1, #75
  163 0010 1160     		str	r1, [r2, #0]
  103:firmwares/rotorcraft/guidance/guidance_v.c ****   guidance_v_ki = GUIDANCE_V_HOVER_KI;
  104:firmwares/rotorcraft/guidance/guidance_v.c **** 
@@ -1480,7 +1480,7 @@
  169 0016 1360     		str	r3, [r2, #0]
  103:firmwares/rotorcraft/guidance/guidance_v.c ****   guidance_v_ki = GUIDANCE_V_HOVER_KI;
  170              		.loc 3 103 0
- 171 0018 1420     		movs	r0, #20
+ 171 0018 1E20     		movs	r0, #30
  172              	.LBB28:
  173              	.LBB29:
  174              		.file 4 "./firmwares/rotorcraft/guidance/guidance_v_adpt.h"
@@ -4688,82 +4688,82 @@
  2762              		.file 17 "./firmwares/rotorcraft/navigation.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 guidance_v.c
-/var/tmp//ccXgR6jU.s:19     .text.stateGetPositionNed_i:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:23     .text.stateGetPositionNed_i:0000000000000000 stateGetPositionNed_i
-/var/tmp//ccXgR6jU.s:50     .text.stateGetPositionNed_i:0000000000000014 $d
-/var/tmp//ccXgR6jU.s:56     .text.stateGetSpeedNed_i:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:60     .text.stateGetSpeedNed_i:0000000000000000 stateGetSpeedNed_i
-/var/tmp//ccXgR6jU.s:86     .text.stateGetSpeedNed_i:0000000000000014 $d
-/var/tmp//ccXgR6jU.s:92     .text.stateGetNedToBodyEulers_i:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:96     .text.stateGetNedToBodyEulers_i:0000000000000000 stateGetNedToBodyEulers_i
-/var/tmp//ccXgR6jU.s:129    .text.stateGetNedToBodyEulers_i:0000000000000018 $d
-/var/tmp//ccXgR6jU.s:135    .text.guidance_v_init:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:140    .text.guidance_v_init:0000000000000000 guidance_v_init
-/var/tmp//ccXgR6jU.s:197    .text.guidance_v_init:0000000000000030 $d
-/var/tmp//ccXgR6jU.s:210    .text.guidance_v_read_rc:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:215    .text.guidance_v_read_rc:0000000000000000 guidance_v_read_rc
-/var/tmp//ccXgR6jU.s:260    .text.guidance_v_read_rc:000000000000003c $d
-/var/tmp//ccXgR6jU.s:269    .text.guidance_v_mode_changed:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:274    .text.guidance_v_mode_changed:0000000000000000 guidance_v_mode_changed
-/var/tmp//ccXgR6jU.s:303    .text.guidance_v_mode_changed:0000000000000016 $d
-/var/tmp//ccXgR6jU.s:307    .text.guidance_v_mode_changed:000000000000001a $t
-/var/tmp//ccXgR6jU.s:381    .text.guidance_v_mode_changed:0000000000000088 $d
-/var/tmp//ccXgR6jU.s:392    .text.guidance_v_notify_in_flight:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:397    .text.guidance_v_notify_in_flight:0000000000000000 guidance_v_notify_in_flight
-/var/tmp//ccXgR6jU.s:427    .text.guidance_v_notify_in_flight:0000000000000014 $d
-/var/tmp//ccXgR6jU.s:441    .text.guidance_v_run:0000000000000000 $t
-/var/tmp//ccXgR6jU.s:446    .text.guidance_v_run:0000000000000000 guidance_v_run
-/var/tmp//ccXgR6jU.s:670    .text.guidance_v_run:0000000000000158 $d
-/var/tmp//ccXgR6jU.s:677    .text.guidance_v_run:0000000000000162 $t
-/var/tmp//ccXgR6jU.s:894    .text.guidance_v_run:0000000000000290 $d
-/var/tmp//ccXgR6jU.s:937    .text.guidance_v_run:0000000000000338 $t
-/var/tmp//ccXgR6jU.s:1460   .text.guidance_v_run:0000000000000620 $d
-/var/tmp//ccXgR6jU.s:1492   .text.guidance_v_run:0000000000000698 $t
-/var/tmp//ccXgR6jU.s:1955   .text.guidance_v_run:0000000000000938 $d
-/var/tmp//ccXgR6jU.s:1989   .text.guidance_v_run:00000000000009b8 $t
-/var/tmp//ccXgR6jU.s:2451   .text.guidance_v_run:0000000000000c48 $d
-/var/tmp//ccXgR6jU.s:2478   .text.guidance_v_run:0000000000000cb0 $t
-/var/tmp//ccXgR6jU.s:2582   .text.guidance_v_run:0000000000000d38 $d
-/var/tmp//ccXgR6jU.s:2657   .bss.guidance_v_z_sum_err:0000000000000000 guidance_v_z_sum_err
-/var/tmp//ccXgR6jU.s:2622   .bss.guidance_v_ki:0000000000000000 guidance_v_ki
-/var/tmp//ccXgR6jU.s:2725   .bss.guidance_v_kd:0000000000000000 guidance_v_kd
-/var/tmp//ccXgR6jU.s:2650   .bss.guidance_v_kp:0000000000000000 guidance_v_kp
-/var/tmp//ccXgR6jU.s:2718   .bss.guidance_v_zdd_ref:0000000000000000 guidance_v_zdd_ref
-/var/tmp//ccXgR6jU.s:2704   .bss.guidance_v_zd_ref:0000000000000000 guidance_v_zd_ref
-/var/tmp//ccXgR6jU.s:2643   .bss.guidance_v_z_ref:0000000000000000 guidance_v_z_ref
-/var/tmp//ccXgR6jU.s:2732   .bss.guidance_v_zd_sp:0000000000000000 guidance_v_zd_sp
-/var/tmp//ccXgR6jU.s:2739   .bss.guidance_v_z_sp:0000000000000000 guidance_v_z_sp
-/var/tmp//ccXgR6jU.s:2636   .bss.guidance_v_rc_zd_sp:0000000000000000 guidance_v_rc_zd_sp
-/var/tmp//ccXgR6jU.s:2691   .bss.guidance_v_rc_delta_t:0000000000000000 guidance_v_rc_delta_t
-/var/tmp//ccXgR6jU.s:2677   .bss.guidance_v_nominal_throttle:0000000000000000 guidance_v_nominal_throttle
-/var/tmp//ccXgR6jU.s:2711   .bss.guidance_v_delta_t:0000000000000000 guidance_v_delta_t
-/var/tmp//ccXgR6jU.s:2746   .bss.guidance_v_fb_cmd:0000000000000000 guidance_v_fb_cmd
-/var/tmp//ccXgR6jU.s:2684   .bss.guidance_v_ff_cmd:0000000000000000 guidance_v_ff_cmd
-/var/tmp//ccXgR6jU.s:2697   .bss.guidance_v_mode:0000000000000000 guidance_v_mode
-/var/tmp//ccXgR6jU.s:2671   .bss.gv_adapt_Xmeas:0000000000000000 gv_adapt_Xmeas
-/var/tmp//ccXgR6jU.s:2629   .bss.gv_adapt_P:0000000000000000 gv_adapt_P
-/var/tmp//ccXgR6jU.s:2664   .bss.gv_adapt_X:0000000000000000 gv_adapt_X
-/var/tmp//ccXgR6jU.s:2618   .bss.guidance_v_ki:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2625   .bss.gv_adapt_P:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2632   .bss.guidance_v_rc_zd_sp:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2639   .bss.guidance_v_z_ref:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2646   .bss.guidance_v_kp:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2653   .bss.guidance_v_z_sum_err:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2660   .bss.gv_adapt_X:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2667   .bss.gv_adapt_Xmeas:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2674   .bss.guidance_v_nominal_throttle:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2680   .bss.guidance_v_ff_cmd:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2687   .bss.guidance_v_rc_delta_t:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2698   .bss.guidance_v_mode:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2700   .bss.guidance_v_zd_ref:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2707   .bss.guidance_v_delta_t:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2714   .bss.guidance_v_zdd_ref:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2721   .bss.guidance_v_kd:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2728   .bss.guidance_v_zd_sp:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2735   .bss.guidance_v_z_sp:0000000000000000 $d
-/var/tmp//ccXgR6jU.s:2742   .bss.guidance_v_fb_cmd:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:19     .text.stateGetPositionNed_i:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:23     .text.stateGetPositionNed_i:0000000000000000 stateGetPositionNed_i
+/var/tmp//ccbuaZbA.s:50     .text.stateGetPositionNed_i:0000000000000014 $d
+/var/tmp//ccbuaZbA.s:56     .text.stateGetSpeedNed_i:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:60     .text.stateGetSpeedNed_i:0000000000000000 stateGetSpeedNed_i
+/var/tmp//ccbuaZbA.s:86     .text.stateGetSpeedNed_i:0000000000000014 $d
+/var/tmp//ccbuaZbA.s:92     .text.stateGetNedToBodyEulers_i:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:96     .text.stateGetNedToBodyEulers_i:0000000000000000 stateGetNedToBodyEulers_i
+/var/tmp//ccbuaZbA.s:129    .text.stateGetNedToBodyEulers_i:0000000000000018 $d
+/var/tmp//ccbuaZbA.s:135    .text.guidance_v_init:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:140    .text.guidance_v_init:0000000000000000 guidance_v_init
+/var/tmp//ccbuaZbA.s:197    .text.guidance_v_init:0000000000000030 $d
+/var/tmp//ccbuaZbA.s:210    .text.guidance_v_read_rc:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:215    .text.guidance_v_read_rc:0000000000000000 guidance_v_read_rc
+/var/tmp//ccbuaZbA.s:260    .text.guidance_v_read_rc:000000000000003c $d
+/var/tmp//ccbuaZbA.s:269    .text.guidance_v_mode_changed:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:274    .text.guidance_v_mode_changed:0000000000000000 guidance_v_mode_changed
+/var/tmp//ccbuaZbA.s:303    .text.guidance_v_mode_changed:0000000000000016 $d
+/var/tmp//ccbuaZbA.s:307    .text.guidance_v_mode_changed:000000000000001a $t
+/var/tmp//ccbuaZbA.s:381    .text.guidance_v_mode_changed:0000000000000088 $d
+/var/tmp//ccbuaZbA.s:392    .text.guidance_v_notify_in_flight:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:397    .text.guidance_v_notify_in_flight:0000000000000000 guidance_v_notify_in_flight
+/var/tmp//ccbuaZbA.s:427    .text.guidance_v_notify_in_flight:0000000000000014 $d
+/var/tmp//ccbuaZbA.s:441    .text.guidance_v_run:0000000000000000 $t
+/var/tmp//ccbuaZbA.s:446    .text.guidance_v_run:0000000000000000 guidance_v_run
+/var/tmp//ccbuaZbA.s:670    .text.guidance_v_run:0000000000000158 $d
+/var/tmp//ccbuaZbA.s:677    .text.guidance_v_run:0000000000000162 $t
+/var/tmp//ccbuaZbA.s:894    .text.guidance_v_run:0000000000000290 $d
+/var/tmp//ccbuaZbA.s:937    .text.guidance_v_run:0000000000000338 $t
+/var/tmp//ccbuaZbA.s:1460   .text.guidance_v_run:0000000000000620 $d
+/var/tmp//ccbuaZbA.s:1492   .text.guidance_v_run:0000000000000698 $t
+/var/tmp//ccbuaZbA.s:1955   .text.guidance_v_run:0000000000000938 $d
+/var/tmp//ccbuaZbA.s:1989   .text.guidance_v_run:00000000000009b8 $t
+/var/tmp//ccbuaZbA.s:2451   .text.guidance_v_run:0000000000000c48 $d
+/var/tmp//ccbuaZbA.s:2478   .text.guidance_v_run:0000000000000cb0 $t
+/var/tmp//ccbuaZbA.s:2582   .text.guidance_v_run:0000000000000d38 $d
+/var/tmp//ccbuaZbA.s:2657   .bss.guidance_v_z_sum_err:0000000000000000 guidance_v_z_sum_err
+/var/tmp//ccbuaZbA.s:2622   .bss.guidance_v_ki:0000000000000000 guidance_v_ki
+/var/tmp//ccbuaZbA.s:2725   .bss.guidance_v_kd:0000000000000000 guidance_v_kd
+/var/tmp//ccbuaZbA.s:2650   .bss.guidance_v_kp:0000000000000000 guidance_v_kp
+/var/tmp//ccbuaZbA.s:2718   .bss.guidance_v_zdd_ref:0000000000000000 guidance_v_zdd_ref
+/var/tmp//ccbuaZbA.s:2704   .bss.guidance_v_zd_ref:0000000000000000 guidance_v_zd_ref
+/var/tmp//ccbuaZbA.s:2643   .bss.guidance_v_z_ref:0000000000000000 guidance_v_z_ref
+/var/tmp//ccbuaZbA.s:2732   .bss.guidance_v_zd_sp:0000000000000000 guidance_v_zd_sp
+/var/tmp//ccbuaZbA.s:2739   .bss.guidance_v_z_sp:0000000000000000 guidance_v_z_sp
+/var/tmp//ccbuaZbA.s:2636   .bss.guidance_v_rc_zd_sp:0000000000000000 guidance_v_rc_zd_sp
+/var/tmp//ccbuaZbA.s:2691   .bss.guidance_v_rc_delta_t:0000000000000000 guidance_v_rc_delta_t
+/var/tmp//ccbuaZbA.s:2677   .bss.guidance_v_nominal_throttle:0000000000000000 guidance_v_nominal_throttle
+/var/tmp//ccbuaZbA.s:2711   .bss.guidance_v_delta_t:0000000000000000 guidance_v_delta_t
+/var/tmp//ccbuaZbA.s:2746   .bss.guidance_v_fb_cmd:0000000000000000 guidance_v_fb_cmd
+/var/tmp//ccbuaZbA.s:2684   .bss.guidance_v_ff_cmd:0000000000000000 guidance_v_ff_cmd
+/var/tmp//ccbuaZbA.s:2697   .bss.guidance_v_mode:0000000000000000 guidance_v_mode
+/var/tmp//ccbuaZbA.s:2671   .bss.gv_adapt_Xmeas:0000000000000000 gv_adapt_Xmeas
+/var/tmp//ccbuaZbA.s:2629   .bss.gv_adapt_P:0000000000000000 gv_adapt_P
+/var/tmp//ccbuaZbA.s:2664   .bss.gv_adapt_X:0000000000000000 gv_adapt_X
+/var/tmp//ccbuaZbA.s:2618   .bss.guidance_v_ki:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2625   .bss.gv_adapt_P:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2632   .bss.guidance_v_rc_zd_sp:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2639   .bss.guidance_v_z_ref:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2646   .bss.guidance_v_kp:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2653   .bss.guidance_v_z_sum_err:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2660   .bss.gv_adapt_X:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2667   .bss.gv_adapt_Xmeas:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2674   .bss.guidance_v_nominal_throttle:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2680   .bss.guidance_v_ff_cmd:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2687   .bss.guidance_v_rc_delta_t:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2698   .bss.guidance_v_mode:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2700   .bss.guidance_v_zd_ref:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2707   .bss.guidance_v_delta_t:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2714   .bss.guidance_v_zdd_ref:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2721   .bss.guidance_v_kd:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2728   .bss.guidance_v_zd_sp:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2735   .bss.guidance_v_z_sp:0000000000000000 $d
+/var/tmp//ccbuaZbA.s:2742   .bss.guidance_v_fb_cmd:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccXgR6jU.s:2617   .text.guidance_v_run:0000000000000d6c $t
+/var/tmp//ccbuaZbA.s:2617   .text.guidance_v_run:0000000000000d6c $t
 
 UNDEFINED SYMBOLS
 stateCalcPositionNed_i

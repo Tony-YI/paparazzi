@@ -1338,29 +1338,29 @@
  1130              		.file 12 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization_attitude_ref_quat_int.c
-/var/tmp//ccjadGWT.s:19     .text.stabilization_attitude_ref_init:0000000000000000 $t
-/var/tmp//ccjadGWT.s:24     .text.stabilization_attitude_ref_init:0000000000000000 stabilization_attitude_ref_init
-/var/tmp//ccjadGWT.s:78     .text.stabilization_attitude_ref_init:000000000000003c $d
-/var/tmp//ccjadGWT.s:88     .text.stabilization_attitude_ref_enter:0000000000000000 $t
-/var/tmp//ccjadGWT.s:93     .text.stabilization_attitude_ref_enter:0000000000000000 stabilization_attitude_ref_enter
-/var/tmp//ccjadGWT.s:660    .text.stabilization_attitude_ref_enter:00000000000002cc $d
-/var/tmp//ccjadGWT.s:674    .text.stabilization_attitude_ref_update:0000000000000000 $t
-/var/tmp//ccjadGWT.s:679    .text.stabilization_attitude_ref_update:0000000000000000 stabilization_attitude_ref_update
-/var/tmp//ccjadGWT.s:1046   .text.stabilization_attitude_ref_update:0000000000000278 $d
-/var/tmp//ccjadGWT.s:1083   .data.stab_att_ref_model:0000000000000000 stab_att_ref_model
-/var/tmp//ccjadGWT.s:1109   .bss.stab_att_ref_accel:0000000000000000 stab_att_ref_accel
-/var/tmp//ccjadGWT.s:1070   .bss.stab_att_ref_rate:0000000000000000 stab_att_ref_rate
-/var/tmp//ccjadGWT.s:1102   .bss.stab_att_ref_quat:0000000000000000 stab_att_ref_quat
-/var/tmp//ccjadGWT.s:1095   .bss.stab_att_ref_euler:0000000000000000 stab_att_ref_euler
-/var/tmp//ccjadGWT.s:1116   .bss.stab_att_sp_quat:0000000000000000 stab_att_sp_quat
-/var/tmp//ccjadGWT.s:1077   .bss.stab_att_sp_euler:0000000000000000 stab_att_sp_euler
-/var/tmp//ccjadGWT.s:1066   .bss.stab_att_ref_rate:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1073   .bss.stab_att_sp_euler:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1080   .data.stab_att_ref_model:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1091   .bss.stab_att_ref_euler:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1098   .bss.stab_att_ref_quat:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1105   .bss.stab_att_ref_accel:0000000000000000 $d
-/var/tmp//ccjadGWT.s:1112   .bss.stab_att_sp_quat:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:19     .text.stabilization_attitude_ref_init:0000000000000000 $t
+/var/tmp//ccDTiIE4.s:24     .text.stabilization_attitude_ref_init:0000000000000000 stabilization_attitude_ref_init
+/var/tmp//ccDTiIE4.s:78     .text.stabilization_attitude_ref_init:000000000000003c $d
+/var/tmp//ccDTiIE4.s:88     .text.stabilization_attitude_ref_enter:0000000000000000 $t
+/var/tmp//ccDTiIE4.s:93     .text.stabilization_attitude_ref_enter:0000000000000000 stabilization_attitude_ref_enter
+/var/tmp//ccDTiIE4.s:660    .text.stabilization_attitude_ref_enter:00000000000002cc $d
+/var/tmp//ccDTiIE4.s:674    .text.stabilization_attitude_ref_update:0000000000000000 $t
+/var/tmp//ccDTiIE4.s:679    .text.stabilization_attitude_ref_update:0000000000000000 stabilization_attitude_ref_update
+/var/tmp//ccDTiIE4.s:1046   .text.stabilization_attitude_ref_update:0000000000000278 $d
+/var/tmp//ccDTiIE4.s:1083   .data.stab_att_ref_model:0000000000000000 stab_att_ref_model
+/var/tmp//ccDTiIE4.s:1109   .bss.stab_att_ref_accel:0000000000000000 stab_att_ref_accel
+/var/tmp//ccDTiIE4.s:1070   .bss.stab_att_ref_rate:0000000000000000 stab_att_ref_rate
+/var/tmp//ccDTiIE4.s:1102   .bss.stab_att_ref_quat:0000000000000000 stab_att_ref_quat
+/var/tmp//ccDTiIE4.s:1095   .bss.stab_att_ref_euler:0000000000000000 stab_att_ref_euler
+/var/tmp//ccDTiIE4.s:1116   .bss.stab_att_sp_quat:0000000000000000 stab_att_sp_quat
+/var/tmp//ccDTiIE4.s:1077   .bss.stab_att_sp_euler:0000000000000000 stab_att_sp_euler
+/var/tmp//ccDTiIE4.s:1066   .bss.stab_att_ref_rate:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1073   .bss.stab_att_sp_euler:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1080   .data.stab_att_ref_model:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1091   .bss.stab_att_ref_euler:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1098   .bss.stab_att_ref_quat:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1105   .bss.stab_att_ref_accel:0000000000000000 $d
+/var/tmp//ccDTiIE4.s:1112   .bss.stab_att_sp_quat:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

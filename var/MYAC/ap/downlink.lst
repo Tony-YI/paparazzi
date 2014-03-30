@@ -35,11 +35,11 @@
   41              		.file 2 "subsystems/datalink/downlink.c"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 downlink.c
-/var/tmp//cck7SR4o.s:25     .bss.downlink_nb_msgs:0000000000000000 downlink_nb_msgs
-/var/tmp//cck7SR4o.s:36     .bss.downlink_nb_bytes:0000000000000000 downlink_nb_bytes
-/var/tmp//cck7SR4o.s:30     .bss.downlink_nb_ovrn:0000000000000000 downlink_nb_ovrn
-/var/tmp//cck7SR4o.s:22     .bss.downlink_nb_msgs:0000000000000000 $d
-/var/tmp//cck7SR4o.s:31     .bss.downlink_nb_ovrn:0000000000000000 $d
-/var/tmp//cck7SR4o.s:33     .bss.downlink_nb_bytes:0000000000000000 $d
+/var/tmp//cc7LTs5U.s:25     .bss.downlink_nb_msgs:0000000000000000 downlink_nb_msgs
+/var/tmp//cc7LTs5U.s:36     .bss.downlink_nb_bytes:0000000000000000 downlink_nb_bytes
+/var/tmp//cc7LTs5U.s:30     .bss.downlink_nb_ovrn:0000000000000000 downlink_nb_ovrn
+/var/tmp//cc7LTs5U.s:22     .bss.downlink_nb_msgs:0000000000000000 $d
+/var/tmp//cc7LTs5U.s:31     .bss.downlink_nb_ovrn:0000000000000000 $d
+/var/tmp//cc7LTs5U.s:33     .bss.downlink_nb_bytes:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS

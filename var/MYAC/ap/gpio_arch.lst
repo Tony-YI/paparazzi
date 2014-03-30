@@ -323,16 +323,16 @@
  248              		.file 6 "../ext/libopencm3/include/libopencm3/stm32/f1/gpio.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 gpio_arch.c
-/var/tmp//ccv0rjca.s:19     .text.gpio_enable_clock:0000000000000000 $t
-/var/tmp//ccv0rjca.s:24     .text.gpio_enable_clock:0000000000000000 gpio_enable_clock
-/var/tmp//ccv0rjca.s:87     .text.gpio_enable_clock:000000000000003c $d
-/var/tmp//ccv0rjca.s:94     .text.gpio_setup_output:0000000000000000 $t
-/var/tmp//ccv0rjca.s:99     .text.gpio_setup_output:0000000000000000 gpio_setup_output
-/var/tmp//ccv0rjca.s:133    .text.gpio_setup_input:0000000000000000 $t
-/var/tmp//ccv0rjca.s:138    .text.gpio_setup_input:0000000000000000 gpio_setup_input
-/var/tmp//ccv0rjca.s:172    .text.gpio_setup_pin_af:0000000000000000 $t
-/var/tmp//ccv0rjca.s:177    .text.gpio_setup_pin_af:0000000000000000 gpio_setup_pin_af
-/var/tmp//ccv0rjca.s:237    .text.gpio_setup_pin_af:000000000000003c $d
+/var/tmp//ccRNZ734.s:19     .text.gpio_enable_clock:0000000000000000 $t
+/var/tmp//ccRNZ734.s:24     .text.gpio_enable_clock:0000000000000000 gpio_enable_clock
+/var/tmp//ccRNZ734.s:87     .text.gpio_enable_clock:000000000000003c $d
+/var/tmp//ccRNZ734.s:94     .text.gpio_setup_output:0000000000000000 $t
+/var/tmp//ccRNZ734.s:99     .text.gpio_setup_output:0000000000000000 gpio_setup_output
+/var/tmp//ccRNZ734.s:133    .text.gpio_setup_input:0000000000000000 $t
+/var/tmp//ccRNZ734.s:138    .text.gpio_setup_input:0000000000000000 gpio_setup_input
+/var/tmp//ccRNZ734.s:172    .text.gpio_setup_pin_af:0000000000000000 $t
+/var/tmp//ccRNZ734.s:177    .text.gpio_setup_pin_af:0000000000000000 gpio_setup_pin_af
+/var/tmp//ccRNZ734.s:237    .text.gpio_setup_pin_af:000000000000003c $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

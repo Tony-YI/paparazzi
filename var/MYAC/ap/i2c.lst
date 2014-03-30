@@ -335,19 +335,19 @@
  217              		.file 5 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_periph/i2c_arch.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 i2c.c
-/var/tmp//cc3mnfcz.s:19     .text.i2c2_init:0000000000000000 $t
-/var/tmp//cc3mnfcz.s:24     .text.i2c2_init:0000000000000000 i2c2_init
-/var/tmp//cc3mnfcz.s:52     .text.i2c2_init:0000000000000014 $d
-/var/tmp//cc3mnfcz.s:57     .text.i2c_init:0000000000000000 $t
-/var/tmp//cc3mnfcz.s:62     .text.i2c_init:0000000000000000 i2c_init
-/var/tmp//cc3mnfcz.s:82     .text.i2c_transmit:0000000000000000 $t
-/var/tmp//cc3mnfcz.s:87     .text.i2c_transmit:0000000000000000 i2c_transmit
-/var/tmp//cc3mnfcz.s:121    .text.i2c_receive:0000000000000000 $t
-/var/tmp//cc3mnfcz.s:126    .text.i2c_receive:0000000000000000 i2c_receive
-/var/tmp//cc3mnfcz.s:163    .text.i2c_transceive:0000000000000000 $t
-/var/tmp//cc3mnfcz.s:168    .text.i2c_transceive:0000000000000000 i2c_transceive
-/var/tmp//cc3mnfcz.s:210    .bss.i2c2:0000000000000000 i2c2
-/var/tmp//cc3mnfcz.s:206    .bss.i2c2:0000000000000000 $d
+/var/tmp//ccknB0GG.s:19     .text.i2c2_init:0000000000000000 $t
+/var/tmp//ccknB0GG.s:24     .text.i2c2_init:0000000000000000 i2c2_init
+/var/tmp//ccknB0GG.s:52     .text.i2c2_init:0000000000000014 $d
+/var/tmp//ccknB0GG.s:57     .text.i2c_init:0000000000000000 $t
+/var/tmp//ccknB0GG.s:62     .text.i2c_init:0000000000000000 i2c_init
+/var/tmp//ccknB0GG.s:82     .text.i2c_transmit:0000000000000000 $t
+/var/tmp//ccknB0GG.s:87     .text.i2c_transmit:0000000000000000 i2c_transmit
+/var/tmp//ccknB0GG.s:121    .text.i2c_receive:0000000000000000 $t
+/var/tmp//ccknB0GG.s:126    .text.i2c_receive:0000000000000000 i2c_receive
+/var/tmp//ccknB0GG.s:163    .text.i2c_transceive:0000000000000000 $t
+/var/tmp//ccknB0GG.s:168    .text.i2c_transceive:0000000000000000 i2c_transceive
+/var/tmp//ccknB0GG.s:210    .bss.i2c2:0000000000000000 i2c2
+/var/tmp//ccknB0GG.s:206    .bss.i2c2:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

@@ -13,7 +13,7 @@
 #define NAV_UTM_ZONE0 31
 #define NAV_LAT0 435641194 /* 1e7deg */
 #define NAV_LON0 14812805 /* 1e7deg */
-#define NAV_ALT0 147000 /* mm above msl */
+#define NAV_ALT0 0 /* mm above msl */
 #define NAV_MSL0 51850 /* mm, EGM96 geoid-height (msl) over ellipsoid */
 #define QFU 0.0
 #define WP_dummy 0
@@ -23,28 +23,28 @@
 #define WP_p2 4
 #define WP_LZ 5
 #define WAYPOINTS { \
- {42.0, 42.0, 150},\
- {0.0, 0.0, 150},\
- {3.0, 0.0, 150},\
- {3.0, 3.0, 150},\
- {3.0, -3.0, 150},\
- {1.0, 0.0, 150},\
+ {42.0, 42.0, 3},\
+ {0.0, 0.0, 3},\
+ {0.0, 0.0, 3},\
+ {3.0, 3.0, 3},\
+ {3.0, -3.0, 3},\
+ {1.0, 0.0, 3},\
 };
 #define WAYPOINTS_LLA { \
- {435645043, 14817909, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
- {435641194, 14812805, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
- {435641199, 14813176, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
- {435641469, 14813170, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
- {435640929, 14813183, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
- {435641196, 14812929, 15000}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435645043, 14817909, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435641194, 14812805, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435641194, 14812805, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435641469, 14813170, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435640929, 14813183, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
+ {435641196, 14812929, 300}, /* 1e7deg, 1e7deg, cm (hmsl=51.85m) */ \
 };
 #define NB_WAYPOINT 6
 #define NB_BLOCK 14
-#define GROUND_ALT 147.
-#define GROUND_ALT_CM 14700
-#define SECURITY_HEIGHT 2.
-#define SECURITY_ALT 149.
-#define HOME_MODE_HEIGHT 2.
+#define GROUND_ALT 0.
+#define GROUND_ALT_CM 0
+#define SECURITY_HEIGHT 3.
+#define SECURITY_ALT 3.
+#define HOME_MODE_HEIGHT 3.
 #define MAX_DIST_FROM_HOME 60.
 #ifdef NAV_C
 
@@ -141,16 +141,12 @@ static inline void auto_nav(void) {
     if ((nav_block != 5) && ((stateGetPositionEnu_f())->z>2.000000)) { GotoBlock(5); return; }
     switch(nav_stage) {
       Stage(0)
-        if (! (NavSetWaypointHere(WP_STDBY)))
-          NextStageAndBreak();
-        break;
-      Stage(1)
-        NavGotoWaypoint(2);
+        NavGotoWaypoint(1);
         NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
-        NavVerticalClimbMode(0.500000);
+        NavVerticalClimbMode(1.000000);
         break;
       default:
-      Stage(2)
+      Stage(1)
         NextBlock();
         break;
     }
@@ -163,7 +159,7 @@ static inline void auto_nav(void) {
       Stage(0)
         NavGotoWaypoint(2);
         NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
-        NavVerticalAltitudeMode(WaypointAlt(2), 0.);
+        NavVerticalAltitudeMode(Height(3), 0.);
         break;
       default:
       Stage(1)
@@ -250,7 +246,7 @@ static inline void auto_nav(void) {
       Stage(0)
         NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
         NavVerticalAltitudeMode(WaypointAlt(3), 0.);
-        NavCircleWaypoint(3, 2);
+        NavCircleWaypoint(3, 3);
         break;
       default:
       Stage(1)
@@ -304,7 +300,7 @@ static inline void auto_nav(void) {
       Stage(1)
         NavGotoWaypoint(5);
         NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
-        NavVerticalClimbMode(-(0.300000));
+        NavVerticalClimbMode(-(0.800000));
         break;
       default:
       Stage(2)

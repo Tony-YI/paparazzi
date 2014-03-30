@@ -1,6 +1,6 @@
-(* Automatically generated from /var/folders/3t/7yn5f8914fn0fyq75274dtdm0000gn/T/tmp.WpjoHQa5xD by lablgladecc *)
+(* Automatically generated from /var/folders/3t/7yn5f8914fn0fyq75274dtdm0000gn/T/tmp.klDvpY1jUK by lablgladecc *)
 
-class table_led_editor ?(file="/var/folders/3t/7yn5f8914fn0fyq75274dtdm0000gn/T/tmp.WpjoHQa5xD") ?domain ?autoconnect(*=true*) () =
+class table_led_editor ?(file="/var/folders/3t/7yn5f8914fn0fyq75274dtdm0000gn/T/tmp.klDvpY1jUK") ?domain ?autoconnect(*=true*) () =
   let xmldata = Glade.create ~file  ~root:"table_led_editor" ?domain () in
   object (self)
     inherit Glade.xml ?autoconnect xmldata

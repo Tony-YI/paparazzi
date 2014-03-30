@@ -2114,39 +2114,39 @@
  754              		.file 18 "./firmwares/rotorcraft/stabilization.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization_rate.c
-/var/tmp//ccO6O8ee.s:19     .text.stabilization_rate_init:0000000000000000 $t
-/var/tmp//ccO6O8ee.s:24     .text.stabilization_rate_init:0000000000000000 stabilization_rate_init
-/var/tmp//ccO6O8ee.s:84     .text.stabilization_rate_init:000000000000004c $d
-/var/tmp//ccO6O8ee.s:95     .text.stabilization_rate_read_rc:0000000000000000 $t
-/var/tmp//ccO6O8ee.s:100    .text.stabilization_rate_read_rc:0000000000000000 stabilization_rate_read_rc
-/var/tmp//ccO6O8ee.s:185    .text.stabilization_rate_read_rc:0000000000000088 $d
-/var/tmp//ccO6O8ee.s:191    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 $t
-/var/tmp//ccO6O8ee.s:196    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 stabilization_rate_read_rc_switched_sticks
-/var/tmp//ccO6O8ee.s:279    .text.stabilization_rate_read_rc_switched_sticks:0000000000000088 $d
-/var/tmp//ccO6O8ee.s:286    .text.stabilization_rate_enter:0000000000000000 $t
-/var/tmp//ccO6O8ee.s:291    .text.stabilization_rate_enter:0000000000000000 stabilization_rate_enter
-/var/tmp//ccO6O8ee.s:317    .text.stabilization_rate_enter:000000000000001c $d
-/var/tmp//ccO6O8ee.s:324    .text.stabilization_rate_run:0000000000000000 $t
-/var/tmp//ccO6O8ee.s:329    .text.stabilization_rate_run:0000000000000000 stabilization_rate_run
-/var/tmp//ccO6O8ee.s:648    .text.stabilization_rate_run:000000000000019c $d
-/var/tmp//ccO6O8ee.s:686    .bss.stabilization_rate_ff_cmd:0000000000000000 stabilization_rate_ff_cmd
-/var/tmp//ccO6O8ee.s:721    .bss.stabilization_rate_fb_cmd:0000000000000000 stabilization_rate_fb_cmd
-/var/tmp//ccO6O8ee.s:679    .bss.stabilization_rate_sum_err:0000000000000000 stabilization_rate_sum_err
-/var/tmp//ccO6O8ee.s:700    .bss.stabilization_rate_refdot:0000000000000000 stabilization_rate_refdot
-/var/tmp//ccO6O8ee.s:707    .bss.stabilization_rate_ref:0000000000000000 stabilization_rate_ref
-/var/tmp//ccO6O8ee.s:728    .bss.stabilization_rate_ddgain:0000000000000000 stabilization_rate_ddgain
-/var/tmp//ccO6O8ee.s:693    .bss.stabilization_rate_igain:0000000000000000 stabilization_rate_igain
-/var/tmp//ccO6O8ee.s:714    .bss.stabilization_rate_gain:0000000000000000 stabilization_rate_gain
-/var/tmp//ccO6O8ee.s:735    .bss.stabilization_rate_sp:0000000000000000 stabilization_rate_sp
-/var/tmp//ccO6O8ee.s:675    .bss.stabilization_rate_sum_err:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:682    .bss.stabilization_rate_ff_cmd:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:689    .bss.stabilization_rate_igain:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:696    .bss.stabilization_rate_refdot:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:703    .bss.stabilization_rate_ref:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:710    .bss.stabilization_rate_gain:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:717    .bss.stabilization_rate_fb_cmd:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:724    .bss.stabilization_rate_ddgain:0000000000000000 $d
-/var/tmp//ccO6O8ee.s:731    .bss.stabilization_rate_sp:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:19     .text.stabilization_rate_init:0000000000000000 $t
+/var/tmp//ccaZW9DY.s:24     .text.stabilization_rate_init:0000000000000000 stabilization_rate_init
+/var/tmp//ccaZW9DY.s:84     .text.stabilization_rate_init:000000000000004c $d
+/var/tmp//ccaZW9DY.s:95     .text.stabilization_rate_read_rc:0000000000000000 $t
+/var/tmp//ccaZW9DY.s:100    .text.stabilization_rate_read_rc:0000000000000000 stabilization_rate_read_rc
+/var/tmp//ccaZW9DY.s:185    .text.stabilization_rate_read_rc:0000000000000088 $d
+/var/tmp//ccaZW9DY.s:191    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 $t
+/var/tmp//ccaZW9DY.s:196    .text.stabilization_rate_read_rc_switched_sticks:0000000000000000 stabilization_rate_read_rc_switched_sticks
+/var/tmp//ccaZW9DY.s:279    .text.stabilization_rate_read_rc_switched_sticks:0000000000000088 $d
+/var/tmp//ccaZW9DY.s:286    .text.stabilization_rate_enter:0000000000000000 $t
+/var/tmp//ccaZW9DY.s:291    .text.stabilization_rate_enter:0000000000000000 stabilization_rate_enter
+/var/tmp//ccaZW9DY.s:317    .text.stabilization_rate_enter:000000000000001c $d
+/var/tmp//ccaZW9DY.s:324    .text.stabilization_rate_run:0000000000000000 $t
+/var/tmp//ccaZW9DY.s:329    .text.stabilization_rate_run:0000000000000000 stabilization_rate_run
+/var/tmp//ccaZW9DY.s:648    .text.stabilization_rate_run:000000000000019c $d
+/var/tmp//ccaZW9DY.s:686    .bss.stabilization_rate_ff_cmd:0000000000000000 stabilization_rate_ff_cmd
+/var/tmp//ccaZW9DY.s:721    .bss.stabilization_rate_fb_cmd:0000000000000000 stabilization_rate_fb_cmd
+/var/tmp//ccaZW9DY.s:679    .bss.stabilization_rate_sum_err:0000000000000000 stabilization_rate_sum_err
+/var/tmp//ccaZW9DY.s:700    .bss.stabilization_rate_refdot:0000000000000000 stabilization_rate_refdot
+/var/tmp//ccaZW9DY.s:707    .bss.stabilization_rate_ref:0000000000000000 stabilization_rate_ref
+/var/tmp//ccaZW9DY.s:728    .bss.stabilization_rate_ddgain:0000000000000000 stabilization_rate_ddgain
+/var/tmp//ccaZW9DY.s:693    .bss.stabilization_rate_igain:0000000000000000 stabilization_rate_igain
+/var/tmp//ccaZW9DY.s:714    .bss.stabilization_rate_gain:0000000000000000 stabilization_rate_gain
+/var/tmp//ccaZW9DY.s:735    .bss.stabilization_rate_sp:0000000000000000 stabilization_rate_sp
+/var/tmp//ccaZW9DY.s:675    .bss.stabilization_rate_sum_err:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:682    .bss.stabilization_rate_ff_cmd:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:689    .bss.stabilization_rate_igain:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:696    .bss.stabilization_rate_refdot:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:703    .bss.stabilization_rate_ref:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:710    .bss.stabilization_rate_gain:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:717    .bss.stabilization_rate_fb_cmd:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:724    .bss.stabilization_rate_ddgain:0000000000000000 $d
+/var/tmp//ccaZW9DY.s:731    .bss.stabilization_rate_sp:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

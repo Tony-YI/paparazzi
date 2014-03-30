@@ -1,9 +1,9 @@
 <dump>
-  <flight_plan max_dist_from_home="60" lon0="1 28 52.61" lat0="43 33 50.83" security_height="2" ground_alt="147" alt="150" name="MYAC-TEST">
+  <flight_plan max_dist_from_home="60" lon0="1 28 52.61" lat0="43 33 50.83" security_height="3" ground_alt="0" alt="3" name="MYAC-TEST">
     <header>#include "autopilot.h"</header>
     <waypoints>
       <waypoint y="0.0" name="HOME" x="0.0"/>
-      <waypoint y="0.0" name="STDBY" x="3.0"/>
+      <waypoint y="0.0" name="STDBY" x="0.0"/>
       <waypoint y="3.0" name="p1" x="3.0"/>
       <waypoint y="-3.0" name="p2" x="3.0"/>
       <waypoint y="0.0" name="LZ" x="1.0"/>
@@ -27,11 +27,10 @@
       </block>
       <block strip_icon="takeoff.png" strip_button="Takeoff" name="Takeoff" no="4">
         <exception deroute="Standby" cond="stateGetPositionEnu_f()->z > 2.0"/>
-        <call fun="NavSetWaypointHere(WP_STDBY)" no="0"/>
-        <stay climb="0.5" vmode="climb" wp="STDBY" no="1"/>
+        <stay climb="1.0" vmode="climb" wp="HOME" no="0"/>
       </block>
       <block strip_icon="home.png" strip_button="Standby" name="Standby" no="5">
-        <stay wp="STDBY" no="0"/>
+        <stay wp="STDBY" height="3" no="0"/>
       </block>
       <block name="stay_p1" no="6">
         <stay wp="p1" no="0"/>
@@ -47,7 +46,7 @@
         <deroute block="stay_p1" no="3"/>
       </block>
       <block name="circle" no="9">
-        <circle radius="2" wp="p1" no="0"/>
+        <circle radius="3" wp="p1" no="0"/>
       </block>
       <block strip_icon="land-right.png" strip_button="Land Here" name="land here" no="10">
         <call fun="NavSetWaypointHere(WP_LZ)" no="0"/>
@@ -58,7 +57,7 @@
       <block name="flare" no="12">
         <exception deroute="Holding point" cond="NavDetectGround()"/>
         <call fun="NavStartDetectGround()" no="0"/>
-        <stay climb="-0.3" vmode="climb" wp="LZ" no="1"/>
+        <stay climb="-0.8" vmode="climb" wp="LZ" no="1"/>
       </block>
       <block name="HOME" no="13">
         <home no="0"/>
@@ -70,7 +69,7 @@
       <home no="0"/>
     </stage>
     <stage block="12" block_name="flare" stage="1">
-      <stay climb="-0.3" vmode="climb" wp="LZ" no="1"/>
+      <stay climb="-0.8" vmode="climb" wp="LZ" no="1"/>
     </stage>
     <stage block="12" block_name="flare" stage="0">
       <call fun="NavStartDetectGround()" no="0"/>
@@ -82,7 +81,7 @@
       <call fun="NavSetWaypointHere(WP_LZ)" no="0"/>
     </stage>
     <stage block="9" block_name="circle" stage="0">
-      <circle radius="2" wp="p1" no="0"/>
+      <circle radius="3" wp="p1" no="0"/>
     </stage>
     <stage block="8" block_name="line_p1_p2" stage="3">
       <deroute block="stay_p1" no="3"/>
@@ -106,13 +105,10 @@
       <stay wp="p1" no="0"/>
     </stage>
     <stage block="5" block_name="Standby" stage="0">
-      <stay wp="STDBY" no="0"/>
-    </stage>
-    <stage block="4" block_name="Takeoff" stage="1">
-      <stay climb="0.5" vmode="climb" wp="STDBY" no="1"/>
+      <stay wp="STDBY" height="3" no="0"/>
     </stage>
     <stage block="4" block_name="Takeoff" stage="0">
-      <call fun="NavSetWaypointHere(WP_STDBY)" no="0"/>
+      <stay climb="1.0" vmode="climb" wp="HOME" no="0"/>
     </stage>
     <stage block="3" block_name="Start Engine" stage="1">
       <attitude vmode="throttle" until="FALSE" throttle="0" pitch="0" roll="0" no="1"/>

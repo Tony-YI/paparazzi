@@ -203,24 +203,24 @@
  161              		.file 11 "./subsystems/navigation/common_flight_plan.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 common_flight_plan.c
-/var/tmp//cc566JnJ.s:19     .text.nav_init_block:0000000000000000 $t
-/var/tmp//cc566JnJ.s:24     .text.nav_init_block:0000000000000000 nav_init_block
-/var/tmp//cc566JnJ.s:57     .text.nav_init_block:000000000000001c $d
-/var/tmp//cc566JnJ.s:64     .text.nav_goto_block:0000000000000000 $t
-/var/tmp//cc566JnJ.s:69     .text.nav_goto_block:0000000000000000 nav_goto_block
-/var/tmp//cc566JnJ.s:100    .text.nav_goto_block:000000000000001c $d
-/var/tmp//cc566JnJ.s:142    .bss.last_stage:0000000000000000 last_stage
-/var/tmp//cc566JnJ.s:123    .bss.last_block:0000000000000000 last_block
-/var/tmp//cc566JnJ.s:136    .bss.nav_block:0000000000000000 nav_block
-/var/tmp//cc566JnJ.s:148    .bss.nav_stage:0000000000000000 nav_stage
-/var/tmp//cc566JnJ.s:130    .bss.block_time:0000000000000000 block_time
-/var/tmp//cc566JnJ.s:117    .bss.stage_time:0000000000000000 stage_time
-/var/tmp//cc566JnJ.s:114    .bss.stage_time:0000000000000000 $d
-/var/tmp//cc566JnJ.s:124    .bss.last_block:0000000000000000 $d
-/var/tmp//cc566JnJ.s:126    .bss.block_time:0000000000000000 $d
-/var/tmp//cc566JnJ.s:137    .bss.nav_block:0000000000000000 $d
-/var/tmp//cc566JnJ.s:143    .bss.last_stage:0000000000000000 $d
-/var/tmp//cc566JnJ.s:149    .bss.nav_stage:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:19     .text.nav_init_block:0000000000000000 $t
+/var/tmp//ccxAZjrD.s:24     .text.nav_init_block:0000000000000000 nav_init_block
+/var/tmp//ccxAZjrD.s:57     .text.nav_init_block:000000000000001c $d
+/var/tmp//ccxAZjrD.s:64     .text.nav_goto_block:0000000000000000 $t
+/var/tmp//ccxAZjrD.s:69     .text.nav_goto_block:0000000000000000 nav_goto_block
+/var/tmp//ccxAZjrD.s:100    .text.nav_goto_block:000000000000001c $d
+/var/tmp//ccxAZjrD.s:142    .bss.last_stage:0000000000000000 last_stage
+/var/tmp//ccxAZjrD.s:123    .bss.last_block:0000000000000000 last_block
+/var/tmp//ccxAZjrD.s:136    .bss.nav_block:0000000000000000 nav_block
+/var/tmp//ccxAZjrD.s:148    .bss.nav_stage:0000000000000000 nav_stage
+/var/tmp//ccxAZjrD.s:130    .bss.block_time:0000000000000000 block_time
+/var/tmp//ccxAZjrD.s:117    .bss.stage_time:0000000000000000 stage_time
+/var/tmp//ccxAZjrD.s:114    .bss.stage_time:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:124    .bss.last_block:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:126    .bss.block_time:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:137    .bss.nav_block:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:143    .bss.last_stage:0000000000000000 $d
+/var/tmp//ccxAZjrD.s:149    .bss.nav_stage:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

@@ -974,26 +974,26 @@
  615              		.file 9 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_periph/gpio_arch.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 uart_arch.c
-/var/tmp//cclMqtNV.s:19     .text.usart_isr:0000000000000000 $t
-/var/tmp//cclMqtNV.s:23     .text.usart_isr:0000000000000000 usart_isr
-/var/tmp//cclMqtNV.s:188    .text.uart_periph_set_baudrate:0000000000000000 $t
-/var/tmp//cclMqtNV.s:193    .text.uart_periph_set_baudrate:0000000000000000 uart_periph_set_baudrate
-/var/tmp//cclMqtNV.s:249    .text.uart_periph_set_mode:0000000000000000 $t
-/var/tmp//cclMqtNV.s:254    .text.uart_periph_set_mode:0000000000000000 uart_periph_set_mode
-/var/tmp//cclMqtNV.s:318    .text.uart_transmit:0000000000000000 $t
-/var/tmp//cclMqtNV.s:323    .text.uart_transmit:0000000000000000 uart_transmit
-/var/tmp//cclMqtNV.s:391    .text.uart2_init:0000000000000000 $t
-/var/tmp//cclMqtNV.s:396    .text.uart2_init:0000000000000000 uart2_init
-/var/tmp//cclMqtNV.s:467    .text.uart2_init:0000000000000054 $d
-/var/tmp//cclMqtNV.s:475    .text.usart2_isr:0000000000000000 $t
-/var/tmp//cclMqtNV.s:480    .text.usart2_isr:0000000000000000 usart2_isr
-/var/tmp//cclMqtNV.s:494    .text.usart2_isr:0000000000000008 $d
-/var/tmp//cclMqtNV.s:499    .text.uart3_init:0000000000000000 $t
-/var/tmp//cclMqtNV.s:504    .text.uart3_init:0000000000000000 uart3_init
-/var/tmp//cclMqtNV.s:575    .text.uart3_init:0000000000000058 $d
-/var/tmp//cclMqtNV.s:583    .text.usart3_isr:0000000000000000 $t
-/var/tmp//cclMqtNV.s:588    .text.usart3_isr:0000000000000000 usart3_isr
-/var/tmp//cclMqtNV.s:602    .text.usart3_isr:0000000000000008 $d
+/var/tmp//cc4TyuOU.s:19     .text.usart_isr:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:23     .text.usart_isr:0000000000000000 usart_isr
+/var/tmp//cc4TyuOU.s:188    .text.uart_periph_set_baudrate:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:193    .text.uart_periph_set_baudrate:0000000000000000 uart_periph_set_baudrate
+/var/tmp//cc4TyuOU.s:249    .text.uart_periph_set_mode:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:254    .text.uart_periph_set_mode:0000000000000000 uart_periph_set_mode
+/var/tmp//cc4TyuOU.s:318    .text.uart_transmit:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:323    .text.uart_transmit:0000000000000000 uart_transmit
+/var/tmp//cc4TyuOU.s:391    .text.uart2_init:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:396    .text.uart2_init:0000000000000000 uart2_init
+/var/tmp//cc4TyuOU.s:467    .text.uart2_init:0000000000000054 $d
+/var/tmp//cc4TyuOU.s:475    .text.usart2_isr:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:480    .text.usart2_isr:0000000000000000 usart2_isr
+/var/tmp//cc4TyuOU.s:494    .text.usart2_isr:0000000000000008 $d
+/var/tmp//cc4TyuOU.s:499    .text.uart3_init:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:504    .text.uart3_init:0000000000000000 uart3_init
+/var/tmp//cc4TyuOU.s:575    .text.uart3_init:0000000000000058 $d
+/var/tmp//cc4TyuOU.s:583    .text.usart3_isr:0000000000000000 $t
+/var/tmp//cc4TyuOU.s:588    .text.usart3_isr:0000000000000000 usart3_isr
+/var/tmp//cc4TyuOU.s:602    .text.usart3_isr:0000000000000008 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

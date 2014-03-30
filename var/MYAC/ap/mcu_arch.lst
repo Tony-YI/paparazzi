@@ -124,9 +124,9 @@
   51              		.file 4 "../ext/libopencm3/include/libopencm3/stm32/f1/rcc.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mcu_arch.c
-/var/tmp//ccui10FH.s:19     .text.mcu_arch_init:0000000000000000 $t
-/var/tmp//ccui10FH.s:24     .text.mcu_arch_init:0000000000000000 mcu_arch_init
-/var/tmp//ccui10FH.s:43     .text.mcu_arch_init:000000000000000c $d
+/var/tmp//ccwXW2lN.s:19     .text.mcu_arch_init:0000000000000000 $t
+/var/tmp//ccwXW2lN.s:24     .text.mcu_arch_init:0000000000000000 mcu_arch_init
+/var/tmp//ccwXW2lN.s:43     .text.mcu_arch_init:000000000000000c $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

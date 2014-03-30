@@ -220,20 +220,20 @@
  168              		.file 13 "./firmwares/rotorcraft/stabilization.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization_none.c
-/var/tmp//ccdi6gvX.s:19     .text.stabilization_none_init:0000000000000000 $t
-/var/tmp//ccdi6gvX.s:24     .text.stabilization_none_init:0000000000000000 stabilization_none_init
-/var/tmp//ccdi6gvX.s:42     .text.stabilization_none_init:000000000000000c $d
-/var/tmp//ccdi6gvX.s:47     .text.stabilization_none_read_rc:0000000000000000 $t
-/var/tmp//ccdi6gvX.s:52     .text.stabilization_none_read_rc:0000000000000000 stabilization_none_read_rc
-/var/tmp//ccdi6gvX.s:77     .text.stabilization_none_read_rc:0000000000000018 $d
-/var/tmp//ccdi6gvX.s:83     .text.stabilization_none_enter:0000000000000000 $t
-/var/tmp//ccdi6gvX.s:88     .text.stabilization_none_enter:0000000000000000 stabilization_none_enter
-/var/tmp//ccdi6gvX.s:105    .text.stabilization_none_enter:000000000000000c $d
-/var/tmp//ccdi6gvX.s:110    .text.stabilization_none_run:0000000000000000 $t
-/var/tmp//ccdi6gvX.s:115    .text.stabilization_none_run:0000000000000000 stabilization_none_run
-/var/tmp//ccdi6gvX.s:142    .text.stabilization_none_run:0000000000000014 $d
-/var/tmp//ccdi6gvX.s:153    .bss.stabilization_none_rc_cmd:0000000000000000 stabilization_none_rc_cmd
-/var/tmp//ccdi6gvX.s:149    .bss.stabilization_none_rc_cmd:0000000000000000 $d
+/var/tmp//ccdMKTIz.s:19     .text.stabilization_none_init:0000000000000000 $t
+/var/tmp//ccdMKTIz.s:24     .text.stabilization_none_init:0000000000000000 stabilization_none_init
+/var/tmp//ccdMKTIz.s:42     .text.stabilization_none_init:000000000000000c $d
+/var/tmp//ccdMKTIz.s:47     .text.stabilization_none_read_rc:0000000000000000 $t
+/var/tmp//ccdMKTIz.s:52     .text.stabilization_none_read_rc:0000000000000000 stabilization_none_read_rc
+/var/tmp//ccdMKTIz.s:77     .text.stabilization_none_read_rc:0000000000000018 $d
+/var/tmp//ccdMKTIz.s:83     .text.stabilization_none_enter:0000000000000000 $t
+/var/tmp//ccdMKTIz.s:88     .text.stabilization_none_enter:0000000000000000 stabilization_none_enter
+/var/tmp//ccdMKTIz.s:105    .text.stabilization_none_enter:000000000000000c $d
+/var/tmp//ccdMKTIz.s:110    .text.stabilization_none_run:0000000000000000 $t
+/var/tmp//ccdMKTIz.s:115    .text.stabilization_none_run:0000000000000000 stabilization_none_run
+/var/tmp//ccdMKTIz.s:142    .text.stabilization_none_run:0000000000000014 $d
+/var/tmp//ccdMKTIz.s:153    .bss.stabilization_none_rc_cmd:0000000000000000 stabilization_none_rc_cmd
+/var/tmp//ccdMKTIz.s:149    .bss.stabilization_none_rc_cmd:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

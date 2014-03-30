@@ -990,28 +990,28 @@
  573              		.file 10 "./subsystems/imu/imu_aspirin_2_spi.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 imu_aspirin_2_spi.c
-/var/tmp//ccq0rLUI.s:19     .text.mpu_set_and_wait:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:23     .text.mpu_set_and_wait:0000000000000000 mpu_set_and_wait
-/var/tmp//ccq0rLUI.s:58     .text.mpu_set_and_wait:0000000000000018 $d
-/var/tmp//ccq0rLUI.s:63     .text.mpu_wait_slave4_ready_cb:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:68     .text.mpu_wait_slave4_ready_cb:0000000000000000 mpu_wait_slave4_ready_cb
-/var/tmp//ccq0rLUI.s:95     .text.mpu_wait_slave4_ready_cb:0000000000000018 $d
-/var/tmp//ccq0rLUI.s:100    .text.imu_impl_init:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:105    .text.imu_impl_init:0000000000000000 imu_impl_init
-/var/tmp//ccq0rLUI.s:207    .text.imu_impl_init:0000000000000090 $d
-/var/tmp//ccq0rLUI.s:423    .text.imu_aspirin2_configure_mag_slave:0000000000000000 imu_aspirin2_configure_mag_slave
-/var/tmp//ccq0rLUI.s:215    .text.imu_periodic:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:220    .text.imu_periodic:0000000000000000 imu_periodic
-/var/tmp//ccq0rLUI.s:258    .text.imu_periodic:0000000000000014 $d
-/var/tmp//ccq0rLUI.s:265    .text.imu_aspirin2_event:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:270    .text.imu_aspirin2_event:0000000000000000 imu_aspirin2_event
-/var/tmp//ccq0rLUI.s:365    .text.imu_aspirin2_event:000000000000007c $d
-/var/tmp//ccq0rLUI.s:372    .text.mpu_wait_slave4_ready:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:377    .text.mpu_wait_slave4_ready:0000000000000000 mpu_wait_slave4_ready
-/var/tmp//ccq0rLUI.s:413    .text.mpu_wait_slave4_ready:0000000000000024 $d
-/var/tmp//ccq0rLUI.s:418    .text.imu_aspirin2_configure_mag_slave:0000000000000000 $t
-/var/tmp//ccq0rLUI.s:562    .bss.imu_aspirin2:0000000000000000 imu_aspirin2
-/var/tmp//ccq0rLUI.s:558    .bss.imu_aspirin2:0000000000000000 $d
+/var/tmp//ccwgGI2z.s:19     .text.mpu_set_and_wait:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:23     .text.mpu_set_and_wait:0000000000000000 mpu_set_and_wait
+/var/tmp//ccwgGI2z.s:58     .text.mpu_set_and_wait:0000000000000018 $d
+/var/tmp//ccwgGI2z.s:63     .text.mpu_wait_slave4_ready_cb:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:68     .text.mpu_wait_slave4_ready_cb:0000000000000000 mpu_wait_slave4_ready_cb
+/var/tmp//ccwgGI2z.s:95     .text.mpu_wait_slave4_ready_cb:0000000000000018 $d
+/var/tmp//ccwgGI2z.s:100    .text.imu_impl_init:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:105    .text.imu_impl_init:0000000000000000 imu_impl_init
+/var/tmp//ccwgGI2z.s:207    .text.imu_impl_init:0000000000000090 $d
+/var/tmp//ccwgGI2z.s:423    .text.imu_aspirin2_configure_mag_slave:0000000000000000 imu_aspirin2_configure_mag_slave
+/var/tmp//ccwgGI2z.s:215    .text.imu_periodic:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:220    .text.imu_periodic:0000000000000000 imu_periodic
+/var/tmp//ccwgGI2z.s:258    .text.imu_periodic:0000000000000014 $d
+/var/tmp//ccwgGI2z.s:265    .text.imu_aspirin2_event:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:270    .text.imu_aspirin2_event:0000000000000000 imu_aspirin2_event
+/var/tmp//ccwgGI2z.s:365    .text.imu_aspirin2_event:000000000000007c $d
+/var/tmp//ccwgGI2z.s:372    .text.mpu_wait_slave4_ready:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:377    .text.mpu_wait_slave4_ready:0000000000000000 mpu_wait_slave4_ready
+/var/tmp//ccwgGI2z.s:413    .text.mpu_wait_slave4_ready:0000000000000024 $d
+/var/tmp//ccwgGI2z.s:418    .text.imu_aspirin2_configure_mag_slave:0000000000000000 $t
+/var/tmp//ccwgGI2z.s:562    .bss.imu_aspirin2:0000000000000000 imu_aspirin2
+/var/tmp//ccwgGI2z.s:558    .bss.imu_aspirin2:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

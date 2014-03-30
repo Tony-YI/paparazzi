@@ -196,22 +196,22 @@
  188              		.file 5 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/sys/unist
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 plug_sys.c
-/var/tmp//ccixxjHH.s:19     .text._lseek:0000000000000000 $t
-/var/tmp//ccixxjHH.s:24     .text._lseek:0000000000000000 _lseek
-/var/tmp//ccixxjHH.s:41     .text.abort:0000000000000000 $t
-/var/tmp//ccixxjHH.s:46     .text.abort:0000000000000000 abort
-/var/tmp//ccixxjHH.s:60     .text.getpid:0000000000000000 $t
-/var/tmp//ccixxjHH.s:65     .text.getpid:0000000000000000 getpid
-/var/tmp//ccixxjHH.s:79     .text.kill:0000000000000000 $t
-/var/tmp//ccixxjHH.s:84     .text.kill:0000000000000000 kill
-/var/tmp//ccixxjHH.s:100    .text._sbrk:0000000000000000 $t
-/var/tmp//ccixxjHH.s:105    .text._sbrk:0000000000000000 _sbrk
-/var/tmp//ccixxjHH.s:121    .text._write:0000000000000000 $t
-/var/tmp//ccixxjHH.s:126    .text._write:0000000000000000 _write
-/var/tmp//ccixxjHH.s:142    .text._close:0000000000000000 $t
-/var/tmp//ccixxjHH.s:147    .text._close:0000000000000000 _close
-/var/tmp//ccixxjHH.s:163    .text._read:0000000000000000 $t
-/var/tmp//ccixxjHH.s:168    .text._read:0000000000000000 _read
+/var/tmp//ccpB3rx6.s:19     .text._lseek:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:24     .text._lseek:0000000000000000 _lseek
+/var/tmp//ccpB3rx6.s:41     .text.abort:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:46     .text.abort:0000000000000000 abort
+/var/tmp//ccpB3rx6.s:60     .text.getpid:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:65     .text.getpid:0000000000000000 getpid
+/var/tmp//ccpB3rx6.s:79     .text.kill:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:84     .text.kill:0000000000000000 kill
+/var/tmp//ccpB3rx6.s:100    .text._sbrk:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:105    .text._sbrk:0000000000000000 _sbrk
+/var/tmp//ccpB3rx6.s:121    .text._write:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:126    .text._write:0000000000000000 _write
+/var/tmp//ccpB3rx6.s:142    .text._close:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:147    .text._close:0000000000000000 _close
+/var/tmp//ccpB3rx6.s:163    .text._read:0000000000000000 $t
+/var/tmp//ccpB3rx6.s:168    .text._read:0000000000000000 _read
                      .debug_frame:0000000000000010 $d
 
 NO UNDEFINED SYMBOLS

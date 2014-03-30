@@ -2563,42 +2563,42 @@
  2276              		.file 6 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 pprz_geodetic_double.c
-/var/tmp//ccOcCw0u.s:23     .text.lla_of_ecef_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:28     .text.lla_of_ecef_d:0000000000000000 lla_of_ecef_d
-/var/tmp//ccOcCw0u.s:442    .text.lla_of_ecef_d:00000000000002e0 $d
-/var/tmp//ccOcCw0u.s:466    .text.lla_of_ecef_d:000000000000033c $t
-/var/tmp//ccOcCw0u.s:501    .text.lla_of_ecef_d:0000000000000380 $d
-/var/tmp//ccOcCw0u.s:507    .text.ltp_def_from_ecef_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:512    .text.ltp_def_from_ecef_d:0000000000000000 ltp_def_from_ecef_d
-/var/tmp//ccOcCw0u.s:669    .text.ecef_of_lla_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:674    .text.ecef_of_lla_d:0000000000000000 ecef_of_lla_d
-/var/tmp//ccOcCw0u.s:828    .text.ecef_of_lla_d:00000000000000e8 $d
-/var/tmp//ccOcCw0u.s:839    .text.enu_of_ecef_point_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:844    .text.enu_of_ecef_point_d:0000000000000000 enu_of_ecef_point_d
-/var/tmp//ccOcCw0u.s:997    .text.ned_of_ecef_point_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1002   .text.ned_of_ecef_point_d:0000000000000000 ned_of_ecef_point_d
-/var/tmp//ccOcCw0u.s:1041   .text.enu_of_ecef_vect_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1046   .text.enu_of_ecef_vect_d:0000000000000000 enu_of_ecef_vect_d
-/var/tmp//ccOcCw0u.s:1179   .text.ned_of_ecef_vect_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1184   .text.ned_of_ecef_vect_d:0000000000000000 ned_of_ecef_vect_d
-/var/tmp//ccOcCw0u.s:1223   .text.ecef_of_enu_point_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1228   .text.ecef_of_enu_point_d:0000000000000000 ecef_of_enu_point_d
-/var/tmp//ccOcCw0u.s:1388   .text.ecef_of_ned_point_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1393   .text.ecef_of_ned_point_d:0000000000000000 ecef_of_ned_point_d
-/var/tmp//ccOcCw0u.s:1435   .text.ecef_of_enu_vect_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1440   .text.ecef_of_enu_vect_d:0000000000000000 ecef_of_enu_vect_d
-/var/tmp//ccOcCw0u.s:1573   .text.ecef_of_ned_vect_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1578   .text.ecef_of_ned_vect_d:0000000000000000 ecef_of_ned_vect_d
-/var/tmp//ccOcCw0u.s:1620   .text.gc_of_gd_lat_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1625   .text.gc_of_gd_lat_d:0000000000000000 gc_of_gd_lat_d
-/var/tmp//ccOcCw0u.s:1745   .text.gc_of_gd_lat_d:00000000000000c8 $d
-/var/tmp//ccOcCw0u.s:1757   .text.lla_of_utm_d:0000000000000000 $t
-/var/tmp//ccOcCw0u.s:1762   .text.lla_of_utm_d:0000000000000000 lla_of_utm_d
-/var/tmp//ccOcCw0u.s:2198   .text.lla_of_utm_d:0000000000000288 $d
-/var/tmp//ccOcCw0u.s:2223   .text.lla_of_utm_d:00000000000002d4 $t
-/var/tmp//ccOcCw0u.s:2263   .text.lla_of_utm_d:0000000000000318 $d
+/var/tmp//ccngXF7B.s:23     .text.lla_of_ecef_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:28     .text.lla_of_ecef_d:0000000000000000 lla_of_ecef_d
+/var/tmp//ccngXF7B.s:442    .text.lla_of_ecef_d:00000000000002e0 $d
+/var/tmp//ccngXF7B.s:466    .text.lla_of_ecef_d:000000000000033c $t
+/var/tmp//ccngXF7B.s:501    .text.lla_of_ecef_d:0000000000000380 $d
+/var/tmp//ccngXF7B.s:507    .text.ltp_def_from_ecef_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:512    .text.ltp_def_from_ecef_d:0000000000000000 ltp_def_from_ecef_d
+/var/tmp//ccngXF7B.s:669    .text.ecef_of_lla_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:674    .text.ecef_of_lla_d:0000000000000000 ecef_of_lla_d
+/var/tmp//ccngXF7B.s:828    .text.ecef_of_lla_d:00000000000000e8 $d
+/var/tmp//ccngXF7B.s:839    .text.enu_of_ecef_point_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:844    .text.enu_of_ecef_point_d:0000000000000000 enu_of_ecef_point_d
+/var/tmp//ccngXF7B.s:997    .text.ned_of_ecef_point_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1002   .text.ned_of_ecef_point_d:0000000000000000 ned_of_ecef_point_d
+/var/tmp//ccngXF7B.s:1041   .text.enu_of_ecef_vect_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1046   .text.enu_of_ecef_vect_d:0000000000000000 enu_of_ecef_vect_d
+/var/tmp//ccngXF7B.s:1179   .text.ned_of_ecef_vect_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1184   .text.ned_of_ecef_vect_d:0000000000000000 ned_of_ecef_vect_d
+/var/tmp//ccngXF7B.s:1223   .text.ecef_of_enu_point_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1228   .text.ecef_of_enu_point_d:0000000000000000 ecef_of_enu_point_d
+/var/tmp//ccngXF7B.s:1388   .text.ecef_of_ned_point_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1393   .text.ecef_of_ned_point_d:0000000000000000 ecef_of_ned_point_d
+/var/tmp//ccngXF7B.s:1435   .text.ecef_of_enu_vect_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1440   .text.ecef_of_enu_vect_d:0000000000000000 ecef_of_enu_vect_d
+/var/tmp//ccngXF7B.s:1573   .text.ecef_of_ned_vect_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1578   .text.ecef_of_ned_vect_d:0000000000000000 ecef_of_ned_vect_d
+/var/tmp//ccngXF7B.s:1620   .text.gc_of_gd_lat_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1625   .text.gc_of_gd_lat_d:0000000000000000 gc_of_gd_lat_d
+/var/tmp//ccngXF7B.s:1745   .text.gc_of_gd_lat_d:00000000000000c8 $d
+/var/tmp//ccngXF7B.s:1757   .text.lla_of_utm_d:0000000000000000 $t
+/var/tmp//ccngXF7B.s:1762   .text.lla_of_utm_d:0000000000000000 lla_of_utm_d
+/var/tmp//ccngXF7B.s:2198   .text.lla_of_utm_d:0000000000000288 $d
+/var/tmp//ccngXF7B.s:2223   .text.lla_of_utm_d:00000000000002d4 $t
+/var/tmp//ccngXF7B.s:2263   .text.lla_of_utm_d:0000000000000318 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccOcCw0u.s:838    .text.ecef_of_lla_d:0000000000000104 $t
+/var/tmp//ccngXF7B.s:838    .text.ecef_of_lla_d:0000000000000104 $t
 
 UNDEFINED SYMBOLS
 __aeabi_dmul

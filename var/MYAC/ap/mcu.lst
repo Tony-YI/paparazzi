@@ -404,9 +404,9 @@
  186              		.file 14 "mcu_periph/spi.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mcu.c
-/var/tmp//ccvj9qpw.s:19     .text.mcu_init:0000000000000000 $t
-/var/tmp//ccvj9qpw.s:24     .text.mcu_init:0000000000000000 mcu_init
-/var/tmp//ccvj9qpw.s:167    .text.mcu_init:00000000000000d0 $d
+/var/tmp//cc24TIfS.s:19     .text.mcu_init:0000000000000000 $t
+/var/tmp//cc24TIfS.s:24     .text.mcu_init:0000000000000000 mcu_init
+/var/tmp//cc24TIfS.s:167    .text.mcu_init:00000000000000d0 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

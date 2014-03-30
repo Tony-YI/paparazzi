@@ -3103,41 +3103,41 @@
  1529              		.file 11 "../ext/libopencm3/include/libopencm3/stm32/common/i2c_common_all.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 i2c_arch.c
-/var/tmp//ccdZ9kFV.s:19     .text.PPRZ_I2C_SEND_START:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:23     .text.PPRZ_I2C_SEND_START:0000000000000000 PPRZ_I2C_SEND_START
-/var/tmp//ccdZ9kFV.s:64     .text.stmi2c_clear_pending_interrupts:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:68     .text.stmi2c_clear_pending_interrupts:0000000000000000 stmi2c_clear_pending_interrupts
-/var/tmp//ccdZ9kFV.s:114    .text.i2c_error.constprop.2:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:118    .text.i2c_error.constprop.2:0000000000000000 i2c_error.constprop.2
-/var/tmp//ccdZ9kFV.s:235    .text.i2c_error.constprop.2:00000000000000a4 $d
-/var/tmp//ccdZ9kFV.s:240    .text.i2c_irq.constprop.1:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:244    .text.i2c_irq.constprop.1:0000000000000000 i2c_irq.constprop.1
-/var/tmp//ccdZ9kFV.s:804    .text.i2c_irq.constprop.1:0000000000000298 $d
-/var/tmp//ccdZ9kFV.s:809    .text.i2c_irq.constprop.1:000000000000029c $t
-/var/tmp//ccdZ9kFV.s:968    .text.i2c_irq.constprop.1:0000000000000368 $d
-/var/tmp//ccdZ9kFV.s:975    .text.i2c2_ev_isr:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:980    .text.i2c2_ev_isr:0000000000000000 i2c2_ev_isr
-/var/tmp//ccdZ9kFV.s:1015   .text.i2c2_ev_isr:0000000000000024 $d
-/var/tmp//ccdZ9kFV.s:1021   .text.i2c2_er_isr:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1026   .text.i2c2_er_isr:0000000000000000 i2c2_er_isr
-/var/tmp//ccdZ9kFV.s:1061   .text.i2c2_er_isr:0000000000000024 $d
-/var/tmp//ccdZ9kFV.s:1067   .text.i2c_event:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1072   .text.i2c_event:0000000000000000 i2c_event
-/var/tmp//ccdZ9kFV.s:1104   .text.i2c_event:0000000000000024 $d
-/var/tmp//ccdZ9kFV.s:1110   .text.i2c_submit:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1115   .text.i2c_submit:0000000000000000 i2c_submit
-/var/tmp//ccdZ9kFV.s:1192   .text.i2c_idle:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1197   .text.i2c_idle:0000000000000000 i2c_idle
-/var/tmp//ccdZ9kFV.s:1229   .text.i2c_setbitrate:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1234   .text.i2c_setbitrate:0000000000000000 i2c_setbitrate
-/var/tmp//ccdZ9kFV.s:1364   .text.i2c_setbitrate:000000000000008c $d
-/var/tmp//ccdZ9kFV.s:1369   .text.i2c2_hw_init:0000000000000000 $t
-/var/tmp//ccdZ9kFV.s:1374   .text.i2c2_hw_init:0000000000000000 i2c2_hw_init
-/var/tmp//ccdZ9kFV.s:1490   .text.i2c2_hw_init:0000000000000098 $d
-/var/tmp//ccdZ9kFV.s:1516   .bss.i2c2_watchdog_counter:0000000000000000 i2c2_watchdog_counter
-/var/tmp//ccdZ9kFV.s:1509   .bss.i2c2_errors:0000000000000000 i2c2_errors
-/var/tmp//ccdZ9kFV.s:1505   .bss.i2c2_errors:0000000000000000 $d
-/var/tmp//ccdZ9kFV.s:1512   .bss.i2c2_watchdog_counter:0000000000000000 $d
+/var/tmp//ccHo6P1U.s:19     .text.PPRZ_I2C_SEND_START:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:23     .text.PPRZ_I2C_SEND_START:0000000000000000 PPRZ_I2C_SEND_START
+/var/tmp//ccHo6P1U.s:64     .text.stmi2c_clear_pending_interrupts:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:68     .text.stmi2c_clear_pending_interrupts:0000000000000000 stmi2c_clear_pending_interrupts
+/var/tmp//ccHo6P1U.s:114    .text.i2c_error.constprop.2:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:118    .text.i2c_error.constprop.2:0000000000000000 i2c_error.constprop.2
+/var/tmp//ccHo6P1U.s:235    .text.i2c_error.constprop.2:00000000000000a4 $d
+/var/tmp//ccHo6P1U.s:240    .text.i2c_irq.constprop.1:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:244    .text.i2c_irq.constprop.1:0000000000000000 i2c_irq.constprop.1
+/var/tmp//ccHo6P1U.s:804    .text.i2c_irq.constprop.1:0000000000000298 $d
+/var/tmp//ccHo6P1U.s:809    .text.i2c_irq.constprop.1:000000000000029c $t
+/var/tmp//ccHo6P1U.s:968    .text.i2c_irq.constprop.1:0000000000000368 $d
+/var/tmp//ccHo6P1U.s:975    .text.i2c2_ev_isr:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:980    .text.i2c2_ev_isr:0000000000000000 i2c2_ev_isr
+/var/tmp//ccHo6P1U.s:1015   .text.i2c2_ev_isr:0000000000000024 $d
+/var/tmp//ccHo6P1U.s:1021   .text.i2c2_er_isr:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1026   .text.i2c2_er_isr:0000000000000000 i2c2_er_isr
+/var/tmp//ccHo6P1U.s:1061   .text.i2c2_er_isr:0000000000000024 $d
+/var/tmp//ccHo6P1U.s:1067   .text.i2c_event:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1072   .text.i2c_event:0000000000000000 i2c_event
+/var/tmp//ccHo6P1U.s:1104   .text.i2c_event:0000000000000024 $d
+/var/tmp//ccHo6P1U.s:1110   .text.i2c_submit:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1115   .text.i2c_submit:0000000000000000 i2c_submit
+/var/tmp//ccHo6P1U.s:1192   .text.i2c_idle:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1197   .text.i2c_idle:0000000000000000 i2c_idle
+/var/tmp//ccHo6P1U.s:1229   .text.i2c_setbitrate:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1234   .text.i2c_setbitrate:0000000000000000 i2c_setbitrate
+/var/tmp//ccHo6P1U.s:1364   .text.i2c_setbitrate:000000000000008c $d
+/var/tmp//ccHo6P1U.s:1369   .text.i2c2_hw_init:0000000000000000 $t
+/var/tmp//ccHo6P1U.s:1374   .text.i2c2_hw_init:0000000000000000 i2c2_hw_init
+/var/tmp//ccHo6P1U.s:1490   .text.i2c2_hw_init:0000000000000098 $d
+/var/tmp//ccHo6P1U.s:1516   .bss.i2c2_watchdog_counter:0000000000000000 i2c2_watchdog_counter
+/var/tmp//ccHo6P1U.s:1509   .bss.i2c2_errors:0000000000000000 i2c2_errors
+/var/tmp//ccHo6P1U.s:1505   .bss.i2c2_errors:0000000000000000 $d
+/var/tmp//ccHo6P1U.s:1512   .bss.i2c2_watchdog_counter:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

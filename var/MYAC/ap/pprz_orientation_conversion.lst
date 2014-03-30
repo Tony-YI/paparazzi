@@ -5658,30 +5658,30 @@
  5433              		.file 7 "./math/pprz_trig_int.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 pprz_orientation_conversion.c
-/var/tmp//ccA1kPVk.s:24     .text.orientationCalcQuat_i:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:29     .text.orientationCalcQuat_i:0000000000000000 orientationCalcQuat_i
-/var/tmp//ccA1kPVk.s:678    .text.orientationCalcQuat_i:0000000000000364 $d
-/var/tmp//ccA1kPVk.s:684    .text.orientationCalcQuat_i:0000000000000370 $t
-/var/tmp//ccA1kPVk.s:1216   .text.orientationCalcQuat_i:0000000000000684 $d
-/var/tmp//ccA1kPVk.s:1223   .text.orientationCalcQuat_i:0000000000000690 $t
-/var/tmp//ccA1kPVk.s:1791   .text.orientationCalcQuat_i:0000000000000994 $d
-/var/tmp//ccA1kPVk.s:1797   .text.orientationCalcQuat_i:00000000000009a0 $t
-/var/tmp//ccA1kPVk.s:1860   .text.orientationCalcRMat_i:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:1865   .text.orientationCalcRMat_i:0000000000000000 orientationCalcRMat_i
-/var/tmp//ccA1kPVk.s:2509   .text.orientationCalcRMat_i:00000000000003c4 $d
-/var/tmp//ccA1kPVk.s:2515   .text.orientationCalcRMat_i:00000000000003cc $t
-/var/tmp//ccA1kPVk.s:3139   .text.orientationCalcRMat_i:0000000000000774 $d
-/var/tmp//ccA1kPVk.s:3146   .text.orientationCalcEulers_i:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:3151   .text.orientationCalcEulers_i:0000000000000000 orientationCalcEulers_i
-/var/tmp//ccA1kPVk.s:3674   .text.orientationCalcQuat_f:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:3679   .text.orientationCalcQuat_f:0000000000000000 orientationCalcQuat_f
-/var/tmp//ccA1kPVk.s:4360   .text.orientationCalcRMat_f:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:4365   .text.orientationCalcRMat_f:0000000000000000 orientationCalcRMat_f
-/var/tmp//ccA1kPVk.s:4756   .text.orientationCalcRMat_f:0000000000000290 $d
-/var/tmp//ccA1kPVk.s:4762   .text.orientationCalcRMat_f:0000000000000298 $t
-/var/tmp//ccA1kPVk.s:4938   .text.orientationCalcEulers_f:0000000000000000 $t
-/var/tmp//ccA1kPVk.s:4943   .text.orientationCalcEulers_f:0000000000000000 orientationCalcEulers_f
-/var/tmp//ccA1kPVk.s:5422   .text.orientationCalcEulers_f:0000000000000358 $d
+/var/tmp//cczFHGtr.s:24     .text.orientationCalcQuat_i:0000000000000000 $t
+/var/tmp//cczFHGtr.s:29     .text.orientationCalcQuat_i:0000000000000000 orientationCalcQuat_i
+/var/tmp//cczFHGtr.s:678    .text.orientationCalcQuat_i:0000000000000364 $d
+/var/tmp//cczFHGtr.s:684    .text.orientationCalcQuat_i:0000000000000370 $t
+/var/tmp//cczFHGtr.s:1216   .text.orientationCalcQuat_i:0000000000000684 $d
+/var/tmp//cczFHGtr.s:1223   .text.orientationCalcQuat_i:0000000000000690 $t
+/var/tmp//cczFHGtr.s:1791   .text.orientationCalcQuat_i:0000000000000994 $d
+/var/tmp//cczFHGtr.s:1797   .text.orientationCalcQuat_i:00000000000009a0 $t
+/var/tmp//cczFHGtr.s:1860   .text.orientationCalcRMat_i:0000000000000000 $t
+/var/tmp//cczFHGtr.s:1865   .text.orientationCalcRMat_i:0000000000000000 orientationCalcRMat_i
+/var/tmp//cczFHGtr.s:2509   .text.orientationCalcRMat_i:00000000000003c4 $d
+/var/tmp//cczFHGtr.s:2515   .text.orientationCalcRMat_i:00000000000003cc $t
+/var/tmp//cczFHGtr.s:3139   .text.orientationCalcRMat_i:0000000000000774 $d
+/var/tmp//cczFHGtr.s:3146   .text.orientationCalcEulers_i:0000000000000000 $t
+/var/tmp//cczFHGtr.s:3151   .text.orientationCalcEulers_i:0000000000000000 orientationCalcEulers_i
+/var/tmp//cczFHGtr.s:3674   .text.orientationCalcQuat_f:0000000000000000 $t
+/var/tmp//cczFHGtr.s:3679   .text.orientationCalcQuat_f:0000000000000000 orientationCalcQuat_f
+/var/tmp//cczFHGtr.s:4360   .text.orientationCalcRMat_f:0000000000000000 $t
+/var/tmp//cczFHGtr.s:4365   .text.orientationCalcRMat_f:0000000000000000 orientationCalcRMat_f
+/var/tmp//cczFHGtr.s:4756   .text.orientationCalcRMat_f:0000000000000290 $d
+/var/tmp//cczFHGtr.s:4762   .text.orientationCalcRMat_f:0000000000000298 $t
+/var/tmp//cczFHGtr.s:4938   .text.orientationCalcEulers_f:0000000000000000 $t
+/var/tmp//cczFHGtr.s:4943   .text.orientationCalcEulers_f:0000000000000000 orientationCalcEulers_f
+/var/tmp//cczFHGtr.s:5422   .text.orientationCalcEulers_f:0000000000000358 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

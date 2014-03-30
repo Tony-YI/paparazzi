@@ -3358,18 +3358,18 @@
  1864              		.align	2
  1865              		.set	.LANCHOR2,. + 0
  1868              	stabilization_gains:
- 1869 0000 5E010000 		.word	350
- 1870 0004 5E010000 		.word	350
- 1871 0008 8A020000 		.word	650
- 1872 000c A0000000 		.word	160
- 1873 0010 A0000000 		.word	160
- 1874 0014 64000000 		.word	100
- 1875 0018 14000000 		.word	20
- 1876 001c 14000000 		.word	20
- 1877 0020 19000000 		.word	25
- 1878 0024 46000000 		.word	70
- 1879 0028 46000000 		.word	70
- 1880 002c 4A010000 		.word	330
+ 1869 0000 12020000 		.word	530
+ 1870 0004 12020000 		.word	530
+ 1871 0008 12020000 		.word	530
+ 1872 000c A5000000 		.word	165
+ 1873 0010 A5000000 		.word	165
+ 1874 0014 40010000 		.word	320
+ 1875 0018 2C010000 		.word	300
+ 1876 001c 2C010000 		.word	300
+ 1877 0020 18010000 		.word	280
+ 1878 0024 28000000 		.word	40
+ 1879 0028 28000000 		.word	40
+ 1880 002c 28000000 		.word	40
  1881              		.section	.bss.stabilization_att_ff_cmd,"aw",%nobits
  1882              		.align	2
  1883              		.set	.LANCHOR3,. + 0
@@ -3399,38 +3399,38 @@
  1906              		.file 20 "./firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization_attitude_quat_int.c
-/var/tmp//ccpBLN4e.s:19     .text.stabilization_attitude_init:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:24     .text.stabilization_attitude_init:0000000000000000 stabilization_attitude_init
-/var/tmp//ccpBLN4e.s:58     .text.stabilization_attitude_init:0000000000000020 $d
-/var/tmp//ccpBLN4e.s:64     .text.stabilization_attitude_enter:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:69     .text.stabilization_attitude_enter:0000000000000000 stabilization_attitude_enter
-/var/tmp//ccpBLN4e.s:107    .text.stabilization_attitude_enter:0000000000000028 $d
-/var/tmp//ccpBLN4e.s:114    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:119    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 stabilization_attitude_set_failsafe_setpoint
-/var/tmp//ccpBLN4e.s:293    .text.stabilization_attitude_set_failsafe_setpoint:00000000000000d4 $d
-/var/tmp//ccpBLN4e.s:301    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:306    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 stabilization_attitude_set_from_eulers_i
-/var/tmp//ccpBLN4e.s:836    .text.stabilization_attitude_set_from_eulers_i:00000000000002b8 $d
-/var/tmp//ccpBLN4e.s:848    .text.stabilization_attitude_run:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:853    .text.stabilization_attitude_run:0000000000000000 stabilization_attitude_run
-/var/tmp//ccpBLN4e.s:1323   .text.stabilization_attitude_run:00000000000002dc $d
-/var/tmp//ccpBLN4e.s:1333   .text.stabilization_attitude_run:00000000000002f0 $t
-/var/tmp//ccpBLN4e.s:1740   .text.stabilization_attitude_run:00000000000005f8 $d
-/var/tmp//ccpBLN4e.s:1750   .text.stabilization_attitude_run:0000000000000618 $t
-/var/tmp//ccpBLN4e.s:1764   .text.stabilization_attitude_run:000000000000062c $d
-/var/tmp//ccpBLN4e.s:1770   .text.stabilization_attitude_read_rc:0000000000000000 $t
-/var/tmp//ccpBLN4e.s:1775   .text.stabilization_attitude_read_rc:0000000000000000 stabilization_attitude_read_rc
-/var/tmp//ccpBLN4e.s:1833   .text.stabilization_attitude_read_rc:0000000000000050 $d
-/var/tmp//ccpBLN4e.s:1886   .bss.stabilization_att_ff_cmd:0000000000000000 stabilization_att_ff_cmd
-/var/tmp//ccpBLN4e.s:1854   .bss.stabilization_att_fb_cmd:0000000000000000 stabilization_att_fb_cmd
-/var/tmp//ccpBLN4e.s:1861   .bss.stabilization_att_sum_err:0000000000000000 stabilization_att_sum_err
-/var/tmp//ccpBLN4e.s:1847   .bss.stabilization_att_sum_err_quat:0000000000000000 stabilization_att_sum_err_quat
-/var/tmp//ccpBLN4e.s:1868   .data.stabilization_gains:0000000000000000 stabilization_gains
-/var/tmp//ccpBLN4e.s:1843   .bss.stabilization_att_sum_err_quat:0000000000000000 $d
-/var/tmp//ccpBLN4e.s:1850   .bss.stabilization_att_fb_cmd:0000000000000000 $d
-/var/tmp//ccpBLN4e.s:1857   .bss.stabilization_att_sum_err:0000000000000000 $d
-/var/tmp//ccpBLN4e.s:1864   .data.stabilization_gains:0000000000000000 $d
-/var/tmp//ccpBLN4e.s:1882   .bss.stabilization_att_ff_cmd:0000000000000000 $d
+/var/tmp//cc7HWQZV.s:19     .text.stabilization_attitude_init:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:24     .text.stabilization_attitude_init:0000000000000000 stabilization_attitude_init
+/var/tmp//cc7HWQZV.s:58     .text.stabilization_attitude_init:0000000000000020 $d
+/var/tmp//cc7HWQZV.s:64     .text.stabilization_attitude_enter:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:69     .text.stabilization_attitude_enter:0000000000000000 stabilization_attitude_enter
+/var/tmp//cc7HWQZV.s:107    .text.stabilization_attitude_enter:0000000000000028 $d
+/var/tmp//cc7HWQZV.s:114    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:119    .text.stabilization_attitude_set_failsafe_setpoint:0000000000000000 stabilization_attitude_set_failsafe_setpoint
+/var/tmp//cc7HWQZV.s:293    .text.stabilization_attitude_set_failsafe_setpoint:00000000000000d4 $d
+/var/tmp//cc7HWQZV.s:301    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:306    .text.stabilization_attitude_set_from_eulers_i:0000000000000000 stabilization_attitude_set_from_eulers_i
+/var/tmp//cc7HWQZV.s:836    .text.stabilization_attitude_set_from_eulers_i:00000000000002b8 $d
+/var/tmp//cc7HWQZV.s:848    .text.stabilization_attitude_run:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:853    .text.stabilization_attitude_run:0000000000000000 stabilization_attitude_run
+/var/tmp//cc7HWQZV.s:1323   .text.stabilization_attitude_run:00000000000002dc $d
+/var/tmp//cc7HWQZV.s:1333   .text.stabilization_attitude_run:00000000000002f0 $t
+/var/tmp//cc7HWQZV.s:1740   .text.stabilization_attitude_run:00000000000005f8 $d
+/var/tmp//cc7HWQZV.s:1750   .text.stabilization_attitude_run:0000000000000618 $t
+/var/tmp//cc7HWQZV.s:1764   .text.stabilization_attitude_run:000000000000062c $d
+/var/tmp//cc7HWQZV.s:1770   .text.stabilization_attitude_read_rc:0000000000000000 $t
+/var/tmp//cc7HWQZV.s:1775   .text.stabilization_attitude_read_rc:0000000000000000 stabilization_attitude_read_rc
+/var/tmp//cc7HWQZV.s:1833   .text.stabilization_attitude_read_rc:0000000000000050 $d
+/var/tmp//cc7HWQZV.s:1886   .bss.stabilization_att_ff_cmd:0000000000000000 stabilization_att_ff_cmd
+/var/tmp//cc7HWQZV.s:1854   .bss.stabilization_att_fb_cmd:0000000000000000 stabilization_att_fb_cmd
+/var/tmp//cc7HWQZV.s:1861   .bss.stabilization_att_sum_err:0000000000000000 stabilization_att_sum_err
+/var/tmp//cc7HWQZV.s:1847   .bss.stabilization_att_sum_err_quat:0000000000000000 stabilization_att_sum_err_quat
+/var/tmp//cc7HWQZV.s:1868   .data.stabilization_gains:0000000000000000 stabilization_gains
+/var/tmp//cc7HWQZV.s:1843   .bss.stabilization_att_sum_err_quat:0000000000000000 $d
+/var/tmp//cc7HWQZV.s:1850   .bss.stabilization_att_fb_cmd:0000000000000000 $d
+/var/tmp//cc7HWQZV.s:1857   .bss.stabilization_att_sum_err:0000000000000000 $d
+/var/tmp//cc7HWQZV.s:1864   .data.stabilization_gains:0000000000000000 $d
+/var/tmp//cc7HWQZV.s:1882   .bss.stabilization_att_ff_cmd:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

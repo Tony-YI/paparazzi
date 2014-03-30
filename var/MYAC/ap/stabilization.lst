@@ -105,10 +105,10 @@
   69              		.file 12 "./firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 stabilization.c
-/var/tmp//ccchM4h3.s:19     .text.stabilization_init:0000000000000000 $t
-/var/tmp//ccchM4h3.s:24     .text.stabilization_init:0000000000000000 stabilization_init
-/var/tmp//ccchM4h3.s:55     .bss.stabilization_cmd:0000000000000000 stabilization_cmd
-/var/tmp//ccchM4h3.s:52     .bss.stabilization_cmd:0000000000000000 $d
+/var/tmp//ccBC7P6w.s:19     .text.stabilization_init:0000000000000000 $t
+/var/tmp//ccBC7P6w.s:24     .text.stabilization_init:0000000000000000 stabilization_init
+/var/tmp//ccBC7P6w.s:55     .bss.stabilization_cmd:0000000000000000 stabilization_cmd
+/var/tmp//ccBC7P6w.s:52     .bss.stabilization_cmd:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

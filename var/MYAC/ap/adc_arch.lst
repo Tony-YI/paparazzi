@@ -1166,23 +1166,23 @@
  508              		.file 10 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/mcu_periph/adc_arch.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 adc_arch.c
-/var/tmp//ccCAu4tg.s:19     .text.adc_buf_channel:0000000000000000 $t
-/var/tmp//ccCAu4tg.s:24     .text.adc_buf_channel:0000000000000000 adc_buf_channel
-/var/tmp//ccCAu4tg.s:44     .text.adc_buf_channel:000000000000000c $d
-/var/tmp//ccCAu4tg.s:49     .text.adc_init:0000000000000000 $t
-/var/tmp//ccCAu4tg.s:54     .text.adc_init:0000000000000000 adc_init
-/var/tmp//ccCAu4tg.s:346    .text.adc_init:000000000000016c $d
-/var/tmp//ccCAu4tg.s:360    .text.adc1_2_isr:0000000000000000 $t
-/var/tmp//ccCAu4tg.s:365    .text.adc1_2_isr:0000000000000000 adc1_2_isr
-/var/tmp//ccCAu4tg.s:463    .text.adc1_2_isr:0000000000000050 $d
-/var/tmp//ccCAu4tg.s:496    .bss.adc_injected_channels:0000000000000000 adc_injected_channels
-/var/tmp//ccCAu4tg.s:476    .bss.adc_new_data_trigger:0000000000000000 adc_new_data_trigger
-/var/tmp//ccCAu4tg.s:477    .bss.adc_new_data_trigger:0000000000000000 $d
-/var/tmp//ccCAu4tg.s:479    .bss.adc1_buffers:0000000000000000 $d
-/var/tmp//ccCAu4tg.s:483    .bss.adc1_buffers:0000000000000000 adc1_buffers
-/var/tmp//ccCAu4tg.s:489    .bss.adc_channel_map:0000000000000000 adc_channel_map
-/var/tmp//ccCAu4tg.s:490    .bss.adc_channel_map:0000000000000000 $d
-/var/tmp//ccCAu4tg.s:492    .bss.adc_injected_channels:0000000000000000 $d
+/var/tmp//ccupYzqZ.s:19     .text.adc_buf_channel:0000000000000000 $t
+/var/tmp//ccupYzqZ.s:24     .text.adc_buf_channel:0000000000000000 adc_buf_channel
+/var/tmp//ccupYzqZ.s:44     .text.adc_buf_channel:000000000000000c $d
+/var/tmp//ccupYzqZ.s:49     .text.adc_init:0000000000000000 $t
+/var/tmp//ccupYzqZ.s:54     .text.adc_init:0000000000000000 adc_init
+/var/tmp//ccupYzqZ.s:346    .text.adc_init:000000000000016c $d
+/var/tmp//ccupYzqZ.s:360    .text.adc1_2_isr:0000000000000000 $t
+/var/tmp//ccupYzqZ.s:365    .text.adc1_2_isr:0000000000000000 adc1_2_isr
+/var/tmp//ccupYzqZ.s:463    .text.adc1_2_isr:0000000000000050 $d
+/var/tmp//ccupYzqZ.s:496    .bss.adc_injected_channels:0000000000000000 adc_injected_channels
+/var/tmp//ccupYzqZ.s:476    .bss.adc_new_data_trigger:0000000000000000 adc_new_data_trigger
+/var/tmp//ccupYzqZ.s:477    .bss.adc_new_data_trigger:0000000000000000 $d
+/var/tmp//ccupYzqZ.s:479    .bss.adc1_buffers:0000000000000000 $d
+/var/tmp//ccupYzqZ.s:483    .bss.adc1_buffers:0000000000000000 adc1_buffers
+/var/tmp//ccupYzqZ.s:489    .bss.adc_channel_map:0000000000000000 adc_channel_map
+/var/tmp//ccupYzqZ.s:490    .bss.adc_channel_map:0000000000000000 $d
+/var/tmp//ccupYzqZ.s:492    .bss.adc_injected_channels:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

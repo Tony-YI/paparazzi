@@ -92,13 +92,13 @@
   83              		.file 19 "/Users/tony-yi/git/paparazzi_local/var/MYAC/generated/settings.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 settings.c
-/var/tmp//ccrmyYAW.s:19     .text.settings_init:0000000000000000 $t
-/var/tmp//ccrmyYAW.s:24     .text.settings_init:0000000000000000 settings_init
-/var/tmp//ccrmyYAW.s:37     .text.settings_store:0000000000000000 $t
-/var/tmp//ccrmyYAW.s:42     .text.settings_store:0000000000000000 settings_store
-/var/tmp//ccrmyYAW.s:58     .bss.settings_store_now:0000000000000000 settings_store_now
-/var/tmp//ccrmyYAW.s:63     .bss.pers_settings:0000000000000000 pers_settings
-/var/tmp//ccrmyYAW.s:59     .bss.settings_store_now:0000000000000000 $d
+/var/tmp//ccgT1C2r.s:19     .text.settings_init:0000000000000000 $t
+/var/tmp//ccgT1C2r.s:24     .text.settings_init:0000000000000000 settings_init
+/var/tmp//ccgT1C2r.s:37     .text.settings_store:0000000000000000 $t
+/var/tmp//ccgT1C2r.s:42     .text.settings_store:0000000000000000 settings_store
+/var/tmp//ccgT1C2r.s:58     .bss.settings_store_now:0000000000000000 settings_store_now
+/var/tmp//ccgT1C2r.s:63     .bss.pers_settings:0000000000000000 pers_settings
+/var/tmp//ccgT1C2r.s:59     .bss.settings_store_now:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
 
 NO UNDEFINED SYMBOLS

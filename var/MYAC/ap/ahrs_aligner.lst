@@ -537,26 +537,26 @@
  406              		.file 13 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ahrs_aligner.c
-/var/tmp//ccWInmVs.s:19     .text.ahrs_aligner_init:0000000000000000 $t
-/var/tmp//ccWInmVs.s:24     .text.ahrs_aligner_init:0000000000000000 ahrs_aligner_init
-/var/tmp//ccWInmVs.s:69     .text.ahrs_aligner_init:000000000000002c $d
-/var/tmp//ccWInmVs.s:78     .text.ahrs_aligner_run:0000000000000000 $t
-/var/tmp//ccWInmVs.s:83     .text.ahrs_aligner_run:0000000000000000 ahrs_aligner_run
-/var/tmp//ccWInmVs.s:329    .text.ahrs_aligner_run:0000000000000154 $d
-/var/tmp//ccWInmVs.s:377    .bss.ahrs_aligner:0000000000000000 ahrs_aligner
-/var/tmp//ccWInmVs.s:345    .bss.prescaler.5872:0000000000000000 $d
-/var/tmp//ccWInmVs.s:349    .bss.prescaler.5872:0000000000000000 prescaler.5872
-/var/tmp//ccWInmVs.s:352    .bss.gyro_sum:0000000000000000 $d
-/var/tmp//ccWInmVs.s:356    .bss.gyro_sum:0000000000000000 gyro_sum
-/var/tmp//ccWInmVs.s:359    .bss.mag_sum:0000000000000000 $d
-/var/tmp//ccWInmVs.s:363    .bss.mag_sum:0000000000000000 mag_sum
-/var/tmp//ccWInmVs.s:366    .bss.samples_idx:0000000000000000 $d
-/var/tmp//ccWInmVs.s:370    .bss.samples_idx:0000000000000000 samples_idx
-/var/tmp//ccWInmVs.s:373    .bss.ahrs_aligner:0000000000000000 $d
-/var/tmp//ccWInmVs.s:380    .bss.ref_sensor_samples:0000000000000000 $d
-/var/tmp//ccWInmVs.s:384    .bss.ref_sensor_samples:0000000000000000 ref_sensor_samples
-/var/tmp//ccWInmVs.s:387    .bss.accel_sum:0000000000000000 $d
-/var/tmp//ccWInmVs.s:391    .bss.accel_sum:0000000000000000 accel_sum
+/var/tmp//ccZ09igs.s:19     .text.ahrs_aligner_init:0000000000000000 $t
+/var/tmp//ccZ09igs.s:24     .text.ahrs_aligner_init:0000000000000000 ahrs_aligner_init
+/var/tmp//ccZ09igs.s:69     .text.ahrs_aligner_init:000000000000002c $d
+/var/tmp//ccZ09igs.s:78     .text.ahrs_aligner_run:0000000000000000 $t
+/var/tmp//ccZ09igs.s:83     .text.ahrs_aligner_run:0000000000000000 ahrs_aligner_run
+/var/tmp//ccZ09igs.s:329    .text.ahrs_aligner_run:0000000000000154 $d
+/var/tmp//ccZ09igs.s:377    .bss.ahrs_aligner:0000000000000000 ahrs_aligner
+/var/tmp//ccZ09igs.s:345    .bss.prescaler.5872:0000000000000000 $d
+/var/tmp//ccZ09igs.s:349    .bss.prescaler.5872:0000000000000000 prescaler.5872
+/var/tmp//ccZ09igs.s:352    .bss.gyro_sum:0000000000000000 $d
+/var/tmp//ccZ09igs.s:356    .bss.gyro_sum:0000000000000000 gyro_sum
+/var/tmp//ccZ09igs.s:359    .bss.mag_sum:0000000000000000 $d
+/var/tmp//ccZ09igs.s:363    .bss.mag_sum:0000000000000000 mag_sum
+/var/tmp//ccZ09igs.s:366    .bss.samples_idx:0000000000000000 $d
+/var/tmp//ccZ09igs.s:370    .bss.samples_idx:0000000000000000 samples_idx
+/var/tmp//ccZ09igs.s:373    .bss.ahrs_aligner:0000000000000000 $d
+/var/tmp//ccZ09igs.s:380    .bss.ref_sensor_samples:0000000000000000 $d
+/var/tmp//ccZ09igs.s:384    .bss.ref_sensor_samples:0000000000000000 ref_sensor_samples
+/var/tmp//ccZ09igs.s:387    .bss.accel_sum:0000000000000000 $d
+/var/tmp//ccZ09igs.s:391    .bss.accel_sum:0000000000000000 accel_sum
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

@@ -293,12 +293,12 @@
  201              		.file 7 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 sys_time_arch.c
-/var/tmp//ccp1f0O9.s:23     .text.sys_time_arch_init:0000000000000000 $t
-/var/tmp//ccp1f0O9.s:28     .text.sys_time_arch_init:0000000000000000 sys_time_arch_init
-/var/tmp//ccp1f0O9.s:81     .text.sys_time_arch_init:0000000000000040 $d
-/var/tmp//ccp1f0O9.s:89     .text.sys_tick_handler:0000000000000000 $t
-/var/tmp//ccp1f0O9.s:94     .text.sys_tick_handler:0000000000000000 sys_tick_handler
-/var/tmp//ccp1f0O9.s:189    .text.sys_tick_handler:0000000000000068 $d
+/var/tmp//ccJldVqF.s:23     .text.sys_time_arch_init:0000000000000000 $t
+/var/tmp//ccJldVqF.s:28     .text.sys_time_arch_init:0000000000000000 sys_time_arch_init
+/var/tmp//ccJldVqF.s:81     .text.sys_time_arch_init:0000000000000040 $d
+/var/tmp//ccJldVqF.s:89     .text.sys_tick_handler:0000000000000000 $t
+/var/tmp//ccJldVqF.s:94     .text.sys_tick_handler:0000000000000000 sys_tick_handler
+/var/tmp//ccJldVqF.s:189    .text.sys_tick_handler:0000000000000068 $d
                      .debug_frame:0000000000000010 $d
 
 UNDEFINED SYMBOLS

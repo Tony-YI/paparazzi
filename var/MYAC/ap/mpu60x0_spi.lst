@@ -712,24 +712,24 @@
  491              		.file 8 "./peripherals/mpu60x0_spi.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mpu60x0_spi.c
-/var/tmp//cc1C1JM5.s:19     .text.mpu60x0_spi_write_to_reg:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:23     .text.mpu60x0_spi_write_to_reg:0000000000000000 mpu60x0_spi_write_to_reg
-/var/tmp//cc1C1JM5.s:59     .text.mpu60x0_spi_init:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:64     .text.mpu60x0_spi_init:0000000000000000 mpu60x0_spi_init
-/var/tmp//cc1C1JM5.s:145    .text.mpu60x0_spi_start_configure:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:150    .text.mpu60x0_spi_start_configure:0000000000000000 mpu60x0_spi_start_configure
-/var/tmp//cc1C1JM5.s:192    .text.mpu60x0_spi_start_configure:000000000000002c $d
-/var/tmp//cc1C1JM5.s:197    .text.mpu60x0_spi_read:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:202    .text.mpu60x0_spi_read:0000000000000000 mpu60x0_spi_read
-/var/tmp//cc1C1JM5.s:250    .text.mpu60x0_spi_event:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:255    .text.mpu60x0_spi_event:0000000000000000 mpu60x0_spi_event
-/var/tmp//cc1C1JM5.s:384    .text.mpu60x0_spi_event:00000000000000dc $d
-/var/tmp//cc1C1JM5.s:389    .text.mpu60x0_configure_i2c_slaves:0000000000000000 $t
-/var/tmp//cc1C1JM5.s:394    .text.mpu60x0_configure_i2c_slaves:0000000000000000 mpu60x0_configure_i2c_slaves
-/var/tmp//cc1C1JM5.s:427    .text.mpu60x0_configure_i2c_slaves:0000000000000020 $d
+/var/tmp//ccp8Je99.s:19     .text.mpu60x0_spi_write_to_reg:0000000000000000 $t
+/var/tmp//ccp8Je99.s:23     .text.mpu60x0_spi_write_to_reg:0000000000000000 mpu60x0_spi_write_to_reg
+/var/tmp//ccp8Je99.s:59     .text.mpu60x0_spi_init:0000000000000000 $t
+/var/tmp//ccp8Je99.s:64     .text.mpu60x0_spi_init:0000000000000000 mpu60x0_spi_init
+/var/tmp//ccp8Je99.s:145    .text.mpu60x0_spi_start_configure:0000000000000000 $t
+/var/tmp//ccp8Je99.s:150    .text.mpu60x0_spi_start_configure:0000000000000000 mpu60x0_spi_start_configure
+/var/tmp//ccp8Je99.s:192    .text.mpu60x0_spi_start_configure:000000000000002c $d
+/var/tmp//ccp8Je99.s:197    .text.mpu60x0_spi_read:0000000000000000 $t
+/var/tmp//ccp8Je99.s:202    .text.mpu60x0_spi_read:0000000000000000 mpu60x0_spi_read
+/var/tmp//ccp8Je99.s:250    .text.mpu60x0_spi_event:0000000000000000 $t
+/var/tmp//ccp8Je99.s:255    .text.mpu60x0_spi_event:0000000000000000 mpu60x0_spi_event
+/var/tmp//ccp8Je99.s:384    .text.mpu60x0_spi_event:00000000000000dc $d
+/var/tmp//ccp8Je99.s:389    .text.mpu60x0_configure_i2c_slaves:0000000000000000 $t
+/var/tmp//ccp8Je99.s:394    .text.mpu60x0_configure_i2c_slaves:0000000000000000 mpu60x0_configure_i2c_slaves
+/var/tmp//ccp8Je99.s:427    .text.mpu60x0_configure_i2c_slaves:0000000000000020 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//cc1C1JM5.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000025 $d
-/var/tmp//cc1C1JM5.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000026 $t
+/var/tmp//ccp8Je99.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000025 $d
+/var/tmp//ccp8Je99.s:432    .text.mpu60x0_configure_i2c_slaves:0000000000000026 $t
 
 UNDEFINED SYMBOLS
 spi_submit

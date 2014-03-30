@@ -40403,657 +40403,657 @@
  38094 0000 00       		.space	1
  38095              		.section	.rodata.str1.1,"aMS",%progbits,1
  38096              	.LC0:
- 38097 0000 13B47027 		.ascii	"\023\264p'\326\244\012\207,I\023\346\340\336?\377\000"
- 38097      D6A40A87 
- 38097      2C4913E6 
- 38097      E0DE3FFF 
- 38097      00
- 38098              		.section	.bss.i126.8220,"aw",%nobits
- 38099              		.set	.LANCHOR41,. + 0
- 38102              	i126.8220:
- 38103 0000 00       		.space	1
- 38104              		.section	.bss.i4.8816,"aw",%nobits
- 38105              		.set	.LANCHOR61,. + 0
- 38108              	i4.8816:
- 38109 0000 00       		.space	1
- 38110              		.section	.bss.i3.9238,"aw",%nobits
- 38111              		.set	.LANCHOR72,. + 0
- 38114              	i3.9238:
- 38115 0000 00       		.space	1
- 38116              		.section	.bss.i.8960,"aw",%nobits
- 38117              		.set	.LANCHOR65,. + 0
- 38120              	i.8960:
- 38121 0000 00       		.space	1
- 38122              		.section	.bss.i.8409,"aw",%nobits
- 38123              		.set	.LANCHOR49,. + 0
- 38126              	i.8409:
- 38127 0000 00       		.space	1
- 38128              		.section	.bss.i1.9237,"aw",%nobits
- 38129              		.set	.LANCHOR71,. + 0
- 38132              	i1.9237:
- 38133 0000 00       		.space	1
- 38134              		.section	.bss.i48.9241,"aw",%nobits
- 38135              		.set	.LANCHOR75,. + 0
- 38138              	i48.9241:
- 38139 0000 00       		.space	1
- 38140              		.section	.bss.i126.8344,"aw",%nobits
- 38141              		.set	.LANCHOR47,. + 0
- 38144              	i126.8344:
- 38145 0000 00       		.space	1
- 38146              		.section	.bss.telemetry_tid,"aw",%nobits
- 38147              		.set	.LANCHOR7,. + 0
- 38150              	telemetry_tid:
- 38151 0000 00       		.space	1
- 38152              		.section	.bss.i72.8525,"aw",%nobits
- 38153              		.set	.LANCHOR52,. + 0
- 38156              	i72.8525:
- 38157 0000 00       		.space	1
- 38158              		.section	.bss.i1.9620,"aw",%nobits
- 38159              		.set	.LANCHOR80,. + 0
- 38162              	i1.9620:
- 38163 0000 00       		.space	1
- 38164              		.section	.bss.i54.9242,"aw",%nobits
- 38165              		.set	.LANCHOR76,. + 0
- 38168              	i54.9242:
- 38169 0000 00       		.space	1
- 38170              		.section	.bss.i78.7601,"aw",%nobits
- 38171              		.set	.LANCHOR16,. + 0
- 38174              	i78.7601:
- 38175 0000 00       		.space	1
- 38176              		.section	.bss.i72.7600,"aw",%nobits
- 38177              		.set	.LANCHOR15,. + 0
- 38180              	i72.7600:
- 38181 0000 00       		.space	1
- 38182              		.section	.bss.i.8136,"aw",%nobits
- 38183              		.set	.LANCHOR36,. + 0
- 38186              	i.8136:
- 38187 0000 00       		.space	1
- 38188              		.section	.bss.i3.8008,"aw",%nobits
- 38189              		.set	.LANCHOR28,. + 0
- 38192              	i3.8008:
- 38193 0000 00       		.space	1
- 38194              		.section	.bss.i30.8342,"aw",%nobits
- 38195              		.set	.LANCHOR45,. + 0
- 38198              	i30.8342:
- 38199 0000 00       		.space	1
- 38200              		.section	.bss.i54.9663,"aw",%nobits
- 38201              		.set	.LANCHOR83,. + 0
- 38204              	i54.9663:
- 38205 0000 00       		.space	1
- 38206              		.section	.bss.i6.8217,"aw",%nobits
- 38207              		.set	.LANCHOR38,. + 0
- 38210              	i6.8217:
- 38211 0000 00       		.space	1
- 38212              		.section	.bss.uart_nb_cnt.7912,"aw",%nobits
- 38213              		.set	.LANCHOR26,. + 0
- 38216              	uart_nb_cnt.7912:
- 38217 0000 00       		.space	1
- 38218              		.section	.bss.i306.9749,"aw",%nobits
- 38219              		.align	1
- 38220              		.set	.LANCHOR90,. + 0
- 38223              	i306.9749:
- 38224 0000 0000     		.space	2
- 38225              		.section	.bss.i12.9239,"aw",%nobits
- 38226              		.set	.LANCHOR73,. + 0
- 38229              	i12.9239:
- 38230 0000 00       		.space	1
- 38231              		.section	.bss.electrical_tid,"aw",%nobits
- 38232              		.set	.LANCHOR5,. + 0
- 38235              	electrical_tid:
- 38236 0000 00       		.space	1
- 38237              		.section	.bss.i60.7598,"aw",%nobits
- 38238              		.set	.LANCHOR13,. + 0
- 38241              	i60.7598:
- 38242 0000 00       		.space	1
- 38243              		.section	.bss.i126.9748,"aw",%nobits
- 38244              		.set	.LANCHOR89,. + 0
- 38247              	i126.9748:
- 38248 0000 00       		.space	1
- 38249              		.section	.bss.i.7772,"aw",%nobits
- 38250              		.set	.LANCHOR24,. + 0
- 38253              	i.7772:
- 38254 0000 00       		.space	1
- 38255              		.section	.bss.i72.8086,"aw",%nobits
- 38256              		.set	.LANCHOR34,. + 0
- 38259              	i72.8086:
- 38260 0000 00       		.space	1
- 38261              		.section	.bss.i6.8084,"aw",%nobits
- 38262              		.set	.LANCHOR32,. + 0
- 38265              	i6.8084:
- 38266 0000 00       		.space	1
- 38267              		.section	.bss.radio_control_tid,"aw",%nobits
- 38268              		.set	.LANCHOR3,. + 0
- 38271              	radio_control_tid:
- 38272 0000 00       		.space	1
- 38273              		.section	.bss.i3.8083,"aw",%nobits
- 38274              		.set	.LANCHOR31,. + 0
- 38277              	i3.8083:
- 38278 0000 00       		.space	1
- 38279              		.section	.bss.i186.7604,"aw",%nobits
- 38280              		.set	.LANCHOR19,. + 0
- 38283              	i186.7604:
- 38284 0000 00       		.space	1
- 38285              		.section	.bss.i54.9042,"aw",%nobits
- 38286              		.set	.LANCHOR68,. + 0
- 38289              	i54.9042:
- 38290 0000 00       		.space	1
- 38291              		.section	.bss.i60.8010,"aw",%nobits
- 38292              		.set	.LANCHOR30,. + 0
- 38295              	i60.8010:
- 38296 0000 00       		.space	1
- 38297              		.section	.bss.i4.8340,"aw",%nobits
- 38298              		.set	.LANCHOR43,. + 0
- 38301              	i4.8340:
- 38302 0000 00       		.space	1
- 38303              		.section	.bss.i.7846,"aw",%nobits
- 38304              		.set	.LANCHOR25,. + 0
- 38307              	i.7846:
- 38308 0000 00       		.space	1
- 38309              		.section	.bss.modules_tid,"aw",%nobits
- 38310              		.set	.LANCHOR2,. + 0
- 38313              	modules_tid:
- 38314 0000 00       		.space	1
- 38315              		.section	.bss.i54.8818,"aw",%nobits
- 38316              		.set	.LANCHOR63,. + 0
- 38319              	i54.8818:
- 38320 0000 00       		.space	1
- 38321              		.text
- 38322              	.Letext0:
- 38323              		.file 11 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h
- 38324              		.file 12 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
- 38325              		.file 13 "../ext/libopencm3/include/libopencm3/cm3/common.h"
- 38326              		.file 14 "./subsystems/datalink/transport.h"
- 38327              		.file 15 "./paparazzi.h"
- 38328              		.file 16 "./math/pprz_algebra_int.h"
- 38329              		.file 17 "./math/pprz_algebra_float.h"
- 38330              		.file 18 "./math/pprz_geodetic_int.h"
- 38331              		.file 19 "./math/pprz_geodetic_float.h"
- 38332              		.file 20 "./subsystems/ins.h"
- 38333              		.file 21 "./subsystems/electrical.h"
- 38334              		.file 22 "./subsystems/imu.h"
- 38335              		.file 23 "./mcu_periph/spi.h"
- 38336              		.file 24 "./peripherals/mpu60x0_regs.h"
- 38337              		.file 25 "./peripherals/mpu60x0.h"
- 38338              		.file 26 "./peripherals/mpu60x0_spi.h"
- 38339              		.file 27 "./subsystems/gps/gps_ubx.h"
- 38340              		.file 28 "./subsystems/ahrs/ahrs_int_cmpl_quat.h"
- 38341              		.file 29 "./subsystems/ahrs.h"
- 38342              		.file 30 "./mcu_periph/i2c.h"
- 38343              		.file 31 "./subsystems/sensors/baro.h"
- 38344              		.file 32 "./firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
- 38345              		.file 33 "./subsystems/ahrs/ahrs_aligner.h"
- 38346              		.file 34 "./subsystems/actuators/motor_mixing.h"
- 38347              		.file 35 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/subsystems/actuators/actuators
- 38348              		.file 36 "./subsystems/datalink/datalink.h"
- 38349              		.file 37 "./subsystems/datalink/xbee.h"
- 38350              		.file 38 "./subsystems/datalink/w5100.h"
- 38351              		.file 39 "./subsystems/datalink/downlink.h"
- 38352              		.file 40 "/Users/tony-yi/git/paparazzi_local/var/MYAC/generated/periodic_telemetry.h"
- 38353              		.file 41 "./subsystems/radio_control/ppm.h"
- 38354              		.file 42 "./subsystems/ins/ins_int.h"
- 38355              		.file 43 "./firmwares/rotorcraft/autopilot.h"
- 38356              		.file 44 "./firmwares/rotorcraft/guidance/guidance_h.h"
- 38357              		.file 45 "./firmwares/rotorcraft/guidance/guidance_v_adpt.h"
- 38358              		.file 46 "./firmwares/rotorcraft/guidance/guidance_v.h"
- 38359              		.file 47 "./subsystems/actuators.h"
- 38360              		.file 48 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
- 38361              		.file 49 "./firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h"
- 38362              		.file 50 "./firmwares/rotorcraft/stabilization.h"
- 38363              		.file 51 "./subsystems/ins/vf_float.h"
- 38364              		.file 52 "./subsystems/navigation/common_flight_plan.h"
- 38365              		.file 53 "./firmwares/rotorcraft/navigation.h"
- 38366              		.file 54 "./subsystems/commands.h"
- 38367              		.file 55 "modules/gps/gps_ubx_ucenter.h"
- 38368              		.file 56 "./mcu.h"
- 38369              		.file 57 "./subsystems/settings.h"
- 38370              		.file 58 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
- 38371              		.file 59 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
- 38372              		.file 60 "boards/lisa_m/baro_board.h"
+ 38097 0000 0716855A 		.ascii	"\007\026\205Z\325\204\001\310\214\225\377\027\233;\341"
+ 38097      D58401C8 
+ 38097      8C95FF17 
+ 38097      9B3BE1
+ 38098 000f 4100     		.ascii	"A\000"
+ 38099              		.section	.bss.i126.8220,"aw",%nobits
+ 38100              		.set	.LANCHOR41,. + 0
+ 38103              	i126.8220:
+ 38104 0000 00       		.space	1
+ 38105              		.section	.bss.i4.8816,"aw",%nobits
+ 38106              		.set	.LANCHOR61,. + 0
+ 38109              	i4.8816:
+ 38110 0000 00       		.space	1
+ 38111              		.section	.bss.i3.9238,"aw",%nobits
+ 38112              		.set	.LANCHOR72,. + 0
+ 38115              	i3.9238:
+ 38116 0000 00       		.space	1
+ 38117              		.section	.bss.i.8960,"aw",%nobits
+ 38118              		.set	.LANCHOR65,. + 0
+ 38121              	i.8960:
+ 38122 0000 00       		.space	1
+ 38123              		.section	.bss.i.8409,"aw",%nobits
+ 38124              		.set	.LANCHOR49,. + 0
+ 38127              	i.8409:
+ 38128 0000 00       		.space	1
+ 38129              		.section	.bss.i1.9237,"aw",%nobits
+ 38130              		.set	.LANCHOR71,. + 0
+ 38133              	i1.9237:
+ 38134 0000 00       		.space	1
+ 38135              		.section	.bss.i48.9241,"aw",%nobits
+ 38136              		.set	.LANCHOR75,. + 0
+ 38139              	i48.9241:
+ 38140 0000 00       		.space	1
+ 38141              		.section	.bss.i126.8344,"aw",%nobits
+ 38142              		.set	.LANCHOR47,. + 0
+ 38145              	i126.8344:
+ 38146 0000 00       		.space	1
+ 38147              		.section	.bss.telemetry_tid,"aw",%nobits
+ 38148              		.set	.LANCHOR7,. + 0
+ 38151              	telemetry_tid:
+ 38152 0000 00       		.space	1
+ 38153              		.section	.bss.i72.8525,"aw",%nobits
+ 38154              		.set	.LANCHOR52,. + 0
+ 38157              	i72.8525:
+ 38158 0000 00       		.space	1
+ 38159              		.section	.bss.i1.9620,"aw",%nobits
+ 38160              		.set	.LANCHOR80,. + 0
+ 38163              	i1.9620:
+ 38164 0000 00       		.space	1
+ 38165              		.section	.bss.i54.9242,"aw",%nobits
+ 38166              		.set	.LANCHOR76,. + 0
+ 38169              	i54.9242:
+ 38170 0000 00       		.space	1
+ 38171              		.section	.bss.i78.7601,"aw",%nobits
+ 38172              		.set	.LANCHOR16,. + 0
+ 38175              	i78.7601:
+ 38176 0000 00       		.space	1
+ 38177              		.section	.bss.i72.7600,"aw",%nobits
+ 38178              		.set	.LANCHOR15,. + 0
+ 38181              	i72.7600:
+ 38182 0000 00       		.space	1
+ 38183              		.section	.bss.i.8136,"aw",%nobits
+ 38184              		.set	.LANCHOR36,. + 0
+ 38187              	i.8136:
+ 38188 0000 00       		.space	1
+ 38189              		.section	.bss.i3.8008,"aw",%nobits
+ 38190              		.set	.LANCHOR28,. + 0
+ 38193              	i3.8008:
+ 38194 0000 00       		.space	1
+ 38195              		.section	.bss.i30.8342,"aw",%nobits
+ 38196              		.set	.LANCHOR45,. + 0
+ 38199              	i30.8342:
+ 38200 0000 00       		.space	1
+ 38201              		.section	.bss.i54.9663,"aw",%nobits
+ 38202              		.set	.LANCHOR83,. + 0
+ 38205              	i54.9663:
+ 38206 0000 00       		.space	1
+ 38207              		.section	.bss.i6.8217,"aw",%nobits
+ 38208              		.set	.LANCHOR38,. + 0
+ 38211              	i6.8217:
+ 38212 0000 00       		.space	1
+ 38213              		.section	.bss.uart_nb_cnt.7912,"aw",%nobits
+ 38214              		.set	.LANCHOR26,. + 0
+ 38217              	uart_nb_cnt.7912:
+ 38218 0000 00       		.space	1
+ 38219              		.section	.bss.i306.9749,"aw",%nobits
+ 38220              		.align	1
+ 38221              		.set	.LANCHOR90,. + 0
+ 38224              	i306.9749:
+ 38225 0000 0000     		.space	2
+ 38226              		.section	.bss.i12.9239,"aw",%nobits
+ 38227              		.set	.LANCHOR73,. + 0
+ 38230              	i12.9239:
+ 38231 0000 00       		.space	1
+ 38232              		.section	.bss.electrical_tid,"aw",%nobits
+ 38233              		.set	.LANCHOR5,. + 0
+ 38236              	electrical_tid:
+ 38237 0000 00       		.space	1
+ 38238              		.section	.bss.i60.7598,"aw",%nobits
+ 38239              		.set	.LANCHOR13,. + 0
+ 38242              	i60.7598:
+ 38243 0000 00       		.space	1
+ 38244              		.section	.bss.i126.9748,"aw",%nobits
+ 38245              		.set	.LANCHOR89,. + 0
+ 38248              	i126.9748:
+ 38249 0000 00       		.space	1
+ 38250              		.section	.bss.i.7772,"aw",%nobits
+ 38251              		.set	.LANCHOR24,. + 0
+ 38254              	i.7772:
+ 38255 0000 00       		.space	1
+ 38256              		.section	.bss.i72.8086,"aw",%nobits
+ 38257              		.set	.LANCHOR34,. + 0
+ 38260              	i72.8086:
+ 38261 0000 00       		.space	1
+ 38262              		.section	.bss.i6.8084,"aw",%nobits
+ 38263              		.set	.LANCHOR32,. + 0
+ 38266              	i6.8084:
+ 38267 0000 00       		.space	1
+ 38268              		.section	.bss.radio_control_tid,"aw",%nobits
+ 38269              		.set	.LANCHOR3,. + 0
+ 38272              	radio_control_tid:
+ 38273 0000 00       		.space	1
+ 38274              		.section	.bss.i3.8083,"aw",%nobits
+ 38275              		.set	.LANCHOR31,. + 0
+ 38278              	i3.8083:
+ 38279 0000 00       		.space	1
+ 38280              		.section	.bss.i186.7604,"aw",%nobits
+ 38281              		.set	.LANCHOR19,. + 0
+ 38284              	i186.7604:
+ 38285 0000 00       		.space	1
+ 38286              		.section	.bss.i54.9042,"aw",%nobits
+ 38287              		.set	.LANCHOR68,. + 0
+ 38290              	i54.9042:
+ 38291 0000 00       		.space	1
+ 38292              		.section	.bss.i60.8010,"aw",%nobits
+ 38293              		.set	.LANCHOR30,. + 0
+ 38296              	i60.8010:
+ 38297 0000 00       		.space	1
+ 38298              		.section	.bss.i4.8340,"aw",%nobits
+ 38299              		.set	.LANCHOR43,. + 0
+ 38302              	i4.8340:
+ 38303 0000 00       		.space	1
+ 38304              		.section	.bss.i.7846,"aw",%nobits
+ 38305              		.set	.LANCHOR25,. + 0
+ 38308              	i.7846:
+ 38309 0000 00       		.space	1
+ 38310              		.section	.bss.modules_tid,"aw",%nobits
+ 38311              		.set	.LANCHOR2,. + 0
+ 38314              	modules_tid:
+ 38315 0000 00       		.space	1
+ 38316              		.section	.bss.i54.8818,"aw",%nobits
+ 38317              		.set	.LANCHOR63,. + 0
+ 38320              	i54.8818:
+ 38321 0000 00       		.space	1
+ 38322              		.text
+ 38323              	.Letext0:
+ 38324              		.file 11 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/stdint.h
+ 38325              		.file 12 "/Users/tony-yi/git/paparazzi_local/sw/include/std.h"
+ 38326              		.file 13 "../ext/libopencm3/include/libopencm3/cm3/common.h"
+ 38327              		.file 14 "./subsystems/datalink/transport.h"
+ 38328              		.file 15 "./paparazzi.h"
+ 38329              		.file 16 "./math/pprz_algebra_int.h"
+ 38330              		.file 17 "./math/pprz_algebra_float.h"
+ 38331              		.file 18 "./math/pprz_geodetic_int.h"
+ 38332              		.file 19 "./math/pprz_geodetic_float.h"
+ 38333              		.file 20 "./subsystems/ins.h"
+ 38334              		.file 21 "./subsystems/electrical.h"
+ 38335              		.file 22 "./subsystems/imu.h"
+ 38336              		.file 23 "./mcu_periph/spi.h"
+ 38337              		.file 24 "./peripherals/mpu60x0_regs.h"
+ 38338              		.file 25 "./peripherals/mpu60x0.h"
+ 38339              		.file 26 "./peripherals/mpu60x0_spi.h"
+ 38340              		.file 27 "./subsystems/gps/gps_ubx.h"
+ 38341              		.file 28 "./subsystems/ahrs/ahrs_int_cmpl_quat.h"
+ 38342              		.file 29 "./subsystems/ahrs.h"
+ 38343              		.file 30 "./mcu_periph/i2c.h"
+ 38344              		.file 31 "./subsystems/sensors/baro.h"
+ 38345              		.file 32 "./firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
+ 38346              		.file 33 "./subsystems/ahrs/ahrs_aligner.h"
+ 38347              		.file 34 "./subsystems/actuators/motor_mixing.h"
+ 38348              		.file 35 "/Users/tony-yi/git/paparazzi_local/sw/airborne/arch/stm32/subsystems/actuators/actuators
+ 38349              		.file 36 "./subsystems/datalink/datalink.h"
+ 38350              		.file 37 "./subsystems/datalink/xbee.h"
+ 38351              		.file 38 "./subsystems/datalink/w5100.h"
+ 38352              		.file 39 "./subsystems/datalink/downlink.h"
+ 38353              		.file 40 "/Users/tony-yi/git/paparazzi_local/var/MYAC/generated/periodic_telemetry.h"
+ 38354              		.file 41 "./subsystems/radio_control/ppm.h"
+ 38355              		.file 42 "./subsystems/ins/ins_int.h"
+ 38356              		.file 43 "./firmwares/rotorcraft/autopilot.h"
+ 38357              		.file 44 "./firmwares/rotorcraft/guidance/guidance_h.h"
+ 38358              		.file 45 "./firmwares/rotorcraft/guidance/guidance_v_adpt.h"
+ 38359              		.file 46 "./firmwares/rotorcraft/guidance/guidance_v.h"
+ 38360              		.file 47 "./subsystems/actuators.h"
+ 38361              		.file 48 "./firmwares/rotorcraft/stabilization/stabilization_rate.h"
+ 38362              		.file 49 "./firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h"
+ 38363              		.file 50 "./firmwares/rotorcraft/stabilization.h"
+ 38364              		.file 51 "./subsystems/ins/vf_float.h"
+ 38365              		.file 52 "./subsystems/navigation/common_flight_plan.h"
+ 38366              		.file 53 "./firmwares/rotorcraft/navigation.h"
+ 38367              		.file 54 "./subsystems/commands.h"
+ 38368              		.file 55 "modules/gps/gps_ubx_ucenter.h"
+ 38369              		.file 56 "./mcu.h"
+ 38370              		.file 57 "./subsystems/settings.h"
+ 38371              		.file 58 "../ext/libopencm3/include/libopencm3/stm32/common/gpio_common_all.h"
+ 38372              		.file 59 "/opt/local/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/include/math.h"
+ 38373              		.file 60 "boards/lisa_m/baro_board.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-/var/tmp//ccLjeCb9.s:19     .text.on_baro_dif_event:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:23     .text.on_baro_dif_event:0000000000000000 on_baro_dif_event
-/var/tmp//ccLjeCb9.s:36     .text.stateGetPositionEnu_i:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:40     .text.stateGetPositionEnu_i:0000000000000000 stateGetPositionEnu_i
-/var/tmp//ccLjeCb9.s:68     .text.stateGetPositionEnu_i:0000000000000014 $d
-/var/tmp//ccLjeCb9.s:74     .text.stateGetSpeedEnu_i:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:78     .text.stateGetSpeedEnu_i:0000000000000000 stateGetSpeedEnu_i
-/var/tmp//ccLjeCb9.s:104    .text.stateGetSpeedEnu_i:0000000000000014 $d
-/var/tmp//ccLjeCb9.s:110    .text.on_baro_abs_event:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:114    .text.on_baro_abs_event:0000000000000000 on_baro_abs_event
-/var/tmp//ccLjeCb9.s:129    .text.on_mag_event:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:133    .text.on_mag_event:0000000000000000 on_mag_event
-/var/tmp//ccLjeCb9.s:180    .text.on_mag_event:0000000000000054 $d
-/var/tmp//ccLjeCb9.s:186    .text.on_accel_event:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:190    .text.on_accel_event:0000000000000000 on_accel_event
-/var/tmp//ccLjeCb9.s:245    .text.on_accel_event:0000000000000054 $d
-/var/tmp//ccLjeCb9.s:251    .text.on_gyro_event:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:255    .text.on_gyro_event:0000000000000000 on_gyro_event
-/var/tmp//ccLjeCb9.s:335    .text.on_gyro_event:000000000000006c $d
-/var/tmp//ccLjeCb9.s:342    .text.stateGetNedToBodyEulers_i:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:346    .text.stateGetNedToBodyEulers_i:0000000000000000 stateGetNedToBodyEulers_i
-/var/tmp//ccLjeCb9.s:379    .text.stateGetNedToBodyEulers_i:0000000000000018 $d
-/var/tmp//ccLjeCb9.s:385    .text.stateGetNedToBodyQuat_i:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:389    .text.stateGetNedToBodyQuat_i:0000000000000000 stateGetNedToBodyQuat_i
-/var/tmp//ccLjeCb9.s:423    .text.stateGetNedToBodyQuat_i:0000000000000018 $d
-/var/tmp//ccLjeCb9.s:433    .text.startup.main:0000000000000000 $t
-/var/tmp//ccLjeCb9.s:438    .text.startup.main:0000000000000000 main
-/var/tmp//ccLjeCb9.s:990    .text.startup.main:00000000000002a8 $d
-/var/tmp//ccLjeCb9.s:1018   .text.startup.main:0000000000000310 $t
-/var/tmp//ccLjeCb9.s:1066   .text.startup.main:0000000000000344 $d
-/var/tmp//ccLjeCb9.s:1071   .text.startup.main:000000000000034c $t
-/var/tmp//ccLjeCb9.s:1573   .text.startup.main:0000000000000614 $d
-/var/tmp//ccLjeCb9.s:1601   .text.startup.main:000000000000067c $t
-/var/tmp//ccLjeCb9.s:2121   .text.startup.main:0000000000000960 $d
-/var/tmp//ccLjeCb9.s:2125   .text.startup.main:0000000000000968 $t
-/var/tmp//ccLjeCb9.s:2432   .text.startup.main:0000000000000b08 $d
-/var/tmp//ccLjeCb9.s:2440   .text.startup.main:0000000000000b18 $t
-/var/tmp//ccLjeCb9.s:2934   .text.startup.main:0000000000000de4 $d
-/var/tmp//ccLjeCb9.s:2941   .text.startup.main:0000000000000dfc $t
-/var/tmp//ccLjeCb9.s:3399   .text.startup.main:00000000000010b8 $d
-/var/tmp//ccLjeCb9.s:3402   .text.startup.main:00000000000010bc $t
-/var/tmp//ccLjeCb9.s:3656   .text.startup.main:000000000000126c $d
-/var/tmp//ccLjeCb9.s:3668   .text.startup.main:0000000000001290 $t
-/var/tmp//ccLjeCb9.s:4169   .text.startup.main:0000000000001554 $d
-/var/tmp//ccLjeCb9.s:4179   .text.startup.main:0000000000001574 $t
-/var/tmp//ccLjeCb9.s:4345   .text.startup.main:000000000000166a $d
-/var/tmp//ccLjeCb9.s:4550   .text.startup.main:000000000000176c $d
-/var/tmp//ccLjeCb9.s:4579   .text.startup.main:00000000000017dc $t
-/var/tmp//ccLjeCb9.s:4725   .text.startup.main:00000000000018c0 $d
-/var/tmp//ccLjeCb9.s:4733   .text.startup.main:00000000000018d8 $t
-/var/tmp//ccLjeCb9.s:5065   .text.startup.main:0000000000001ad4 $d
-/var/tmp//ccLjeCb9.s:5084   .text.startup.main:0000000000001b18 $t
-/var/tmp//ccLjeCb9.s:5413   .text.startup.main:0000000000001d1c $d
-/var/tmp//ccLjeCb9.s:5425   .text.startup.main:0000000000001d44 $t
-/var/tmp//ccLjeCb9.s:5784   .text.startup.main:0000000000001f80 $d
-/var/tmp//ccLjeCb9.s:5803   .text.startup.main:0000000000001fbc $t
-/var/tmp//ccLjeCb9.s:6219   .text.startup.main:0000000000002260 $d
-/var/tmp//ccLjeCb9.s:6235   .text.startup.main:0000000000002294 $t
-/var/tmp//ccLjeCb9.s:6578   .text.startup.main:00000000000024b4 $d
-/var/tmp//ccLjeCb9.s:6586   .text.startup.main:00000000000024cc $t
-/var/tmp//ccLjeCb9.s:7031   .text.startup.main:0000000000002790 $d
-/var/tmp//ccLjeCb9.s:7043   .text.startup.main:00000000000027b8 $t
-/var/tmp//ccLjeCb9.s:7529   .text.startup.main:0000000000002a78 $d
-/var/tmp//ccLjeCb9.s:7540   .text.startup.main:0000000000002aa0 $t
-/var/tmp//ccLjeCb9.s:8016   .text.startup.main:0000000000002d5c $d
-/var/tmp//ccLjeCb9.s:8030   .text.startup.main:0000000000002d8c $t
-/var/tmp//ccLjeCb9.s:8293   .text.startup.main:0000000000002f30 $d
-/var/tmp//ccLjeCb9.s:8305   .text.startup.main:0000000000002f54 $t
-/var/tmp//ccLjeCb9.s:8576   .text.startup.main:00000000000030e4 $d
-/var/tmp//ccLjeCb9.s:8584   .text.startup.main:00000000000030fc $t
-/var/tmp//ccLjeCb9.s:8909   .text.startup.main:00000000000032ec $d
-/var/tmp//ccLjeCb9.s:8927   .text.startup.main:000000000000332c $t
-/var/tmp//ccLjeCb9.s:9239   .text.startup.main:0000000000003524 $d
-/var/tmp//ccLjeCb9.s:9254   .text.startup.main:0000000000003558 $t
-/var/tmp//ccLjeCb9.s:9517   .text.startup.main:00000000000036f8 $d
-/var/tmp//ccLjeCb9.s:9527   .text.startup.main:0000000000003718 $t
-/var/tmp//ccLjeCb9.s:9987   .text.startup.main:00000000000039e4 $d
-/var/tmp//ccLjeCb9.s:9999   .text.startup.main:0000000000003a0c $t
-/var/tmp//ccLjeCb9.s:10023  .text.startup.main:0000000000003a36 $d
-/var/tmp//ccLjeCb9.s:10371  .text.startup.main:0000000000003c20 $d
-/var/tmp//ccLjeCb9.s:10405  .text.startup.main:0000000000003ca0 $t
-/var/tmp//ccLjeCb9.s:10849  .text.startup.main:0000000000003f4c $d
-/var/tmp//ccLjeCb9.s:10870  .text.startup.main:0000000000003f98 $t
-/var/tmp//ccLjeCb9.s:11157  .text.startup.main:0000000000004154 $d
-/var/tmp//ccLjeCb9.s:11173  .text.startup.main:0000000000004188 $t
-/var/tmp//ccLjeCb9.s:11427  .text.startup.main:0000000000004304 $d
-/var/tmp//ccLjeCb9.s:11434  .text.startup.main:000000000000431c $t
-/var/tmp//ccLjeCb9.s:11718  .text.startup.main:00000000000044d4 $d
-/var/tmp//ccLjeCb9.s:11762  .text.startup.main:000000000000452a $t
-/var/tmp//ccLjeCb9.s:11847  .text.startup.main:0000000000004598 $d
-/var/tmp//ccLjeCb9.s:11878  .text.startup.main:0000000000004610 $t
-/var/tmp//ccLjeCb9.s:12092  .text.startup.main:000000000000475c $d
-/var/tmp//ccLjeCb9.s:12105  .text.startup.main:0000000000004788 $t
-/var/tmp//ccLjeCb9.s:12552  .text.startup.main:0000000000004a34 $d
-/var/tmp//ccLjeCb9.s:12573  .text.startup.main:0000000000004a80 $t
-/var/tmp//ccLjeCb9.s:12891  .text.startup.main:0000000000004c70 $d
-/var/tmp//ccLjeCb9.s:12907  .text.startup.main:0000000000004ca8 $t
-/var/tmp//ccLjeCb9.s:13379  .text.startup.main:0000000000004fb4 $d
-/var/tmp//ccLjeCb9.s:13389  .text.startup.main:0000000000004fd4 $t
-/var/tmp//ccLjeCb9.s:13545  .text.startup.main:00000000000050b6 $d
-/var/tmp//ccLjeCb9.s:13750  .text.startup.main:00000000000051b8 $d
-/var/tmp//ccLjeCb9.s:13779  .text.startup.main:0000000000005228 $t
-/var/tmp//ccLjeCb9.s:13926  .text.startup.main:000000000000530c $d
-/var/tmp//ccLjeCb9.s:13934  .text.startup.main:0000000000005324 $t
-/var/tmp//ccLjeCb9.s:14378  .text.startup.main:00000000000055d0 $d
-/var/tmp//ccLjeCb9.s:14399  .text.startup.main:000000000000561c $t
-/var/tmp//ccLjeCb9.s:14889  .text.startup.main:00000000000058e0 $d
-/var/tmp//ccLjeCb9.s:14899  .text.startup.main:0000000000005904 $t
-/var/tmp//ccLjeCb9.s:15008  .text.startup.main:00000000000059ac $d
-/var/tmp//ccLjeCb9.s:15011  .text.startup.main:00000000000059b0 $t
-/var/tmp//ccLjeCb9.s:15496  .text.startup.main:0000000000005c70 $d
-/var/tmp//ccLjeCb9.s:15511  .text.startup.main:0000000000005ca8 $t
-/var/tmp//ccLjeCb9.s:16034  .text.startup.main:0000000000005f78 $d
-/var/tmp//ccLjeCb9.s:16039  .text.startup.main:0000000000005f84 $t
-/var/tmp//ccLjeCb9.s:16396  .text.startup.main:0000000000006178 $d
-/var/tmp//ccLjeCb9.s:16492  .text.startup.main:00000000000061e4 $d
-/var/tmp//ccLjeCb9.s:16512  .text.startup.main:0000000000006230 $t
-/var/tmp//ccLjeCb9.s:16769  .text.startup.main:00000000000063ac $d
-/var/tmp//ccLjeCb9.s:16789  .text.startup.main:00000000000063f4 $t
-/var/tmp//ccLjeCb9.s:17238  .text.startup.main:00000000000066a0 $d
-/var/tmp//ccLjeCb9.s:17259  .text.startup.main:00000000000066ec $t
-/var/tmp//ccLjeCb9.s:17735  .text.startup.main:00000000000069b8 $d
-/var/tmp//ccLjeCb9.s:17750  .text.startup.main:00000000000069ec $t
-/var/tmp//ccLjeCb9.s:18212  .text.startup.main:0000000000006c98 $d
-/var/tmp//ccLjeCb9.s:18222  .text.startup.main:0000000000006cb8 $t
-/var/tmp//ccLjeCb9.s:18244  .text.startup.main:0000000000006ce2 $d
-/var/tmp//ccLjeCb9.s:18590  .text.startup.main:0000000000006ecc $d
-/var/tmp//ccLjeCb9.s:18624  .text.startup.main:0000000000006f4c $t
-/var/tmp//ccLjeCb9.s:19072  .text.startup.main:00000000000071f8 $d
-/var/tmp//ccLjeCb9.s:19093  .text.startup.main:0000000000007244 $t
-/var/tmp//ccLjeCb9.s:19575  .text.startup.main:0000000000007520 $d
-/var/tmp//ccLjeCb9.s:19588  .text.startup.main:0000000000007550 $t
-/var/tmp//ccLjeCb9.s:20112  .text.startup.main:000000000000781c $d
-/var/tmp//ccLjeCb9.s:20120  .text.startup.main:000000000000782c $t
-/var/tmp//ccLjeCb9.s:20640  .text.startup.main:0000000000007af4 $d
-/var/tmp//ccLjeCb9.s:20647  .text.startup.main:0000000000007b00 $t
-/var/tmp//ccLjeCb9.s:21149  .text.startup.main:0000000000007dc4 $d
-/var/tmp//ccLjeCb9.s:21159  .text.startup.main:0000000000007de4 $t
-/var/tmp//ccLjeCb9.s:21521  .text.startup.main:0000000000007fe4 $d
-/var/tmp//ccLjeCb9.s:21604  .text.startup.main:0000000000008040 $d
-/var/tmp//ccLjeCb9.s:21619  .text.startup.main:0000000000008078 $t
-/var/tmp//ccLjeCb9.s:22001  .text.startup.main:00000000000082c0 $d
-/var/tmp//ccLjeCb9.s:22027  .text.startup.main:0000000000008320 $t
-/var/tmp//ccLjeCb9.s:22359  .text.startup.main:0000000000008514 $d
-/var/tmp//ccLjeCb9.s:22377  .text.startup.main:0000000000008554 $t
-/var/tmp//ccLjeCb9.s:22874  .text.startup.main:0000000000008814 $d
-/var/tmp//ccLjeCb9.s:22892  .text.startup.main:0000000000008854 $t
-/var/tmp//ccLjeCb9.s:22979  .text.startup.main:00000000000088d8 $d
-/var/tmp//ccLjeCb9.s:22982  .text.startup.main:00000000000088dc $t
-/var/tmp//ccLjeCb9.s:23497  .text.startup.main:0000000000008b98 $d
-/var/tmp//ccLjeCb9.s:23513  .text.startup.main:0000000000008bd0 $t
-/var/tmp//ccLjeCb9.s:24055  .text.startup.main:0000000000008e90 $d
-/var/tmp//ccLjeCb9.s:24066  .text.startup.main:0000000000008eb4 $t
-/var/tmp//ccLjeCb9.s:24338  .text.startup.main:0000000000009058 $d
-/var/tmp//ccLjeCb9.s:24382  .text.startup.main:00000000000090ae $t
-/var/tmp//ccLjeCb9.s:24475  .text.startup.main:0000000000009128 $d
-/var/tmp//ccLjeCb9.s:24506  .text.startup.main:00000000000091a0 $t
-/var/tmp//ccLjeCb9.s:24728  .text.startup.main:00000000000092ec $d
-/var/tmp//ccLjeCb9.s:24743  .text.startup.main:000000000000931c $t
-/var/tmp//ccLjeCb9.s:25123  .text.startup.main:0000000000009560 $d
-/var/tmp//ccLjeCb9.s:25134  .text.startup.main:0000000000009584 $t
-/var/tmp//ccLjeCb9.s:25463  .text.startup.main:0000000000009774 $d
-/var/tmp//ccLjeCb9.s:25481  .text.startup.main:00000000000097b4 $t
-/var/tmp//ccLjeCb9.s:25955  .text.startup.main:0000000000009a78 $d
-/var/tmp//ccLjeCb9.s:25975  .text.startup.main:0000000000009ac4 $t
-/var/tmp//ccLjeCb9.s:26496  .text.startup.main:0000000000009d84 $d
-/var/tmp//ccLjeCb9.s:26502  .text.startup.main:0000000000009d98 $t
-/var/tmp//ccLjeCb9.s:27030  .text.startup.main:000000000000a068 $d
-/var/tmp//ccLjeCb9.s:27035  .text.startup.main:000000000000a078 $t
-/var/tmp//ccLjeCb9.s:27046  .text.startup.main:000000000000a088 $d
-/var/tmp//ccLjeCb9.s:27049  .text.startup.main:000000000000a08c $t
-/var/tmp//ccLjeCb9.s:27547  .text.startup.main:000000000000a36c $d
-/var/tmp//ccLjeCb9.s:27560  .text.startup.main:000000000000a398 $t
-/var/tmp//ccLjeCb9.s:27658  .text.startup.main:000000000000a424 $d
-/var/tmp//ccLjeCb9.s:27661  .text.startup.main:000000000000a428 $t
-/var/tmp//ccLjeCb9.s:28157  .text.startup.main:000000000000a700 $d
-/var/tmp//ccLjeCb9.s:28170  .text.startup.main:000000000000a724 $t
-/var/tmp//ccLjeCb9.s:28689  .text.startup.main:000000000000a9f0 $d
-/var/tmp//ccLjeCb9.s:28694  .text.startup.main:000000000000a9fc $t
-/var/tmp//ccLjeCb9.s:29186  .text.startup.main:000000000000aca4 $d
-/var/tmp//ccLjeCb9.s:29191  .text.startup.main:000000000000acb0 $t
-/var/tmp//ccLjeCb9.s:29709  .text.startup.main:000000000000af8c $d
-/var/tmp//ccLjeCb9.s:29719  .text.startup.main:000000000000afac $t
-/var/tmp//ccLjeCb9.s:30250  .text.startup.main:000000000000b280 $d
-/var/tmp//ccLjeCb9.s:30255  .text.startup.main:000000000000b290 $t
-/var/tmp//ccLjeCb9.s:30455  .text.startup.main:000000000000b3b8 $d
-/var/tmp//ccLjeCb9.s:30466  .text.startup.main:000000000000b3dc $t
-/var/tmp//ccLjeCb9.s:30799  .text.startup.main:000000000000b5d0 $d
-/var/tmp//ccLjeCb9.s:30817  .text.startup.main:000000000000b610 $t
-/var/tmp//ccLjeCb9.s:31174  .text.startup.main:000000000000b84c $d
-/var/tmp//ccLjeCb9.s:31193  .text.startup.main:000000000000b888 $t
-/var/tmp//ccLjeCb9.s:31479  .text.startup.main:000000000000ba58 $d
-/var/tmp//ccLjeCb9.s:31489  .text.startup.main:000000000000ba78 $t
-/var/tmp//ccLjeCb9.s:31974  .text.startup.main:000000000000bd3c $d
-/var/tmp//ccLjeCb9.s:31984  .text.startup.main:000000000000bd60 $t
-/var/tmp//ccLjeCb9.s:32091  .text.startup.main:000000000000bdf0 $d
-/var/tmp//ccLjeCb9.s:32095  .text.startup.main:000000000000bdf8 $t
-/var/tmp//ccLjeCb9.s:32582  .text.startup.main:000000000000c0bc $d
-/var/tmp//ccLjeCb9.s:32595  .text.startup.main:000000000000c0e8 $t
-/var/tmp//ccLjeCb9.s:32885  .text.startup.main:000000000000c2c4 $d
-/var/tmp//ccLjeCb9.s:32929  .text.startup.main:000000000000c31a $t
-/var/tmp//ccLjeCb9.s:32995  .text.startup.main:000000000000c370 $d
-/var/tmp//ccLjeCb9.s:33027  .text.startup.main:000000000000c3ec $t
-/var/tmp//ccLjeCb9.s:33377  .text.startup.main:000000000000c60c $d
-/var/tmp//ccLjeCb9.s:33394  .text.startup.main:000000000000c648 $t
-/var/tmp//ccLjeCb9.s:33727  .text.startup.main:000000000000c83c $d
-/var/tmp//ccLjeCb9.s:33745  .text.startup.main:000000000000c87c $t
-/var/tmp//ccLjeCb9.s:34227  .text.startup.main:000000000000cb3c $d
-/var/tmp//ccLjeCb9.s:34243  .text.startup.main:000000000000cb78 $t
-/var/tmp//ccLjeCb9.s:34299  .text.startup.main:000000000000cbd2 $d
-/var/tmp//ccLjeCb9.s:34504  .text.startup.main:000000000000ccd4 $d
-/var/tmp//ccLjeCb9.s:34533  .text.startup.main:000000000000cd44 $t
-/var/tmp//ccLjeCb9.s:34679  .text.startup.main:000000000000ce28 $d
-/var/tmp//ccLjeCb9.s:34687  .text.startup.main:000000000000ce40 $t
-/var/tmp//ccLjeCb9.s:35129  .text.startup.main:000000000000d0ec $d
-/var/tmp//ccLjeCb9.s:35150  .text.startup.main:000000000000d138 $t
-/var/tmp//ccLjeCb9.s:35632  .text.startup.main:000000000000d3fc $d
-/var/tmp//ccLjeCb9.s:35642  .text.startup.main:000000000000d420 $t
-/var/tmp//ccLjeCb9.s:36121  .text.startup.main:000000000000d6f4 $d
-/var/tmp//ccLjeCb9.s:36137  .text.startup.main:000000000000d72c $t
-/var/tmp//ccLjeCb9.s:36159  .text.startup.main:000000000000d756 $d
-/var/tmp//ccLjeCb9.s:36508  .text.startup.main:000000000000d940 $d
-/var/tmp//ccLjeCb9.s:36542  .text.startup.main:000000000000d9c0 $t
-/var/tmp//ccLjeCb9.s:36983  .text.startup.main:000000000000dc6c $d
-/var/tmp//ccLjeCb9.s:37004  .text.startup.main:000000000000dcb8 $t
-/var/tmp//ccLjeCb9.s:37061  .text.startup.main:000000000000dcfa $d
-/var/tmp//ccLjeCb9.s:37486  .text.startup.main:000000000000df9c $d
-/var/tmp//ccLjeCb9.s:37499  .text.startup.main:000000000000dfc8 $t
-/var/tmp//ccLjeCb9.s:37706  .text.startup.main:000000000000e0f8 $d
-/var/tmp//ccLjeCb9.s:38150  .bss.telemetry_tid:0000000000000000 telemetry_tid
-/var/tmp//ccLjeCb9.s:37796  .bss.baro_tid:0000000000000000 baro_tid
-/var/tmp//ccLjeCb9.s:38235  .bss.electrical_tid:0000000000000000 electrical_tid
-/var/tmp//ccLjeCb9.s:38271  .bss.radio_control_tid:0000000000000000 radio_control_tid
-/var/tmp//ccLjeCb9.s:38057  .bss.failsafe_tid:0000000000000000 failsafe_tid
-/var/tmp//ccLjeCb9.s:38313  .bss.modules_tid:0000000000000000 modules_tid
-/var/tmp//ccLjeCb9.s:38009  .bss.main_periodic_tid:0000000000000000 main_periodic_tid
-/var/tmp//ccLjeCb9.s:37997  .bss.gps_ubx_gps_ubx_ucenter_periodic_status:0000000000000000 gps_ubx_gps_ubx_ucenter_periodic_status
-/var/tmp//ccLjeCb9.s:37732  .bss.i306.9245:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37736  .bss.i306.9245:0000000000000000 i306.9245
-/var/tmp//ccLjeCb9.s:37742  .bss.i30.8524:0000000000000000 i30.8524
-/var/tmp//ccLjeCb9.s:37743  .bss.i30.8524:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37748  .bss.i66.9746:0000000000000000 i66.9746
-/var/tmp//ccLjeCb9.s:37749  .bss.i66.9746:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37754  .bss.i126.9891:0000000000000000 i126.9891
-/var/tmp//ccLjeCb9.s:37755  .bss.i126.9891:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37760  .bss.i72.9664:0000000000000000 i72.9664
-/var/tmp//ccLjeCb9.s:37761  .bss.i72.9664:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37766  .bss.i72.9043:0000000000000000 i72.9043
-/var/tmp//ccLjeCb9.s:37767  .bss.i72.9043:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37772  .bss.i.8736:0000000000000000 i.8736
-/var/tmp//ccLjeCb9.s:37773  .bss.i.8736:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37778  .bss.i3.9040:0000000000000000 i3.9040
-/var/tmp//ccLjeCb9.s:37779  .bss.i3.9040:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37784  .bss.i24.9240:0000000000000000 i24.9240
-/var/tmp//ccLjeCb9.s:37785  .bss.i24.9240:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37790  .bss.i72.8819:0000000000000000 i72.8819
-/var/tmp//ccLjeCb9.s:37791  .bss.i72.8819:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37797  .bss.baro_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37802  .bss.i132.8345:0000000000000000 i132.8345
-/var/tmp//ccLjeCb9.s:37803  .bss.i132.8345:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37805  .bss.prescaler.7592:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37809  .bss.prescaler.7592:0000000000000000 prescaler.7592
-/var/tmp//ccLjeCb9.s:37812  .bss.prescaler.7593:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37816  .bss.prescaler.7593:0000000000000000 prescaler.7593
-/var/tmp//ccLjeCb9.s:37822  .bss.i30.8218:0000000000000000 i30.8218
-/var/tmp//ccLjeCb9.s:37823  .bss.i30.8218:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37828  .bss.i.9143:0000000000000000 i.9143
-/var/tmp//ccLjeCb9.s:37829  .bss.i.9143:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37834  .bss.i30.8817:0000000000000000 i30.8817
-/var/tmp//ccLjeCb9.s:37835  .bss.i30.8817:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37840  .bss._i2c_nb_cnt.7937:0000000000000000 _i2c_nb_cnt.7937
-/var/tmp//ccLjeCb9.s:37841  .bss._i2c_nb_cnt.7937:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37846  .bss.i72.8688:0000000000000000 i72.8688
-/var/tmp//ccLjeCb9.s:37847  .bss.i72.8688:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37852  .bss.i6.8685:0000000000000000 i6.8685
-/var/tmp//ccLjeCb9.s:37853  .bss.i6.8685:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37855  .bss.i306.7606:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37859  .bss.i306.7606:0000000000000000 i306.7606
-/var/tmp//ccLjeCb9.s:37865  .bss.i3.8684:0000000000000000 i3.8684
-/var/tmp//ccLjeCb9.s:37866  .bss.i3.8684:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37871  .bss.i30.8085:0000000000000000 i30.8085
-/var/tmp//ccLjeCb9.s:37872  .bss.i30.8085:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37877  .bss.i1.8523:0000000000000000 i1.8523
-/var/tmp//ccLjeCb9.s:37878  .bss.i1.8523:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37883  .bss.i30.9662:0000000000000000 i30.9662
-/var/tmp//ccLjeCb9.s:37884  .bss.i30.9662:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37889  .bss.i66.7599:0000000000000000 i66.7599
-/var/tmp//ccLjeCb9.s:37890  .bss.i66.7599:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37895  .bss.i3.9888:0000000000000000 i3.9888
-/var/tmp//ccLjeCb9.s:37896  .bss.i3.9888:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37901  .bss.i72.9747:0000000000000000 i72.9747
-/var/tmp//ccLjeCb9.s:37902  .bss.i72.9747:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37907  .bss.i126.8526:0000000000000000 i126.8526
-/var/tmp//ccLjeCb9.s:37908  .bss.i126.8526:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37913  .bss.i3.9745:0000000000000000 i3.9745
-/var/tmp//ccLjeCb9.s:37914  .bss.i3.9745:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37919  .bss.i4.8216:0000000000000000 i4.8216
-/var/tmp//ccLjeCb9.s:37920  .bss.i4.8216:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37925  .bss.i245.7605:0000000000000000 i245.7605
-/var/tmp//ccLjeCb9.s:37926  .bss.i245.7605:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37931  .bss.i72.9243:0000000000000000 i72.9243
-/var/tmp//ccLjeCb9.s:37932  .bss.i72.9243:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37937  .bss.i96.7602:0000000000000000 i96.7602
-/var/tmp//ccLjeCb9.s:37938  .bss.i96.7602:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37943  .bss.i30.8009:0000000000000000 i30.8009
-/var/tmp//ccLjeCb9.s:37944  .bss.i30.8009:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37949  .bss._1Hz.5702:0000000000000000 _1Hz.5702
-/var/tmp//ccLjeCb9.s:37950  .bss._1Hz.5702:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37955  .bss.i.9665:0000000000000000 i.9665
-/var/tmp//ccLjeCb9.s:37956  .bss.i.9665:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37961  .bss.i.9909:0000000000000000 i.9909
-/var/tmp//ccLjeCb9.s:37962  .bss.i.9909:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37967  .bss.i126.7603:0000000000000000 i126.7603
-/var/tmp//ccLjeCb9.s:37968  .bss.i126.7603:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37973  .bss.i54.9621:0000000000000000 i54.9621
-/var/tmp//ccLjeCb9.s:37974  .bss.i54.9621:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37979  .bss.i96.9244:0000000000000000 i96.9244
-/var/tmp//ccLjeCb9.s:37980  .bss.i96.9244:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37985  .bss.i30.9041:0000000000000000 i30.9041
-/var/tmp//ccLjeCb9.s:37986  .bss.i30.9041:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37991  .bss.i.9775:0000000000000000 i.9775
-/var/tmp//ccLjeCb9.s:37992  .bss.i.9775:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:37998  .bss.gps_ubx_gps_ubx_ucenter_periodic_status:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38003  .bss.i72.8219:0000000000000000 i72.8219
-/var/tmp//ccLjeCb9.s:38004  .bss.i72.8219:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38010  .bss.main_periodic_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38015  .bss.i72.8343:0000000000000000 i72.8343
-/var/tmp//ccLjeCb9.s:38016  .bss.i72.8343:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38021  .bss.i72.9890:0000000000000000 i72.9890
-/var/tmp//ccLjeCb9.s:38022  .bss.i72.9890:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38027  .bss.i6.8341:0000000000000000 i6.8341
-/var/tmp//ccLjeCb9.s:38028  .bss.i6.8341:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38033  .bss.i126.8087:0000000000000000 i126.8087
-/var/tmp//ccLjeCb9.s:38034  .bss.i126.8087:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38039  .bss.i.8604:0000000000000000 i.8604
-/var/tmp//ccLjeCb9.s:38040  .bss.i.8604:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38045  .bss.i54.8687:0000000000000000 i54.8687
-/var/tmp//ccLjeCb9.s:38046  .bss.i54.8687:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38051  .bss.i.8260:0000000000000000 i.8260
-/var/tmp//ccLjeCb9.s:38052  .bss.i.8260:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38058  .bss.failsafe_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38063  .bss.i30.8686:0000000000000000 i30.8686
-/var/tmp//ccLjeCb9.s:38064  .bss.i30.8686:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38069  .bss.i15.7597:0000000000000000 i15.7597
-/var/tmp//ccLjeCb9.s:38070  .bss.i15.7597:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38075  .bss.last_cnos.7725:0000000000000000 last_cnos.7725
-/var/tmp//ccLjeCb9.s:38076  .bss.last_cnos.7725:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38081  .bss.i.7724:0000000000000000 i.7724
-/var/tmp//ccLjeCb9.s:38082  .bss.i.7724:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38087  .bss.i30.9889:0000000000000000 i30.9889
-/var/tmp//ccLjeCb9.s:38088  .bss.i30.9889:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38093  .bss.i15.5472:0000000000000000 i15.5472
-/var/tmp//ccLjeCb9.s:38094  .bss.i15.5472:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38096  .rodata.str1.1:0000000000000000 .LC0
-/var/tmp//ccLjeCb9.s:38102  .bss.i126.8220:0000000000000000 i126.8220
-/var/tmp//ccLjeCb9.s:38103  .bss.i126.8220:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38108  .bss.i4.8816:0000000000000000 i4.8816
-/var/tmp//ccLjeCb9.s:38109  .bss.i4.8816:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38114  .bss.i3.9238:0000000000000000 i3.9238
-/var/tmp//ccLjeCb9.s:38115  .bss.i3.9238:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38120  .bss.i.8960:0000000000000000 i.8960
-/var/tmp//ccLjeCb9.s:38121  .bss.i.8960:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38126  .bss.i.8409:0000000000000000 i.8409
-/var/tmp//ccLjeCb9.s:38127  .bss.i.8409:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38132  .bss.i1.9237:0000000000000000 i1.9237
-/var/tmp//ccLjeCb9.s:38133  .bss.i1.9237:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38138  .bss.i48.9241:0000000000000000 i48.9241
-/var/tmp//ccLjeCb9.s:38139  .bss.i48.9241:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38144  .bss.i126.8344:0000000000000000 i126.8344
-/var/tmp//ccLjeCb9.s:38145  .bss.i126.8344:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38151  .bss.telemetry_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38156  .bss.i72.8525:0000000000000000 i72.8525
-/var/tmp//ccLjeCb9.s:38157  .bss.i72.8525:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38162  .bss.i1.9620:0000000000000000 i1.9620
-/var/tmp//ccLjeCb9.s:38163  .bss.i1.9620:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38168  .bss.i54.9242:0000000000000000 i54.9242
-/var/tmp//ccLjeCb9.s:38169  .bss.i54.9242:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38174  .bss.i78.7601:0000000000000000 i78.7601
-/var/tmp//ccLjeCb9.s:38175  .bss.i78.7601:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38180  .bss.i72.7600:0000000000000000 i72.7600
-/var/tmp//ccLjeCb9.s:38181  .bss.i72.7600:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38186  .bss.i.8136:0000000000000000 i.8136
-/var/tmp//ccLjeCb9.s:38187  .bss.i.8136:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38192  .bss.i3.8008:0000000000000000 i3.8008
-/var/tmp//ccLjeCb9.s:38193  .bss.i3.8008:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38198  .bss.i30.8342:0000000000000000 i30.8342
-/var/tmp//ccLjeCb9.s:38199  .bss.i30.8342:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38204  .bss.i54.9663:0000000000000000 i54.9663
-/var/tmp//ccLjeCb9.s:38205  .bss.i54.9663:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38210  .bss.i6.8217:0000000000000000 i6.8217
-/var/tmp//ccLjeCb9.s:38211  .bss.i6.8217:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38216  .bss.uart_nb_cnt.7912:0000000000000000 uart_nb_cnt.7912
-/var/tmp//ccLjeCb9.s:38217  .bss.uart_nb_cnt.7912:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38219  .bss.i306.9749:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38223  .bss.i306.9749:0000000000000000 i306.9749
-/var/tmp//ccLjeCb9.s:38229  .bss.i12.9239:0000000000000000 i12.9239
-/var/tmp//ccLjeCb9.s:38230  .bss.i12.9239:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38236  .bss.electrical_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38241  .bss.i60.7598:0000000000000000 i60.7598
-/var/tmp//ccLjeCb9.s:38242  .bss.i60.7598:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38247  .bss.i126.9748:0000000000000000 i126.9748
-/var/tmp//ccLjeCb9.s:38248  .bss.i126.9748:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38253  .bss.i.7772:0000000000000000 i.7772
-/var/tmp//ccLjeCb9.s:38254  .bss.i.7772:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38259  .bss.i72.8086:0000000000000000 i72.8086
-/var/tmp//ccLjeCb9.s:38260  .bss.i72.8086:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38265  .bss.i6.8084:0000000000000000 i6.8084
-/var/tmp//ccLjeCb9.s:38266  .bss.i6.8084:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38272  .bss.radio_control_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38277  .bss.i3.8083:0000000000000000 i3.8083
-/var/tmp//ccLjeCb9.s:38278  .bss.i3.8083:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38283  .bss.i186.7604:0000000000000000 i186.7604
-/var/tmp//ccLjeCb9.s:38284  .bss.i186.7604:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38289  .bss.i54.9042:0000000000000000 i54.9042
-/var/tmp//ccLjeCb9.s:38290  .bss.i54.9042:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38295  .bss.i60.8010:0000000000000000 i60.8010
-/var/tmp//ccLjeCb9.s:38296  .bss.i60.8010:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38301  .bss.i4.8340:0000000000000000 i4.8340
-/var/tmp//ccLjeCb9.s:38302  .bss.i4.8340:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38307  .bss.i.7846:0000000000000000 i.7846
-/var/tmp//ccLjeCb9.s:38308  .bss.i.7846:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38314  .bss.modules_tid:0000000000000000 $d
-/var/tmp//ccLjeCb9.s:38319  .bss.i54.8818:0000000000000000 i54.8818
-/var/tmp//ccLjeCb9.s:38320  .bss.i54.8818:0000000000000000 $d
+/var/tmp//cccIzySJ.s:19     .text.on_baro_dif_event:0000000000000000 $t
+/var/tmp//cccIzySJ.s:23     .text.on_baro_dif_event:0000000000000000 on_baro_dif_event
+/var/tmp//cccIzySJ.s:36     .text.stateGetPositionEnu_i:0000000000000000 $t
+/var/tmp//cccIzySJ.s:40     .text.stateGetPositionEnu_i:0000000000000000 stateGetPositionEnu_i
+/var/tmp//cccIzySJ.s:68     .text.stateGetPositionEnu_i:0000000000000014 $d
+/var/tmp//cccIzySJ.s:74     .text.stateGetSpeedEnu_i:0000000000000000 $t
+/var/tmp//cccIzySJ.s:78     .text.stateGetSpeedEnu_i:0000000000000000 stateGetSpeedEnu_i
+/var/tmp//cccIzySJ.s:104    .text.stateGetSpeedEnu_i:0000000000000014 $d
+/var/tmp//cccIzySJ.s:110    .text.on_baro_abs_event:0000000000000000 $t
+/var/tmp//cccIzySJ.s:114    .text.on_baro_abs_event:0000000000000000 on_baro_abs_event
+/var/tmp//cccIzySJ.s:129    .text.on_mag_event:0000000000000000 $t
+/var/tmp//cccIzySJ.s:133    .text.on_mag_event:0000000000000000 on_mag_event
+/var/tmp//cccIzySJ.s:180    .text.on_mag_event:0000000000000054 $d
+/var/tmp//cccIzySJ.s:186    .text.on_accel_event:0000000000000000 $t
+/var/tmp//cccIzySJ.s:190    .text.on_accel_event:0000000000000000 on_accel_event
+/var/tmp//cccIzySJ.s:245    .text.on_accel_event:0000000000000054 $d
+/var/tmp//cccIzySJ.s:251    .text.on_gyro_event:0000000000000000 $t
+/var/tmp//cccIzySJ.s:255    .text.on_gyro_event:0000000000000000 on_gyro_event
+/var/tmp//cccIzySJ.s:335    .text.on_gyro_event:000000000000006c $d
+/var/tmp//cccIzySJ.s:342    .text.stateGetNedToBodyEulers_i:0000000000000000 $t
+/var/tmp//cccIzySJ.s:346    .text.stateGetNedToBodyEulers_i:0000000000000000 stateGetNedToBodyEulers_i
+/var/tmp//cccIzySJ.s:379    .text.stateGetNedToBodyEulers_i:0000000000000018 $d
+/var/tmp//cccIzySJ.s:385    .text.stateGetNedToBodyQuat_i:0000000000000000 $t
+/var/tmp//cccIzySJ.s:389    .text.stateGetNedToBodyQuat_i:0000000000000000 stateGetNedToBodyQuat_i
+/var/tmp//cccIzySJ.s:423    .text.stateGetNedToBodyQuat_i:0000000000000018 $d
+/var/tmp//cccIzySJ.s:433    .text.startup.main:0000000000000000 $t
+/var/tmp//cccIzySJ.s:438    .text.startup.main:0000000000000000 main
+/var/tmp//cccIzySJ.s:990    .text.startup.main:00000000000002a8 $d
+/var/tmp//cccIzySJ.s:1018   .text.startup.main:0000000000000310 $t
+/var/tmp//cccIzySJ.s:1066   .text.startup.main:0000000000000344 $d
+/var/tmp//cccIzySJ.s:1071   .text.startup.main:000000000000034c $t
+/var/tmp//cccIzySJ.s:1573   .text.startup.main:0000000000000614 $d
+/var/tmp//cccIzySJ.s:1601   .text.startup.main:000000000000067c $t
+/var/tmp//cccIzySJ.s:2121   .text.startup.main:0000000000000960 $d
+/var/tmp//cccIzySJ.s:2125   .text.startup.main:0000000000000968 $t
+/var/tmp//cccIzySJ.s:2432   .text.startup.main:0000000000000b08 $d
+/var/tmp//cccIzySJ.s:2440   .text.startup.main:0000000000000b18 $t
+/var/tmp//cccIzySJ.s:2934   .text.startup.main:0000000000000de4 $d
+/var/tmp//cccIzySJ.s:2941   .text.startup.main:0000000000000dfc $t
+/var/tmp//cccIzySJ.s:3399   .text.startup.main:00000000000010b8 $d
+/var/tmp//cccIzySJ.s:3402   .text.startup.main:00000000000010bc $t
+/var/tmp//cccIzySJ.s:3656   .text.startup.main:000000000000126c $d
+/var/tmp//cccIzySJ.s:3668   .text.startup.main:0000000000001290 $t
+/var/tmp//cccIzySJ.s:4169   .text.startup.main:0000000000001554 $d
+/var/tmp//cccIzySJ.s:4179   .text.startup.main:0000000000001574 $t
+/var/tmp//cccIzySJ.s:4345   .text.startup.main:000000000000166a $d
+/var/tmp//cccIzySJ.s:4550   .text.startup.main:000000000000176c $d
+/var/tmp//cccIzySJ.s:4579   .text.startup.main:00000000000017dc $t
+/var/tmp//cccIzySJ.s:4725   .text.startup.main:00000000000018c0 $d
+/var/tmp//cccIzySJ.s:4733   .text.startup.main:00000000000018d8 $t
+/var/tmp//cccIzySJ.s:5065   .text.startup.main:0000000000001ad4 $d
+/var/tmp//cccIzySJ.s:5084   .text.startup.main:0000000000001b18 $t
+/var/tmp//cccIzySJ.s:5413   .text.startup.main:0000000000001d1c $d
+/var/tmp//cccIzySJ.s:5425   .text.startup.main:0000000000001d44 $t
+/var/tmp//cccIzySJ.s:5784   .text.startup.main:0000000000001f80 $d
+/var/tmp//cccIzySJ.s:5803   .text.startup.main:0000000000001fbc $t
+/var/tmp//cccIzySJ.s:6219   .text.startup.main:0000000000002260 $d
+/var/tmp//cccIzySJ.s:6235   .text.startup.main:0000000000002294 $t
+/var/tmp//cccIzySJ.s:6578   .text.startup.main:00000000000024b4 $d
+/var/tmp//cccIzySJ.s:6586   .text.startup.main:00000000000024cc $t
+/var/tmp//cccIzySJ.s:7031   .text.startup.main:0000000000002790 $d
+/var/tmp//cccIzySJ.s:7043   .text.startup.main:00000000000027b8 $t
+/var/tmp//cccIzySJ.s:7529   .text.startup.main:0000000000002a78 $d
+/var/tmp//cccIzySJ.s:7540   .text.startup.main:0000000000002aa0 $t
+/var/tmp//cccIzySJ.s:8016   .text.startup.main:0000000000002d5c $d
+/var/tmp//cccIzySJ.s:8030   .text.startup.main:0000000000002d8c $t
+/var/tmp//cccIzySJ.s:8293   .text.startup.main:0000000000002f30 $d
+/var/tmp//cccIzySJ.s:8305   .text.startup.main:0000000000002f54 $t
+/var/tmp//cccIzySJ.s:8576   .text.startup.main:00000000000030e4 $d
+/var/tmp//cccIzySJ.s:8584   .text.startup.main:00000000000030fc $t
+/var/tmp//cccIzySJ.s:8909   .text.startup.main:00000000000032ec $d
+/var/tmp//cccIzySJ.s:8927   .text.startup.main:000000000000332c $t
+/var/tmp//cccIzySJ.s:9239   .text.startup.main:0000000000003524 $d
+/var/tmp//cccIzySJ.s:9254   .text.startup.main:0000000000003558 $t
+/var/tmp//cccIzySJ.s:9517   .text.startup.main:00000000000036f8 $d
+/var/tmp//cccIzySJ.s:9527   .text.startup.main:0000000000003718 $t
+/var/tmp//cccIzySJ.s:9987   .text.startup.main:00000000000039e4 $d
+/var/tmp//cccIzySJ.s:9999   .text.startup.main:0000000000003a0c $t
+/var/tmp//cccIzySJ.s:10023  .text.startup.main:0000000000003a36 $d
+/var/tmp//cccIzySJ.s:10371  .text.startup.main:0000000000003c20 $d
+/var/tmp//cccIzySJ.s:10405  .text.startup.main:0000000000003ca0 $t
+/var/tmp//cccIzySJ.s:10849  .text.startup.main:0000000000003f4c $d
+/var/tmp//cccIzySJ.s:10870  .text.startup.main:0000000000003f98 $t
+/var/tmp//cccIzySJ.s:11157  .text.startup.main:0000000000004154 $d
+/var/tmp//cccIzySJ.s:11173  .text.startup.main:0000000000004188 $t
+/var/tmp//cccIzySJ.s:11427  .text.startup.main:0000000000004304 $d
+/var/tmp//cccIzySJ.s:11434  .text.startup.main:000000000000431c $t
+/var/tmp//cccIzySJ.s:11718  .text.startup.main:00000000000044d4 $d
+/var/tmp//cccIzySJ.s:11762  .text.startup.main:000000000000452a $t
+/var/tmp//cccIzySJ.s:11847  .text.startup.main:0000000000004598 $d
+/var/tmp//cccIzySJ.s:11878  .text.startup.main:0000000000004610 $t
+/var/tmp//cccIzySJ.s:12092  .text.startup.main:000000000000475c $d
+/var/tmp//cccIzySJ.s:12105  .text.startup.main:0000000000004788 $t
+/var/tmp//cccIzySJ.s:12552  .text.startup.main:0000000000004a34 $d
+/var/tmp//cccIzySJ.s:12573  .text.startup.main:0000000000004a80 $t
+/var/tmp//cccIzySJ.s:12891  .text.startup.main:0000000000004c70 $d
+/var/tmp//cccIzySJ.s:12907  .text.startup.main:0000000000004ca8 $t
+/var/tmp//cccIzySJ.s:13379  .text.startup.main:0000000000004fb4 $d
+/var/tmp//cccIzySJ.s:13389  .text.startup.main:0000000000004fd4 $t
+/var/tmp//cccIzySJ.s:13545  .text.startup.main:00000000000050b6 $d
+/var/tmp//cccIzySJ.s:13750  .text.startup.main:00000000000051b8 $d
+/var/tmp//cccIzySJ.s:13779  .text.startup.main:0000000000005228 $t
+/var/tmp//cccIzySJ.s:13926  .text.startup.main:000000000000530c $d
+/var/tmp//cccIzySJ.s:13934  .text.startup.main:0000000000005324 $t
+/var/tmp//cccIzySJ.s:14378  .text.startup.main:00000000000055d0 $d
+/var/tmp//cccIzySJ.s:14399  .text.startup.main:000000000000561c $t
+/var/tmp//cccIzySJ.s:14889  .text.startup.main:00000000000058e0 $d
+/var/tmp//cccIzySJ.s:14899  .text.startup.main:0000000000005904 $t
+/var/tmp//cccIzySJ.s:15008  .text.startup.main:00000000000059ac $d
+/var/tmp//cccIzySJ.s:15011  .text.startup.main:00000000000059b0 $t
+/var/tmp//cccIzySJ.s:15496  .text.startup.main:0000000000005c70 $d
+/var/tmp//cccIzySJ.s:15511  .text.startup.main:0000000000005ca8 $t
+/var/tmp//cccIzySJ.s:16034  .text.startup.main:0000000000005f78 $d
+/var/tmp//cccIzySJ.s:16039  .text.startup.main:0000000000005f84 $t
+/var/tmp//cccIzySJ.s:16396  .text.startup.main:0000000000006178 $d
+/var/tmp//cccIzySJ.s:16492  .text.startup.main:00000000000061e4 $d
+/var/tmp//cccIzySJ.s:16512  .text.startup.main:0000000000006230 $t
+/var/tmp//cccIzySJ.s:16769  .text.startup.main:00000000000063ac $d
+/var/tmp//cccIzySJ.s:16789  .text.startup.main:00000000000063f4 $t
+/var/tmp//cccIzySJ.s:17238  .text.startup.main:00000000000066a0 $d
+/var/tmp//cccIzySJ.s:17259  .text.startup.main:00000000000066ec $t
+/var/tmp//cccIzySJ.s:17735  .text.startup.main:00000000000069b8 $d
+/var/tmp//cccIzySJ.s:17750  .text.startup.main:00000000000069ec $t
+/var/tmp//cccIzySJ.s:18212  .text.startup.main:0000000000006c98 $d
+/var/tmp//cccIzySJ.s:18222  .text.startup.main:0000000000006cb8 $t
+/var/tmp//cccIzySJ.s:18244  .text.startup.main:0000000000006ce2 $d
+/var/tmp//cccIzySJ.s:18590  .text.startup.main:0000000000006ecc $d
+/var/tmp//cccIzySJ.s:18624  .text.startup.main:0000000000006f4c $t
+/var/tmp//cccIzySJ.s:19072  .text.startup.main:00000000000071f8 $d
+/var/tmp//cccIzySJ.s:19093  .text.startup.main:0000000000007244 $t
+/var/tmp//cccIzySJ.s:19575  .text.startup.main:0000000000007520 $d
+/var/tmp//cccIzySJ.s:19588  .text.startup.main:0000000000007550 $t
+/var/tmp//cccIzySJ.s:20112  .text.startup.main:000000000000781c $d
+/var/tmp//cccIzySJ.s:20120  .text.startup.main:000000000000782c $t
+/var/tmp//cccIzySJ.s:20640  .text.startup.main:0000000000007af4 $d
+/var/tmp//cccIzySJ.s:20647  .text.startup.main:0000000000007b00 $t
+/var/tmp//cccIzySJ.s:21149  .text.startup.main:0000000000007dc4 $d
+/var/tmp//cccIzySJ.s:21159  .text.startup.main:0000000000007de4 $t
+/var/tmp//cccIzySJ.s:21521  .text.startup.main:0000000000007fe4 $d
+/var/tmp//cccIzySJ.s:21604  .text.startup.main:0000000000008040 $d
+/var/tmp//cccIzySJ.s:21619  .text.startup.main:0000000000008078 $t
+/var/tmp//cccIzySJ.s:22001  .text.startup.main:00000000000082c0 $d
+/var/tmp//cccIzySJ.s:22027  .text.startup.main:0000000000008320 $t
+/var/tmp//cccIzySJ.s:22359  .text.startup.main:0000000000008514 $d
+/var/tmp//cccIzySJ.s:22377  .text.startup.main:0000000000008554 $t
+/var/tmp//cccIzySJ.s:22874  .text.startup.main:0000000000008814 $d
+/var/tmp//cccIzySJ.s:22892  .text.startup.main:0000000000008854 $t
+/var/tmp//cccIzySJ.s:22979  .text.startup.main:00000000000088d8 $d
+/var/tmp//cccIzySJ.s:22982  .text.startup.main:00000000000088dc $t
+/var/tmp//cccIzySJ.s:23497  .text.startup.main:0000000000008b98 $d
+/var/tmp//cccIzySJ.s:23513  .text.startup.main:0000000000008bd0 $t
+/var/tmp//cccIzySJ.s:24055  .text.startup.main:0000000000008e90 $d
+/var/tmp//cccIzySJ.s:24066  .text.startup.main:0000000000008eb4 $t
+/var/tmp//cccIzySJ.s:24338  .text.startup.main:0000000000009058 $d
+/var/tmp//cccIzySJ.s:24382  .text.startup.main:00000000000090ae $t
+/var/tmp//cccIzySJ.s:24475  .text.startup.main:0000000000009128 $d
+/var/tmp//cccIzySJ.s:24506  .text.startup.main:00000000000091a0 $t
+/var/tmp//cccIzySJ.s:24728  .text.startup.main:00000000000092ec $d
+/var/tmp//cccIzySJ.s:24743  .text.startup.main:000000000000931c $t
+/var/tmp//cccIzySJ.s:25123  .text.startup.main:0000000000009560 $d
+/var/tmp//cccIzySJ.s:25134  .text.startup.main:0000000000009584 $t
+/var/tmp//cccIzySJ.s:25463  .text.startup.main:0000000000009774 $d
+/var/tmp//cccIzySJ.s:25481  .text.startup.main:00000000000097b4 $t
+/var/tmp//cccIzySJ.s:25955  .text.startup.main:0000000000009a78 $d
+/var/tmp//cccIzySJ.s:25975  .text.startup.main:0000000000009ac4 $t
+/var/tmp//cccIzySJ.s:26496  .text.startup.main:0000000000009d84 $d
+/var/tmp//cccIzySJ.s:26502  .text.startup.main:0000000000009d98 $t
+/var/tmp//cccIzySJ.s:27030  .text.startup.main:000000000000a068 $d
+/var/tmp//cccIzySJ.s:27035  .text.startup.main:000000000000a078 $t
+/var/tmp//cccIzySJ.s:27046  .text.startup.main:000000000000a088 $d
+/var/tmp//cccIzySJ.s:27049  .text.startup.main:000000000000a08c $t
+/var/tmp//cccIzySJ.s:27547  .text.startup.main:000000000000a36c $d
+/var/tmp//cccIzySJ.s:27560  .text.startup.main:000000000000a398 $t
+/var/tmp//cccIzySJ.s:27658  .text.startup.main:000000000000a424 $d
+/var/tmp//cccIzySJ.s:27661  .text.startup.main:000000000000a428 $t
+/var/tmp//cccIzySJ.s:28157  .text.startup.main:000000000000a700 $d
+/var/tmp//cccIzySJ.s:28170  .text.startup.main:000000000000a724 $t
+/var/tmp//cccIzySJ.s:28689  .text.startup.main:000000000000a9f0 $d
+/var/tmp//cccIzySJ.s:28694  .text.startup.main:000000000000a9fc $t
+/var/tmp//cccIzySJ.s:29186  .text.startup.main:000000000000aca4 $d
+/var/tmp//cccIzySJ.s:29191  .text.startup.main:000000000000acb0 $t
+/var/tmp//cccIzySJ.s:29709  .text.startup.main:000000000000af8c $d
+/var/tmp//cccIzySJ.s:29719  .text.startup.main:000000000000afac $t
+/var/tmp//cccIzySJ.s:30250  .text.startup.main:000000000000b280 $d
+/var/tmp//cccIzySJ.s:30255  .text.startup.main:000000000000b290 $t
+/var/tmp//cccIzySJ.s:30455  .text.startup.main:000000000000b3b8 $d
+/var/tmp//cccIzySJ.s:30466  .text.startup.main:000000000000b3dc $t
+/var/tmp//cccIzySJ.s:30799  .text.startup.main:000000000000b5d0 $d
+/var/tmp//cccIzySJ.s:30817  .text.startup.main:000000000000b610 $t
+/var/tmp//cccIzySJ.s:31174  .text.startup.main:000000000000b84c $d
+/var/tmp//cccIzySJ.s:31193  .text.startup.main:000000000000b888 $t
+/var/tmp//cccIzySJ.s:31479  .text.startup.main:000000000000ba58 $d
+/var/tmp//cccIzySJ.s:31489  .text.startup.main:000000000000ba78 $t
+/var/tmp//cccIzySJ.s:31974  .text.startup.main:000000000000bd3c $d
+/var/tmp//cccIzySJ.s:31984  .text.startup.main:000000000000bd60 $t
+/var/tmp//cccIzySJ.s:32091  .text.startup.main:000000000000bdf0 $d
+/var/tmp//cccIzySJ.s:32095  .text.startup.main:000000000000bdf8 $t
+/var/tmp//cccIzySJ.s:32582  .text.startup.main:000000000000c0bc $d
+/var/tmp//cccIzySJ.s:32595  .text.startup.main:000000000000c0e8 $t
+/var/tmp//cccIzySJ.s:32885  .text.startup.main:000000000000c2c4 $d
+/var/tmp//cccIzySJ.s:32929  .text.startup.main:000000000000c31a $t
+/var/tmp//cccIzySJ.s:32995  .text.startup.main:000000000000c370 $d
+/var/tmp//cccIzySJ.s:33027  .text.startup.main:000000000000c3ec $t
+/var/tmp//cccIzySJ.s:33377  .text.startup.main:000000000000c60c $d
+/var/tmp//cccIzySJ.s:33394  .text.startup.main:000000000000c648 $t
+/var/tmp//cccIzySJ.s:33727  .text.startup.main:000000000000c83c $d
+/var/tmp//cccIzySJ.s:33745  .text.startup.main:000000000000c87c $t
+/var/tmp//cccIzySJ.s:34227  .text.startup.main:000000000000cb3c $d
+/var/tmp//cccIzySJ.s:34243  .text.startup.main:000000000000cb78 $t
+/var/tmp//cccIzySJ.s:34299  .text.startup.main:000000000000cbd2 $d
+/var/tmp//cccIzySJ.s:34504  .text.startup.main:000000000000ccd4 $d
+/var/tmp//cccIzySJ.s:34533  .text.startup.main:000000000000cd44 $t
+/var/tmp//cccIzySJ.s:34679  .text.startup.main:000000000000ce28 $d
+/var/tmp//cccIzySJ.s:34687  .text.startup.main:000000000000ce40 $t
+/var/tmp//cccIzySJ.s:35129  .text.startup.main:000000000000d0ec $d
+/var/tmp//cccIzySJ.s:35150  .text.startup.main:000000000000d138 $t
+/var/tmp//cccIzySJ.s:35632  .text.startup.main:000000000000d3fc $d
+/var/tmp//cccIzySJ.s:35642  .text.startup.main:000000000000d420 $t
+/var/tmp//cccIzySJ.s:36121  .text.startup.main:000000000000d6f4 $d
+/var/tmp//cccIzySJ.s:36137  .text.startup.main:000000000000d72c $t
+/var/tmp//cccIzySJ.s:36159  .text.startup.main:000000000000d756 $d
+/var/tmp//cccIzySJ.s:36508  .text.startup.main:000000000000d940 $d
+/var/tmp//cccIzySJ.s:36542  .text.startup.main:000000000000d9c0 $t
+/var/tmp//cccIzySJ.s:36983  .text.startup.main:000000000000dc6c $d
+/var/tmp//cccIzySJ.s:37004  .text.startup.main:000000000000dcb8 $t
+/var/tmp//cccIzySJ.s:37061  .text.startup.main:000000000000dcfa $d
+/var/tmp//cccIzySJ.s:37486  .text.startup.main:000000000000df9c $d
+/var/tmp//cccIzySJ.s:37499  .text.startup.main:000000000000dfc8 $t
+/var/tmp//cccIzySJ.s:37706  .text.startup.main:000000000000e0f8 $d
+/var/tmp//cccIzySJ.s:38151  .bss.telemetry_tid:0000000000000000 telemetry_tid
+/var/tmp//cccIzySJ.s:37796  .bss.baro_tid:0000000000000000 baro_tid
+/var/tmp//cccIzySJ.s:38236  .bss.electrical_tid:0000000000000000 electrical_tid
+/var/tmp//cccIzySJ.s:38272  .bss.radio_control_tid:0000000000000000 radio_control_tid
+/var/tmp//cccIzySJ.s:38057  .bss.failsafe_tid:0000000000000000 failsafe_tid
+/var/tmp//cccIzySJ.s:38314  .bss.modules_tid:0000000000000000 modules_tid
+/var/tmp//cccIzySJ.s:38009  .bss.main_periodic_tid:0000000000000000 main_periodic_tid
+/var/tmp//cccIzySJ.s:37997  .bss.gps_ubx_gps_ubx_ucenter_periodic_status:0000000000000000 gps_ubx_gps_ubx_ucenter_periodic_status
+/var/tmp//cccIzySJ.s:37732  .bss.i306.9245:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37736  .bss.i306.9245:0000000000000000 i306.9245
+/var/tmp//cccIzySJ.s:37742  .bss.i30.8524:0000000000000000 i30.8524
+/var/tmp//cccIzySJ.s:37743  .bss.i30.8524:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37748  .bss.i66.9746:0000000000000000 i66.9746
+/var/tmp//cccIzySJ.s:37749  .bss.i66.9746:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37754  .bss.i126.9891:0000000000000000 i126.9891
+/var/tmp//cccIzySJ.s:37755  .bss.i126.9891:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37760  .bss.i72.9664:0000000000000000 i72.9664
+/var/tmp//cccIzySJ.s:37761  .bss.i72.9664:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37766  .bss.i72.9043:0000000000000000 i72.9043
+/var/tmp//cccIzySJ.s:37767  .bss.i72.9043:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37772  .bss.i.8736:0000000000000000 i.8736
+/var/tmp//cccIzySJ.s:37773  .bss.i.8736:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37778  .bss.i3.9040:0000000000000000 i3.9040
+/var/tmp//cccIzySJ.s:37779  .bss.i3.9040:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37784  .bss.i24.9240:0000000000000000 i24.9240
+/var/tmp//cccIzySJ.s:37785  .bss.i24.9240:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37790  .bss.i72.8819:0000000000000000 i72.8819
+/var/tmp//cccIzySJ.s:37791  .bss.i72.8819:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37797  .bss.baro_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37802  .bss.i132.8345:0000000000000000 i132.8345
+/var/tmp//cccIzySJ.s:37803  .bss.i132.8345:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37805  .bss.prescaler.7592:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37809  .bss.prescaler.7592:0000000000000000 prescaler.7592
+/var/tmp//cccIzySJ.s:37812  .bss.prescaler.7593:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37816  .bss.prescaler.7593:0000000000000000 prescaler.7593
+/var/tmp//cccIzySJ.s:37822  .bss.i30.8218:0000000000000000 i30.8218
+/var/tmp//cccIzySJ.s:37823  .bss.i30.8218:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37828  .bss.i.9143:0000000000000000 i.9143
+/var/tmp//cccIzySJ.s:37829  .bss.i.9143:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37834  .bss.i30.8817:0000000000000000 i30.8817
+/var/tmp//cccIzySJ.s:37835  .bss.i30.8817:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37840  .bss._i2c_nb_cnt.7937:0000000000000000 _i2c_nb_cnt.7937
+/var/tmp//cccIzySJ.s:37841  .bss._i2c_nb_cnt.7937:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37846  .bss.i72.8688:0000000000000000 i72.8688
+/var/tmp//cccIzySJ.s:37847  .bss.i72.8688:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37852  .bss.i6.8685:0000000000000000 i6.8685
+/var/tmp//cccIzySJ.s:37853  .bss.i6.8685:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37855  .bss.i306.7606:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37859  .bss.i306.7606:0000000000000000 i306.7606
+/var/tmp//cccIzySJ.s:37865  .bss.i3.8684:0000000000000000 i3.8684
+/var/tmp//cccIzySJ.s:37866  .bss.i3.8684:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37871  .bss.i30.8085:0000000000000000 i30.8085
+/var/tmp//cccIzySJ.s:37872  .bss.i30.8085:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37877  .bss.i1.8523:0000000000000000 i1.8523
+/var/tmp//cccIzySJ.s:37878  .bss.i1.8523:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37883  .bss.i30.9662:0000000000000000 i30.9662
+/var/tmp//cccIzySJ.s:37884  .bss.i30.9662:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37889  .bss.i66.7599:0000000000000000 i66.7599
+/var/tmp//cccIzySJ.s:37890  .bss.i66.7599:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37895  .bss.i3.9888:0000000000000000 i3.9888
+/var/tmp//cccIzySJ.s:37896  .bss.i3.9888:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37901  .bss.i72.9747:0000000000000000 i72.9747
+/var/tmp//cccIzySJ.s:37902  .bss.i72.9747:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37907  .bss.i126.8526:0000000000000000 i126.8526
+/var/tmp//cccIzySJ.s:37908  .bss.i126.8526:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37913  .bss.i3.9745:0000000000000000 i3.9745
+/var/tmp//cccIzySJ.s:37914  .bss.i3.9745:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37919  .bss.i4.8216:0000000000000000 i4.8216
+/var/tmp//cccIzySJ.s:37920  .bss.i4.8216:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37925  .bss.i245.7605:0000000000000000 i245.7605
+/var/tmp//cccIzySJ.s:37926  .bss.i245.7605:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37931  .bss.i72.9243:0000000000000000 i72.9243
+/var/tmp//cccIzySJ.s:37932  .bss.i72.9243:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37937  .bss.i96.7602:0000000000000000 i96.7602
+/var/tmp//cccIzySJ.s:37938  .bss.i96.7602:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37943  .bss.i30.8009:0000000000000000 i30.8009
+/var/tmp//cccIzySJ.s:37944  .bss.i30.8009:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37949  .bss._1Hz.5702:0000000000000000 _1Hz.5702
+/var/tmp//cccIzySJ.s:37950  .bss._1Hz.5702:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37955  .bss.i.9665:0000000000000000 i.9665
+/var/tmp//cccIzySJ.s:37956  .bss.i.9665:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37961  .bss.i.9909:0000000000000000 i.9909
+/var/tmp//cccIzySJ.s:37962  .bss.i.9909:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37967  .bss.i126.7603:0000000000000000 i126.7603
+/var/tmp//cccIzySJ.s:37968  .bss.i126.7603:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37973  .bss.i54.9621:0000000000000000 i54.9621
+/var/tmp//cccIzySJ.s:37974  .bss.i54.9621:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37979  .bss.i96.9244:0000000000000000 i96.9244
+/var/tmp//cccIzySJ.s:37980  .bss.i96.9244:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37985  .bss.i30.9041:0000000000000000 i30.9041
+/var/tmp//cccIzySJ.s:37986  .bss.i30.9041:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37991  .bss.i.9775:0000000000000000 i.9775
+/var/tmp//cccIzySJ.s:37992  .bss.i.9775:0000000000000000 $d
+/var/tmp//cccIzySJ.s:37998  .bss.gps_ubx_gps_ubx_ucenter_periodic_status:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38003  .bss.i72.8219:0000000000000000 i72.8219
+/var/tmp//cccIzySJ.s:38004  .bss.i72.8219:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38010  .bss.main_periodic_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38015  .bss.i72.8343:0000000000000000 i72.8343
+/var/tmp//cccIzySJ.s:38016  .bss.i72.8343:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38021  .bss.i72.9890:0000000000000000 i72.9890
+/var/tmp//cccIzySJ.s:38022  .bss.i72.9890:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38027  .bss.i6.8341:0000000000000000 i6.8341
+/var/tmp//cccIzySJ.s:38028  .bss.i6.8341:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38033  .bss.i126.8087:0000000000000000 i126.8087
+/var/tmp//cccIzySJ.s:38034  .bss.i126.8087:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38039  .bss.i.8604:0000000000000000 i.8604
+/var/tmp//cccIzySJ.s:38040  .bss.i.8604:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38045  .bss.i54.8687:0000000000000000 i54.8687
+/var/tmp//cccIzySJ.s:38046  .bss.i54.8687:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38051  .bss.i.8260:0000000000000000 i.8260
+/var/tmp//cccIzySJ.s:38052  .bss.i.8260:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38058  .bss.failsafe_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38063  .bss.i30.8686:0000000000000000 i30.8686
+/var/tmp//cccIzySJ.s:38064  .bss.i30.8686:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38069  .bss.i15.7597:0000000000000000 i15.7597
+/var/tmp//cccIzySJ.s:38070  .bss.i15.7597:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38075  .bss.last_cnos.7725:0000000000000000 last_cnos.7725
+/var/tmp//cccIzySJ.s:38076  .bss.last_cnos.7725:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38081  .bss.i.7724:0000000000000000 i.7724
+/var/tmp//cccIzySJ.s:38082  .bss.i.7724:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38087  .bss.i30.9889:0000000000000000 i30.9889
+/var/tmp//cccIzySJ.s:38088  .bss.i30.9889:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38093  .bss.i15.5472:0000000000000000 i15.5472
+/var/tmp//cccIzySJ.s:38094  .bss.i15.5472:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38096  .rodata.str1.1:0000000000000000 .LC0
+/var/tmp//cccIzySJ.s:38103  .bss.i126.8220:0000000000000000 i126.8220
+/var/tmp//cccIzySJ.s:38104  .bss.i126.8220:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38109  .bss.i4.8816:0000000000000000 i4.8816
+/var/tmp//cccIzySJ.s:38110  .bss.i4.8816:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38115  .bss.i3.9238:0000000000000000 i3.9238
+/var/tmp//cccIzySJ.s:38116  .bss.i3.9238:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38121  .bss.i.8960:0000000000000000 i.8960
+/var/tmp//cccIzySJ.s:38122  .bss.i.8960:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38127  .bss.i.8409:0000000000000000 i.8409
+/var/tmp//cccIzySJ.s:38128  .bss.i.8409:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38133  .bss.i1.9237:0000000000000000 i1.9237
+/var/tmp//cccIzySJ.s:38134  .bss.i1.9237:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38139  .bss.i48.9241:0000000000000000 i48.9241
+/var/tmp//cccIzySJ.s:38140  .bss.i48.9241:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38145  .bss.i126.8344:0000000000000000 i126.8344
+/var/tmp//cccIzySJ.s:38146  .bss.i126.8344:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38152  .bss.telemetry_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38157  .bss.i72.8525:0000000000000000 i72.8525
+/var/tmp//cccIzySJ.s:38158  .bss.i72.8525:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38163  .bss.i1.9620:0000000000000000 i1.9620
+/var/tmp//cccIzySJ.s:38164  .bss.i1.9620:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38169  .bss.i54.9242:0000000000000000 i54.9242
+/var/tmp//cccIzySJ.s:38170  .bss.i54.9242:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38175  .bss.i78.7601:0000000000000000 i78.7601
+/var/tmp//cccIzySJ.s:38176  .bss.i78.7601:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38181  .bss.i72.7600:0000000000000000 i72.7600
+/var/tmp//cccIzySJ.s:38182  .bss.i72.7600:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38187  .bss.i.8136:0000000000000000 i.8136
+/var/tmp//cccIzySJ.s:38188  .bss.i.8136:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38193  .bss.i3.8008:0000000000000000 i3.8008
+/var/tmp//cccIzySJ.s:38194  .bss.i3.8008:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38199  .bss.i30.8342:0000000000000000 i30.8342
+/var/tmp//cccIzySJ.s:38200  .bss.i30.8342:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38205  .bss.i54.9663:0000000000000000 i54.9663
+/var/tmp//cccIzySJ.s:38206  .bss.i54.9663:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38211  .bss.i6.8217:0000000000000000 i6.8217
+/var/tmp//cccIzySJ.s:38212  .bss.i6.8217:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38217  .bss.uart_nb_cnt.7912:0000000000000000 uart_nb_cnt.7912
+/var/tmp//cccIzySJ.s:38218  .bss.uart_nb_cnt.7912:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38220  .bss.i306.9749:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38224  .bss.i306.9749:0000000000000000 i306.9749
+/var/tmp//cccIzySJ.s:38230  .bss.i12.9239:0000000000000000 i12.9239
+/var/tmp//cccIzySJ.s:38231  .bss.i12.9239:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38237  .bss.electrical_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38242  .bss.i60.7598:0000000000000000 i60.7598
+/var/tmp//cccIzySJ.s:38243  .bss.i60.7598:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38248  .bss.i126.9748:0000000000000000 i126.9748
+/var/tmp//cccIzySJ.s:38249  .bss.i126.9748:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38254  .bss.i.7772:0000000000000000 i.7772
+/var/tmp//cccIzySJ.s:38255  .bss.i.7772:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38260  .bss.i72.8086:0000000000000000 i72.8086
+/var/tmp//cccIzySJ.s:38261  .bss.i72.8086:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38266  .bss.i6.8084:0000000000000000 i6.8084
+/var/tmp//cccIzySJ.s:38267  .bss.i6.8084:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38273  .bss.radio_control_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38278  .bss.i3.8083:0000000000000000 i3.8083
+/var/tmp//cccIzySJ.s:38279  .bss.i3.8083:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38284  .bss.i186.7604:0000000000000000 i186.7604
+/var/tmp//cccIzySJ.s:38285  .bss.i186.7604:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38290  .bss.i54.9042:0000000000000000 i54.9042
+/var/tmp//cccIzySJ.s:38291  .bss.i54.9042:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38296  .bss.i60.8010:0000000000000000 i60.8010
+/var/tmp//cccIzySJ.s:38297  .bss.i60.8010:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38302  .bss.i4.8340:0000000000000000 i4.8340
+/var/tmp//cccIzySJ.s:38303  .bss.i4.8340:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38308  .bss.i.7846:0000000000000000 i.7846
+/var/tmp//cccIzySJ.s:38309  .bss.i.7846:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38315  .bss.modules_tid:0000000000000000 $d
+/var/tmp//cccIzySJ.s:38320  .bss.i54.8818:0000000000000000 i54.8818
+/var/tmp//cccIzySJ.s:38321  .bss.i54.8818:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-/var/tmp//ccLjeCb9.s:4388   .text.startup.main:0000000000001695 $d
-/var/tmp//ccLjeCb9.s:4388   .text.startup.main:0000000000001696 $t
-/var/tmp//ccLjeCb9.s:10066  .text.startup.main:0000000000003a61 $d
-/var/tmp//ccLjeCb9.s:10066  .text.startup.main:0000000000003a62 $t
-/var/tmp//ccLjeCb9.s:13588  .text.startup.main:00000000000050e1 $d
-/var/tmp//ccLjeCb9.s:13588  .text.startup.main:00000000000050e2 $t
-/var/tmp//ccLjeCb9.s:16439  .text.startup.main:00000000000061a3 $d
-/var/tmp//ccLjeCb9.s:16439  .text.startup.main:00000000000061a4 $t
-/var/tmp//ccLjeCb9.s:18287  .text.startup.main:0000000000006d0d $d
-/var/tmp//ccLjeCb9.s:18287  .text.startup.main:0000000000006d0e $t
-/var/tmp//ccLjeCb9.s:21564  .text.startup.main:000000000000800f $d
-/var/tmp//ccLjeCb9.s:21564  .text.startup.main:0000000000008010 $t
-/var/tmp//ccLjeCb9.s:34342  .text.startup.main:000000000000cbfd $d
-/var/tmp//ccLjeCb9.s:34342  .text.startup.main:000000000000cbfe $t
-/var/tmp//ccLjeCb9.s:36202  .text.startup.main:000000000000d781 $d
-/var/tmp//ccLjeCb9.s:36202  .text.startup.main:000000000000d782 $t
-/var/tmp//ccLjeCb9.s:37066  .text.startup.main:000000000000dcff $d
-/var/tmp//ccLjeCb9.s:37066  .text.startup.main:000000000000dd00 $t
+/var/tmp//cccIzySJ.s:4388   .text.startup.main:0000000000001695 $d
+/var/tmp//cccIzySJ.s:4388   .text.startup.main:0000000000001696 $t
+/var/tmp//cccIzySJ.s:10066  .text.startup.main:0000000000003a61 $d
+/var/tmp//cccIzySJ.s:10066  .text.startup.main:0000000000003a62 $t
+/var/tmp//cccIzySJ.s:13588  .text.startup.main:00000000000050e1 $d
+/var/tmp//cccIzySJ.s:13588  .text.startup.main:00000000000050e2 $t
+/var/tmp//cccIzySJ.s:16439  .text.startup.main:00000000000061a3 $d
+/var/tmp//cccIzySJ.s:16439  .text.startup.main:00000000000061a4 $t
+/var/tmp//cccIzySJ.s:18287  .text.startup.main:0000000000006d0d $d
+/var/tmp//cccIzySJ.s:18287  .text.startup.main:0000000000006d0e $t
+/var/tmp//cccIzySJ.s:21564  .text.startup.main:000000000000800f $d
+/var/tmp//cccIzySJ.s:21564  .text.startup.main:0000000000008010 $t
+/var/tmp//cccIzySJ.s:34342  .text.startup.main:000000000000cbfd $d
+/var/tmp//cccIzySJ.s:34342  .text.startup.main:000000000000cbfe $t
+/var/tmp//cccIzySJ.s:36202  .text.startup.main:000000000000d781 $d
+/var/tmp//cccIzySJ.s:36202  .text.startup.main:000000000000d782 $t
+/var/tmp//cccIzySJ.s:37066  .text.startup.main:000000000000dcff $d
+/var/tmp//cccIzySJ.s:37066  .text.startup.main:000000000000dd00 $t
 
 UNDEFINED SYMBOLS
 stateCalcPositionEnu_i

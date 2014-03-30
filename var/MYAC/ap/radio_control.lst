@@ -34,7 +34,7 @@
   32              		.file 6 "subsystems/radio_control.c"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 radio_control.c
-/var/tmp//ccCD16xS.s:23     .bss.radio_control:0000000000000000 radio_control
-/var/tmp//ccCD16xS.s:20     .bss.radio_control:0000000000000000 $d
+/var/tmp//ccyM3esZ.s:23     .bss.radio_control:0000000000000000 radio_control
+/var/tmp//ccyM3esZ.s:20     .bss.radio_control:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS

@@ -33,7 +33,7 @@
   35              		.file 10 "subsystems/ins.c"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 ins.c
-/var/tmp//cchc6DpN.s:22     .bss.ins:0000000000000000 ins
-/var/tmp//cchc6DpN.s:23     .bss.ins:0000000000000000 $d
+/var/tmp//cckTj7dg.s:22     .bss.ins:0000000000000000 ins
+/var/tmp//cckTj7dg.s:23     .bss.ins:0000000000000000 $d
 
 NO UNDEFINED SYMBOLS
