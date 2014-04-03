@@ -36,3 +36,9 @@ This file is used for record some solutions when you face ERROR.
   ERROR: make[1]: no rule for 'lib'
   It means it can't connect to the repository(git) of some external librany files.
   In order to solve this problem, using 'git' method instead of 'download zip file' method.
+
+3.when you 'make' under /paparazzi and it return 'pkg_config error'. This is because the shell can't find the correct path to 'pkg_config command'. you need to config the ~/.bash_profile or ~/.profile. adding 
+#paparazzi UAS path adapating
+export PATH=/opt/paparazzi/bin:/opt/paparazzi/sbin:$PATH
+#finished
+
